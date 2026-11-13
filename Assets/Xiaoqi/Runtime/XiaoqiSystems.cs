@@ -1,5 +1,8 @@
+using System;
+using System.Collections;
 using System.IO;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class XiaoqiSystems : MonoBehaviour
 {
@@ -19,11 +22,36 @@ public class XiaoqiSystems : MonoBehaviour
         XiaoqiDefaults.Apply(cfg);
         XiaoqiHide.Apply();
         XiaoqiTray.Install();
+        LoadModel();
 
-        var loader = FindFirstObjectByType<VRMLoader>();
-        if (loader != null && File.Exists(cfg.model_path))
-            loader.LoadVRM(cfg.model_path);
-
+        SceneManager.sceneLoaded += OnSceneLoaded;
         Debug.Log("XIAOQI_SYSTEMS ready model=" + cfg.model_path);
+
+        if (Array.IndexOf(Environment.GetCommandLineArgs(), "--room") >= 0)
+            XiaoqiModeController.EnterRoom();
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name != "Mate Engine Main") return;
+        StartCoroutine(ReloadAfterScene());
+    }
+
+    private IEnumerator ReloadAfterScene()
+    {
+        yield return null;
+        yield return new WaitForSeconds(0.5f);
+        XiaoqiRuntime.Config = XiaoqiConfig.LoadOrCreate();
+        XiaoqiDefaults.Apply(XiaoqiRuntime.Config);
+        XiaoqiHide.Apply();
+        XiaoqiTray.Install();
+        LoadModel();
+    }
+
+    private void LoadModel()
+    {
+        var loader = FindFirstObjectByType<VRMLoader>();
+        if (loader != null && File.Exists(XiaoqiRuntime.Config.model_path))
+            loader.LoadVRM(XiaoqiRuntime.Config.model_path);
     }
 }

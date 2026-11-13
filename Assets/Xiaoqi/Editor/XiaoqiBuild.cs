@@ -17,10 +17,19 @@ public static class XiaoqiBuild
         var temp = new GameObject("XiaoqiSystems");
         temp.AddComponent<XiaoqiSystems>();
         temp.AddComponent<XiaoqiSettings>();
+        temp.AddComponent<XiaoqiModeController>();
         PrefabUtility.SaveAsPrefabAsset(temp, prefabPath);
         Object.DestroyImmediate(temp);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
+
+        Directory.CreateDirectory("Assets/Xiaoqi/_Private");
+        var roomScene = "Assets/Xiaoqi/_Private/XiaoqiRoom.unity";
+        var roomOpened = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        var roomGo = new GameObject("XiaoqiRoom");
+        roomGo.AddComponent<Xiaoqi.Spike.RoomPreview>();
+        roomGo.AddComponent<RoomSceneExit>();
+        EditorSceneManager.SaveScene(roomOpened, roomScene);
 
         AddressableAssetSettings.CleanPlayerContent();
         AddressableAssetSettings.BuildPlayerContent(out var addressablesResult);
@@ -54,6 +63,9 @@ public static class XiaoqiBuild
             var targetDir = Path.Combine(Path.GetDirectoryName("Build/Xiaoqi/Xiaoqi.exe"), "XiaoqiData");
             Directory.CreateDirectory(targetDir);
             File.Copy(model, Path.Combine(targetDir, "16.vrm"), true);
+            var streaming = Path.Combine(Path.GetDirectoryName("Build/Xiaoqi/Xiaoqi.exe"), "Xiaoqi_Data", "StreamingAssets");
+            Directory.CreateDirectory(streaming);
+            File.Copy(model, Path.Combine(streaming, "16.vrm"), true);
         }
     }
 }
