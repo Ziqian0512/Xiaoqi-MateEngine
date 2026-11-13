@@ -16,6 +16,7 @@ public static class XiaoqiBuild
         Directory.CreateDirectory("Assets/Xiaoqi/Resources");
         var temp = new GameObject("XiaoqiSystems");
         temp.AddComponent<XiaoqiSystems>();
+        temp.AddComponent<XiaoqiSettings>();
         PrefabUtility.SaveAsPrefabAsset(temp, prefabPath);
         Object.DestroyImmediate(temp);
         AssetDatabase.SaveAssets();

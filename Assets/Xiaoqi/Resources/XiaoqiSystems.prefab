@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7598974985635059607}
   - component: {fileID: 583896514579471328}
+  - component: {fileID: 6280806283765626610}
   m_Layer: 0
   m_Name: XiaoqiSystems
   m_TagString: Untagged
@@ -44,3 +45,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4c66ac0127aabe48a38ce3a37a2be3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::XiaoqiSystems
+--- !u!114 &6280806283765626610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 890f2de037818074db7f1df32021d2a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XiaoqiSettings

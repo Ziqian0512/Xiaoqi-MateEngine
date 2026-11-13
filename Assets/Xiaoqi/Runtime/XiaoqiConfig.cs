@@ -13,6 +13,19 @@ public class XiaoqiConfig
     public bool bubble = true;
     public bool dnd = false;
 
+    public static void Save(XiaoqiConfig cfg)
+    {
+        try
+        {
+            var path = Path.Combine(Application.dataPath, "..", "xiaoqi_config.json");
+            File.WriteAllText(path, JsonUtility.ToJson(cfg, true));
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("Xiaoqi config save: " + e.Message);
+        }
+    }
+
     public static XiaoqiConfig LoadOrCreate()
     {
         var path = Path.Combine(Application.dataPath, "..", "xiaoqi_config.json");

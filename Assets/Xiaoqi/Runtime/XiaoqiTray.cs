@@ -16,7 +16,7 @@ public static class XiaoqiTray
         {
             ("去房间（U2 接）", () => Debug.Log("Xiaoqi: room mode not wired yet")),
             (XiaoqiRuntime.Dnd ? "免打扰 ✔" : "免打扰", ToggleDnd),
-            ("小祈设置（U1 接）", () => Debug.Log("Xiaoqi: settings not wired yet")),
+            ("小祈设置", XiaoqiSettings.Open),
             ("调参（F9）", () => Debug.Log("Xiaoqi: tuning panel not wired yet")),
             ("关于", About),
             ("退出小祈", () => Application.Quit())
