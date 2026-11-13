@@ -7,6 +7,7 @@ public static class XiaoqiBuild
 {
     public static void Win64()
     {
+        XiaoqiIdentity.Apply();
         AddressableAssetSettings.CleanPlayerContent();
         AddressableAssetSettings.BuildPlayerContent(out var addressablesResult);
         if (!string.IsNullOrEmpty(addressablesResult.Error))
