@@ -30,7 +30,24 @@ public static class XiaoqiHide
                 "MateEngineAPI/FoodMenu",
                 "= Steam Exklusives",
                 "= ME Modding",
-                "Food"
+                "= Settings",
+                "= AI",
+                "= FOOD SYSTEM",
+                "Main Menu",
+                "Chat",
+                "AI INPUT",
+                "AI Speech",
+                "AI Alarm Speech",
+                "AiSystemPrompt",
+                "Food",
+                "Food System",
+                "FoodMenu",
+                "ModLoader",
+                "AlarmMenuCanvas",
+                "BlendshapeMenuCanvas",
+                "DancePlayerMenuCanvas",
+                "MainMenuAlarm",
+                "MenuPanel"
             };
             try
             {
