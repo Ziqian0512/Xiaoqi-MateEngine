@@ -2,12 +2,25 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.Build.Reporting;
+using UnityEditor.SceneManagement;
+using UnityEngine;
 
 public static class XiaoqiBuild
 {
     public static void Win64()
     {
         XiaoqiIdentity.Apply();
+        EditorSceneManager.OpenScene("Assets/MATE ENGINE - Scenes/Mate Engine Main.unity", OpenSceneMode.Single);
+
+        var prefabPath = "Assets/Xiaoqi/Resources/XiaoqiSystems.prefab";
+        Directory.CreateDirectory("Assets/Xiaoqi/Resources");
+        var temp = new GameObject("XiaoqiSystems");
+        temp.AddComponent<XiaoqiSystems>();
+        PrefabUtility.SaveAsPrefabAsset(temp, prefabPath);
+        Object.DestroyImmediate(temp);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
         AddressableAssetSettings.CleanPlayerContent();
         AddressableAssetSettings.BuildPlayerContent(out var addressablesResult);
         if (!string.IsNullOrEmpty(addressablesResult.Error))
@@ -33,5 +46,13 @@ public static class XiaoqiBuild
 
         if (report.summary.result != BuildResult.Succeeded)
             EditorApplication.Exit(1);
+
+        var model = "XiaoqiData/16.vrm";
+        if (File.Exists(model))
+        {
+            var targetDir = Path.Combine(Path.GetDirectoryName("Build/Xiaoqi/Xiaoqi.exe"), "XiaoqiData");
+            Directory.CreateDirectory(targetDir);
+            File.Copy(model, Path.Combine(targetDir, "16.vrm"), true);
+        }
     }
 }
