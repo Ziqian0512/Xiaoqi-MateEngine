@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 1117346983376931598}
   - component: {fileID: 2785170503361536077}
   - component: {fileID: 8422286727865382117}
+  - component: {fileID: 4228232996158431590}
   m_Layer: 0
   m_Name: XiaoqiSystems
   m_TagString: Untagged
@@ -200,3 +201,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acb1e29955320f04fbc4b2ccdceb90ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.XiaoqiShotRunner
+--- !u!114 &4228232996158431590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d9ee930cba10d7429eb98b388644609, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XiaoqiRadialMenu
