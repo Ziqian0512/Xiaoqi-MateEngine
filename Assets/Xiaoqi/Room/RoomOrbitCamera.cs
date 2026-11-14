@@ -25,16 +25,21 @@ namespace Xiaoqi.Spike
         {
             if (_cam == null) return;
 
-            if (Input.GetMouseButton(0) && !Input.GetKey(KeyCode.LeftShift))
+            // 只允许按住鼠标中键绕房间中心旋转，避免左键拖拽/滚轮把相机拉出房间。
+            if (Input.GetMouseButton(2))
             {
-                _yaw += Input.GetAxis("Mouse X") * 4f;
-                _pitch -= Input.GetAxis("Mouse Y") * 3f;
-                _pitch = Mathf.Clamp(_pitch, 5f, 60f);
+                _yaw += Input.GetAxis("Mouse X") * 3.2f;
+                _pitch -= Input.GetAxis("Mouse Y") * 2.4f;
+                _pitch = Mathf.Clamp(_pitch, 8f, 38f);
             }
-            _distance = Mathf.Clamp(_distance - Input.mouseScrollDelta.y * 0.35f, 2.0f, 7.0f);
+            _distance = 3.6f;
 
             var rot = Quaternion.Euler(_pitch, _yaw, 0f);
-            _cam.transform.position = _target + rot * new Vector3(0f, 0f, -_distance);
+            var pos = _target + rot * new Vector3(0f, 0f, -_distance);
+            pos.x = Mathf.Clamp(pos.x, -2.2f, 2.2f);
+            pos.z = Mathf.Clamp(pos.z, -2.2f, 2.2f);
+            pos.y = Mathf.Clamp(pos.y, 0.8f, 2.4f);
+            _cam.transform.position = pos;
             _cam.transform.LookAt(_target);
         }
     }
