@@ -78,9 +78,9 @@ namespace Xiaoqi.Spike
             cam.farClipPlane = 50f;
             cam.aspect = (float)Screen.width / Mathf.Max(1, Screen.height);
             // 房间视角：抬高到 2.25m 的 3/4 俯视，保证床/桌/人物都能入画。
-            cam.fieldOfView = 52f;
+            cam.fieldOfView = 55f;
             camGo.transform.position = center + new Vector3(2.15f, 2.25f, -2.15f);
-            camGo.transform.LookAt(center + new Vector3(0f, 0.65f, 0.15f));
+            camGo.transform.LookAt(center + new Vector3(-0.25f, 0.65f, 0.10f));
 
             var lightGo = new GameObject("RoomLight");
             var light = lightGo.AddComponent<Light>();
