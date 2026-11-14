@@ -19,7 +19,11 @@ public class XiaoqiLink : MonoBehaviour
         var args = Environment.GetCommandLineArgs();
         var i = Array.IndexOf(args, "-fake-stage");
         if (i < 0 || i + 1 >= args.Length) return false;
-        var name = args[i + 1];
+        return ApplyFake(args[i + 1]);
+    }
+
+    public static bool ApplyFake(string name)
+    {
         var path = System.IO.Path.IsPathRooted(name)
             ? name
             : System.IO.Path.Combine(Application.streamingAssetsPath, "Xiaoqi", "fake_stage", name + ".json");

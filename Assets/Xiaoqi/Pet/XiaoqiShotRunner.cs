@@ -41,6 +41,18 @@ namespace Xiaoqi.Spike
                 yield return new WaitForSecondsRealtime(0.8f);
                 yield return Capture(string.Format("{0:D2}_{1}_冒一下.png", i * 2 + 2, emos[i]), readout, emos[i], "spike");
             }
+            XiaoqiFace.DebugBase("平常", 0f);
+            int n = 17;
+            foreach (var fake in new[] { "pet_sleepy", "pet_tired", "pet_sleep", "pet_out" })
+            {
+                XiaoqiLink.ApplyFake(fake);
+                yield return new WaitForSecondsRealtime(2f);
+                yield return Capture(string.Format("{0:D2}_{1}.png", n++, fake), readout, fake, "stage");
+            }
+            XiaoqiFace.DebugBase("平常", 0f);
+            PetBubble.Enqueue("这是一条语音测试。", "voice");
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return Capture("21_气泡.png", readout, "气泡", "bubble");
             File.WriteAllText(Path.Combine(_dir, "readout.txt"), readout.ToString());
             Debug.Log("XQ_SHOTS done " + _dir);
             yield return new WaitForSecondsRealtime(0.5f);
