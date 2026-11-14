@@ -80,7 +80,7 @@ namespace Xiaoqi.Spike
             // 房间视角：抬高到 2.25m 的 3/4 俯视，保证床/桌/人物都能入画。
             cam.fieldOfView = 55f;
             camGo.transform.position = center + new Vector3(2.15f, 2.25f, -2.15f);
-            camGo.transform.LookAt(center + new Vector3(-0.25f, 0.65f, 0.10f));
+            camGo.transform.LookAt(center + new Vector3(-0.45f, 0.65f, 0.10f));
 
             var lightGo = new GameObject("RoomLight");
             var light = lightGo.AddComponent<Light>();
@@ -135,7 +135,7 @@ namespace Xiaoqi.Spike
                     // desk sm_401   ≈ center + (-0.02, 0, -2.39)，取桌前沿以免穿墙
                     action.Setup(vrm.Root, home,
                         center + new Vector3(-0.02f, 0f, -1.75f),
-                        center + new Vector3(-1.50f, 0f, -1.74f),
+                        center + new Vector3(-1.20f, 0f, -1.60f),
                         bubble);
 
                     var streamCam = gameObject.AddComponent<StreamCameraController>();
