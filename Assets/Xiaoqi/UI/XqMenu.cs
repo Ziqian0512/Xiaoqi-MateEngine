@@ -97,6 +97,13 @@ namespace Xiaoqi.UI
             int ci = Array.IndexOf(cargs, "-capture");
             if (ci >= 0 && ci + 1 < cargs.Length)
                 StartCoroutine(CaptureRoutine(cargs[ci + 1]));
+            int fi2 = Array.IndexOf(cargs, "-frames");
+            if (fi2 >= 0 && fi2 + 1 < cargs.Length)
+                StartCoroutine(FramesRoutine(cargs[fi2 + 1]));
+            if (Array.IndexOf(cargs, "-demo-a4") >= 0)
+                StartCoroutine(DemoA4());
+            if (Array.IndexOf(cargs, "-demo-a6") >= 0)
+                StartCoroutine(DemoA6());
         }
 
         // ------------------------------------------------------------- build
@@ -239,6 +246,59 @@ namespace Xiaoqi.UI
             Debug.Log("XQ_CAPTURE " + path);
             yield return new WaitForSecondsRealtime(0.5f);
             Application.Quit();
+        }
+
+        private IEnumerator FramesRoutine(string dir)
+        {
+            System.IO.Directory.CreateDirectory(dir);
+            for (int i = 0; i < 60; i++)
+            {
+                ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, "f" + i.ToString("000") + ".png"));
+                yield return new WaitForSecondsRealtime(0.25f);
+            }
+            Debug.Log("XQ_FRAMES done " + dir);
+            yield return new WaitForSecondsRealtime(0.6f);
+            Application.Quit();
+        }
+
+        private IEnumerator DemoA4()
+        {
+            yield return new WaitForSecondsRealtime(2f);
+            if (PetHost.I != null)
+            {
+                var r = PetHost.I.ScreenRect();
+                var inside = r.center;
+                var outside = new Vector2(r.xMax + XqStyle.Fr(220f), r.center.y);
+                Debug.Log("XQ_HITTEST inside=" + r.Contains(inside) + " outside=" + r.Contains(outside)
+                          + " rect=" + r);
+            }
+            Open();
+            yield return new WaitForSecondsRealtime(1.2f);
+            Close("esc");
+            yield return new WaitForSecondsRealtime(0.8f);
+            Open();
+            yield return new WaitForSecondsRealtime(0.8f);
+            Close("blank");
+            yield return new WaitForSecondsRealtime(0.8f);
+            Open();
+            yield return new WaitForSecondsRealtime(0.8f);
+            Close("right");
+            yield return new WaitForSecondsRealtime(0.8f);
+            Open();
+            yield return new WaitForSecondsRealtime(0.8f);
+            Close("focus");
+            Debug.Log("XQ_DEMO_A4 done");
+        }
+
+        private IEnumerator DemoA6()
+        {
+            yield return new WaitForSecondsRealtime(2f);
+            Xiaoqi.Spike.PetPresence.Nap(0.03f);
+            yield return new WaitForSecondsRealtime(4f);
+            Xiaoqi.Spike.PetPresence.Nap(1f);
+            yield return new WaitForSecondsRealtime(1.5f);
+            Xiaoqi.Spike.PetPresence.Wake();
+            Debug.Log("XQ_DEMO_A6 done");
         }
 
         private IEnumerator SubIn()
