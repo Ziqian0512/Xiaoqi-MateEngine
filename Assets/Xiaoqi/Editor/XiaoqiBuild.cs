@@ -31,6 +31,7 @@ public static class XiaoqiBuild
         roomGo.AddComponent<Xiaoqi.Spike.RoomPreview>();
         roomGo.AddComponent<RoomSceneExit>();
         roomGo.AddComponent<Xiaoqi.Spike.RoomStageDriver>();
+        roomGo.AddComponent<Xiaoqi.Spike.RoomStageFace>();
         EditorSceneManager.SaveScene(roomOpened, roomScene);
 
         AddressableAssetSettings.CleanPlayerContent();
