@@ -128,9 +128,12 @@ namespace Xiaoqi.Spike
 
                     var home = center + new Vector3(-0.15f, 0f, -0.35f);
                     var action = gameObject.AddComponent<RoomActionController>();
+                    // 锚点来自 FBX bounds 探测：
+                    // bed mesh_10.006 ≈ center + (-1.5, 0, -1.74)
+                    // desk sm_401   ≈ center + (-0.02, 0, -2.39)，取桌前沿以免穿墙
                     action.Setup(vrm.Root, home,
-                        center + new Vector3(0.65f, 0f, 0.35f),
-                        center + new Vector3(-0.65f, 0f, 0.35f),
+                        center + new Vector3(-0.02f, 0f, -1.75f),
+                        center + new Vector3(-1.50f, 0f, -1.74f),
                         bubble);
 
                     var streamCam = gameObject.AddComponent<StreamCameraController>();

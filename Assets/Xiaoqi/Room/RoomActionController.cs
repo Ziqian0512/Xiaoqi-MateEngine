@@ -119,7 +119,7 @@ namespace Xiaoqi.Spike
                 _root.position = target + Vector3.up * 0.35f;
                 _root.rotation = Quaternion.Euler(0f, 180f, 0f);
                 if (_animator != null) _animator.Play("Sit");
-                if (_bubble != null) _bubble.Show("躺下休息（占位）", 3f);
+                if (_bubble != null) _bubble.Show("躺下休息", 3f);
             }
 
             ApplyPose();
