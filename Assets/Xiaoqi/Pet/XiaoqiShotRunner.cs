@@ -14,9 +14,11 @@ namespace Xiaoqi.Spike
         {
             var args = Environment.GetCommandLineArgs();
             var i = Array.IndexOf(args, "-shots-pet");
+            Debug.Log("XQ_SHOT_Awake args=" + args.Length + " index=" + i);
             if (i < 0 || i + 1 >= args.Length) { enabled = false; return; }
             _dir = args[i + 1];
             Directory.CreateDirectory(_dir);
+            if (XiaoqiRuntime.Config == null) XiaoqiRuntime.Config = XiaoqiConfig.LoadOrCreate();
             XiaoqiRuntime.Config.emotion_line = true;
             StartCoroutine(Run());
         }
