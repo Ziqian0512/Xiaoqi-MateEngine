@@ -59,7 +59,10 @@ namespace Xiaoqi.UI
         private float _demoAt;
         private bool _shot;
         private string _shotPath;
+        private bool _shotStarted;
         private string _demoSub;
+        private Vector2 _forced;
+        private bool _forceCenter;
         private float _since;
         private float _s = 1f;
         private Vector2 _center;
@@ -501,12 +504,20 @@ namespace Xiaoqi.UI
 
         private void Open()
         {
-            var head = FindFirstObjectByType<Xiaoqi.Spike.HeadAnchor>(FindObjectsInactive.Include);
-            if (head != null && head.ScreenPoint != Vector2.zero) _center = head.ScreenPoint;
+            if (_forceCenter)
+            {
+                _forceCenter = false;
+                _center = _forced;
+            }
             else
             {
-                _center = Input.mousePosition;
-                Debug.Log("XQ_MENU no_head");
+                var head = FindFirstObjectByType<Xiaoqi.Spike.HeadAnchor>(FindObjectsInactive.Include);
+                if (head != null && head.ScreenPoint != Vector2.zero) _center = head.ScreenPoint;
+                else
+                {
+                    _center = Input.mousePosition;
+                    Debug.Log("XQ_MENU no_head");
+                }
             }
 
             if (Screen.width < 600 || Screen.height < 500)
@@ -538,18 +549,73 @@ namespace Xiaoqi.UI
                           + " bg=" + s.View.Bg.color + " sprite=" + (s.View.Bg.sprite != null));
             }
             Debug.Log("XQ_MENU status pos=" + _status.Root.anchoredPosition + " dots=" + _dots.Count);
-            if (_shot) StartCoroutine(ShotRoutine());
+            if (_shot && !_shotStarted)
+            {
+                _shotStarted = true;
+                StartCoroutine(ShotRoutine());
+            }
         }
 
         private IEnumerator ShotRoutine()
         {
-            yield return new WaitForSecondsRealtime(1.0f);
-            Debug.Log("XQ_SHOT alpha=" + _group.alpha + " since=" + _since + " settled=" + _settled
-                      + " slot0=" + _slots[0].Group.alpha);
-            ScreenCapture.CaptureScreenshot(_shotPath);
-            Debug.Log("XQ_MENU shot " + _shotPath);
+            yield return new WaitForSecondsRealtime(0.9f);
+            Shot("01-menu-right");
+            yield return new WaitForSecondsRealtime(0.3f);
+
+            ToggleSub("doing");
+            yield return new WaitForSecondsRealtime(0.5f);
+            Shot("02-doing");
+            yield return new WaitForSecondsRealtime(0.3f);
+            ClearSub();
+
+            ToggleSub("quiet");
+            yield return new WaitForSecondsRealtime(0.5f);
+            Shot("03-quiet");
+            yield return new WaitForSecondsRealtime(0.3f);
+            ClearSub();
+
+            Close("action");
+            yield return new WaitForSecondsRealtime(0.3f);
+            _forced = new Vector2(Screen.width - XqStyle.Fr(40f), Screen.height * 0.55f);
+            _forceCenter = true;
+            Open();
+            yield return new WaitForSecondsRealtime(0.5f);
+            Shot("04-menu-left");
+            yield return new WaitForSecondsRealtime(0.3f);
+
+            Close("action");
+            yield return new WaitForSecondsRealtime(0.2f);
+
+            Xiaoqi.Spike.TodayCard.DebugOpen();
+            yield return new WaitForSecondsRealtime(0.8f);
+            Shot("05-today");
+            Xiaoqi.Spike.TodayCard.DebugClose();
+            yield return new WaitForSecondsRealtime(0.3f);
+
+            XiaoqiSettings.Open();
             yield return new WaitForSecondsRealtime(0.6f);
+            Shot("06-settings");
+            var s = FindFirstObjectByType<XiaoqiSettings>(FindObjectsInactive.Include);
+            if (s != null) s.Close();
+            yield return new WaitForSecondsRealtime(0.3f);
+
+            XiaoqiAbout.Show();
+            yield return new WaitForSecondsRealtime(0.6f);
+            Shot("07-about");
+            XiaoqiAbout.Hide();
+            yield return new WaitForSecondsRealtime(0.4f);
+
+            Debug.Log("XQ_SHOT done");
             Application.Quit();
+        }
+
+        private void Shot(string name)
+        {
+            var dir = System.IO.Path.Combine(Application.persistentDataPath, "shots");
+            System.IO.Directory.CreateDirectory(dir);
+            var path = System.IO.Path.Combine(dir, name + ".png");
+            ScreenCapture.CaptureScreenshot(path);
+            Debug.Log("XQ_SHOT " + path);
         }
 
         private static string PathOf(Transform t)

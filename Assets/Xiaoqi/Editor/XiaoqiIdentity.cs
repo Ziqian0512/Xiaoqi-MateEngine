@@ -7,6 +7,7 @@ public static class XiaoqiIdentity
     {
         PlayerSettings.productName = "Xiaoqi";
         PlayerSettings.companyName = "Xiaoqi";
+        PlayerSettings.bundleVersion = "0.1.0";
         PlayerSettings.runInBackground = true;
         PlayerSettings.SplashScreen.show = false;
         PlayerSettings.SplashScreen.showUnityLogo = false;

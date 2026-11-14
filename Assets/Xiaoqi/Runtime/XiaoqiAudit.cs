@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -36,11 +36,13 @@ public class XiaoqiAudit : MonoBehaviour
         foreach (var t in FindObjectsByType<TMP_Text>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             if (t == null || string.IsNullOrEmpty(t.text)) continue;
+            if (IsAbout(t.transform)) continue;
             if (Brand(t.text)) { hits++; sb.AppendLine(PathOf(t.transform) + " | " + t.text); }
         }
         foreach (var t in FindObjectsByType<Text>(FindObjectsInactive.Exclude, FindObjectsSortMode.None))
         {
             if (t == null || string.IsNullOrEmpty(t.text)) continue;
+            if (IsAbout(t.transform)) continue;
             if (Brand(t.text)) { hits++; sb.AppendLine(PathOf(t.transform) + " | " + t.text); }
         }
         sb.AppendLine("hits=" + hits);
@@ -96,6 +98,23 @@ public class XiaoqiAudit : MonoBehaviour
         }
         catch (Exception e) { sb.AppendLine("registry error " + e.Message); }
 
+        sb.AppendLine("\n[6] forbidden filenames in build");
+        int fnHits = 0;
+        try
+        {
+            foreach (var f in Directory.GetFiles(root, "*", SearchOption.AllDirectories))
+            {
+                var name = Path.GetFileName(f);
+                var low = name.ToLowerInvariant();
+                if (!(low.Contains("mate") || low.Contains("shinymoon") || low.Contains("intimate"))) continue;
+                if (name == "MATE-ENGINE-LICENSE.txt") continue;
+                fnHits++;
+                sb.AppendLine(f);
+            }
+        }
+        catch (Exception e) { sb.AppendLine("scan error " + e.Message); }
+        sb.AppendLine("filename_hits=" + fnHits);
+
         try { File.WriteAllText(_path, sb.ToString()); Debug.Log("XQ_AUDIT " + _path); }
         catch (Exception e) { Debug.LogError("XQ_AUDIT write: " + e.Message); }
         yield return new WaitForSecondsRealtime(0.5f);
@@ -106,7 +125,17 @@ public class XiaoqiAudit : MonoBehaviour
     {
         s = s.ToLowerInvariant();
         return s.Contains("mate") || s.Contains("shinymoon") || s.Contains("steam")
-               || s.Contains("discord") || s.Contains("buy") || s.Contains("version");
+               || s.Contains("discord") || s.Contains("buy");
+    }
+
+    private static bool IsAbout(Transform t)
+    {
+        while (t != null)
+        {
+            if (t.name == "XqAboutCard") return true;
+            t = t.parent;
+        }
+        return false;
     }
 
     private static string PathOf(Transform t)

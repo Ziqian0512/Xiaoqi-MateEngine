@@ -59,6 +59,8 @@ public static class XiaoqiBuild
         if (report.summary.result != BuildResult.Succeeded)
             EditorApplication.Exit(1);
 
+        CleanBuildOutput();
+
         var model = "XiaoqiData/16.vrm";
         if (File.Exists(model))
         {
@@ -69,6 +71,45 @@ public static class XiaoqiBuild
             Directory.CreateDirectory(streaming);
             File.Copy(model, Path.Combine(streaming, "16.vrm"), true);
         }
+    }
+
+    private static void CleanBuildOutput()
+    {
+        var root = Path.Combine("Build", "Xiaoqi");
+        var sa = Path.Combine(root, "Xiaoqi_Data", "StreamingAssets");
+        TryDeleteDir(Path.Combine(sa, "Mods", "ModLoader", "Hover Reactions"));
+        TryDeleteFile(Path.Combine(sa, "CustomDances", "README_dance.md"));
+
+        bool hasLlm = false;
+        try
+        {
+            foreach (var f in Directory.GetFiles(root, "*", SearchOption.AllDirectories))
+            {
+                var n = Path.GetFileName(f).ToLowerInvariant();
+                if (n.EndsWith(".gguf") || (n.StartsWith("llama") && n.EndsWith(".dll")) || n.Contains("llmunity"))
+                {
+                    hasLlm = true;
+                    break;
+                }
+            }
+        }
+        catch (System.Exception e) { Debug.LogWarning("XiaoqiBuild scan: " + e.Message); }
+
+        if (!hasLlm)
+            TryDeleteFile(Path.Combine(sa, "LLAMA 3.2 COMMUNITY LICENSE.txt"));
+        Debug.Log("XQ_BUILD clean hover/readme done, llm=" + hasLlm);
+    }
+
+    private static void TryDeleteDir(string path)
+    {
+        try { if (Directory.Exists(path)) Directory.Delete(path, true); }
+        catch (System.Exception e) { Debug.LogWarning("XiaoqiBuild delete " + path + ": " + e.Message); }
+    }
+
+    private static void TryDeleteFile(string path)
+    {
+        try { if (File.Exists(path)) File.Delete(path); }
+        catch (System.Exception e) { Debug.LogWarning("XiaoqiBuild delete " + path + ": " + e.Message); }
     }
 }
 
