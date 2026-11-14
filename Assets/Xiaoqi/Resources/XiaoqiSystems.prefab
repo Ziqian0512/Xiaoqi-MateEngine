@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 1994844620173777597}
   - component: {fileID: 2617007623148043790}
   - component: {fileID: 1999659183344035918}
+  - component: {fileID: 2267339139724597221}
   - component: {fileID: 1117346983376931598}
   - component: {fileID: 2785170503361536077}
   - component: {fileID: 8422286727865382117}
@@ -191,6 +192,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91b4ca99ae1396d41b05c9c418c3eb6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.PetBubble
+--- !u!114 &2267339139724597221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07a348c3e54003443983a52ab5377dd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.PetPat
 --- !u!114 &1117346983376931598
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using NAudio.CoreAudioApi;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -36,6 +36,23 @@ public class AvatarAnimatorController : MonoBehaviour
     private float dragLockTimer;
     private bool mouseHeld;
     public bool isDragging, isDancing, isIdle;
+    // Xiaoqi patch: allow the pet menu to force one of the built-in dance clips.
+    [HideInInspector] public bool forcedDance;
+
+    public void ForceDance(int index)
+    {
+        forcedDance = true;
+        isDancing = true;
+        danceState = Mathf.Clamp(index, 0, Mathf.Max(0, DANCE_CLIP_COUNT - 1));
+        animator.SetBool(isDancingParam, true);
+        animator.SetFloat(danceIndexParam, danceState);
+    }
+
+    public void ForceStopDance()
+    {
+        forcedDance = false;
+        SetDancing(false);
+    }
 
     [Header("Character Mode")]
     public bool enableHusbandoMode = false;
@@ -68,6 +85,7 @@ public class AvatarAnimatorController : MonoBehaviour
 
     void CheckForSound()
     {
+        if (forcedDance) return;
         if (MenuActions.IsMovementBlocked() || !enableDancing)
         {
             if (isDancing) SetDancing(false);

@@ -346,6 +346,8 @@ namespace Xiaoqi.Host
             _actions.Add(new HostAction { Id = "sit_toggle", Label = WindowSitEnabled ? "禁止坐窗口" : "允许坐窗口" });
             _actions.Add(new HostAction { Id = "walk_toggle", Label = LocomotionEnabled ? "停下脚步" : "自己走" });
             _actions.Add(new HostAction { Id = "pose_next", Label = "换个姿势" });
+            for (int i = 0; i < 5; i++)
+                _actions.Add(new HostAction { Id = "dance_" + i, Label = "舞 " + (i + 1) });
         }
 
         public bool RunAction(string id)
@@ -361,6 +363,21 @@ namespace Xiaoqi.Host
             if (id == "unsit") { ExitWindowSit(); return true; }
             if (id == "sit_toggle") { WindowSitEnabled = !WindowSitEnabled; SaveSettings(); return true; }
             if (id == "walk_toggle") { LocomotionEnabled = !LocomotionEnabled; SaveSettings(); return true; }
+            if (id.StartsWith("dance_") && _animator != null)
+            {
+                if (int.TryParse(id.Substring(6), out var di))
+                {
+                    var ac = _animator.GetComponent<AvatarAnimatorController>();
+                    if (ac != null)
+                    {
+                        ac.ForceDance(di);
+                        Debug.Log("XQ_HOST dance=" + di);
+                        return true;
+                    }
+                    Debug.Log("XQ_HOST_MISS AvatarAnimatorController");
+                }
+                return false;
+            }
             if (id == "pose_next" && _animator != null)
             {
                 _idleNext = (_idleNext + 3) % 10;
@@ -394,6 +411,8 @@ namespace Xiaoqi.Host
             if (_dance == null) return;
             try { _dance.StopPlay(); }
             catch (Exception e) { Debug.Log("XQ_HOST dance stop: " + e.Message); }
+            var ac = _animator != null ? _animator.GetComponent<AvatarAnimatorController>() : null;
+            if (ac != null) ac.ForceStopDance();
         }
 
         // ---------------------------------------------------------- settings

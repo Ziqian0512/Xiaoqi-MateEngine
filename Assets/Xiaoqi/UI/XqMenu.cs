@@ -69,6 +69,8 @@ namespace Xiaoqi.UI
         private Vector2 _center;
         private float _maxWidth;
         private float _capH;
+        private float _avatarScale = 1f;
+        private float _r;
 
         private static XqMenu _instance;
 
@@ -110,6 +112,8 @@ namespace Xiaoqi.UI
                 StartCoroutine(DemoIdle());
             if (Array.IndexOf(cargs, "-demo-chibi") >= 0)
                 StartCoroutine(DemoChibi());
+            if (Array.IndexOf(cargs, "-demo-dance") >= 0)
+                StartCoroutine(DemoDance());
         }
 
         // ------------------------------------------------------------- build
@@ -321,6 +325,17 @@ namespace Xiaoqi.UI
             Debug.Log("XQ_DEMO_IDLE done");
         }
 
+        private IEnumerator DemoDance()
+        {
+            yield return new WaitForSecondsRealtime(3.2f);
+            ToggleSub("doing");
+            yield return new WaitForSecondsRealtime(0.5f);
+            ToggleSub("dance");
+            yield return new WaitForSecondsRealtime(0.6f);
+            if (PetHost.I != null) PetHost.I.RunAction("dance_0");
+            Debug.Log("XQ_DEMO_DANCE done");
+        }
+
         private IEnumerator DemoChibi()
         {
             yield return new WaitForSecondsRealtime(3f);
@@ -375,7 +390,7 @@ namespace Xiaoqi.UI
             {
                 foreach (var act in PetHost.I.Actions)
                 {
-                    if (act.Id.StartsWith("idle_")) continue;
+                    if (act.Id.StartsWith("idle_") || act.Id.StartsWith("dance_")) continue;
                     var a = act;
                     AddSub(a.Label, null, false, () =>
                     {
@@ -387,7 +402,11 @@ namespace Xiaoqi.UI
 
             }
 
-            if (PetHost.I != null && PetHost.I.Dances.Count > 0)
+            bool hasDance = PetHost.I != null && PetHost.I.Dances.Count > 0;
+            if (!hasDance && PetHost.I != null)
+                foreach (var act in PetHost.I.Actions)
+                    if (act.Id.StartsWith("dance_")) { hasDance = true; break; }
+            if (hasDance)
             {
                 AddSub("跳舞 ▸", outside ? why : null, outside, () => ToggleSub("dance"));
                 _sub[_sub.Count - 1].Id = "dance";
@@ -430,6 +449,16 @@ namespace Xiaoqi.UI
                     else Debug.Log("XQ_MENU dance failed " + dance);
                 });
             }
+            foreach (var act in PetHost.I.Actions)
+            {
+                if (!act.Id.StartsWith("dance_")) continue;
+                var a = act;
+                AddSub(a.Label, null, false, () =>
+                {
+                    PetHost.I.RunAction(a.Id);
+                    Close("action");
+                });
+            }
             if (PetHost.I.IsDancing)
                 AddSub("停下", null, false, () => { PetHost.I.StopDance(); Close("action"); });
         }
@@ -457,8 +486,6 @@ namespace Xiaoqi.UI
             float gap = XqStyle.Fr(12f);
             float step = XqStyle.Fr(44f);
             string anchorId = _subKind == "quiet" ? "quiet" : "doing";
-            if (_subKind == "idle") anchorId = "idle";
-            if (_subKind == "dance") anchorId = "dance";
             var anchor = AnchorSlot(anchorId);
             if (anchor == null) return;
 
@@ -554,6 +581,8 @@ namespace Xiaoqi.UI
             }
             if (Input.GetMouseButtonDown(1)) { Close("right"); return; }
             if (Input.GetMouseButtonDown(0) && !IsPointerOverMenu()) { Close("blank"); return; }
+
+            FollowHead();
 
             if (_since < XqStyle.InSec * 1.2f) AnimateOpen();
             else if (!_settled)
@@ -698,6 +727,45 @@ namespace Xiaoqi.UI
             }
         }
 
+        private void FollowHead()
+        {
+            var head = FindFirstObjectByType<Xiaoqi.Spike.HeadAnchor>(FindObjectsInactive.Include);
+            Vector2 c = head != null && head.ScreenPoint != Vector2.zero ? head.ScreenPoint : _center;
+            if (float.IsNaN(c.x) || float.IsNaN(c.y)) return;
+            c.x = Mathf.Clamp(c.x, XqStyle.Fr(40f), Screen.width - XqStyle.Fr(40f));
+            c.y = Mathf.Clamp(c.y, XqStyle.Fr(20f), Screen.height - XqStyle.Fr(20f));
+            var br = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, Screen.width, Screen.height * 0.45f);
+            float bodyH = br.height > 10f ? br.height : Screen.height * 0.45f;
+            float wantR = Mathf.Clamp(bodyH * 0.55f, XqStyle.Fr(90f), XqStyle.Fr(260f));
+            if (Mathf.Abs(wantR - _r) > 2f)
+            {
+                _center = c;
+                Layout();
+                if (!string.IsNullOrEmpty(_subKind)) PositionSub();
+                ApplyVisible();
+                return;
+            }
+            if ((c - _center).sqrMagnitude > 1f)
+            {
+                _center = c;
+                _root.anchoredPosition = _center - new Vector2(Screen.width, Screen.height) * 0.5f;
+            }
+        }
+
+        private void ApplyVisible()
+        {
+            _group.alpha = 1f;
+            _statusGroup.alpha = _subKind == "" ? 1f : 0.4f;
+            _settingsGroup.alpha = 1f;
+            _dotsGroup.alpha = 0.9f;
+            foreach (var s in _slots)
+            {
+                s.Group.alpha = _subKind == "" ? 1f : 0.4f;
+                s.View.Root.localScale = Vector3.one;
+                s.View.Root.anchoredPosition = s.BasePos;
+            }
+        }
+
         private IEnumerator ShotRoutine()
         {
             yield return new WaitForSecondsRealtime(0.9f);
@@ -818,7 +886,10 @@ namespace Xiaoqi.UI
         private void Layout()
         {
             float w = Screen.width, h = Screen.height;
-            float R = XqStyle.Fr(RadiusPx);
+            var bodyRect = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, Screen.width, Screen.height * 0.45f);
+            float bodyH = bodyRect.height > 10f ? bodyRect.height : Screen.height * 0.45f;
+            float R = Mathf.Clamp(bodyH * 0.55f, XqStyle.Fr(90f), XqStyle.Fr(260f));
+            _r = R;
 
             // capsule widths depend on text; measure once
             _maxWidth = 0f;
