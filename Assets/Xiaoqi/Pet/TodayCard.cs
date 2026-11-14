@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -16,11 +16,12 @@ namespace Xiaoqi.Spike
         [Serializable] private class Mark { public string at; public int min; public string emo; public float delta; public string note, src; }
         [Serializable] private class Body { public float sleepy, stamina, social; }
 
-        private const bool EnableClickOpen = false;
+        private const bool EnableClickOpen = true;
         private bool _open;
         private DayData _data;
         private string _error;
         private Rect _card = new Rect(0, 0, 420, 420);
+        private static Texture2D _white;
         private float _nextRefresh;
         private Vector2 _downPos;
         private float _downAt;
@@ -153,8 +154,16 @@ namespace Xiaoqi.Spike
             var w = 420f;
             var h = Mathf.Min(460f, Screen.height - 80f);
             _card = new Rect(Screen.width - w - 30f, 40f, w, h);
-            GUI.Box(_card, "今天");
-            GUILayout.BeginArea(new Rect(_card.x + 14, _card.y + 28, _card.width - 28, _card.height - 40));
+            if (_white == null)
+            {
+                _white = new Texture2D(1, 1);
+                _white.SetPixel(0, 0, new Color(0.97f, 0.96f, 0.94f, 0.98f));
+                _white.Apply();
+            }
+            GUI.DrawTexture(_card, _white);
+            GUI.contentColor = new Color(0.16f, 0.16f, 0.19f);
+            GUI.Label(new Rect(_card.x + 16, _card.y + 10, 120, 26), "今天");
+            GUILayout.BeginArea(new Rect(_card.x + 14, _card.y + 40, _card.width - 28, _card.height - 52));
             if (!string.IsNullOrEmpty(_error)) GUILayout.Label(_error);
             if (_data != null)
             {
@@ -177,6 +186,9 @@ namespace Xiaoqi.Spike
                 if (GUILayout.Button("关闭")) Close();
             }
             GUILayout.EndArea();
+            GUI.contentColor = Color.white;
         }
     }
 }
+
+
