@@ -65,7 +65,18 @@ namespace Xiaoqi.Spike
             _stage = s;
             _asleep = s.where == "dorm" && s.pose == "sleep";
             var rose = s.face != null ? s.face.rose_at : "";
-            if (_firstStage) { _firstStage = false; _roseAt = rose; return; }
+            if (_firstStage)
+            {
+                _firstStage = false;
+                _roseAt = rose;
+                if (s.face != null && s.face.rose && !string.IsNullOrEmpty(s.face.rose_name))
+                {
+                    _spikeName = s.face.rose_name;
+                    _spikeStart = Time.unscaledTime;
+                    Debug.Log("XQ_SPIKE name=" + _spikeName + " at=" + rose + " note=" + s.face.rose_note);
+                }
+                return;
+            }
             if (!string.IsNullOrEmpty(rose) && rose != _roseAt)
             {
                 _roseAt = rose;
