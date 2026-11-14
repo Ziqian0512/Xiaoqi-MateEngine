@@ -35,6 +35,7 @@ public class XiaoqiFeed : MonoBehaviour
         public string scope;
         public string text;
         public string label;
+        public string media;
     }
 
     [Serializable]
@@ -77,7 +78,7 @@ public class XiaoqiFeed : MonoBehaviour
                                 {
                                     if (string.IsNullOrEmpty(item.text)) continue;
                                     if (!string.IsNullOrEmpty(item.scope) && item.scope != "private") continue;
-                                    Show(item.text);
+                                    Show(item.text, item.media);
                                 }
                         }
                     }
@@ -91,9 +92,15 @@ public class XiaoqiFeed : MonoBehaviour
         }
     }
 
-    private void Show(string text)
+    private void Show(string text, string media)
     {
+        if (XiaoqiRuntime.Config != null && XiaoqiRuntime.Config.emotion_line)
+        {
+            PetBubble.Enqueue(text, media);
+            return;
+        }
         if (_bubble == null) _bubble = FindFirstObjectByType<BubbleUI>(FindObjectsInactive.Include);
         if (_bubble != null) _bubble.Show(text);
     }
 }
+

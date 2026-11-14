@@ -6,6 +6,8 @@ namespace Xiaoqi.Spike
 {
     public class HeadAnchor : MonoBehaviour
     {
+        public Vector2 ScreenPoint { get; private set; }
+
         private Transform _head;
         private Canvas _canvas;
         private Text _label;
@@ -38,6 +40,7 @@ namespace Xiaoqi.Spike
             if (cam == null) return;
             var sp = cam.WorldToScreenPoint(_head.position + Vector3.up * 0.28f);
             if (sp.z < 0) { if (_label != null) _label.gameObject.SetActive(false); return; }
+            ScreenPoint = new Vector2(sp.x, sp.y);
             var rt = _label.rectTransform;
             var size = rt.sizeDelta;
             var x = Mathf.Clamp(sp.x, size.x / 2 + 8, Screen.width - size.x / 2 - 8);
