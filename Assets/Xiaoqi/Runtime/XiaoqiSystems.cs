@@ -14,6 +14,7 @@ public class XiaoqiSystems : MonoBehaviour
         ResolveModelPath(cfg);
 
         XiaoqiDefaults.Apply(cfg);
+        XiaoqiRunKey.Migrate();
         XiaoqiHide.Apply();
         XiaoqiTray.Install();
         LoadModel();

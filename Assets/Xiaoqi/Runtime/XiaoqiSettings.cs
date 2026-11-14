@@ -84,6 +84,7 @@ public class XiaoqiSettings : MonoBehaviour
         if (GUILayout.Button("保存并应用"))
         {
             h.SaveToDisk();
+            XiaoqiRunKey.Sync(d.startWithWindows);
             SaveLoadHandler.ApplyAllSettingsToAllAvatars();
             var loader = FindFirstObjectByType<VRMLoader>();
             if (loader != null && !string.IsNullOrEmpty(XiaoqiRuntime.Config.model_path))

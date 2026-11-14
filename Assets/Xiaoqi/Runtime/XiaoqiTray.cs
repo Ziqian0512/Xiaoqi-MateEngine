@@ -32,6 +32,6 @@ public static class XiaoqiTray
 
     private static void About()
     {
-        Debug.Log("Xiaoqi · Mate Engine fork · 关于页待 U1 接");
+        XiaoqiAbout.Show();
     }
 }
