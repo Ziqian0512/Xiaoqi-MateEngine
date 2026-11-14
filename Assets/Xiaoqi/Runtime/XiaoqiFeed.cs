@@ -70,10 +70,15 @@ public class XiaoqiFeed : MonoBehaviour
                         if (env != null)
                         {
                             _since = env.last_id;
-                            if (env.items != null)
+                            var allow = cfg.bubble && !XiaoqiRuntime.Dnd
+                                        && (env.rules == null || env.rules.show_private_text);
+                            if (allow && env.items != null)
                                 foreach (var item in env.items)
-                                    if (!string.IsNullOrEmpty(item.text))
-                                        Show(item.text);
+                                {
+                                    if (string.IsNullOrEmpty(item.text)) continue;
+                                    if (!string.IsNullOrEmpty(item.scope) && item.scope != "private") continue;
+                                    Show(item.text);
+                                }
                         }
                     }
                     catch (Exception e)
