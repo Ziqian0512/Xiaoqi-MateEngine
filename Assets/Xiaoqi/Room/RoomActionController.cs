@@ -56,15 +56,25 @@ namespace Xiaoqi.Spike
             switch (_pose)
             {
                 case "sleep":
+                    _animator.Play("Sleep");
+                    break;
                 case "lie_phone":
-                case "sit_idle":
+                    _animator.Play("LiePhone");
+                    break;
                 case "sit_write":
+                    _animator.Play("SitWrite");
+                    break;
                 case "sit_eat":
+                    _animator.Play("SitEat");
+                    break;
+                case "sit_idle":
                     _animator.Play("Sit");
                     break;
                 case "stand_tidy":
+                    _animator.Play("StandTidy");
+                    break;
                 case "stand_window":
-                    _animator.Play("Idle");
+                    _animator.Play("StandWindow");
                     break;
                 case "walk_out":
                 case "walk_in":

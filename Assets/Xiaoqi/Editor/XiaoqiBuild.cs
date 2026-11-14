@@ -10,6 +10,7 @@ public static class XiaoqiBuild
     public static void Win64()
     {
         XiaoqiIdentity.Apply();
+        XiaoqiRoomAnimator.Setup();
         EditorSceneManager.OpenScene("Assets/MATE ENGINE - Scenes/Mate Engine Main.unity", OpenSceneMode.Single);
 
         var prefabPath = "Assets/Xiaoqi/Resources/XiaoqiSystems.prefab";
