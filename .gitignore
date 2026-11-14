@@ -82,3 +82,5 @@ Build/
 BuildMate2/
 *.log
 Assets/StreamingAssets/16.vrm
+Assets/StreamingAssets/16.vrm.meta
+Assets/Xiaoqi/_Private.meta
