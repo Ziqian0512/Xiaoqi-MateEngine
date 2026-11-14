@@ -16,6 +16,7 @@ namespace Xiaoqi.Spike
         [Serializable] private class Mark { public string at; public int min; public string emo; public float delta; public string note, src; }
         [Serializable] private class Body { public float sleepy, stamina, social; }
 
+        private const bool EnableClickOpen = false;
         private bool _open;
         private DayData _data;
         private string _error;
@@ -29,7 +30,9 @@ namespace Xiaoqi.Spike
 
         private void Update()
         {
+            // 旧的 IMGUI 今天卡太丑，先停用入口；数据接口保留给后续干净 UI。
             if (!XiaoqiRuntime.Config.emotion_line) return;
+            if (!EnableClickOpen) return;
             if (_avatar == null) _avatar = FindFirstObjectByType<AvatarAnimatorController>(FindObjectsInactive.Include);
 
             if (Input.GetMouseButtonDown(0))

@@ -9,14 +9,9 @@ public class XiaoqiAbout : MonoBehaviour
 
     public static void Show()
     {
-        if (_instance == null)
-        {
-            var go = new GameObject("XiaoqiAbout");
-            Object.DontDestroyOnLoad(go);
-            _instance = go.AddComponent<XiaoqiAbout>();
-        }
-        Xiaoqi.Spike.TodayCard.DebugClose();
-        _open = true;
+        // 旧 IMGUI 关于卡太丑，先停用；许可证仍保留在 StreamingAssets 与 PATCHES。
+        _open = false;
+        Debug.Log("Xiaoqi: about card disabled until clean UI");
     }
 
     public static void Hide() { _open = false; }

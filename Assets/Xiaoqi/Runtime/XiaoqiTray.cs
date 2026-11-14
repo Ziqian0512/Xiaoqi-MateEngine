@@ -18,7 +18,6 @@ public static class XiaoqiTray
             (XiaoqiRuntime.Dnd ? "免打扰 ✔" : "免打扰", ToggleDnd),
             ("小祈设置", XiaoqiSettings.Open),
             ("调参（F9）", Xiaoqi.Spike.EmotionLineTuner.Toggle),
-            ("关于", About),
             ("退出小祈", () => Application.Quit())
         };
         return menu;
