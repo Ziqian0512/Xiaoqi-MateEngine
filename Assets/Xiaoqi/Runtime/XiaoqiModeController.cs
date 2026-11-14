@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,6 +8,8 @@ public class XiaoqiModeController : MonoBehaviour
     private static XiaoqiModeController _instance;
     private static float _alpha;
     private static Texture2D _black;
+    private readonly List<GameObject> _hiddenRoots = new List<GameObject>();
+    private Scene _petScene;
 
     private void Awake()
     {
@@ -17,29 +20,64 @@ public class XiaoqiModeController : MonoBehaviour
             _black.SetPixel(0, 0, Color.black);
             _black.Apply();
         }
+        _petScene = SceneManager.GetActiveScene();
     }
 
     public static void EnterRoom()
     {
-        if (_instance != null) _instance.StartCoroutine(_instance.Swap("XiaoqiRoom"));
+        if (_instance != null) _instance.StartCoroutine(_instance.EnterRoutine());
     }
 
     public static void ExitRoom()
     {
-        var h = SaveLoadHandler.Instance;
-        if (h != null && XiaoqiRuntime.Config != null && !string.IsNullOrEmpty(XiaoqiRuntime.Config.model_path))
-        {
-            h.data.selectedModelPath = XiaoqiRuntime.Config.model_path;
-            h.SaveToDisk();
-        }
-        if (_instance != null) _instance.StartCoroutine(_instance.Swap("Mate Engine Main"));
+        if (_instance != null) _instance.StartCoroutine(_instance.ExitRoutine());
     }
 
-    private IEnumerator Swap(string scene)
+    private static bool KeepRoot(GameObject go)
+    {
+        var n = go.name;
+        return n.Contains("WindowAPI") || n.Contains("UniWindow") || n.Contains("XiaoqiSystems")
+               || n.Contains("SteamAPI");
+    }
+
+    private IEnumerator EnterRoutine()
+    {
+        if (_petScene.IsValid() && _petScene.name != "Mate Engine Main") yield break;
+        yield return Fade(0f, 1f, 0.25f);
+
+        _petScene = SceneManager.GetActiveScene();
+        _hiddenRoots.Clear();
+        foreach (var go in _petScene.GetRootGameObjects())
+        {
+            if (!go.activeSelf || KeepRoot(go) || go.name == "Main Camera") continue;
+            go.SetActive(false);
+            _hiddenRoots.Add(go);
+        }
+
+        var load = SceneManager.LoadSceneAsync("XiaoqiRoom", LoadSceneMode.Additive);
+        if (load != null) yield return load;
+        var room = SceneManager.GetSceneByName("XiaoqiRoom");
+        if (room.IsValid()) SceneManager.SetActiveScene(room);
+
+        yield return Fade(1f, 0f, 0.35f);
+    }
+
+    private IEnumerator ExitRoutine()
     {
         yield return Fade(0f, 1f, 0.25f);
-        SceneManager.LoadScene(scene);
-        yield return null;
+
+        var room = SceneManager.GetSceneByName("XiaoqiRoom");
+        if (room.IsValid() && room.isLoaded)
+        {
+            var unload = SceneManager.UnloadSceneAsync(room);
+            if (unload != null) yield return unload;
+        }
+
+        if (_petScene.IsValid()) SceneManager.SetActiveScene(_petScene);
+        foreach (var go in _hiddenRoots)
+            if (go != null) go.SetActive(true);
+        _hiddenRoots.Clear();
+
         yield return Fade(1f, 0f, 0.35f);
     }
 
