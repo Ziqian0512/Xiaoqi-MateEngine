@@ -20,6 +20,11 @@ namespace Xiaoqi.Spike
             if (Input.GetKeyDown(KeyCode.F9)) Toggle();
         }
 
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (!hasFocus) _open = false;
+        }
+
         public static void Toggle()
         {
             if (_instance == null) _instance = FindFirstObjectByType<EmotionLineTuner>(FindObjectsInactive.Include);

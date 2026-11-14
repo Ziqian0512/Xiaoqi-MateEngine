@@ -15,7 +15,15 @@ public class XiaoqiAbout : MonoBehaviour
             Object.DontDestroyOnLoad(go);
             _instance = go.AddComponent<XiaoqiAbout>();
         }
+        Xiaoqi.Spike.TodayCard.DebugClose();
         _open = true;
+    }
+
+    public static void Hide() { _open = false; }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (!hasFocus) _open = false;
     }
 
     private void OnGUI()

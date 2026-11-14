@@ -66,8 +66,20 @@ namespace Xiaoqi.Spike
             if (c != null) c.Open();
         }
 
+        public static void DebugClose()
+        {
+            var c = FindFirstObjectByType<TodayCard>(FindObjectsInactive.Include);
+            if (c != null) c.Close();
+        }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (!hasFocus) Close();
+        }
+
         private void Open()
         {
+            XiaoqiAbout.Hide();
             _open = true;
             _data = null;
             _error = null;
