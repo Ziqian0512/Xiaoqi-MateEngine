@@ -16,6 +16,7 @@ namespace Xiaoqi.Spike
         private Vector3 _bed;
 
         private bool _moving;
+        private string _pose = "";
 
         public void Setup(GameObject root, Vector3 home, Vector3 desk, Vector3 bed, BubbleUI bubble)
         {
@@ -41,6 +42,35 @@ namespace Xiaoqi.Spike
         public void GoHome()
         {
             if (!_moving) StartCoroutine(MoveTo(_home, false, "回到房间中间"));
+        }
+
+        public void SetPose(string pose)
+        {
+            _pose = pose ?? "";
+            if (!_moving) ApplyPose();
+        }
+
+        private void ApplyPose()
+        {
+            if (_animator == null) return;
+            switch (_pose)
+            {
+                case "sleep":
+                case "lie_phone":
+                case "sit_idle":
+                case "sit_write":
+                case "sit_eat":
+                    _animator.Play("Sit");
+                    break;
+                case "stand_tidy":
+                case "stand_window":
+                    _animator.Play("Idle");
+                    break;
+                case "walk_out":
+                case "walk_in":
+                    _animator.Play("Walk");
+                    break;
+            }
         }
 
         private IEnumerator MoveTo(Vector3 target, bool deskPose, string label)
@@ -82,6 +112,7 @@ namespace Xiaoqi.Spike
                 if (_bubble != null) _bubble.Show("躺下休息（占位）", 3f);
             }
 
+            ApplyPose();
             _moving = false;
         }
     }

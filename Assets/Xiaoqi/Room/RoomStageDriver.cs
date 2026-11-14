@@ -36,6 +36,7 @@ namespace Xiaoqi.Spike
                     _action.GoDesk();
                     break;
             }
+            _action.SetPose(s.pose);
             Debug.Log("XIAOQI_STAGE " + s.where + " spot=" + s.spot + " pose=" + s.pose);
         }
     }
