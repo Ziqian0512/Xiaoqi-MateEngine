@@ -321,7 +321,26 @@ namespace Xiaoqi.Host
         public float Size
         {
             get => Handler != null ? Handler.data.avatarSize : 1f;
-            set { if (Handler == null) return; Handler.data.avatarSize = Mathf.Clamp(value, 0.5f, 2f); SaveLoadHandler.ApplyAllSettingsToAllAvatars(); }
+            set
+            {
+                if (Handler == null) return;
+                Handler.data.avatarSize = Mathf.Clamp(value, 0.5f, 2f);
+                SyncScaleController(Handler.data.avatarSize);
+                SaveLoadHandler.ApplyAllSettingsToAllAvatars();
+            }
+        }
+
+        /// <summary>ME 的 AvatarScaleController 每帧把自己的 targetSize 写回 data，必须同步，否则设置会被覆盖。</summary>
+        private static void SyncScaleController(float value)
+        {
+            foreach (var c in Resources.FindObjectsOfTypeAll<AvatarScaleController>())
+            {
+                if (c == null) continue;
+                var t = c.GetType();
+                if (t.GetField("avatarSizeSlider", AnyInstance)?.GetValue(c) is UnityEngine.UI.Slider s)
+                    s.SetValueWithoutNotify(value);
+                t.GetField("targetSize", AnyInstance)?.SetValue(c, value);
+            }
         }
 
         public bool Topmost
