@@ -24,6 +24,8 @@ public static class XiaoqiBuild
         temp.AddComponent<XiaoqiStartCard>();
         temp.AddComponent<XiaoqiAudit>();
         temp.AddComponent<Xiaoqi.Spike.XiaoqiFace>();
+        temp.AddComponent<Xiaoqi.Spike.HeadAnchor>();
+        temp.AddComponent<Xiaoqi.Spike.PetPresence>();
         PrefabUtility.SaveAsPrefabAsset(temp, prefabPath);
         Object.DestroyImmediate(temp);
         AssetDatabase.SaveAssets();
