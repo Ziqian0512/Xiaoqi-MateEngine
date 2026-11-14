@@ -24,6 +24,8 @@ namespace Xiaoqi.Host
         bool IsDragging { get; }
         Rect ScreenRect();
         void SetFace(FaceFrame f);
+        void SetMouth(float open);
+        void LoadModel(string path);
         void SetSleeping(bool on);
 
         bool IsWindowSitting { get; }

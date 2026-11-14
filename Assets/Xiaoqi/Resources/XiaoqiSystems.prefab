@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7598974985635059607}
+  - component: {fileID: 8656778728124996331}
   - component: {fileID: 583896514579471328}
   - component: {fileID: 6280806283765626610}
   - component: {fileID: 7663489133846945051}
@@ -22,7 +23,7 @@ GameObject:
   - component: {fileID: 1117346983376931598}
   - component: {fileID: 2785170503361536077}
   - component: {fileID: 8422286727865382117}
-  - component: {fileID: 4228232996158431590}
+  - component: {fileID: 610522837237395210}
   m_Layer: 0
   m_Name: XiaoqiSystems
   m_TagString: Untagged
@@ -45,6 +46,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8656778728124996331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faaf343b35706784a9265c042b6f2843, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Host.MeHost
 --- !u!114 &583896514579471328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201,7 +214,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acb1e29955320f04fbc4b2ccdceb90ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.XiaoqiShotRunner
---- !u!114 &4228232996158431590
+--- !u!114 &610522837237395210
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -210,6 +223,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 2951097807610194432}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d9ee930cba10d7429eb98b388644609, type: 3}
+  m_Script: {fileID: 11500000, guid: 6e0e6cf09d5da294ca6e942a5e452dcf, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::XiaoqiRadialMenu
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.UI.XqMenu

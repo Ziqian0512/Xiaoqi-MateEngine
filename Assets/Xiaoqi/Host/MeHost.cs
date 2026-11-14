@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using CustomDancePlayer;
 using UnityEngine;
 using VRM;
 using Xamin;
@@ -172,9 +173,39 @@ namespace Xiaoqi.Host
                 _proxy.SetValue(BlendShapeKey.CreateFromPreset(p), v);
         }
 
-        public void SetSleeping(bool on)
+        public void SetMouth(float open)
         {
-            if (_animator == null) return;
+            if (_uni != null)
+            {
+                var t = _uni.GetType();
+                foreach (var k in new[] { "A", "I", "U", "O" }) t.GetField(k)?.SetValue(_uni, 0f);
+                var pick = new[] { "A", "I", "U", "O" }[UnityEngine.Random.Range(0, 4)];
+                t.GetField(pick)?.SetValue(_uni, open);
+                return;
+            }
+            if (_proxy != null)
+            {
+                foreach (var p in new[] { BlendShapePreset.A, BlendShapePreset.I, BlendShapePreset.U, BlendShapePreset.O })
+                    _proxy.SetValue(BlendShapeKey.CreateFromPreset(p), 0f);
+                _proxy.SetValue(BlendShapeKey.CreateFromPreset(BlendShapePreset.A), open);
+                _proxy.Apply();
+            }
+        }
+
+        public void LoadModel(string path)
+        {
+            var loader = FindFirstObjectByType<VRMLoader>(FindObjectsInactive.Include);
+            if (loader == null) { Debug.Log("XQ_HOST_MISS VRMLoader"); return; }
+            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path))
+            {
+                Debug.Log("XQ_HOST model missing " + path);
+                return;
+            }
+            loader.LoadVRM(path);
+        }
+
+        public void SetSleeping(bool on)
+        {            if (_animator == null) return;
             foreach (var p in _animator.parameters)
             {
                 if (p.type == AnimatorControllerParameterType.Bool && p.name == "IsSleeping")
