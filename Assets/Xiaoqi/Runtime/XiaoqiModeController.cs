@@ -1,10 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class XiaoqiModeController : MonoBehaviour
 {
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RECT { public int Left, Top, Right, Bottom; }
+    [DllImport("user32.dll")] private static extern bool GetWindowRect(System.IntPtr hWnd, out RECT r);
+    [DllImport("user32.dll")] private static extern bool SetWindowPos(System.IntPtr hWnd, System.IntPtr after,
+        int x, int y, int cx, int cy, uint flags);
+    private RECT _petRect;
+    private bool _hasPetRect;
+
     private static XiaoqiModeController _instance;
     private static float _alpha;
     private static Texture2D _black;
@@ -21,6 +31,14 @@ public class XiaoqiModeController : MonoBehaviour
             _black.Apply();
         }
         _petScene = SceneManager.GetActiveScene();
+        var hwnd = Process.GetCurrentProcess().MainWindowHandle;
+        _hasPetRect = GetWindowRect(hwnd, out _petRect);
+    }
+
+    private static void Resize(int w, int h, RECT r)
+    {
+        var hwnd = Process.GetCurrentProcess().MainWindowHandle;
+        SetWindowPos(hwnd, System.IntPtr.Zero, r.Left, r.Top, w, h, 0x0004 | 0x0010);
     }
 
     public static void EnterRoom()
@@ -58,6 +76,7 @@ public class XiaoqiModeController : MonoBehaviour
         if (load != null) yield return load;
         var room = SceneManager.GetSceneByName("XiaoqiRoom");
         if (room.IsValid()) SceneManager.SetActiveScene(room);
+        if (_hasPetRect) Resize(1400, 900, _petRect);
 
         yield return Fade(1f, 0f, 0.35f);
     }
@@ -73,6 +92,8 @@ public class XiaoqiModeController : MonoBehaviour
             if (unload != null) yield return unload;
         }
 
+        if (_hasPetRect)
+            Resize(_petRect.Right - _petRect.Left, _petRect.Bottom - _petRect.Top, _petRect);
         if (_petScene.IsValid()) SceneManager.SetActiveScene(_petScene);
         foreach (var go in _hiddenRoots)
             if (go != null) go.SetActive(true);
