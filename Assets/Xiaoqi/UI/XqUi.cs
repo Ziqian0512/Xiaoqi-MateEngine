@@ -21,7 +21,27 @@ namespace Xiaoqi.UI
     public static class XqUi
     {
         private static Font _font;
+        private static Sprite _uiSprite;
+        private static bool _uiSpriteTried;
         private static readonly Dictionary<string, Sprite> Sprites = new Dictionary<string, Sprite>();
+
+        /// <summary>Unity 内置 UI 九宫格贴图（白色，可就地染色）。</summary>
+        public static Sprite UiSprite
+        {
+            get
+            {
+                if (_uiSprite != null) return _uiSprite;
+                if (_uiSpriteTried) return null;
+                _uiSpriteTried = true;
+                foreach (var n in new[] { "UI/Skin/UISprite.psd", "UI/Skin/Background.psd", "UI/Skin/Knob.psd" })
+                {
+                    _uiSprite = Resources.GetBuiltinResource<Sprite>(n);
+                    if (_uiSprite != null) { Debug.Log("XQ_UI sprite " + n); break; }
+                }
+                if (_uiSprite == null) Debug.Log("XQ_UI sprite missing");
+                return _uiSprite;
+            }
+        }
 
         public static Font Font
         {
@@ -61,10 +81,41 @@ namespace Xiaoqi.UI
                 px[y * size + x].a = (byte)(Mathf.Clamp01(a) * 255f);
             }
             tex.SetPixels32(px);
+tex.Apply();
             tex.wrapMode = TextureWrapMode.Clamp;
             tex.filterMode = FilterMode.Bilinear;
             s = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f, 0,
-                SpriteMeshType.FullRect, new Vector4(20, 20, 20, 20));
+                SpriteMeshType.FullRect, new Vector4(10, 10, 10, 10));
+            Sprites[key] = s;
+            return s;
+        }
+
+        /// <summary>整块精确尺寸的胶囊贴图（不用九宫格，圆角不会被拉方）。</summary>
+        public static Sprite Pill(int w, int h, Color fill, Color line)
+        {
+            w = Mathf.Max(8, w);
+            h = Mathf.Max(8, h);
+            string key = "p" + w + "x" + h + ColorKey(fill) + ColorKey(line);
+            if (Sprites.TryGetValue(key, out var s)) return s;
+            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+            var px = new Color32[w * h];
+            float r = h * 0.5f - 1f;
+            for (int y = 0; y < h; y++)
+            for (int x = 0; x < w; x++)
+            {
+                float d = RoundRectDist(x + 0.5f, y + 0.5f, w, h, r);
+                float inside = Mathf.Clamp01(-d + 0.5f);
+                float border = Mathf.Clamp01(-Mathf.Abs(d + 0.6f) + 0.9f);
+                Color c = Color.Lerp(fill, line, border);
+                float a = Mathf.Max(fill.a * inside, line.a * border);
+                c.a = a;
+                px[y * w + x] = c;
+            }
+            tex.SetPixels32(px);
+tex.Apply();
+            tex.wrapMode = TextureWrapMode.Clamp;
+            tex.filterMode = FilterMode.Bilinear;
+            s = Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
             Sprites[key] = s;
             return s;
         }
@@ -85,10 +136,11 @@ namespace Xiaoqi.UI
                 px[y * size + x] = new Color32(0, 0, 0, (byte)(a * 255f));
             }
             tex.SetPixels32(px);
+tex.Apply();
             tex.wrapMode = TextureWrapMode.Clamp;
             tex.filterMode = FilterMode.Bilinear;
             s = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f, 0,
-                SpriteMeshType.FullRect, new Vector4(20, 20, 20, 20));
+                SpriteMeshType.FullRect, new Vector4(10, 10, 10, 10));
             Sprites[key] = s;
             return s;
         }
@@ -150,6 +202,7 @@ namespace Xiaoqi.UI
         {
             public RectTransform Root;
             public Image Bg;
+            public Image HoverBg;
             public Text Text;
             public XqHover Hover;
             public bool Active = true;
@@ -160,6 +213,14 @@ namespace Xiaoqi.UI
             var rt = Node(parent, "Capsule");
             var bg = Panel(rt, Round(XqStyle.Paper, XqStyle.PinkLine, 18f), Color.white);
             bg.raycastTarget = true;
+
+            var hoverRt = Node(rt, "HoverBg");
+            hoverRt.anchorMin = Vector2.zero;
+            hoverRt.anchorMax = Vector2.one;
+            hoverRt.offsetMin = Vector2.zero;
+            hoverRt.offsetMax = Vector2.zero;
+            var hoverImg = Panel(hoverRt, Round(XqStyle.PinkFill, XqStyle.PinkStrong, 18f), new Color(1f, 1f, 1f, 0f));
+            hoverImg.raycastTarget = false;
 
             var t = Label(rt, text, XqStyle.FontCapsule, dark ? XqStyle.GrayText : XqStyle.Ink, TextAnchor.MiddleCenter, 0f);
             t.rectTransform.anchorMin = Vector2.zero;
@@ -174,7 +235,7 @@ namespace Xiaoqi.UI
             var hover = rt.gameObject.AddComponent<XqHover>();
             if (onClick != null) hover.OnClick = onClick;
 
-            return new CapsuleView { Root = rt, Bg = bg, Text = t, Hover = hover };
+            return new CapsuleView { Root = rt, Bg = bg, HoverBg = hoverImg, Text = t, Hover = hover };
         }
 
         public static RectTransform Card(Transform parent, string title, float widthPx)

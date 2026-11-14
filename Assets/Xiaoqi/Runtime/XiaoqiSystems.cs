@@ -11,7 +11,7 @@ public class XiaoqiSystems : MonoBehaviour
     {
         var cfg = XiaoqiConfig.LoadOrCreate();
         XiaoqiRuntime.Config = cfg;
-        XiaoqiRuntime.Dnd = cfg.dnd;
+        XiaoqiRuntime.MigrateDnd();
         ResolveModelPath(cfg);
 
         XiaoqiDefaults.Apply(cfg);
@@ -24,6 +24,11 @@ public class XiaoqiSystems : MonoBehaviour
 
         if (Array.IndexOf(Environment.GetCommandLineArgs(), "--room") >= 0)
             XiaoqiLiveEntry.Open();
+    }
+
+    private void Update()
+    {
+        if (XiaoqiRuntime.ExpireQuiet()) Debug.Log("XQ_DND end");
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)

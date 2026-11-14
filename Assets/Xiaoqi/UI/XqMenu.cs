@@ -35,6 +35,8 @@ namespace Xiaoqi.UI
         private XqUi.CapsuleView _status;
         private CanvasGroup _statusGroup;
         private readonly List<Slot> _slots = new List<Slot>();
+        private readonly List<Slot> _sub = new List<Slot>();
+        private string _subKind = "";
         private Text _settings;
         private CanvasGroup _settingsGroup;
         private Image _underline;
@@ -57,6 +59,7 @@ namespace Xiaoqi.UI
         private float _demoAt;
         private bool _shot;
         private string _shotPath;
+        private string _demoSub;
         private float _since;
         private float _s = 1f;
         private Vector2 _center;
@@ -78,6 +81,8 @@ namespace Xiaoqi.UI
             PetHost.I?.RegisterMenuBlocker(() => _open);
             _demo = Array.IndexOf(Environment.GetCommandLineArgs(), "-menu-demo") >= 0;
             _shot = Array.IndexOf(Environment.GetCommandLineArgs(), "-menu-shot") >= 0;
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-demo-doing") >= 0) _demoSub = "doing";
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-demo-quiet") >= 0) _demoSub = "quiet";
             if (_shot) _demo = true;
             if (_demo) _demoAt = Time.unscaledTime + 2.5f;
             if (_shot)
@@ -151,8 +156,8 @@ namespace Xiaoqi.UI
 
             AddSlot("today", "今天", false, null, () => { Close("action"); Xiaoqi.Spike.TodayCard.DebugOpen(); });
             AddSlot("say", "说句话", true, "还没开通", null);
-            AddSlot("doing", "让她…", false, null, () => Debug.Log("XQ_MENU doing"));
-            AddSlot("quiet", "安静一会", false, null, () => Debug.Log("XQ_MENU quiet"));
+            AddSlot("doing", "让她…", false, null, () => ToggleSub("doing"));
+            AddSlot("quiet", "安静一会", false, null, () => ToggleSub("quiet"));
             AddSlot("live", "直播间", true, "还在做", null);
 
             _settings = XqUi.Label(_root, "设置", XqStyle.Px(XqStyle.FontSmall), XqStyle.Muted,
@@ -206,49 +211,182 @@ namespace Xiaoqi.UI
             _slots.Add(slot);
         }
 
-        private Image NewArc(bool right)
+        // ---------------------------------------------------------- submenus
+
+        private void ToggleSub(string kind)
         {
-            var go = new GameObject(right ? "ArcR" : "ArcL", typeof(RectTransform));
-            var img = go.AddComponent<Image>();
-            img.raycastTarget = false;
-            img.sprite = ArcSprite(right);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.pivot = new Vector2(0.5f, 0.5f);
-            float d = XqStyle.Fr(2f * ((RadiusPx - ArcRadiusOffset) + 24f));
-            rt.sizeDelta = new Vector2(d, d);
-            rt.anchoredPosition = Vector2.zero;
-            return img;
+            if (_subKind == kind) { ClearSub(); return; }
+            ClearSub();
+            _subKind = kind;
+            if (kind == "doing") BuildDoing();
+            else if (kind == "quiet") BuildQuiet();
+            else if (kind == "dance") BuildDance();
+            PositionSub();
+            SetDim(true);
+            StartCoroutine(SubIn());
         }
 
-        private Sprite ArcSprite(bool right)
+        private IEnumerator SubIn()
         {
-            float r = XqStyle.Fr(RadiusPx - ArcRadiusOffset);
-            int size = Mathf.CeilToInt((r + XqStyle.Fr(4f)) * 2f);
-            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
-            var px = new Color32[size * size];
-            float c = (size - 1) * 0.5f;
-            float dotLen = XqStyle.Fr(3f);
-            float period = dotLen * 2f;
-            for (int y = 0; y < size; y++)
-            for (int x = 0; x < size; x++)
+            float t = 0f;
+            while (t < XqStyle.InSec)
             {
-                float dx = x - c, dy = y - c;
-                float dist = Mathf.Sqrt(dx * dx + dy * dy);
-                if (Mathf.Abs(dist - r) > XqStyle.Fr(0.7f)) continue;
-                float ang = Mathf.Atan2(dy, dx) * Mathf.Rad2Deg;
-                float a = right ? ang : 180f - ang;
-                if (a > 70f || a < -70f) continue;
-                float arc = Mathf.Abs(a) * Mathf.Deg2Rad * r;
-                if (Mathf.Repeat(arc, period) > dotLen) continue;
-                px[y * size + x] = XqStyle.PinkGuide;
+                t += Time.unscaledDeltaTime;
+                for (int i = 0; i < _sub.Count; i++)
+                {
+                    var s = _sub[i];
+                    if (s.View == null) continue;
+                    float d = Mathf.Clamp01((t - i * XqStyle.StaggerSec) / XqStyle.InSec);
+                    float e = 1f - Mathf.Pow(1f - d, 3f);
+                    s.Group.alpha = e;
+                    s.View.Root.localScale = Vector3.one * Mathf.Lerp(0.85f, 1f, e);
+                }
+                yield return null;
             }
-            tex.SetPixels32(px);
-            tex.wrapMode = TextureWrapMode.Clamp;
-            tex.filterMode = FilterMode.Bilinear;
-            var sp = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
-            return sp;
+            foreach (var s in _sub) if (s.View != null) { s.Group.alpha = 1f; s.View.Root.localScale = Vector3.one; }
         }
+
+        private Slot AnchorSlot(string id)
+        {
+            return _slots.Find(s => s.Id == id);
+        }
+
+        private void BuildDoing()
+        {
+            var st = XiaoqiLink.Current;
+            bool outside = st != null && st.where != "dorm";
+            string why = (st != null && st.seg != null ? st.seg.name : "") + "，回来再说";
+            bool asleep = Xiaoqi.Spike.PetPresence.IsAsleep;
+
+            AddSub("回到中间", null, false, () =>
+            {
+                PetHost.I?.ExitWindowSit();
+                PetHost.I?.MoveToCenter();
+                Close("action");
+            });
+            AddSub(asleep ? "叫醒她" : "睡一会", outside ? why : null, outside, () =>
+            {
+                if (asleep) Xiaoqi.Spike.PetPresence.Wake();
+                else Xiaoqi.Spike.PetPresence.Nap(XiaoqiRuntime.Config != null ? XiaoqiRuntime.Config.nap_min : 20);
+                Close("action");
+            });
+            if (PetHost.I != null && PetHost.I.Dances.Count > 0)
+            {
+                AddSub("跳舞 ▸", outside ? why : null, outside, () => ToggleSub("dance"));
+                _sub[_sub.Count - 1].Id = "dance";
+            }
+        }
+
+        private void BuildQuiet()
+        {
+            AddSub("30 分钟", null, false, () => { XiaoqiRuntime.SetQuietMinutes(30); Close("action"); });
+            AddSub("1 小时", null, false, () => { XiaoqiRuntime.SetQuietMinutes(60); Close("action"); });
+            AddSub("到明早 8 点", null, false, () => { XiaoqiRuntime.SetQuietTomorrow8(); Close("action"); });
+            AddSub("一直", null, false, () => { XiaoqiRuntime.SetQuietForever(); Close("action"); });
+            if (XiaoqiRuntime.Dnd)
+                AddSub("不安静了", null, false, () => { XiaoqiRuntime.ClearQuiet(); Close("action"); });
+        }
+
+        private void BuildDance()
+        {
+            foreach (var name in PetHost.I.Dances)
+            {
+                string dance = name;
+                AddSub(name, null, false, () =>
+                {
+                    if (PetHost.I.PlayDance(dance)) Close("action");
+                    else Debug.Log("XQ_MENU dance failed " + dance);
+                });
+            }
+            if (PetHost.I.IsDancing)
+                AddSub("停下", null, false, () => { PetHost.I.StopDance(); Close("action"); });
+        }
+
+        private void AddSub(string label, string hint, bool gray, Action act)
+        {
+            var cap = XqUi.Capsule(_root, label, null);
+            var grp = cap.Root.gameObject.AddComponent<CanvasGroup>();
+            var slot = new Slot { Id = "sub", Text = label, View = cap, Group = grp, Gray = gray, Hint = hint, Act = act };
+            if (gray) cap.Text.color = XqStyle.GrayText;
+            cap.Hover.OnEnter = () => OnEnter(slot);
+            cap.Hover.OnExit = () => OnExit(slot);
+            cap.Hover.OnDown = () => cap.Root.localScale = Vector3.one * 0.96f;
+            cap.Hover.OnUp = () => cap.Root.localScale = Vector3.one;
+            cap.Hover.OnClick = () =>
+            {
+                if (slot.Gray) { Debug.Log("XQ_MENU gray sub"); return; }
+                slot.Act?.Invoke();
+            };
+            _sub.Add(slot);
+        }
+
+        private void PositionSub()
+        {
+            float gap = XqStyle.Fr(12f);
+            float step = XqStyle.Fr(44f);
+            string anchorId = _subKind == "quiet" ? "quiet" : "doing";
+            var anchor = AnchorSlot(anchorId);
+            if (anchor == null) return;
+
+            var anchorRect = anchor.View.Root;
+            float anchorW = anchorRect.sizeDelta.x;
+            float baseX = _left ? anchor.BasePos.x - anchorW - gap : anchor.BasePos.x + anchorW + gap;
+            float centerY = anchor.BasePos.y;
+
+            if (_subKind == "dance")
+            {
+                var danceAnchor = _sub.Find(s => s.Id == "dance");
+                if (danceAnchor != null)
+                {
+                    baseX = _left ? danceAnchor.BasePos.x - danceAnchor.View.Root.sizeDelta.x - gap
+                                  : danceAnchor.BasePos.x + danceAnchor.View.Root.sizeDelta.x + gap;
+                    centerY = danceAnchor.BasePos.y;
+                }
+            }
+
+            for (int i = 0; i < _sub.Count; i++)
+            {
+                var s = _sub[i];
+                float tw = s.View.Text.preferredWidth + XqStyle.Fr(2f * XqStyle.CapsulePadX);
+                float w = Mathf.Max(XqStyle.Fr(96f), tw);
+                s.View.Root.sizeDelta = new Vector2(w, _capH);
+                int pw2 = Mathf.RoundToInt(w), ph2 = Mathf.RoundToInt(_capH);
+                s.View.Bg.sprite = XqUi.Pill(pw2, ph2, s.Gray ? XqStyle.GrayFill : XqStyle.Paper,
+                    s.Gray ? XqStyle.GrayLine : XqStyle.PinkLine);
+                s.View.Bg.type = Image.Type.Simple;
+                s.View.Bg.color = Color.white;
+                s.View.HoverBg.sprite = XqUi.Pill(pw2, ph2, XqStyle.PinkFill, XqStyle.PinkStrong);
+                s.View.HoverBg.type = Image.Type.Simple;
+                s.View.HoverBg.color = new Color(XqStyle.PinkFill.r, XqStyle.PinkFill.g, XqStyle.PinkFill.b, 0f);
+
+                var rt = s.View.Root;
+                rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+                rt.pivot = new Vector2(_left ? 1f : 0f, 0.5f);
+                float y = centerY + ((_sub.Count - 1) * 0.5f - i) * step;
+                s.BasePos = new Vector2(baseX, y);
+                rt.anchoredPosition = s.BasePos;
+                rt.localScale = Vector3.one;
+                s.Group.alpha = 0f;
+            }
+        }
+
+        private void ClearSub()
+        {
+            foreach (var s in _sub)
+                if (s.View != null) Destroy(s.View.Root.gameObject);
+            _sub.Clear();
+            _subKind = "";
+            _hintGroup.alpha = 0f;
+            SetDim(false);
+        }
+
+        private void SetDim(bool dim)
+        {
+            float a = dim ? 0.4f : 1f;
+            foreach (var s in _slots) s.Group.alpha = a;
+            _statusGroup.alpha = a;
+        }
+
 
         // ------------------------------------------------------------- input
 
@@ -261,7 +399,14 @@ namespace Xiaoqi.UI
                 return;
             }
 
-            if (Input.GetKeyDown(KeyCode.Escape)) { Close("esc"); return; }
+            _since += Time.unscaledDeltaTime;
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (!string.IsNullOrEmpty(_subKind)) { ClearSub(); return; }
+                Close("esc");
+                return;
+            }
             if (Input.GetMouseButtonDown(1)) { Close("right"); return; }
             if (Input.GetMouseButtonDown(0) && !IsPointerOverMenu()) { Close("blank"); return; }
 
@@ -276,6 +421,12 @@ namespace Xiaoqi.UI
                 foreach (var s in _slots) s.Group.alpha = 1f;
             }
             AnimateHover();
+            if (!string.IsNullOrEmpty(_demoSub) && _since > 0.3f)
+            {
+                var kind = _demoSub;
+                _demoSub = "";
+                ToggleSub(kind);
+            }
             if (!_loggedAlpha && _since > 0.6f)
             {
                 _loggedAlpha = true;
@@ -430,7 +581,24 @@ namespace Xiaoqi.UI
                 if (s.face != null && !string.IsNullOrEmpty(s.face.top) && s.face.top != "平常" && s.face.level >= 0.25f)
                     text += " · " + (s.face.level < 0.5f ? "有点" : "") + s.face.top;
             }
+            if (XiaoqiRuntime.IsQuiet()) text += " · 安静中";
             _status.Text.text = text;
+
+            var q = AnchorSlot("quiet");
+            if (q != null)
+            {
+                if (XiaoqiRuntime.IsQuiet())
+                {
+                    var until = XiaoqiRuntime.Config != null ? XiaoqiRuntime.Config.dnd_until : "";
+                    q.View.Text.text = until == "forever" ? "安静中" : XiaoqiRuntime.QuietLabel();
+                    q.View.Text.color = XqStyle.PinkStrong;
+                }
+                else
+                {
+                    q.View.Text.text = "安静一会";
+                    q.View.Text.color = XqStyle.Ink;
+                }
+            }
         }
 
         private void Layout()
@@ -445,13 +613,13 @@ namespace Xiaoqi.UI
                 float tw = s.View.Text.preferredWidth + XqStyle.Fr(2f * XqStyle.CapsulePadX);
                 float cw = Mathf.Max(XqStyle.Fr(XqStyle.CapsuleMinWidth), tw);
                 s.View.Root.sizeDelta = new Vector2(cw, _capH);
-                int pw = Mathf.RoundToInt(cw), ph = Mathf.RoundToInt(_capH);
-                var ui = Resources.GetBuiltinResource<Sprite>("UI/Skin/UISprite.psd");
-                s.View.Bg.sprite = ui;
-                s.View.Bg.type = Image.Type.Sliced;
-                s.View.Bg.color = s.Gray ? XqStyle.GrayFill : XqStyle.Paper;
-                s.View.HoverBg.sprite = ui;
-                s.View.HoverBg.type = Image.Type.Sliced;
+                int pw2 = Mathf.RoundToInt(cw), ph2 = Mathf.RoundToInt(_capH);
+                s.View.Bg.sprite = XqUi.Pill(pw2, ph2, s.Gray ? XqStyle.GrayFill : XqStyle.Paper,
+                    s.Gray ? XqStyle.GrayLine : XqStyle.PinkLine);
+                s.View.Bg.type = Image.Type.Simple;
+                s.View.Bg.color = Color.white;
+                s.View.HoverBg.sprite = XqUi.Pill(pw2, ph2, XqStyle.PinkFill, XqStyle.PinkStrong);
+                s.View.HoverBg.type = Image.Type.Simple;
                 s.View.HoverBg.color = new Color(XqStyle.PinkFill.r, XqStyle.PinkFill.g, XqStyle.PinkFill.b, 0f);
                 _maxWidth = Mathf.Max(_maxWidth, cw);
             }
@@ -460,9 +628,9 @@ namespace Xiaoqi.UI
             float sw = Mathf.Max(XqStyle.Fr(120f), statusW);
             float sh = XqStyle.Fr(28f);
             _status.Root.sizeDelta = new Vector2(sw, sh);
-            _status.Bg.sprite = Resources.GetBuiltinResource<Sprite>("UI/Skin/UISprite.psd");
-            _status.Bg.type = Image.Type.Sliced;
-            _status.Bg.color = XqStyle.PinkFill;
+            _status.Bg.sprite = XqUi.Pill(Mathf.RoundToInt(sw), Mathf.RoundToInt(sh), XqStyle.PinkFill, XqStyle.PinkFill);
+            _status.Bg.type = Image.Type.Simple;
+            _status.Bg.color = Color.white;
 
             _left = _center.x + R + _maxWidth + XqStyle.Fr(24f) > w;
 
@@ -529,7 +697,6 @@ namespace Xiaoqi.UI
 
         private void AnimateOpen()
         {
-            _since += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(_since / XqStyle.InSec);
             float ease = 1f - Mathf.Pow(1f - t, 3f);
             for (int i = 0; i < _slots.Count; i++)
@@ -545,6 +712,7 @@ namespace Xiaoqi.UI
         private void Close(string by)
         {
             if (!_open || _closing) return;
+            ClearSub();
             _closing = true;
             Debug.Log("XQ_MENU close by=" + by);
             StartCoroutine(CloseRoutine());

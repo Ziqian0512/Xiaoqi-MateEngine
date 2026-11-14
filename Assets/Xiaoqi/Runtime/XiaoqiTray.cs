@@ -15,19 +15,15 @@ public static class XiaoqiTray
         return new List<(string, Action)>
         {
             ("小祈设置", XiaoqiSettings.Open),
-            (XiaoqiRuntime.Dnd ? "免打扰 ✔" : "免打扰", ToggleDnd),
+            (XiaoqiRuntime.Dnd ? "不安静了" : "安静一小时", ToggleQuiet),
             (Utils.TrayIcon.SEPARATOR, null),
             ("退出小祈", () => Application.Quit())
         };
     }
 
-    private static void ToggleDnd()
+    private static void ToggleQuiet()
     {
-        XiaoqiRuntime.Dnd = !XiaoqiRuntime.Dnd;
-        if (XiaoqiRuntime.Config != null)
-        {
-            XiaoqiRuntime.Config.dnd = XiaoqiRuntime.Dnd;
-            XiaoqiConfig.Save(XiaoqiRuntime.Config);
-        }
+        if (XiaoqiRuntime.Dnd) XiaoqiRuntime.ClearQuiet();
+        else XiaoqiRuntime.SetQuietMinutes(60);
     }
 }

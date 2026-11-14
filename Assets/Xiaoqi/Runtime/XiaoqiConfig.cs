@@ -12,6 +12,8 @@ public class XiaoqiConfig
     public string pet_when_out = "show";
     public bool bubble = true;
     public bool dnd = false;
+    public string dnd_until = "";
+    public int nap_min = 20;
     public bool emotion_line = false;
 
     public static void Save(XiaoqiConfig cfg)

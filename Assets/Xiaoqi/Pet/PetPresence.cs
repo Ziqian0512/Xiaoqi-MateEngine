@@ -13,6 +13,30 @@ namespace Xiaoqi.Spike
         private StageData _stage;
         private bool _dragWas;
         private float _wakeAt = -1f;
+        private float _napUntil = -1f;
+
+        public static void Nap(float minutes)
+        {
+            var self = FindFirstObjectByType<PetPresence>(FindObjectsInactive.Include);
+            if (self == null) return;
+            IsAsleep = true;
+            if (PetHost.I != null) PetHost.I.SetSleeping(true);
+            self._napUntil = Time.unscaledTime + Mathf.Max(0.1f, minutes) * 60f;
+            Debug.Log("XQ_NAP start min=" + minutes);
+        }
+
+        public static void Wake()
+        {
+            var self = FindFirstObjectByType<PetPresence>(FindObjectsInactive.Include);
+            IsAsleep = false;
+            if (PetHost.I != null) PetHost.I.SetSleeping(false);
+            if (self != null)
+            {
+                self._napUntil = -1f;
+                self._wakeAt = Time.unscaledTime + self._cfg.presence.wake_on_drag_sec;
+            }
+            Debug.Log("XQ_NAP wake");
+        }
 
         private void Start()
         {
@@ -46,6 +70,7 @@ namespace Xiaoqi.Spike
                         ? _cfg.presence.label_out.Replace("{seg}", seg).Replace("{back}", back)
                         : _cfg.presence.label_out_noback.Replace("{seg}", seg));
                 }
+                else if (XiaoqiRuntime.IsQuiet()) _head.SetLabel(XiaoqiRuntime.QuietLabel());
                 else _head.SetLabel("");
             }
             Debug.Log("XQ_PRESENCE " + state + " seg=" + (s.seg != null ? s.seg.name : ""));
@@ -55,11 +80,19 @@ namespace Xiaoqi.Spike
         {
             if (!XiaoqiRuntime.Config.emotion_line) return;
             if (PetHost.I == null) return;
+            if (_napUntil > 0f && Time.unscaledTime >= _napUntil)
+            {
+                _napUntil = -1f;
+                IsAsleep = false;
+                PetHost.I.SetSleeping(false);
+                Debug.Log("XQ_NAP end");
+            }
             bool dragging = PetHost.I.IsDragging;
             if (dragging && !_dragWas && IsAsleep)
             {
                 IsAsleep = false;
                 PetHost.I.SetSleeping(false);
+                _napUntil = -1f;
                 _wakeAt = Time.unscaledTime + _cfg.presence.wake_on_drag_sec;
             }
             _dragWas = dragging;

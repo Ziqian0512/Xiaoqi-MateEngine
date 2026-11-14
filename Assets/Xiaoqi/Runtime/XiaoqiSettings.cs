@@ -54,7 +54,6 @@ public class XiaoqiSettings : MonoBehaviour
             XiaoqiRuntime.Config.pet_when_out = XiaoqiRuntime.Config.pet_when_out == "hide" ? "show" : "hide";
         GUILayout.EndHorizontal();
         SetToggle("气泡", XiaoqiRuntime.Config.bubble, v => XiaoqiRuntime.Config.bubble = v);
-        SetToggle("免打扰", XiaoqiRuntime.Dnd, v => { XiaoqiRuntime.Dnd = v; XiaoqiRuntime.Config.dnd = v; });
         SetToggle("情感线（测试）", XiaoqiRuntime.Config.emotion_line, v =>
         {
             XiaoqiRuntime.Config.emotion_line = v;
