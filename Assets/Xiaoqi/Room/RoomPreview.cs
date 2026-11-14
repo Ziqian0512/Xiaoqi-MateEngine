@@ -110,6 +110,8 @@ namespace Xiaoqi.Spike
                         Debug.Log($"ROOM_CHARACTER_HEIGHT={vb.size.y:F3}m");
                     }
                     var bubble = gameObject.AddComponent<BubbleUI>();
+                    var mouth = gameObject.AddComponent<XiaoqiMouth>();
+                    mouth.Setup(vrm.Root, bubble);
                     FixMaterials(vrm.Root);
                     var animator = vrm.Root.GetComponent<Animator>();
                     if (animator == null) animator = vrm.Root.GetComponentInChildren<Animator>();

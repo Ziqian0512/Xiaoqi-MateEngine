@@ -49,6 +49,8 @@ namespace Xiaoqi.Spike
             trt.offsetMax = Vector2.zero;
         }
 
+        public bool IsVisible => group != null && group.alpha > 0.01f;
+
         public void Show(string text, float seconds = 4f)
         {
             if (label == null) return;
