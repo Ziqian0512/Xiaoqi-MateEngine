@@ -229,8 +229,8 @@ namespace Xiaoqi.Host
 
         public void MoveToCenter()
         {
-            var hwnd = GetActiveWindow();
-            if (hwnd == IntPtr.Zero) hwnd = FindWindow("UnityWndClass", null);
+            var hwnd = FindWindow("UnityWndClass", null);
+            if (hwnd == IntPtr.Zero) hwnd = GetActiveWindow();
             if (hwnd == IntPtr.Zero) { Debug.Log("XQ_HOST_MISS window"); return; }
             if (!GetWindowRect(hwnd, out var wr)) return;
             var work = new RECT();
@@ -241,6 +241,26 @@ namespace Xiaoqi.Host
             int y = work.bottom - h;
             MoveWindow(hwnd, x, y, w, h, true);
             Debug.Log("XQ_HOST center " + x + "," + y + " " + w + "x" + h);
+        }
+
+        /// <summary>窗口整个跑到屏幕外时拉回中间；正常在屏内不动。</summary>
+        public void EnsureOnScreen()
+        {
+            var hwnd = FindWindow("UnityWndClass", null);
+            Debug.Log("XQ_WATCH hwnd=" + hwnd);
+            if (hwnd == IntPtr.Zero) return;
+            if (!GetWindowRect(hwnd, out var wr)) return;
+            Debug.Log("XQ_WATCH rect=" + wr.left + "," + wr.top + "," + wr.right + "," + wr.bottom);
+            var work = new RECT();
+            if (!SystemParametersInfo(SPI_GETWORKAREA, 0, ref work, 0)) return;
+            int cx = (wr.left + wr.right) / 2;
+            int cy = (wr.top + wr.bottom) / 2;
+            bool inside = cx >= work.left && cx <= work.right && cy >= work.top && cy <= work.bottom;
+            if (!inside)
+            {
+                Debug.Log("XQ_HOST offscreen " + wr.left + "," + wr.top + " -> center");
+                MoveToCenter();
+            }
         }
 
         // ------------------------------------------------------------- dance

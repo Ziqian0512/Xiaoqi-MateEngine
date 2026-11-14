@@ -26,6 +26,18 @@ public class XiaoqiSystems : MonoBehaviour
             XiaoqiLiveEntry.Open();
 
         StartCoroutine(DemoSteps());
+        StartCoroutine(WatchWindow());
+    }
+
+    private IEnumerator WatchWindow()
+    {
+        yield return new WaitForSeconds(1.5f);
+        Debug.Log("XQ_WATCH start");
+        for (;;)
+        {
+            (PetHost.I as MeHost)?.EnsureOnScreen();
+            yield return new WaitForSeconds(2f);
+        }
     }
 
     private IEnumerator DemoSteps()
