@@ -15,6 +15,7 @@ public static class XiaoqiBuild
         var prefabPath = "Assets/Xiaoqi/Resources/XiaoqiSystems.prefab";
         Directory.CreateDirectory("Assets/Xiaoqi/Resources");
         var temp = new GameObject("XiaoqiSystems");
+        temp.AddComponent<Xiaoqi.Host.MeHost>();
         temp.AddComponent<XiaoqiSystems>();
         temp.AddComponent<XiaoqiSettings>();
         temp.AddComponent<XiaoqiLink>();
