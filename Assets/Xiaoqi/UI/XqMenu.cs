@@ -56,6 +56,7 @@ namespace Xiaoqi.UI
         private bool _loggedAlpha;
         private bool _settled;
         private bool _demo;
+        private bool _demoMode;
         private float _demoAt;
         private bool _shot;
         private string _shotPath;
@@ -87,6 +88,7 @@ namespace Xiaoqi.UI
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-demo-doing") >= 0) _demoSub = "doing";
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-demo-quiet") >= 0) _demoSub = "quiet";
             if (_shot) _demo = true;
+            _demoMode = _demo || _shot;
             if (_demo) _demoAt = Time.unscaledTime + 2.5f;
             if (_shot)
             {
@@ -104,6 +106,10 @@ namespace Xiaoqi.UI
                 StartCoroutine(DemoA4());
             if (Array.IndexOf(cargs, "-demo-a6") >= 0)
                 StartCoroutine(DemoA6());
+            if (Array.IndexOf(cargs, "-demo-idle") >= 0)
+                StartCoroutine(DemoIdle());
+            if (Array.IndexOf(cargs, "-demo-chibi") >= 0)
+                StartCoroutine(DemoChibi());
         }
 
         // ------------------------------------------------------------- build
@@ -234,6 +240,7 @@ namespace Xiaoqi.UI
             if (kind == "doing") BuildDoing();
             else if (kind == "quiet") BuildQuiet();
             else if (kind == "dance") BuildDance();
+            else if (kind == "idle") BuildIdle();
             PositionSub();
             SetDim(true);
             StartCoroutine(SubIn());
@@ -301,6 +308,25 @@ namespace Xiaoqi.UI
             Debug.Log("XQ_DEMO_A6 done");
         }
 
+        private IEnumerator DemoIdle()
+        {
+            yield return new WaitForSecondsRealtime(3.2f);
+            ToggleSub("doing");
+            yield return new WaitForSecondsRealtime(0.6f);
+            ToggleSub("idle");
+            yield return new WaitForSecondsRealtime(0.5f);
+            if (PetHost.I != null) PetHost.I.RunAction("pose_next");
+            yield return new WaitForSecondsRealtime(0.4f);
+            if (PetHost.I != null) PetHost.I.RunAction("pose_next");
+            Debug.Log("XQ_DEMO_IDLE done");
+        }
+
+        private IEnumerator DemoChibi()
+        {
+            yield return new WaitForSecondsRealtime(3f);
+            if (PetHost.I != null) Debug.Log("XQ_DEMO_CHIBI " + PetHost.I.RunAction("chibi"));
+        }
+
         private IEnumerator SubIn()
         {
             float t = 0f;
@@ -345,10 +371,41 @@ namespace Xiaoqi.UI
                 else Xiaoqi.Spike.PetPresence.Nap(XiaoqiRuntime.Config != null ? XiaoqiRuntime.Config.nap_min : 20);
                 Close("action");
             });
+            if (PetHost.I != null)
+            {
+                foreach (var act in PetHost.I.Actions)
+                {
+                    if (act.Id.StartsWith("idle_")) continue;
+                    var a = act;
+                    AddSub(a.Label, null, false, () =>
+                    {
+                        if (!PetHost.I.RunAction(a.Id)) Debug.Log("XQ_MENU action failed " + a.Id);
+                        Close("action");
+                    });
+                }
+
+
+            }
+
             if (PetHost.I != null && PetHost.I.Dances.Count > 0)
             {
                 AddSub("跳舞 ▸", outside ? why : null, outside, () => ToggleSub("dance"));
                 _sub[_sub.Count - 1].Id = "dance";
+            }
+        }
+
+        private void BuildIdle()
+        {
+            if (PetHost.I == null) return;
+            foreach (var act in PetHost.I.Actions)
+            {
+                if (!act.Id.StartsWith("idle_")) continue;
+                var a = act;
+                AddSub(a.Label, null, false, () =>
+                {
+                    PetHost.I.RunAction(a.Id);
+                    Close("action");
+                });
             }
         }
 
@@ -400,6 +457,8 @@ namespace Xiaoqi.UI
             float gap = XqStyle.Fr(12f);
             float step = XqStyle.Fr(44f);
             string anchorId = _subKind == "quiet" ? "quiet" : "doing";
+            if (_subKind == "idle") anchorId = "idle";
+            if (_subKind == "dance") anchorId = "dance";
             var anchor = AnchorSlot(anchorId);
             if (anchor == null) return;
 
@@ -419,12 +478,22 @@ namespace Xiaoqi.UI
                 }
             }
 
+            float base0 = baseX;
+            int cols = _sub.Count > 6 ? 2 : 1;
+            int perCol = Mathf.CeilToInt(_sub.Count / (float)cols);
+            float colStep = XqStyle.Fr(160f);
+            float half = (perCol - 1) * step * 0.5f;
+            centerY = Mathf.Clamp(centerY, half + XqStyle.Fr(8f), Screen.height - half - XqStyle.Fr(8f));
+
             for (int i = 0; i < _sub.Count; i++)
             {
                 var s = _sub[i];
                 float tw = s.View.Text.preferredWidth + XqStyle.Fr(2f * XqStyle.CapsulePadX);
                 float w = Mathf.Max(XqStyle.Fr(96f), tw);
                 s.View.Root.sizeDelta = new Vector2(w, _capH);
+                int col = cols == 1 ? 0 : i / perCol;
+                int row = cols == 1 ? i : i % perCol;
+                baseX = base0 + (_left ? -col * colStep : col * colStep);
                 int pw2 = Mathf.RoundToInt(w), ph2 = Mathf.RoundToInt(_capH);
                 s.View.Bg.sprite = XqUi.Pill(pw2, ph2, s.Gray ? XqStyle.GrayFill : XqStyle.Paper,
                     s.Gray ? XqStyle.GrayLine : XqStyle.PinkLine);
@@ -440,6 +509,7 @@ namespace Xiaoqi.UI
                 float y = centerY + ((_sub.Count - 1) * 0.5f - i) * step;
                 s.BasePos = new Vector2(baseX, y);
                 rt.anchoredPosition = s.BasePos;
+
                 rt.localScale = Vector3.one;
                 s.Group.alpha = 0f;
             }
@@ -512,7 +582,7 @@ namespace Xiaoqi.UI
 
         private void OnApplicationFocus(bool hasFocus)
         {
-            if (_demo || _shot) return;
+            if (_demoMode) return;
             if (!hasFocus && _open) Close("focus");
         }
 

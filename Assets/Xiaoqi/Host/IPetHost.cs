@@ -10,6 +10,13 @@ namespace Xiaoqi.Host
         public float joy, angry, sorrow, fun, lookDown, blink, o;
     }
 
+    /// <summary>宿主提供的一个可执行动作（让她… 子列用）。</summary>
+    public class HostAction
+    {
+        public string Id;
+        public string Label;
+    }
+
     /// <summary>
     /// 小祈代码与底层（现在是 Mate Engine）之间的唯一接口。
     /// 换底子时只重写 MeHost，菜单/表情/气泡/今天卡/设置都不用改。
@@ -33,6 +40,8 @@ namespace Xiaoqi.Host
         void MoveToCenter();
 
         IReadOnlyList<string> Dances { get; }
+        IReadOnlyList<HostAction> Actions { get; }
+        bool RunAction(string id);
         bool IsDancing { get; }
         bool PlayDance(string name);
         void StopDance();

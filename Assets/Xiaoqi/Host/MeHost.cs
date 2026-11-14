@@ -243,6 +243,17 @@ namespace Xiaoqi.Host
             Debug.Log("XQ_HOST center " + x + "," + y + " " + w + "x" + h);
         }
 
+        private void FixWindowSize()
+        {
+            var hwnd = FindWindow("UnityWndClass", null);
+            if (hwnd == IntPtr.Zero) return;
+            if (!GetWindowRect(hwnd, out var wr)) return;
+            int w = Mathf.Max(wr.right - wr.left, 900);
+            int h = Mathf.Max(wr.bottom - wr.top, 520);
+            MoveWindow(hwnd, wr.left, wr.top, w, h, true);
+            Debug.Log("XQ_HOST resize " + w + "x" + h);
+        }
+
         /// <summary>窗口整个跑到屏幕外时拉回中间；正常在屏内不动。</summary>
         public void EnsureOnScreen()
         {
@@ -256,9 +267,11 @@ namespace Xiaoqi.Host
             int cx = (wr.left + wr.right) / 2;
             int cy = (wr.top + wr.bottom) / 2;
             bool inside = cx >= work.left && cx <= work.right && cy >= work.top && cy <= work.bottom;
-            if (!inside)
+            bool tiny = (wr.right - wr.left) < 700 || (wr.bottom - wr.top) < 420;
+            if (!inside || tiny)
             {
-                Debug.Log("XQ_HOST offscreen " + wr.left + "," + wr.top + " -> center");
+                Debug.Log("XQ_HOST fix window inside=" + inside + " tiny=" + tiny + " rect=" + wr.left + "," + wr.top);
+                FixWindowSize();
                 MoveToCenter();
             }
         }
@@ -309,6 +322,55 @@ namespace Xiaoqi.Host
         }
 
         public IReadOnlyList<string> Dances => _dances;
+
+        private readonly List<HostAction> _actions = new List<HostAction>();
+        private int _idleNext = -1;
+
+        public IReadOnlyList<HostAction> Actions
+        {
+            get { BuildActions(); return _actions; }
+        }
+
+        private void BuildActions()
+        {
+            _actions.Clear();
+            var chibi = _model != null ? _model.GetComponentInChildren<ChibiToggle>(true) : null;
+            bool chibiOn = false;
+            if (chibi != null)
+            {
+                var f = chibi.GetType().GetField("isChibi", AnyInstance);
+                chibiOn = f != null && (bool)f.GetValue(chibi);
+            }
+            if (chibi != null) _actions.Add(new HostAction { Id = "chibi", Label = chibiOn ? "恢复大小" : "变小" });
+            if (IsWindowSitting) _actions.Add(new HostAction { Id = "unsit", Label = "下窗" });
+            _actions.Add(new HostAction { Id = "sit_toggle", Label = WindowSitEnabled ? "禁止坐窗口" : "允许坐窗口" });
+            _actions.Add(new HostAction { Id = "walk_toggle", Label = LocomotionEnabled ? "停下脚步" : "自己走" });
+            _actions.Add(new HostAction { Id = "pose_next", Label = "换个姿势" });
+        }
+
+        public bool RunAction(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return false;
+            if (id == "chibi")
+            {
+                var chibi = _model != null ? _model.GetComponentInChildren<ChibiToggle>(true) : null;
+                if (chibi == null) { Debug.Log("XQ_HOST_MISS ChibiToggle"); return false; }
+                chibi.ToggleChibiMode();
+                return true;
+            }
+            if (id == "unsit") { ExitWindowSit(); return true; }
+            if (id == "sit_toggle") { WindowSitEnabled = !WindowSitEnabled; SaveSettings(); return true; }
+            if (id == "walk_toggle") { LocomotionEnabled = !LocomotionEnabled; SaveSettings(); return true; }
+            if (id == "pose_next" && _animator != null)
+            {
+                _idleNext = (_idleNext + 3) % 10;
+                _animator.SetFloat("IdleIndex", _idleNext);
+                _animator.SetBool("isIdle", true);
+                Debug.Log("XQ_HOST idle=" + _idleNext);
+                return true;
+            }
+            return false;
+        }
         public bool IsDancing => _animator != null && _animator.GetBool("isCustomDancing");
 
         public bool PlayDance(string name)
