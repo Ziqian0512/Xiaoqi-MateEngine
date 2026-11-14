@@ -74,6 +74,14 @@ namespace Xiaoqi.Spike
         private IEnumerator Fetch()
         {
             _nextRefresh = Time.unscaledTime + 30f;
+            var args = Environment.GetCommandLineArgs();
+            var fi = Array.IndexOf(args, "-fake-day");
+            if (fi >= 0 && fi + 1 < args.Length && System.IO.File.Exists(args[fi + 1]))
+            {
+                try { _data = JsonUtility.FromJson<DayData>(System.IO.File.ReadAllText(args[fi + 1])); }
+                catch (Exception e) { _error = e.Message; }
+                yield break;
+            }
             var cfg = XiaoqiRuntime.Config;
             var url = (cfg.server ?? "").TrimEnd('/') + "/api/body/day";
             using (var req = UnityWebRequest.Get(url))
