@@ -1,10 +1,10 @@
 using UnityEngine;
 
-/// <summary>直播视角入口占位：以后接 AITuberKit / 独立窗口，不在这里自研直播。</summary>
+/// <summary>G54 E2：直播间的入口是 Xiaoqi.exe -live 独立进程，本期未实现。</summary>
 public static class XiaoqiLiveEntry
 {
     public static void Open()
     {
-        Debug.Log("XQ_LIVE_ENTRY not wired: AITuberKit integration pending");
+        Debug.Log("XQ_LIVE_ENTRY not wired: G54 E2 process -live not implemented");
     }
 }

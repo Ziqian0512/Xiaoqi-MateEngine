@@ -9,10 +9,10 @@ public class XiaoqiConfig
     public string token = "";
     public string model_path = "XiaoqiData/16.vrm";
     public int poll_sec = 2;
-    public string pet_when_out = "hide";
+    public string pet_when_out = "show";
     public bool bubble = true;
     public bool dnd = false;
-    public bool emotion_line = true;
+    public bool emotion_line = false;
 
     public static void Save(XiaoqiConfig cfg)
     {
