@@ -1,0 +1,49 @@
+{
+  "face": {
+    "map": {
+      "开心": {"Joy": 1.0},
+      "得意": {"Joy": 0.6, "Fun": 0.5},
+      "害羞": {"Joy": 0.35, "LookDown": 0.35},
+      "委屈": {"Sorrow": 0.8},
+      "生气": {"Angry": 0.7},
+      "担心": {"Sorrow": 0.45},
+      "想念": {"Sorrow": 0.3, "LookDown": 0.2},
+      "失望": {"Sorrow": 0.5},
+      "平常": {}
+    },
+    "base_min_level": 0.15,
+    "base_gain": 0.35,
+    "spike_gain": 0.9,
+    "spike_hold": 2.5,
+    "spike_fade": 1.5,
+    "spike_max_age_sec": 120,
+    "blend_sec": 0.6
+  },
+  "body": {
+    "sleepy_hi": 70,
+    "sleepy_lid": 0.15,
+    "yawn_every_min": [3, 6],
+    "yawn_sec": 1.8,
+    "yawn": {"O": 0.6, "Blink": 0.6},
+    "tired_lo": 30,
+    "tired_add": {"Sorrow": 0.15, "LookDown": 0.1}
+  },
+  "presence": {
+    "label_out": "{seg} · {back}回",
+    "label_out_noback": "{seg}",
+    "label_sleep": "睡着了",
+    "wake_on_drag_sec": 30
+  },
+  "bubble": {
+    "cps": 20, "min_sec": 4, "per_char_sec": 0.25, "max_sec": 12, "queue": 3,
+    "head_offset_m": 0.28, "voice_media": ["voice"], "mouth_hz": 8, "mouth_w": [0.3, 0.5]
+  },
+  "card": {
+    "click_max_sec": 0.3, "click_max_px": 6, "auto_close_sec": 10, "max_marks": 6,
+    "colors": {
+      "开心": "#F2B84B", "得意": "#E9A23B", "害羞": "#F29CB0", "委屈": "#8FA8D8",
+      "生气": "#E27D6F", "担心": "#9DB7A0", "想念": "#B9A3E3", "失望": "#A0A0B0", "平常": "#C8C8C8"
+    },
+    "where_colors": {"dorm": "#EDE6DA", "transit": "#D9E4EC", "out": "#DCE8D6"}
+  }
+}

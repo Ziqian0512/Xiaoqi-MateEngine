@@ -12,6 +12,7 @@ public class XiaoqiConfig
     public string pet_when_out = "hide";
     public bool bubble = true;
     public bool dnd = false;
+    public bool emotion_line = false;
 
     public static void Save(XiaoqiConfig cfg)
     {

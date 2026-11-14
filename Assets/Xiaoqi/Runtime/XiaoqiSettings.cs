@@ -59,6 +59,12 @@ public class XiaoqiSettings : MonoBehaviour
         XiaoqiRuntime.Config.bubble = Toggle("气泡", XiaoqiRuntime.Config.bubble);
         XiaoqiRuntime.Dnd = Toggle("免打扰", XiaoqiRuntime.Dnd);
         XiaoqiRuntime.Config.dnd = XiaoqiRuntime.Dnd;
+        var emotion = Toggle("情感线（测试）", XiaoqiRuntime.Config.emotion_line);
+        if (emotion != XiaoqiRuntime.Config.emotion_line)
+        {
+            XiaoqiRuntime.Config.emotion_line = emotion;
+            XiaoqiConfig.Save(XiaoqiRuntime.Config);
+        }
 
         GUILayout.Space(8);
         GUILayout.Label("连接");
