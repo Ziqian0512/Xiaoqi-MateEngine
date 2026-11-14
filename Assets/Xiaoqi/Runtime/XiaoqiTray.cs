@@ -17,7 +17,7 @@ public static class XiaoqiTray
             ("去房间", XiaoqiModeController.EnterRoom),
             (XiaoqiRuntime.Dnd ? "免打扰 ✔" : "免打扰", ToggleDnd),
             ("小祈设置", XiaoqiSettings.Open),
-            ("调参（F9）", () => Debug.Log("Xiaoqi: tuning panel not wired yet")),
+            ("调参（F9）", Xiaoqi.Spike.EmotionLineTuner.Toggle),
             ("关于", About),
             ("退出小祈", () => Application.Quit())
         };

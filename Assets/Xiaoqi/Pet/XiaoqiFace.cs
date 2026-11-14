@@ -8,6 +8,7 @@ namespace Xiaoqi.Spike
     public class XiaoqiFace : MonoBehaviour
     {
         private static readonly string[] Keys = { "Joy", "Angry", "Sorrow", "Fun", "LookDown", "Blink", "O" };
+        private static XiaoqiFace _instance;
         private EmotionLineConfig _cfg;
         private GameObject _model;
         private Animator _animator;
@@ -25,6 +26,17 @@ namespace Xiaoqi.Spike
         private bool _asleep;
         private float _yawnAt = -1f;
         private float _nextYawn;
+
+        private void Awake() { _instance = this; }
+
+        public static void DebugSpike(string emotion)
+        {
+            if (_instance == null) return;
+            if (!_instance._cfg.face.map.ContainsKey(emotion)) return;
+            _instance._spikeName = emotion;
+            _instance._spikeStart = Time.unscaledTime;
+            Debug.Log("XQ_SPIKE name=" + emotion + " at=debug note=F9");
+        }
 
         private void Start()
         {

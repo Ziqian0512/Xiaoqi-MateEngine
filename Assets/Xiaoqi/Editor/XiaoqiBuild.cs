@@ -28,6 +28,7 @@ public static class XiaoqiBuild
         temp.AddComponent<Xiaoqi.Spike.PetPresence>();
         temp.AddComponent<Xiaoqi.Spike.PetBubble>();
         temp.AddComponent<Xiaoqi.Spike.TodayCard>();
+        temp.AddComponent<Xiaoqi.Spike.EmotionLineTuner>();
         PrefabUtility.SaveAsPrefabAsset(temp, prefabPath);
         Object.DestroyImmediate(temp);
         AssetDatabase.SaveAssets();
