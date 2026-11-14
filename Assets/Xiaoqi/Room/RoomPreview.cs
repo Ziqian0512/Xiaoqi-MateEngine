@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.IO;
 using UniGLTF;
@@ -143,12 +143,8 @@ namespace Xiaoqi.Spike
 
                     var expr = gameObject.AddComponent<XiaoqiExpression>();
                     expr.Setup(vrm.Root);
-                    var client = gameObject.AddComponent<XiaoqiStateClient>();
-                    client.OnState += s => expr.Apply(s.label);
-                    var lip = gameObject.AddComponent<XiaoqiLipSync>();
-                    lip.Setup(vrm.Root, client.AudioSource);
-                    var autonomy = gameObject.AddComponent<RoomAutonomy>();
-                    autonomy.Setup(action, client, bubble);
+                    // U5：表情由 RoomStageFace 从 /api/body/stage 驱动。
+                    // 旧 /api/avatar/state 的 StateClient/RoomAutonomy 不再接入。
                 }
                 catch (System.Exception e)
                 {
