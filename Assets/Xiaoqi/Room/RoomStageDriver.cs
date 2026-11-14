@@ -6,11 +6,21 @@ namespace Xiaoqi.Spike
     {
         private RoomActionController _action;
 
+        private bool _applied;
+
         private void Start()
         {
-            _action = FindFirstObjectByType<RoomActionController>();
             XiaoqiLink.OnStage += Apply;
-            if (XiaoqiLink.Current != null) Apply(XiaoqiLink.Current);
+        }
+
+        private void Update()
+        {
+            if (_action == null) _action = FindFirstObjectByType<RoomActionController>();
+            if (!_applied && _action != null && XiaoqiLink.Current != null)
+            {
+                _applied = true;
+                Apply(XiaoqiLink.Current);
+            }
         }
 
         private void OnDestroy()

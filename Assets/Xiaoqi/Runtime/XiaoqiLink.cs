@@ -10,7 +10,37 @@ public class XiaoqiLink : MonoBehaviour
 
     private void Start()
     {
+        if (TryFakeStage()) return;
         StartCoroutine(Poll());
+    }
+
+    private bool TryFakeStage()
+    {
+        var args = Environment.GetCommandLineArgs();
+        var i = Array.IndexOf(args, "-fake-stage");
+        if (i < 0 || i + 1 >= args.Length) return false;
+        var name = args[i + 1];
+        var path = System.IO.Path.IsPathRooted(name)
+            ? name
+            : System.IO.Path.Combine(Application.streamingAssetsPath, "Xiaoqi", "fake_stage", name + ".json");
+        if (!System.IO.File.Exists(path))
+        {
+            Debug.LogWarning("XiaoqiLink fake stage missing: " + path);
+            return false;
+        }
+        try
+        {
+            var data = JsonUtility.FromJson<StageData>(System.IO.File.ReadAllText(path));
+            Current = data;
+            OnStage?.Invoke(data);
+            Debug.Log("XIAOQI_FAKE_STAGE " + path);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("XiaoqiLink fake stage: " + e.Message);
+            return false;
+        }
     }
 
     private IEnumerator Poll()

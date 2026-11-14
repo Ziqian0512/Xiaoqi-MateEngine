@@ -6,11 +6,21 @@ namespace Xiaoqi.Spike
     {
         private XiaoqiExpression _face;
 
+        private bool _applied;
+
         private void Start()
         {
-            _face = FindFirstObjectByType<XiaoqiExpression>();
             XiaoqiLink.OnStage += Apply;
-            if (XiaoqiLink.Current != null) Apply(XiaoqiLink.Current);
+        }
+
+        private void Update()
+        {
+            if (_face == null) _face = FindFirstObjectByType<XiaoqiExpression>();
+            if (!_applied && _face != null && XiaoqiLink.Current != null)
+            {
+                _applied = true;
+                Apply(XiaoqiLink.Current);
+            }
         }
 
         private void OnDestroy()
