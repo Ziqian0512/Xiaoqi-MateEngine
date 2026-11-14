@@ -147,7 +147,13 @@ namespace Xiaoqi.Spike
 
         private void OnApplicationFocus(bool hasFocus)
         {
-            if (!hasFocus) Close();
+            if (!hasFocus && !ShotMode()) Close();
+        }
+
+        private static bool ShotMode()
+        {
+            var a = Environment.GetCommandLineArgs();
+            return Array.IndexOf(a, "-menu-shot") >= 0 || Array.IndexOf(a, "-demo-today") >= 0;
         }
 
         // -------------------------------------------------------------- open
@@ -161,6 +167,8 @@ namespace Xiaoqi.Spike
             _nextRefresh = 0f;
             _go.SetActive(true);
             Refresh();
+            Debug.Log("XQ_TODAY open go=" + _go.activeInHierarchy + " canvas=" + (_canvas != null && _canvas.isActiveAndEnabled)
+                      + " rect=" + _card.rect + " pos=" + _card.anchoredPosition);
         }
 
         public void Close()

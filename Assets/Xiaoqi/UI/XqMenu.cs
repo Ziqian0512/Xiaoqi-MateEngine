@@ -93,7 +93,10 @@ namespace Xiaoqi.UI
                 var dir = System.IO.Path.Combine(Application.persistentDataPath, "shots");
                 System.IO.Directory.CreateDirectory(dir);
                 _shotPath = System.IO.Path.Combine(dir, "menu.png");
-            }
+            }            var cargs = Environment.GetCommandLineArgs();
+            int ci = Array.IndexOf(cargs, "-capture");
+            if (ci >= 0 && ci + 1 < cargs.Length)
+                StartCoroutine(CaptureRoutine(cargs[ci + 1]));
         }
 
         // ------------------------------------------------------------- build
@@ -227,6 +230,15 @@ namespace Xiaoqi.UI
             PositionSub();
             SetDim(true);
             StartCoroutine(SubIn());
+        }
+
+        private IEnumerator CaptureRoutine(string path)
+        {
+            yield return new WaitForSecondsRealtime(4.5f);
+            ScreenCapture.CaptureScreenshot(path);
+            Debug.Log("XQ_CAPTURE " + path);
+            yield return new WaitForSecondsRealtime(0.5f);
+            Application.Quit();
         }
 
         private IEnumerator SubIn()

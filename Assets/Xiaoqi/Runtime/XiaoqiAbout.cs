@@ -18,6 +18,8 @@ public class XiaoqiAbout : MonoBehaviour
         if (_instance == null) _instance = FindFirstObjectByType<XiaoqiAbout>(FindObjectsInactive.Include);
         if (_instance == null) return;
         _instance.EnsureBuilt();
+        _instance._card.sizeDelta = new Vector2(_instance._card.sizeDelta.x,
+            Mathf.Min(XqStyle.Fr(400f), Screen.height * 0.85f));
         _open = true;
         _instance._go.SetActive(true);
         Debug.Log("XQ_ABOUT show active=" + _instance._go.activeInHierarchy + " card=" + _instance._card.rect);

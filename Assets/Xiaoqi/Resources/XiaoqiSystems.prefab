@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 3584818195098738656}
   - component: {fileID: 4283708861362046614}
   - component: {fileID: 8190733537592046000}
+  - component: {fileID: 2047861710248422265}
   - component: {fileID: 6920339930893614535}
   - component: {fileID: 1994844620173777597}
   - component: {fileID: 2617007623148043790}
@@ -130,6 +131,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36b853e480e2a3e46b3d0b265c7c12d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::XiaoqiAudit
+--- !u!114 &2047861710248422265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f22623dd382acb40a0f60429e9b1f7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XiaoqiAbout
 --- !u!114 &6920339930893614535
 MonoBehaviour:
   m_ObjectHideFlags: 0

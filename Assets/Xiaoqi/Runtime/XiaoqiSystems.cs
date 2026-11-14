@@ -24,6 +24,47 @@ public class XiaoqiSystems : MonoBehaviour
 
         if (Array.IndexOf(Environment.GetCommandLineArgs(), "--room") >= 0)
             XiaoqiLiveEntry.Open();
+
+        StartCoroutine(DemoSteps());
+    }
+
+    private IEnumerator DemoSteps()
+    {
+        var a = Environment.GetCommandLineArgs();
+        yield return new WaitForSeconds(2f);
+        if (Array.IndexOf(a, "-demo-center") >= 0)
+        {
+            PetHost.I?.MoveToCenter();
+            Debug.Log("XQ_DEMO center");
+        }
+        if (Array.IndexOf(a, "-demo-quiet") >= 0)
+        {
+            XiaoqiRuntime.SetQuietMinutes(60);
+            Debug.Log("XQ_DEMO quiet");
+        }
+        if (Array.IndexOf(a, "-demo-nap") >= 0)
+        {
+            Xiaoqi.Spike.PetPresence.Nap(1);
+            Debug.Log("XQ_DEMO nap");
+        }
+        if (Array.IndexOf(a, "-demo-tuner") >= 0)
+        {
+            Xiaoqi.Spike.EmotionLineTuner.Toggle();
+            Debug.Log("XQ_DEMO tuner");
+        }
+        if (Array.IndexOf(a, "-demo-apply") >= 0)
+        {
+            var h = PetHost.I;
+            if (h != null)
+            {
+                h.Size = 1.2f;
+                h.Topmost = false;
+                XiaoqiRuntime.Config.bubble = false;
+                XiaoqiConfig.Save(XiaoqiRuntime.Config);
+                h.SaveSettings();
+                Debug.Log("XQ_DEMO apply size=" + h.Size + " topmost=" + h.Topmost + " bubble=" + XiaoqiRuntime.Config.bubble);
+            }
+        }
     }
 
     private void Update()

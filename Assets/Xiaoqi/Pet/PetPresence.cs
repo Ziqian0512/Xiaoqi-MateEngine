@@ -12,6 +12,7 @@ namespace Xiaoqi.Spike
         private HeadAnchor _head;
         private StageData _stage;
         private bool _dragWas;
+        private bool _quietWas;
         private float _wakeAt = -1f;
         private float _napUntil = -1f;
 
@@ -88,6 +89,14 @@ namespace Xiaoqi.Spike
                 Debug.Log("XQ_NAP end");
             }
             bool dragging = PetHost.I.IsDragging;
+            bool quiet = XiaoqiRuntime.IsQuiet();
+            if (quiet != _quietWas)
+            {
+                _quietWas = quiet;
+                if (_head == null) _head = FindFirstObjectByType<HeadAnchor>(FindObjectsInactive.Include);
+                if (_stage != null && _head != null && _stage.where == "dorm" && !IsAsleep)
+                    _head.SetLabel(quiet ? XiaoqiRuntime.QuietLabel() : "");
+            }
             if (dragging && !_dragWas && IsAsleep)
             {
                 IsAsleep = false;
