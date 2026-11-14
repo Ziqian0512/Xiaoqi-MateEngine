@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.IO;
 using System.Text;
@@ -28,6 +28,7 @@ namespace Xiaoqi.Spike
         private IEnumerator Run()
         {
             yield return new WaitForSecondsRealtime(4f);
+            if (XiaoqiRuntime.Config != null) XiaoqiRuntime.Config.emotion_line = true;
             _head = FindFirstObjectByType<HeadAnchor>(FindObjectsInactive.Include);
             var readout = new StringBuilder();
             string[] emos = { "开心", "得意", "害羞", "委屈", "生气", "担心", "想念", "失望" };

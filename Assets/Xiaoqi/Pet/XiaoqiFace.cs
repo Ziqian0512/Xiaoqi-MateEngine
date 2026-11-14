@@ -33,10 +33,16 @@ namespace Xiaoqi.Spike
 
         public static void DebugBase(string emotion, float level)
         {
-            if (_instance == null) return;
+            if (_instance == null)
+            {
+                Debug.Log("XQ_DEBUG_BASE no instance");
+                return;
+            }
             _instance._debugBaseTop = emotion ?? "";
             _instance._debugBaseLevel = level;
             _instance._spikeStart = -1f;
+            Debug.Log("XQ_DEBUG_BASE " + emotion + " map=" + _instance._cfg.face.map.Count
+                      + " model=" + (_instance._model != null) + " uni=" + (_instance._uni != null));
         }
 
         public static void DebugSpike(string emotion)
@@ -167,6 +173,7 @@ namespace Xiaoqi.Spike
 
         private void ApplyBody()
         {
+            if (_stage == null) return;
             var b = _stage.body;
             if (b == null) return;
             if (b.sleepy >= _cfg.body.sleepy_hi)
