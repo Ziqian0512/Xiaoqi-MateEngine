@@ -112,6 +112,8 @@ namespace Xiaoqi.Spike
                     var bubble = gameObject.AddComponent<BubbleUI>();
                     var mouth = gameObject.AddComponent<XiaoqiMouth>();
                     mouth.Setup(vrm.Root, bubble);
+                    var phone = gameObject.AddComponent<XiaoqiPhone>();
+                    phone.Setup(vrm.Root);
                     FixMaterials(vrm.Root);
                     var animator = vrm.Root.GetComponent<Animator>();
                     if (animator == null) animator = vrm.Root.GetComponentInChildren<Animator>();
