@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -7,7 +7,7 @@ public static class XiaoqiHide
 {
     private static readonly string[] DefaultPaths =
     {
-        "ChatBot AI", "MateEngineAPI/CircleMenu", "MateEngineAPI/ModLoader", "MateEngineAPI/FoodMenu",
+        "ChatBot AI", "MateEngineAPI/ModLoader", "MateEngineAPI/FoodMenu",
         "= Steam Exklusives", "= ME Modding", "= Settings", "= AI", "= FOOD SYSTEM", "Main Menu",
         "Chat", "AI INPUT", "AI Speech", "AI Alarm Speech", "AiSystemPrompt", "Food", "Food System",
         "FoodMenu", "ModLoader", "AlarmMenuCanvas", "BlendshapeMenuCanvas", "DancePlayerMenuCanvas",
@@ -42,6 +42,7 @@ public static class XiaoqiHide
 
         foreach (var p in merged.paths)
         {
+            if (p == "MateEngineAPI/CircleMenu") continue;
             var go = GameObject.Find(p);
             if (go != null) go.SetActive(false);
             else Debug.Log("XiaoqiHide: not found " + p);
@@ -66,7 +67,7 @@ public static class XiaoqiHide
         {
             if (mb == null || mb.GetType().Name != "MenuActions") continue;
             var f = mb.GetType().GetField("radialMenuKey");
-            if (f != null && f.FieldType == typeof(KeyCode)) f.SetValue(mb, KeyCode.None);
+            if (f != null && f.FieldType == typeof(KeyCode)) f.SetValue(mb, KeyCode.Mouse1);
         }
 
         try
@@ -94,3 +95,4 @@ public static class XiaoqiHide
         public string[] components;
     }
 }
+
