@@ -14,6 +14,7 @@ public class StageData
     public StageEvent @event;
     public StagePhone phone;
     public StageFace face;
+    public StageBody body;
 
     [Serializable]
     public class StageSegment
@@ -55,5 +56,16 @@ public class StageData
         public string top;
         public float level;
         public bool rose;
+        public string rose_at;
+        public string rose_name;
+        public string rose_note;
+    }
+
+    [Serializable]
+    public class StageBody
+    {
+        public float sleepy;
+        public float stamina;
+        public float social;
     }
 }
