@@ -1,0 +1,39 @@
+{
+  "v": 1,
+  "ts": "2026-11-14 15:00:00",
+  "where": "out",
+  "seg": {
+    "id": "E1B",
+    "name": "本部上课",
+    "act": "上课",
+    "start": "15:00",
+    "end": "16:30",
+    "progress": 0.5
+  },
+  "spot": "door",
+  "pose": "walk_out",
+  "prop": "",
+  "next": {
+    "at": "16:30",
+    "where": "dorm",
+    "spot": "desk",
+    "pose": "sit_idle"
+  },
+  "event": null,
+  "phone": {
+    "typing": false
+  },
+  "face": {
+    "top": "平常",
+    "level": 0.0,
+    "rose": false,
+    "rose_at": "",
+    "rose_name": "",
+    "rose_note": ""
+  },
+  "body": {
+    "sleepy": 54.2,
+    "stamina": 80.3,
+    "social": 35.2
+  }
+}

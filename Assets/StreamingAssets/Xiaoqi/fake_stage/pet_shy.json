@@ -1,0 +1,34 @@
+{
+  "v": 1,
+  "ts": "2026-11-14 15:00:00",
+  "where": "dorm",
+  "seg": {
+    "id": "E1B",
+    "name": "桌前发呆",
+    "act": "空闲",
+    "start": "15:00",
+    "end": "15:30",
+    "progress": 0.5
+  },
+  "spot": "desk",
+  "pose": "sit_idle",
+  "prop": "",
+  "next": null,
+  "event": null,
+  "phone": {
+    "typing": false
+  },
+  "face": {
+    "top": "害羞",
+    "level": 0.4,
+    "rose": false,
+    "rose_at": "@now",
+    "rose_name": "害羞",
+    "rose_note": "他夸了她"
+  },
+  "body": {
+    "sleepy": 54.2,
+    "stamina": 80.3,
+    "social": 35.2
+  }
+}

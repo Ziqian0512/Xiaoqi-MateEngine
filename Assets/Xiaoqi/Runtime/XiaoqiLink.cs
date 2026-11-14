@@ -31,6 +31,8 @@ public class XiaoqiLink : MonoBehaviour
         try
         {
             var data = JsonUtility.FromJson<StageData>(System.IO.File.ReadAllText(path));
+            if (data != null && data.face != null && data.face.rose_at == "@now")
+                data.face.rose_at = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             Current = data;
             OnStage?.Invoke(data);
             Debug.Log("XIAOQI_FAKE_STAGE " + path);
