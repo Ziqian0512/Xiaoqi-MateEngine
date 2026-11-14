@@ -1,6 +1,7 @@
 using System.IO;
 using SFB;
 using UnityEngine;
+using Xiaoqi.Host;
 
 public class XiaoqiSettings : MonoBehaviour
 {
@@ -23,9 +24,8 @@ public class XiaoqiSettings : MonoBehaviour
     private void OnGUI()
     {
         if (!_open) return;
-        var h = SaveLoadHandler.Instance;
-        if (h == null) return;
-        var d = h.data;
+        var host = PetHost.I;
+        if (host == null) return;
 
         GUILayout.BeginArea(new Rect(40, 40, 560, Mathf.Min(760, Screen.height - 80)), GUI.skin.box);
         GUILayout.BeginHorizontal();
@@ -35,13 +35,16 @@ public class XiaoqiSettings : MonoBehaviour
         _scroll = GUILayout.BeginScrollView(_scroll);
 
         GUILayout.Label("外观");
-        d.avatarSize = Slider("大小", d.avatarSize, 0.5f, 2f);
-        d.isTopmost = Toggle("置顶", d.isTopmost);
-        d.startWithWindows = Toggle("开机自启", d.startWithWindows);
-        d.fpsLimit = Mathf.RoundToInt(Slider("帧率", d.fpsLimit, 30, 144));
-        d.graphicsQualityLevel = Mathf.RoundToInt(Slider("画质", d.graphicsQualityLevel, 0, 3));
-        d.enableWindowSitting = Toggle("坐窗口", d.enableWindowSitting);
-        d.enableLocomotion = Toggle("桌面上自己走", d.enableLocomotion);
+        var size = Slider("大小", host.Size, 0.5f, 2f);
+        if (!Mathf.Approximately(size, host.Size)) host.Size = size;
+        SetToggle("置顶", host.Topmost, v => host.Topmost = v);
+        SetToggle("开机自启", host.StartWithWindows, v => host.StartWithWindows = v);
+        var fps = Mathf.RoundToInt(Slider("帧率", host.Fps, 30, 144));
+        if (fps != host.Fps) host.Fps = fps;
+        var quality = Mathf.RoundToInt(Slider("画质", host.Quality, 0, 3));
+        if (quality != host.Quality) host.Quality = quality;
+        SetToggle("坐窗口", host.WindowSitEnabled, v => host.WindowSitEnabled = v);
+        SetToggle("桌面上自己走", host.LocomotionEnabled, v => host.LocomotionEnabled = v);
 
         GUILayout.Space(8);
         GUILayout.Label("外出 / 气泡");
@@ -50,15 +53,13 @@ public class XiaoqiSettings : MonoBehaviour
         if (GUILayout.Button(XiaoqiRuntime.Config.pet_when_out == "hide" ? "隐藏" : "照常显示"))
             XiaoqiRuntime.Config.pet_when_out = XiaoqiRuntime.Config.pet_when_out == "hide" ? "show" : "hide";
         GUILayout.EndHorizontal();
-        XiaoqiRuntime.Config.bubble = Toggle("气泡", XiaoqiRuntime.Config.bubble);
-        XiaoqiRuntime.Dnd = Toggle("免打扰", XiaoqiRuntime.Dnd);
-        XiaoqiRuntime.Config.dnd = XiaoqiRuntime.Dnd;
-        var emotion = Toggle("情感线（测试）", XiaoqiRuntime.Config.emotion_line);
-        if (emotion != XiaoqiRuntime.Config.emotion_line)
+        SetToggle("气泡", XiaoqiRuntime.Config.bubble, v => XiaoqiRuntime.Config.bubble = v);
+        SetToggle("免打扰", XiaoqiRuntime.Dnd, v => { XiaoqiRuntime.Dnd = v; XiaoqiRuntime.Config.dnd = v; });
+        SetToggle("情感线（测试）", XiaoqiRuntime.Config.emotion_line, v =>
         {
-            XiaoqiRuntime.Config.emotion_line = emotion;
+            XiaoqiRuntime.Config.emotion_line = v;
             XiaoqiConfig.Save(XiaoqiRuntime.Config);
-        }
+        });
 
         GUILayout.Space(8);
         GUILayout.Label("连接");
@@ -83,12 +84,9 @@ public class XiaoqiSettings : MonoBehaviour
         GUILayout.Space(8);
         if (GUILayout.Button("保存并应用"))
         {
-            h.SaveToDisk();
-            XiaoqiRunKey.Sync(d.startWithWindows);
-            SaveLoadHandler.ApplyAllSettingsToAllAvatars();
-            var loader = FindFirstObjectByType<VRMLoader>();
-            if (loader != null && !string.IsNullOrEmpty(XiaoqiRuntime.Config.model_path))
-                loader.LoadVRM(XiaoqiRuntime.Config.model_path);
+            host.SaveSettings();
+            if (!string.IsNullOrEmpty(XiaoqiRuntime.Config.model_path))
+                host.LoadModel(XiaoqiRuntime.Config.model_path);
             XiaoqiConfig.Save(XiaoqiRuntime.Config);
         }
 
@@ -110,12 +108,12 @@ public class XiaoqiSettings : MonoBehaviour
         return v;
     }
 
-    private static bool Toggle(string label, bool value)
+    private static void SetToggle(string label, bool value, System.Action<bool> set)
     {
         GUILayout.BeginHorizontal();
         GUILayout.Label(label, GUILayout.Width(150));
-        var v = GUILayout.Toggle(value, value ? "开" : "关");
+        bool v = GUILayout.Toggle(value, value ? "开" : "关");
         GUILayout.EndHorizontal();
-        return v;
+        if (v != value) set(v);
     }
 }

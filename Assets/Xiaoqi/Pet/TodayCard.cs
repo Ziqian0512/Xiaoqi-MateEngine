@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
+using Xiaoqi.Host;
 
 namespace Xiaoqi.Spike
 {
@@ -26,7 +27,6 @@ namespace Xiaoqi.Spike
         private Vector2 _downPos;
         private float _downAt;
         private bool _downOnPet;
-        private AvatarAnimatorController _avatar;
         private float _mouseOutsideAt = -1f;
 
         private void Update()
@@ -34,7 +34,6 @@ namespace Xiaoqi.Spike
             // 旧的 IMGUI 今天卡太丑，先停用入口；数据接口保留给后续干净 UI。
             if (!XiaoqiRuntime.Config.emotion_line) return;
             if (!EnableClickOpen) return;
-            if (_avatar == null) _avatar = FindFirstObjectByType<AvatarAnimatorController>(FindObjectsInactive.Include);
 
             if (Input.GetMouseButtonDown(0))
             {
@@ -46,7 +45,7 @@ namespace Xiaoqi.Spike
             {
                 var dt = Time.unscaledTime - _downAt;
                 var moved = Vector2.Distance(Input.mousePosition, _downPos);
-                bool dragging = _avatar != null && _avatar.isDragging;
+                bool dragging = PetHost.I != null && PetHost.I.IsDragging;
                 bool click = _downOnPet && dt <= 0.3f && moved <= 6f && !dragging;
                 if (click)
                 {
@@ -122,30 +121,9 @@ namespace Xiaoqi.Spike
 
         private bool HitPet(Vector3 screen)
         {
-            var loader = FindFirstObjectByType<VRMLoader>(FindObjectsInactive.Include);
-            var model = loader != null ? loader.GetCurrentModel() : null;
-            if (model == null) return false;
-            var cam = Camera.main;
-            if (cam == null) return false;
-            var b = new Bounds();
-            bool first = true;
-            foreach (var r in model.GetComponentsInChildren<SkinnedMeshRenderer>(true))
-            {
-                if (first) { b = r.bounds; first = false; }
-                else b.Encapsulate(r.bounds);
-            }
-            if (first) return false;
-            var min = new Vector2(float.MaxValue, float.MaxValue);
-            var max = new Vector2(float.MinValue, float.MinValue);
-            foreach (var x in new[] { b.min.x, b.max.x })
-                foreach (var y in new[] { b.min.y, b.max.y })
-                    foreach (var z in new[] { b.min.z, b.max.z })
-                    {
-                        var p = cam.WorldToScreenPoint(new Vector3(x, y, z));
-                        min = Vector2.Min(min, new Vector2(p.x, p.y));
-                        max = Vector2.Max(max, new Vector2(p.x, p.y));
-                    }
-            return new Rect(min, max - min).Contains(new Vector2(screen.x, screen.y));
+            if (PetHost.I == null) return false;
+            var r = PetHost.I.ScreenRect();
+            return r.width > 1f && r.height > 1f && r.Contains(new Vector2(screen.x, screen.y));
         }
 
         private void OnGUI()
@@ -190,5 +168,6 @@ namespace Xiaoqi.Spike
         }
     }
 }
+
 
 

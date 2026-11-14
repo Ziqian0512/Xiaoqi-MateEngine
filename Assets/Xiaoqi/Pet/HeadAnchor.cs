@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using Xiaoqi.Host;
 
 namespace Xiaoqi.Spike
 {
@@ -25,13 +26,8 @@ namespace Xiaoqi.Spike
             if (_head == null && Time.unscaledTime >= _nextFind)
             {
                 _nextFind = Time.unscaledTime + 1f;
-                var loader = FindFirstObjectByType<VRMLoader>(FindObjectsInactive.Include);
-                var model = loader != null ? loader.GetCurrentModel() : null;
-                if (model != null)
-                {
-                    var a = model.GetComponentInChildren<Animator>();
-                    if (a != null && a.isHuman) _head = a.GetBoneTransform(HumanBodyBones.Head);
-                }
+                var a = PetHost.I != null ? PetHost.I.Animator : null;
+                if (a != null && a.isHuman) _head = a.GetBoneTransform(HumanBodyBones.Head);
             }
             if (_head == null) return;
             if (_canvas == null) Build();

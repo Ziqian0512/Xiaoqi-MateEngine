@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Xiaoqi.Host;
 
 public class XiaoqiSystems : MonoBehaviour
 {
@@ -17,10 +18,9 @@ public class XiaoqiSystems : MonoBehaviour
         XiaoqiRunKey.Migrate();
         XiaoqiHide.Apply();
         XiaoqiTray.Install();
-        LoadModel();
+        Debug.Log("XIAOQI_SYSTEMS ready model=" + cfg.model_path + " host=" + (PetHost.I != null));
 
         SceneManager.sceneLoaded += OnSceneLoaded;
-        Debug.Log("XIAOQI_SYSTEMS ready model=" + cfg.model_path);
 
         if (Array.IndexOf(Environment.GetCommandLineArgs(), "--room") >= 0)
             XiaoqiLiveEntry.Open();
@@ -51,16 +51,4 @@ public class XiaoqiSystems : MonoBehaviour
         var candidate = Path.GetFullPath(Path.Combine(exeRoot, cfg.model_path));
         if (File.Exists(candidate)) cfg.model_path = candidate;
     }
-
-    private void LoadModel()
-    {
-        var loader = FindFirstObjectByType<VRMLoader>(FindObjectsInactive.Include);
-        var path = XiaoqiRuntime.Config?.model_path ?? "";
-        var current = loader != null ? loader.GetCurrentModel() : null;
-        Debug.Log("XIAOQI_LOAD loader=" + (loader != null) + " current=" + (current != null)
-                  + " path=" + path + " exists=" + File.Exists(path));
-        if (loader != null && current == null && File.Exists(path))
-            loader.LoadVRM(path);
-    }
 }
-

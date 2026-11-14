@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using Xiaoqi.Host;
 
 /// <summary>
 /// Xiaoqi's own radial menu. Replaces Mate Engine's pie menu: custom icon set,
@@ -393,32 +394,13 @@ public class XiaoqiRadialMenu : MonoBehaviour
 
     private void SuppressMateEngineMenu()
     {
-        foreach (var sel in FindObjectsByType<Xamin.CircleSelector>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-        {
-            if (sel == null) continue;
-            sel.transform.localScale = Vector3.zero;
-            sel.gameObject.SetActive(false);
-        }
-        foreach (var ma in FindObjectsByType<MenuActions>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-        {
-            if (ma == null) continue;
-            ma.radialMenuKey = KeyCode.None;
-        }
-        Debug.Log("XQ_MENU me-radial suppressed");
+        PetHost.I?.SuppressHostMenu();
+        Debug.Log("XQ_MENU host-menu suppressed");
     }
 
     private void RegisterBlocker()
     {
-        var ma = FindFirstObjectByType<MenuActions>();
-        if (ma == null) return;
-        ma.menuEntries.Add(new MenuEntry
-        {
-            menu = _menu.gameObject,
-            blockMovement = true,
-            blockHandTracking = true,
-            blockReaction = true,
-            blockChibiMode = false
-        });
+        PetHost.I?.RegisterMenuBlocker(() => _open);
     }
 
     // ---------------------------------------------------------------- input
@@ -601,18 +583,15 @@ public class XiaoqiRadialMenu : MonoBehaviour
 
     private static bool IsTopmost()
     {
-        var h = SaveLoadHandler.Instance;
-        return h != null && h.data != null && h.data.isTopmost;
+        return PetHost.I != null && PetHost.I.Topmost;
     }
 
     private static void ToggleTopmost()
     {
-        var h = SaveLoadHandler.Instance;
-        if (h == null || h.data == null) return;
-        h.data.isTopmost = !h.data.isTopmost;
-        h.SaveToDisk();
-        SaveLoadHandler.ApplyAllSettingsToAllAvatars();
-        Debug.Log("XQ_MENU topmost=" + h.data.isTopmost);
+        if (PetHost.I == null) return;
+        PetHost.I.Topmost = !PetHost.I.Topmost;
+        PetHost.I.SaveSettings();
+        Debug.Log("XQ_MENU topmost=" + PetHost.I.Topmost);
     }
 
     private static void ToggleDnd()

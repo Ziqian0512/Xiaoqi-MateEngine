@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using VRM;
-
+using Xiaoqi.Host;
 namespace Xiaoqi.Spike
 {
     public class XiaoqiFace : MonoBehaviour
@@ -13,13 +12,7 @@ namespace Xiaoqi.Spike
         private float _debugBaseLevel;
         private bool _debugLog;
         private EmotionLineConfig _cfg;
-        private GameObject _model;
-        private Animator _animator;
-        private UniversalBlendshapes _uni;
-        private VRMBlendShapeProxy _proxy;
         private StageData _stage;
-        private float _nextFind;
-        private float _nextUniCheck;
         private readonly Dictionary<string, float> _cur = new Dictionary<string, float>();
         private readonly Dictionary<string, float> _target = new Dictionary<string, float>();
         private string _roseAt = "";
@@ -52,7 +45,7 @@ namespace Xiaoqi.Spike
             _instance._spikeStart = -1f;
             _instance._debugLog = true;
             Debug.Log("XQ_DEBUG_BASE " + emotion + " map=" + _instance._cfg.face.map.Count
-                      + " model=" + (_instance._model != null) + " uni=" + (_instance._uni != null));
+                      + " ready=" + (PetHost.I != null && PetHost.I.Ready));
         }
 
         public static void DebugSpike(string emotion)
@@ -74,16 +67,6 @@ namespace Xiaoqi.Spike
         }
 
         private void OnDestroy() { XiaoqiLink.OnStage -= OnStage; }
-
-        private void SetModel(GameObject model)
-        {
-            if (model == null || model == _model) return;
-            _model = model;
-            _uni = null;
-            _proxy = null;
-            _animator = null;
-            _nextUniCheck = 0f;
-        }
 
         private void OnStage(StageData s)
         {
@@ -120,24 +103,8 @@ namespace Xiaoqi.Spike
         private void Update()
         {
             if (!XiaoqiRuntime.Config.emotion_line) return;
-            if (Time.unscaledTime >= _nextFind && _model == null)
-            {
-                _nextFind = Time.unscaledTime + 1f;
-                var loader = FindFirstObjectByType<VRMLoader>(FindObjectsInactive.Include);
-                if (loader != null) SetModel(loader.GetCurrentModel());
-            }
-            if (_model == null) return;
+            if (PetHost.I == null || !PetHost.I.Ready) return;
             if (_stage == null && string.IsNullOrEmpty(_debugBaseTop)) return;
-
-            if (Time.unscaledTime >= _nextUniCheck)
-            {
-                _nextUniCheck = Time.unscaledTime + 1f;
-                _uni = _model.GetComponent<UniversalBlendshapes>();
-                if (_uni == null) _uni = _model.GetComponentInChildren<UniversalBlendshapes>();
-                _proxy = _model.GetComponent<VRMBlendShapeProxy>();
-                if (_proxy == null) _proxy = _model.GetComponentInChildren<VRMBlendShapeProxy>();
-                _animator = _model.GetComponentInChildren<Animator>();
-            }
 
             foreach (var k in Keys) _target[k] = 0f;
 
@@ -156,8 +123,8 @@ namespace Xiaoqi.Spike
             foreach (var k in Keys)
                 _cur[k] = Mathf.MoveTowards(_cur[k], Mathf.Clamp01(_target[k]), dt / Mathf.Max(0.01f, _cfg.face.blend_sec));
             if (_debugLog && Time.frameCount % 30 == 0)
-                Debug.Log("XQ_FACE cfg=" + XiaoqiRuntime.Config.emotion_line + " model=" + (_model != null)
-                          + " uni=" + (_uni != null) + " targetJoy=" + _target["Joy"].ToString("0.00")
+                Debug.Log("XQ_FACE cfg=" + XiaoqiRuntime.Config.emotion_line + " ready=" + PetHost.I.Ready
+                          + " targetJoy=" + _target["Joy"].ToString("0.00")
                           + " curJoy=" + _cur["Joy"].ToString("0.00"));
             ApplyToModel();
         }
@@ -234,27 +201,19 @@ namespace Xiaoqi.Spike
 
         private void ApplyToModel()
         {
-            if (_uni != null)
+            if (PetHost.I == null) return;
+            PetHost.I.SetFace(new FaceFrame
             {
-                _uni.Joy = _cur["Joy"];
-                _uni.Angry = _cur["Angry"];
-                _uni.Sorrow = _cur["Sorrow"];
-                _uni.Fun = _cur["Fun"];
-                _uni.LookDown = _cur["LookDown"];
-                _uni.Blink = _cur["Blink"];
-                _uni.O = _cur["O"];
-                return;
-            }
-            if (_proxy != null)
-            {
-                foreach (var k in Keys)
-                {
-                    if (Enum.TryParse(k, out BlendShapePreset p))
-                        _proxy.SetValue(BlendShapeKey.CreateFromPreset(p), _cur[k]);
-                }
-                _proxy.Apply();
-            }
+                joy = _cur["Joy"],
+                angry = _cur["Angry"],
+                sorrow = _cur["Sorrow"],
+                fun = _cur["Fun"],
+                lookDown = _cur["LookDown"],
+                blink = _cur["Blink"],
+                o = _cur["O"]
+            });
         }
     }
 }
+
 

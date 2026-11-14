@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Xiaoqi.Host;
 
 namespace Xiaoqi.Spike
 {
@@ -23,8 +24,6 @@ namespace Xiaoqi.Spike
         private float _hideAt;
         private int _shown;
         private float _nextMouth;
-        private GameObject _model;
-        private UniversalBlendshapes _uni;
 
         private void Awake() { _instance = this; }
 
@@ -132,24 +131,8 @@ namespace Xiaoqi.Spike
             if (_current == null || !IsVoice(_current.media)) return;
             if (Time.unscaledTime < _nextMouth) return;
             _nextMouth = Time.unscaledTime + 1f / Mathf.Max(1f, _cfg.bubble.mouth_hz);
-            if (_model == null)
-            {
-                var loader = FindFirstObjectByType<VRMLoader>(FindObjectsInactive.Include);
-                _model = loader != null ? loader.GetCurrentModel() : null;
-            }
-            if (_model == null) return;
-            _uni = _model.GetComponent<UniversalBlendshapes>();
-            if (_uni == null) return;
-            var t = _uni.GetType();
-            foreach (var k in new[] { "A", "I", "U", "O" })
-            {
-                var f = t.GetField(k);
-                if (f != null) f.SetValue(_uni, 0f);
-            }
-            var pick = new[] { "A", "I", "U", "O" }[Random.Range(0, 4)];
-            var field = t.GetField(pick);
-            if (field != null)
-                field.SetValue(_uni, Random.Range(_cfg.bubble.mouth_w[0], _cfg.bubble.mouth_w[1]));
+            if (PetHost.I == null) return;
+            PetHost.I.SetMouth(Random.Range(_cfg.bubble.mouth_w[0], _cfg.bubble.mouth_w[1]));
         }
     }
 }
