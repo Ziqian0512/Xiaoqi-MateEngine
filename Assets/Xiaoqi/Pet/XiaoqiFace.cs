@@ -9,6 +9,8 @@ namespace Xiaoqi.Spike
     {
         private static readonly string[] Keys = { "Joy", "Angry", "Sorrow", "Fun", "LookDown", "Blink", "O" };
         private static XiaoqiFace _instance;
+        private string _debugBaseTop = "";
+        private float _debugBaseLevel;
         private EmotionLineConfig _cfg;
         private GameObject _model;
         private Animator _animator;
@@ -28,6 +30,14 @@ namespace Xiaoqi.Spike
         private float _nextYawn;
 
         private void Awake() { _instance = this; }
+
+        public static void DebugBase(string emotion, float level)
+        {
+            if (_instance == null) return;
+            _instance._debugBaseTop = emotion ?? "";
+            _instance._debugBaseLevel = level;
+            _instance._spikeStart = -1f;
+        }
 
         public static void DebugSpike(string emotion)
         {
@@ -100,7 +110,8 @@ namespace Xiaoqi.Spike
                 var loader = FindFirstObjectByType<VRMLoader>(FindObjectsInactive.Include);
                 if (loader != null) SetModel(loader.GetCurrentModel());
             }
-            if (_model == null || _stage == null) return;
+            if (_model == null) return;
+            if (_stage == null && string.IsNullOrEmpty(_debugBaseTop)) return;
 
             if (Time.unscaledTime >= _nextUniCheck)
             {
@@ -133,6 +144,11 @@ namespace Xiaoqi.Spike
 
         private void ApplyBase()
         {
+            if (!string.IsNullOrEmpty(_debugBaseTop))
+            {
+                AddMap(_debugBaseTop, _debugBaseLevel * _cfg.face.base_gain, baseOnly: true);
+                return;
+            }
             var f = _stage.face;
             if (f == null || string.IsNullOrEmpty(f.top) || f.level < _cfg.face.base_min_level) return;
             AddMap(f.top, f.level * _cfg.face.base_gain, baseOnly: true);
