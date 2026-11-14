@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -22,6 +22,7 @@ public class XiaoqiStartCard : MonoBehaviour
 
     private Brand _brand;
     private CanvasGroup _group;
+    private GameObject _canvasGo;
     private Text _status;
     private bool _done;
     private float _start;
@@ -52,6 +53,7 @@ public class XiaoqiStartCard : MonoBehaviour
     private void Build()
     {
         var canvasGo = new GameObject("XiaoqiStartCanvas");
+        _canvasGo = canvasGo;
         canvasGo.transform.SetParent(transform, false);
         var canvas = canvasGo.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -110,7 +112,8 @@ public class XiaoqiStartCard : MonoBehaviour
                 Debug.Log("XQ_START waking→ok " + (Time.unscaledTime - _start).ToString("0.0") + "s");
                 yield return new WaitForSecondsRealtime(_brand.ok_hold);
                 yield return Fade(1f, 0f, _brand.fade_out);
-                Destroy(gameObject);
+                if (_canvasGo != null) Destroy(_canvasGo);
+                Destroy(this);
                 yield break;
             }
             yield return null;
@@ -118,7 +121,8 @@ public class XiaoqiStartCard : MonoBehaviour
         _status.text = _brand.offline;
         yield return new WaitForSecondsRealtime(_brand.offline_hold);
         yield return Fade(1f, 0f, _brand.fade_out);
-        Destroy(gameObject);
+        if (_canvasGo != null) Destroy(_canvasGo);
+        Destroy(this);
     }
 
     private IEnumerator Fade(float from, float to, float seconds)
@@ -133,3 +137,5 @@ public class XiaoqiStartCard : MonoBehaviour
         _group.alpha = to;
     }
 }
+
+

@@ -22,6 +22,7 @@ public static class XiaoqiBuild
         temp.AddComponent<XiaoqiLink>();
         temp.AddComponent<XiaoqiFeed>();
         temp.AddComponent<XiaoqiStartCard>();
+        temp.AddComponent<XiaoqiAudit>();
         PrefabUtility.SaveAsPrefabAsset(temp, prefabPath);
         Object.DestroyImmediate(temp);
         AssetDatabase.SaveAssets();
