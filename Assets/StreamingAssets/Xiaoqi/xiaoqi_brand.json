@@ -1,0 +1,11 @@
+{
+  "name": "小祈",
+  "waking": "醒来中…",
+  "ok": "在呢",
+  "offline": "连不上服务器，先离线陪你",
+  "fade_in": 0.25,
+  "ok_hold": 1.2,
+  "offline_after": 8,
+  "offline_hold": 3,
+  "fade_out": 0.4
+}

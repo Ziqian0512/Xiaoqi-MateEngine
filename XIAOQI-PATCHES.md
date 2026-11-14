@@ -17,3 +17,4 @@ Branch: `xiaoqi/main`
 | # | File | Change | Reason |
 |---|------|--------|--------|
 | 0 | `Assets/Xiaoqi/Editor/XiaoqiBuild.cs` | 新增构建入口 | U0 |
+| 1 | `Assets/Xiaoqi/Editor/XiaoqiIdentity.cs` | 关闭 Unity 启动画面 / Shinymoon 启动 logo | E0 |

@@ -7,6 +7,7 @@ public static class XiaoqiBoot
     private static void Boot()
     {
         if (SceneManager.GetActiveScene().name != "Mate Engine Main") return;
+        XiaoqiHide.Apply();
         var prefab = Resources.Load<GameObject>("XiaoqiSystems");
         if (prefab == null)
         {
