@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -21,7 +21,7 @@ public static class XiaoqiHide
     {
         "DiscordPresence", "AvatarRandomMessages", "AvatarMinecraftMessages", "MenuAudioHandler",
         "TutorialMenu", "SystemStartHandler", "LaunchMateEngineInstances", "SteamWorkshopAutoLoader",
-        "SteamWorkshopHandler", "PetVoiceReactionHandler"
+        "SteamWorkshopHandler", "PetVoiceReactionHandler", "KeyBindHandler"
     };
 
     public static void Apply()
@@ -61,13 +61,13 @@ public static class XiaoqiHide
             Debug.Log("XQ_HIDE comp " + name + (found ? " off" : " not found"));
         }
 
-        // F1 圆盘菜单：所有 MenuActions.radialMenuKey 设为 None。
+        // 旧 F1 圆盘停用：右键由 XiaoqiRadialMenu 接管。
         foreach (var mb in UnityEngine.Object.FindObjectsByType<MonoBehaviour>(
                      FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
             if (mb == null || mb.GetType().Name != "MenuActions") continue;
             var f = mb.GetType().GetField("radialMenuKey");
-            if (f != null && f.FieldType == typeof(KeyCode)) f.SetValue(mb, KeyCode.Mouse1);
+            if (f != null && f.FieldType == typeof(KeyCode)) f.SetValue(mb, KeyCode.None);
         }
 
         try

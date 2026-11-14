@@ -6,17 +6,11 @@ public class XiaoqiSettings : MonoBehaviour
 {
     private static XiaoqiSettings _instance;
     private static bool _open;
-    private static string _license;
     private Vector2 _scroll;
 
     private void Awake()
     {
         _instance = this;
-        if (_license == null)
-        {
-            var p = Path.Combine(Application.streamingAssetsPath, "Xiaoqi", "MATE-ENGINE-LICENSE.txt");
-            _license = File.Exists(p) ? File.ReadAllText(p) : "Mate Engine license file missing.";
-        }
     }
 
     public static void Open()
@@ -99,10 +93,8 @@ public class XiaoqiSettings : MonoBehaviour
         }
 
         GUILayout.Space(12);
-        GUILayout.Label("关于");
-        GUILayout.Label("小祈 · 基于 Mate Engine fork");
-        GUILayout.Label("Mate Engine 版权与许可证原文：");
-        GUILayout.TextArea(_license, GUILayout.MinHeight(180));
+        GUILayout.Label("小祈 · 桌面");
+        GUILayout.Label("右键她可以打开圆盘菜单。");
 
         GUILayout.EndScrollView();
         GUILayout.EndArea();
