@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Xiaoqi.UI;
 
 namespace Xiaoqi.Spike
 {
@@ -15,7 +16,10 @@ namespace Xiaoqi.Spike
             _cfg = EmotionLineConfig.Load();
         }
 
-        // 桌宠不再占用 F9；调参页以后只在直播视角里打开。
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.F9)) Toggle();
+        }
 
         private void OnApplicationFocus(bool hasFocus)
         {
@@ -31,6 +35,8 @@ namespace Xiaoqi.Spike
         private void OnGUI()
         {
             if (!_open || _cfg == null) return;
+            var old = GUI.skin;
+            GUI.skin = XqImgui.Skin();
             var r = new Rect(20, 80, 460, Mathf.Min(760, Screen.height - 100));
             GUI.Box(r, "情感线调参 · F9");
             GUILayout.BeginArea(new Rect(r.x + 12, r.y + 26, r.width - 24, r.height - 36));
@@ -64,6 +70,7 @@ namespace Xiaoqi.Spike
             if (GUILayout.Button("关闭")) _open = false;
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
+            GUI.skin = old;
         }
 
         private static float Slider(string label, float v, float a, float b)
