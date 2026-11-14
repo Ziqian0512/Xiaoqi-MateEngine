@@ -29,7 +29,7 @@ public static class XiaoqiBuild
         temp.AddComponent<Xiaoqi.Spike.TodayCard>();
         temp.AddComponent<Xiaoqi.Spike.EmotionLineTuner>();
         temp.AddComponent<Xiaoqi.Spike.XiaoqiShotRunner>();
-        temp.AddComponent<XiaoqiRadialMenu>();
+        temp.AddComponent<Xiaoqi.UI.XqMenu>();
         PrefabUtility.SaveAsPrefabAsset(temp, prefabPath);
         Object.DestroyImmediate(temp);
         AssetDatabase.SaveAssets();
