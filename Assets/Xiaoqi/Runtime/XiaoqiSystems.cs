@@ -39,6 +39,8 @@ public class XiaoqiSystems : MonoBehaviour
         ResolveModelPath(XiaoqiRuntime.Config);
         XiaoqiHide.Apply();
         XiaoqiTray.Install();
+        // 不在这里再 LoadVRM：VRMLoader.Start 会用已保存的 selectedModelPath 加载；
+        // 再调一次会和它并发，后一次把前一次销毁。
     }
 
     private static void ResolveModelPath(XiaoqiConfig cfg)
@@ -53,8 +55,10 @@ public class XiaoqiSystems : MonoBehaviour
     {
         var loader = FindFirstObjectByType<VRMLoader>(FindObjectsInactive.Include);
         var path = XiaoqiRuntime.Config?.model_path ?? "";
-        Debug.Log("XIAOQI_LOAD loader=" + (loader != null) + " path=" + path + " exists=" + File.Exists(path));
-        if (loader != null && File.Exists(path))
+        var current = loader != null ? loader.GetCurrentModel() : null;
+        Debug.Log("XIAOQI_LOAD loader=" + (loader != null) + " current=" + (current != null)
+                  + " path=" + path + " exists=" + File.Exists(path));
+        if (loader != null && current == null && File.Exists(path))
             loader.LoadVRM(path);
     }
 }
