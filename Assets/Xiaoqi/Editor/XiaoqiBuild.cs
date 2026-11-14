@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using UnityEditor;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.Build.Reporting;
@@ -28,6 +28,7 @@ public static class XiaoqiBuild
         temp.AddComponent<Xiaoqi.Spike.TodayCard>();
         temp.AddComponent<Xiaoqi.Spike.EmotionLineTuner>();
         temp.AddComponent<Xiaoqi.Spike.XiaoqiShotRunner>();
+        temp.AddComponent<XiaoqiRadialMenu>();
         PrefabUtility.SaveAsPrefabAsset(temp, prefabPath);
         Object.DestroyImmediate(temp);
         AssetDatabase.SaveAssets();
