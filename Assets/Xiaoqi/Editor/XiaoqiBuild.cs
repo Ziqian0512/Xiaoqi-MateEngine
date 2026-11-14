@@ -22,6 +22,7 @@ public static class XiaoqiBuild
         temp.AddComponent<XiaoqiFeed>();
         temp.AddComponent<XiaoqiStartCard>();
         temp.AddComponent<XiaoqiAudit>();
+        temp.AddComponent<XiaoqiAbout>();
         temp.AddComponent<Xiaoqi.Spike.XiaoqiFace>();
         temp.AddComponent<Xiaoqi.Spike.HeadAnchor>();
         temp.AddComponent<Xiaoqi.Spike.PetPresence>();

@@ -589,12 +589,14 @@ namespace Xiaoqi.UI
             Xiaoqi.Spike.TodayCard.DebugOpen();
             yield return new WaitForSecondsRealtime(0.8f);
             Shot("05-today");
+            yield return new WaitForSecondsRealtime(0.3f);
             Xiaoqi.Spike.TodayCard.DebugClose();
             yield return new WaitForSecondsRealtime(0.3f);
 
             XiaoqiSettings.Open();
             yield return new WaitForSecondsRealtime(0.6f);
             Shot("06-settings");
+            yield return new WaitForSecondsRealtime(0.3f);
             var s = FindFirstObjectByType<XiaoqiSettings>(FindObjectsInactive.Include);
             if (s != null) s.Close();
             yield return new WaitForSecondsRealtime(0.3f);
@@ -602,6 +604,7 @@ namespace Xiaoqi.UI
             XiaoqiAbout.Show();
             yield return new WaitForSecondsRealtime(0.6f);
             Shot("07-about");
+            yield return new WaitForSecondsRealtime(0.3f);
             XiaoqiAbout.Hide();
             yield return new WaitForSecondsRealtime(0.4f);
 
@@ -615,7 +618,10 @@ namespace Xiaoqi.UI
             System.IO.Directory.CreateDirectory(dir);
             var path = System.IO.Path.Combine(dir, name + ".png");
             ScreenCapture.CaptureScreenshot(path);
-            Debug.Log("XQ_SHOT " + path);
+            var sb = new System.Text.StringBuilder("XQ_SHOT " + path);
+            foreach (var c in FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                sb.Append(" | " + c.name + ":" + c.sortingOrder + ":" + c.isActiveAndEnabled);
+            Debug.Log(sb.ToString());
         }
 
         private static string PathOf(Transform t)

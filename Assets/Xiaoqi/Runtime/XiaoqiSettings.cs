@@ -35,10 +35,33 @@ public class XiaoqiSettings : MonoBehaviour
     public static void Open()
     {
         if (_instance == null) _instance = FindFirstObjectByType<XiaoqiSettings>(FindObjectsInactive.Include);
-        if (_instance == null) return;
+        if (_instance == null) { Debug.Log("XQ_SET no instance"); return; }
         _open = true;
         _instance._go.SetActive(true);
         _instance.Rebuild();
+        if (Array.IndexOf(Environment.GetCommandLineArgs(), "-debug-settings") >= 0)
+        {
+            var dbg = new GameObject("Dbg", typeof(RectTransform));
+            dbg.transform.SetParent(_instance._canvas.transform, false);
+            var rt = (RectTransform)dbg.transform;
+            rt.anchorMin = new Vector2(0.1f, 0.1f);
+            rt.anchorMax = new Vector2(0.4f, 0.4f);
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+            var img = dbg.AddComponent<UnityEngine.UI.Image>();
+            img.color = Color.red;
+
+            var dbg2 = new GameObject("DbgCard", typeof(RectTransform));
+            dbg2.transform.SetParent(_instance._card, false);
+            var rt2 = (RectTransform)dbg2.transform;
+            rt2.anchorMin = rt2.anchorMax = new Vector2(0.5f, 0.5f);
+            rt2.sizeDelta = new Vector2(80f, 80f);
+            dbg2.AddComponent<UnityEngine.UI.Image>().color = Color.green;
+        }
+        Debug.Log("XQ_SET open active=" + _instance._go.activeInHierarchy + " card=" + _instance._card.rect
+                  + " pos=" + _instance._card.anchoredPosition
+                  + " canvas=" + ((RectTransform)_instance._canvas.transform).rect
+                  + " scale=" + _instance._canvas.scaleFactor);
     }
 
     public void Close()
@@ -49,7 +72,13 @@ public class XiaoqiSettings : MonoBehaviour
 
     private void OnApplicationFocus(bool hasFocus)
     {
-        if (!hasFocus && _open) Close();
+        if (!hasFocus && _open && !ShotMode()) Close();
+    }
+
+    private static bool ShotMode()
+    {
+        var a = Environment.GetCommandLineArgs();
+        return Array.IndexOf(a, "-menu-shot") >= 0 || Array.IndexOf(a, "-demo-settings") >= 0;
     }
 
     private void Build()
@@ -102,9 +131,10 @@ public class XiaoqiSettings : MonoBehaviour
         var viewport = new GameObject("Viewport", typeof(RectTransform));
         viewport.transform.SetParent(scrollGo.transform, false);
         var vrt = (RectTransform)viewport.transform;
-        vrt.anchorMin = vrt.anchorMax = new Vector2(0f, 1f);
-        vrt.pivot = new Vector2(0f, 1f);
-        vrt.sizeDelta = new Vector2(_contentW, XqStyle.Fr(400f));
+        vrt.anchorMin = Vector2.zero;
+        vrt.anchorMax = Vector2.one;
+        vrt.offsetMin = Vector2.zero;
+        vrt.offsetMax = Vector2.zero;
         viewport.AddComponent<RectMask2D>();
 
         _content = new GameObject("Content", typeof(RectTransform)).GetComponent<RectTransform>();
@@ -117,7 +147,7 @@ public class XiaoqiSettings : MonoBehaviour
         var vlg = _content.gameObject.AddComponent<VerticalLayoutGroup>();
         vlg.spacing = XqStyle.Fr(8f);
         vlg.childControlWidth = true;
-        vlg.childControlHeight = false;
+        vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true;
         vlg.childForceExpandHeight = false;
         var fit = _content.gameObject.AddComponent<ContentSizeFitter>();
@@ -178,6 +208,8 @@ public class XiaoqiSettings : MonoBehaviour
 
         var host = PetHost.I;
         if (host == null) return;
+
+        _card.sizeDelta = new Vector2(_cardW, Mathf.Min(XqStyle.Fr(520f), Screen.height * 0.8f));
 
         Section("外观");
         AddSlider("大小", 0.5f, 2f, host.Size, "0.00", v => host.Size = v);

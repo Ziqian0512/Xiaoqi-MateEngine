@@ -20,6 +20,7 @@ public class XiaoqiAbout : MonoBehaviour
         _instance.EnsureBuilt();
         _open = true;
         _instance._go.SetActive(true);
+        Debug.Log("XQ_ABOUT show active=" + _instance._go.activeInHierarchy + " card=" + _instance._card.rect);
     }
 
     public static void Hide()
@@ -61,7 +62,8 @@ public class XiaoqiAbout : MonoBehaviour
         _card.anchorMin = _card.anchorMax = new Vector2(0.5f, 0.5f);
         _card.pivot = new Vector2(0.5f, 0.5f);
         float w = XqStyle.Fr(420f);
-        _card.sizeDelta = new Vector2(w, XqStyle.Fr(400f));
+        float h = Mathf.Min(XqStyle.Fr(400f), Screen.height * 0.85f);
+        _card.sizeDelta = new Vector2(w, h);
         _card.anchoredPosition = Vector2.zero;
 
         var bg = _card.gameObject.AddComponent<Image>();
