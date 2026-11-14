@@ -14,10 +14,9 @@ public static class XiaoqiTray
     {
         var menu = new List<(string, Action)>
         {
-            ("去房间", XiaoqiModeController.EnterRoom),
+            ("直播视角（未接）", XiaoqiLiveEntry.Open),
             (XiaoqiRuntime.Dnd ? "免打扰 ✔" : "免打扰", ToggleDnd),
             ("小祈设置", XiaoqiSettings.Open),
-            ("调参（F9）", Xiaoqi.Spike.EmotionLineTuner.Toggle),
             ("退出小祈", () => Application.Quit())
         };
         return menu;

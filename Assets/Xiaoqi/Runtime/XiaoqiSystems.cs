@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -23,7 +23,7 @@ public class XiaoqiSystems : MonoBehaviour
         Debug.Log("XIAOQI_SYSTEMS ready model=" + cfg.model_path);
 
         if (Array.IndexOf(Environment.GetCommandLineArgs(), "--room") >= 0)
-            XiaoqiModeController.EnterRoom();
+            XiaoqiLiveEntry.Open();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -63,3 +63,4 @@ public class XiaoqiSystems : MonoBehaviour
             loader.LoadVRM(path);
     }
 }
+

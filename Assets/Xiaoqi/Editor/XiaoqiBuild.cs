@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using UnityEditor;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEditor.Build.Reporting;
@@ -10,7 +10,6 @@ public static class XiaoqiBuild
     public static void Win64()
     {
         XiaoqiIdentity.Apply();
-        XiaoqiRoomAnimator.Setup();
         EditorSceneManager.OpenScene("Assets/MATE ENGINE - Scenes/Mate Engine Main.unity", OpenSceneMode.Single);
 
         var prefabPath = "Assets/Xiaoqi/Resources/XiaoqiSystems.prefab";
@@ -18,7 +17,6 @@ public static class XiaoqiBuild
         var temp = new GameObject("XiaoqiSystems");
         temp.AddComponent<XiaoqiSystems>();
         temp.AddComponent<XiaoqiSettings>();
-        temp.AddComponent<XiaoqiModeController>();
         temp.AddComponent<XiaoqiLink>();
         temp.AddComponent<XiaoqiFeed>();
         temp.AddComponent<XiaoqiStartCard>();
@@ -35,16 +33,6 @@ public static class XiaoqiBuild
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
-        Directory.CreateDirectory("Assets/Xiaoqi/_Private");
-        var roomScene = "Assets/Xiaoqi/_Private/XiaoqiRoom.unity";
-        var roomOpened = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        var roomGo = new GameObject("XiaoqiRoom");
-        roomGo.AddComponent<Xiaoqi.Spike.RoomPreview>();
-        roomGo.AddComponent<RoomSceneExit>();
-        roomGo.AddComponent<Xiaoqi.Spike.RoomStageDriver>();
-        roomGo.AddComponent<Xiaoqi.Spike.RoomStageFace>();
-        EditorSceneManager.SaveScene(roomOpened, roomScene);
-
         AddressableAssetSettings.CleanPlayerContent();
         AddressableAssetSettings.BuildPlayerContent(out var addressablesResult);
         if (!string.IsNullOrEmpty(addressablesResult.Error))
@@ -57,8 +45,6 @@ public static class XiaoqiBuild
         {
             "Assets/MATE ENGINE - Scenes/Mate Engine Main.unity"
         };
-        const string room = "Assets/Xiaoqi/_Private/XiaoqiRoom.unity";
-        if (File.Exists(room)) scenes.Add(room);
 
         var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
         {
@@ -83,3 +69,5 @@ public static class XiaoqiBuild
         }
     }
 }
+
+

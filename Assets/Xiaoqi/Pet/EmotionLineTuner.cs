@@ -15,10 +15,7 @@ namespace Xiaoqi.Spike
             _cfg = EmotionLineConfig.Load();
         }
 
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.F9)) Toggle();
-        }
+        // 桌宠不再占用 F9；调参页以后只在直播视角里打开。
 
         private void OnApplicationFocus(bool hasFocus)
         {

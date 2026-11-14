@@ -11,6 +11,17 @@ GameObject:
   - component: {fileID: 7598974985635059607}
   - component: {fileID: 583896514579471328}
   - component: {fileID: 6280806283765626610}
+  - component: {fileID: 7663489133846945051}
+  - component: {fileID: 3584818195098738656}
+  - component: {fileID: 4283708861362046614}
+  - component: {fileID: 8190733537592046000}
+  - component: {fileID: 6920339930893614535}
+  - component: {fileID: 1994844620173777597}
+  - component: {fileID: 2617007623148043790}
+  - component: {fileID: 1999659183344035918}
+  - component: {fileID: 1117346983376931598}
+  - component: {fileID: 2785170503361536077}
+  - component: {fileID: 8422286727865382117}
   m_Layer: 0
   m_Name: XiaoqiSystems
   m_TagString: Untagged
@@ -57,3 +68,135 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 890f2de037818074db7f1df32021d2a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::XiaoqiSettings
+--- !u!114 &7663489133846945051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c707e35b749374840bca7d578b3c347f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XiaoqiLink
+--- !u!114 &3584818195098738656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96cb3097e296e1e47b7a821e7107e79d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XiaoqiFeed
+--- !u!114 &4283708861362046614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89775ec16ad578e44ba962a46bef2d7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XiaoqiStartCard
+--- !u!114 &8190733537592046000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36b853e480e2a3e46b3d0b265c7c12d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::XiaoqiAudit
+--- !u!114 &6920339930893614535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00110aae57e037a4490bdf5c9142e8cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.XiaoqiFace
+--- !u!114 &1994844620173777597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 667cda29ed3ac2d4894c2d86ffb3a0cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.HeadAnchor
+--- !u!114 &2617007623148043790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aeffe076d3c8cb845a33670b570f4bd9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.PetPresence
+--- !u!114 &1999659183344035918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91b4ca99ae1396d41b05c9c418c3eb6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.PetBubble
+--- !u!114 &1117346983376931598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd337e24acda5144a8a4f58a5925f1dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.TodayCard
+--- !u!114 &2785170503361536077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd780bb9cc09629468b36d9a4551120f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.EmotionLineTuner
+--- !u!114 &8422286727865382117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acb1e29955320f04fbc4b2ccdceb90ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.XiaoqiShotRunner

@@ -1,13 +1,11 @@
-using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
-using Xiaoqi.Spike;
 
 public class XiaoqiFeed : MonoBehaviour
 {
     private int _since = -1;
-    private BubbleUI _bubble;
 
     [Serializable]
     private class Envelope
@@ -96,11 +94,12 @@ public class XiaoqiFeed : MonoBehaviour
     {
         if (XiaoqiRuntime.Config != null && XiaoqiRuntime.Config.emotion_line)
         {
-            PetBubble.Enqueue(text, media);
+            Xiaoqi.Spike.PetBubble.Enqueue(text, media);
             return;
         }
-        if (_bubble == null) _bubble = FindFirstObjectByType<BubbleUI>(FindObjectsInactive.Include);
-        if (_bubble != null) _bubble.Show(text);
+        Debug.Log("XiaoqiFeed: bubble fallback off");
     }
 }
+
+
 
