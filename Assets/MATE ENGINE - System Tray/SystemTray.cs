@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,7 +26,7 @@ public class SystemTray : MonoBehaviour
     void Awake()
     {
         TrayIcon.OnBuildMenu = BuildMenu;
-        TrayIcon.Init("App", iconName, icon, BuildMenu());
+        TrayIcon.Init("App", "小祈", icon, BuildMenu());
     }
 
     private List<(string, Action)> BuildMenu()

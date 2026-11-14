@@ -18,3 +18,4 @@ Branch: `xiaoqi/main`
 |---|------|--------|--------|
 | 0 | `Assets/Xiaoqi/Editor/XiaoqiBuild.cs` | 新增构建入口 | U0 |
 | 1 | `Assets/Xiaoqi/Editor/XiaoqiIdentity.cs` | 关闭 Unity 启动画面 / Shinymoon 启动 logo | E0 |
+| 2 | `Assets/MATE ENGINE - System Tray/SystemTray.cs` | 托盘 tooltip 从 iconName 改为「小祈」 | E0；主人 11-14 明确批准这次改 ME 原文件 |
