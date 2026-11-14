@@ -26,6 +26,12 @@ public class XiaoqiModeController : MonoBehaviour
 
     public static void ExitRoom()
     {
+        var h = SaveLoadHandler.Instance;
+        if (h != null && XiaoqiRuntime.Config != null && !string.IsNullOrEmpty(XiaoqiRuntime.Config.model_path))
+        {
+            h.data.selectedModelPath = XiaoqiRuntime.Config.model_path;
+            h.SaveToDisk();
+        }
         if (_instance != null) _instance.StartCoroutine(_instance.Swap("Mate Engine Main"));
     }
 
