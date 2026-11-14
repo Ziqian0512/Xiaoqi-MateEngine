@@ -59,20 +59,7 @@ namespace Xiaoqi.Spike
             tex.Apply();
             File.WriteAllBytes(Path.Combine(_dir, name), tex.EncodeToPNG());
             Destroy(tex);
-            var loader = FindFirstObjectByType<VRMLoader>(FindObjectsInactive.Include);
-            var model = loader != null ? loader.GetCurrentModel() : null;
-            var uni = model != null ? model.GetComponent<UniversalBlendshapes>() : null;
-            var line = new StringBuilder(name + " " + emo + " " + phase);
-            if (uni != null)
-            {
-                var t = uni.GetType();
-                foreach (var k in new[] { "Joy", "Angry", "Sorrow", "Fun", "LookDown", "Blink", "O" })
-                {
-                    var f = t.GetField(k);
-                    line.Append(" " + k + "=" + (f != null ? ((float)f.GetValue(uni)).ToString("0.00") : "?"));
-                }
-            }
-            readout.AppendLine(line.ToString());
+            readout.AppendLine(name + " " + emo + " " + phase + " " + XiaoqiFace.Readout());
         }
     }
 }

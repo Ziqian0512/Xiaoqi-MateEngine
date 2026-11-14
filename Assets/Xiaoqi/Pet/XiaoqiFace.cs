@@ -11,6 +11,7 @@ namespace Xiaoqi.Spike
         private static XiaoqiFace _instance;
         private string _debugBaseTop = "";
         private float _debugBaseLevel;
+        private bool _debugLog;
         private EmotionLineConfig _cfg;
         private GameObject _model;
         private Animator _animator;
@@ -31,6 +32,14 @@ namespace Xiaoqi.Spike
 
         private void Awake() { _instance = this; }
 
+        public static string Readout()
+        {
+            if (_instance == null) return "no face instance";
+            var s = "";
+            foreach (var k in Keys) s += k + "=" + _instance._cur[k].ToString("0.00") + " ";
+            return s.Trim();
+        }
+
         public static void DebugBase(string emotion, float level)
         {
             if (_instance == null)
@@ -41,6 +50,7 @@ namespace Xiaoqi.Spike
             _instance._debugBaseTop = emotion ?? "";
             _instance._debugBaseLevel = level;
             _instance._spikeStart = -1f;
+            _instance._debugLog = true;
             Debug.Log("XQ_DEBUG_BASE " + emotion + " map=" + _instance._cfg.face.map.Count
                       + " model=" + (_instance._model != null) + " uni=" + (_instance._uni != null));
         }
@@ -145,6 +155,10 @@ namespace Xiaoqi.Spike
             float dt = Time.unscaledDeltaTime;
             foreach (var k in Keys)
                 _cur[k] = Mathf.MoveTowards(_cur[k], Mathf.Clamp01(_target[k]), dt / Mathf.Max(0.01f, _cfg.face.blend_sec));
+            if (_debugLog && Time.frameCount % 30 == 0)
+                Debug.Log("XQ_FACE cfg=" + XiaoqiRuntime.Config.emotion_line + " model=" + (_model != null)
+                          + " uni=" + (_uni != null) + " targetJoy=" + _target["Joy"].ToString("0.00")
+                          + " curJoy=" + _cur["Joy"].ToString("0.00"));
             ApplyToModel();
         }
 
@@ -222,12 +236,13 @@ namespace Xiaoqi.Spike
         {
             if (_uni != null)
             {
-                var t = _uni.GetType();
-                foreach (var k in Keys)
-                {
-                    var f = t.GetField(k);
-                    if (f != null) f.SetValue(_uni, _cur[k]);
-                }
+                _uni.Joy = _cur["Joy"];
+                _uni.Angry = _cur["Angry"];
+                _uni.Sorrow = _cur["Sorrow"];
+                _uni.Fun = _cur["Fun"];
+                _uni.LookDown = _cur["LookDown"];
+                _uni.Blink = _cur["Blink"];
+                _uni.O = _cur["O"];
                 return;
             }
             if (_proxy != null)
