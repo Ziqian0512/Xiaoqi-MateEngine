@@ -17,7 +17,11 @@ namespace Xiaoqi.Spike
         private float _wakeAt = -1f;
         private float _napUntil = -1f;
 
-        private void Awake() { _inst = this; }
+        private void Awake()
+        {
+            _inst = this;
+
+        }
 
         public static void Nap(float minutes)
         {
@@ -25,6 +29,7 @@ namespace Xiaoqi.Spike
             IsAsleep = true;
             if (PetHost.I != null) PetHost.I.SetSleeping(true);
             _inst._napUntil = Time.unscaledTime + Mathf.Max(0.1f, minutes) * 60f;
+
             Debug.Log("XQ_NAP start min=" + minutes);
         }
 
@@ -81,6 +86,7 @@ namespace Xiaoqi.Spike
         {
             if (!XiaoqiRuntime.Config.emotion_line) return;
             if (PetHost.I == null) return;
+
 
             if (_napUntil > 0f && Time.unscaledTime >= _napUntil)
             {

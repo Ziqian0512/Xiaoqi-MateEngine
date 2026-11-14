@@ -293,8 +293,8 @@ namespace Xiaoqi.UI
         private IEnumerator DemoA6()
         {
             yield return new WaitForSecondsRealtime(2f);
-            Xiaoqi.Spike.PetPresence.Nap(0.03f);
-            yield return new WaitForSecondsRealtime(4f);
+            Xiaoqi.Spike.PetPresence.Nap(0.1f);
+            yield return new WaitForSecondsRealtime(8f);
             Xiaoqi.Spike.PetPresence.Nap(1f);
             yield return new WaitForSecondsRealtime(1.5f);
             Xiaoqi.Spike.PetPresence.Wake();
