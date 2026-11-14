@@ -53,10 +53,23 @@ namespace Xiaoqi.Spike
             PetBubble.Enqueue("这是一条语音测试。", "voice");
             yield return new WaitForSecondsRealtime(0.8f);
             yield return Capture("21_气泡.png", readout, "气泡", "bubble");
+            TodayCard.DebugOpen();
+            yield return new WaitForSecondsRealtime(0.8f);
+            yield return CaptureFull("22_今天卡.png");
             File.WriteAllText(Path.Combine(_dir, "readout.txt"), readout.ToString());
             Debug.Log("XQ_SHOTS done " + _dir);
             yield return new WaitForSecondsRealtime(0.5f);
             Application.Quit();
+        }
+
+        private IEnumerator CaptureFull(string name)
+        {
+            yield return new WaitForEndOfFrame();
+            var tex = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+            tex.Apply();
+            File.WriteAllBytes(Path.Combine(_dir, name), tex.EncodeToPNG());
+            Destroy(tex);
         }
 
         private IEnumerator Capture(string name, StringBuilder readout, string emo, string phase)

@@ -60,6 +60,12 @@ namespace Xiaoqi.Spike
             if (_open && _mouseOutsideAt > 0f && Time.unscaledTime - _mouseOutsideAt > 10f) Close();
         }
 
+        public static void DebugOpen()
+        {
+            var c = FindFirstObjectByType<TodayCard>(FindObjectsInactive.Include);
+            if (c != null) c.Open();
+        }
+
         private void Open()
         {
             _open = true;
