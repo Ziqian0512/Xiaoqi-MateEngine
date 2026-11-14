@@ -108,7 +108,7 @@ namespace Xiaoqi.Spike
 
             if (deskPose)
             {
-                _root.position = target + Vector3.up * 0.35f;
+                _root.position = target + Vector3.up * 0.62f;
                 _root.rotation = Quaternion.Euler(0f, 180f, 0f);
                 if (_animator != null) _animator.Play("Sit");
                 if (_bubble != null) _bubble.Show("坐下用电脑", 3f);
