@@ -34,9 +34,9 @@ namespace Xiaoqi.Spike
         private GameObject _go;
         private RectTransform _card;
         private RectTransform _content;
-        private Text _dateLine;
-        private Text _stateLine;
-        private float _mouseOutsideAt = -1f;
+        private float _cursor;
+        private float _cardW;
+        private float _contentW;
 
         private void Awake()
         {
@@ -69,7 +69,9 @@ namespace Xiaoqi.Spike
             _card = (RectTransform)_go.transform;
             _card.anchorMin = _card.anchorMax = new Vector2(0f, 1f);
             _card.pivot = new Vector2(0f, 1f);
-            _card.sizeDelta = new Vector2(XqStyle.Fr(CardWidth), 0f);
+            _cardW = XqStyle.Fr(CardWidth);
+            _contentW = _cardW - XqStyle.Fr(32f);
+            _card.sizeDelta = new Vector2(_cardW, 0f);
 
             var bg = _card.gameObject.AddComponent<Image>();
             bg.color = XqStyle.Paper;
@@ -85,20 +87,8 @@ namespace Xiaoqi.Spike
             _content.transform.SetParent(_card, false);
             _content.anchorMin = _content.anchorMax = new Vector2(0f, 1f);
             _content.pivot = new Vector2(0f, 1f);
-            _content.sizeDelta = new Vector2(XqStyle.Fr(CardWidth) - XqStyle.Fr(28f), 0f);
+            _content.sizeDelta = new Vector2(_contentW, 0f);
             _content.anchoredPosition = new Vector2(XqStyle.Fr(16f), -XqStyle.Fr(14f));
-            var vlg = _content.gameObject.AddComponent<VerticalLayoutGroup>();
-            vlg.spacing = XqStyle.Fr(8f);
-            vlg.childControlWidth = true;
-            vlg.childControlHeight = false;
-            vlg.childForceExpandWidth = true;
-            vlg.childForceExpandHeight = false;
-            var fit = _content.gameObject.AddComponent<ContentSizeFitter>();
-            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
-            XqUi.Label(_content, "今天", XqStyle.FontCardTitle, XqStyle.Ink, TextAnchor.MiddleLeft, 24f);
-            _dateLine = XqUi.Label(_content, "", XqStyle.FontSmall, XqStyle.Muted, TextAnchor.MiddleLeft, 18f);
-            _stateLine = XqUi.Label(_content, "", XqStyle.FontSmall, XqStyle.Muted, TextAnchor.MiddleLeft, 18f);
         }
 
         // ------------------------------------------------------------- input
@@ -128,14 +118,12 @@ namespace Xiaoqi.Spike
             }
             if (_open && Input.GetKeyDown(KeyCode.Escape)) Close();
             if (_open && Time.unscaledTime >= _nextRefresh) StartCoroutine(Fetch());
-            if (_open && !PointerInsideCard() && Input.GetMouseButtonDown(0)) Close();
-            if (_open && _data != null && Time.unscaledTime >= _nextRefresh) StartCoroutine(Fetch());
+            if (_open && Input.GetMouseButtonDown(0) && !PointerInsideCard()) Close();
         }
 
         private bool PointerInsideCard()
         {
-            if (_card == null) return false;
-            return RectTransformUtility.RectangleContainsScreenPoint(_card, Input.mousePosition, null);
+            return _card != null && RectTransformUtility.RectangleContainsScreenPoint(_card, Input.mousePosition, null);
         }
 
         private bool HitPet(Vector3 screen)
@@ -172,8 +160,6 @@ namespace Xiaoqi.Spike
             _error = null;
             _nextRefresh = 0f;
             _go.SetActive(true);
-            _dateLine.text = "";
-            _stateLine.text = "正在看今天…";
             Refresh();
         }
 
@@ -185,90 +171,103 @@ namespace Xiaoqi.Spike
 
         private void Refresh()
         {
-            while (_content.childCount > 3)
-                Destroy(_content.GetChild(3).gameObject);
+            for (int i = _content.childCount - 1; i >= 0; i--)
+                Destroy(_content.GetChild(i).gameObject);
+            _cursor = 0f;
 
-            if (!string.IsNullOrEmpty(_error))
+            LabelAt("今天", XqStyle.FontCardTitle, XqStyle.Ink, 24f);
+            if (!string.IsNullOrEmpty(_error)) LabelAt(_error, XqStyle.FontSmall, XqStyle.Muted, 18f);
+            else if (_data == null) LabelAt("正在看今天…", XqStyle.FontSmall, XqStyle.Muted, 18f);
+            else
             {
-                _stateLine.text = _error;
-                LayoutCard();
-                return;
-            }
-            if (_data == null)
-            {
-                _stateLine.text = "正在看今天…";
-                LayoutCard();
-                return;
+                LabelAt((_data.date ?? "") + "   心情 " + (_data.mood ?? ""), XqStyle.FontSmall, XqStyle.Muted, 18f);
+                AddSchedule();
+                AddMarks();
+                AddBody();
             }
 
-            _dateLine.text = (_data.date ?? "") + "   心情 " + (_data.mood ?? "");
-            _stateLine.text = "";
-            AddSchedule();
-            AddMarks();
-            AddBody();
+            _cursor += XqStyle.Fr(6f);
+            _content.sizeDelta = new Vector2(_contentW, _cursor);
+            _card.sizeDelta = new Vector2(_cardW, _cursor + XqStyle.Fr(28f));
             LayoutCard();
+        }
+
+        private RectTransform Row(float h)
+        {
+            var rt = new GameObject("Row", typeof(RectTransform)).GetComponent<RectTransform>();
+            rt.SetParent(_content, false);
+            rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.sizeDelta = new Vector2(_contentW, h);
+            rt.anchoredPosition = new Vector2(0f, -_cursor);
+            _cursor += h + XqStyle.Fr(8f);
+            return rt;
+        }
+
+        private Text LabelAt(string text, int size, Color color, float height)
+        {
+            var rt = Row(XqStyle.Fr(height));
+            var t = XqUi.Label(rt, text, size, color, TextAnchor.MiddleLeft, height);
+            var trt = t.rectTransform;
+            trt.anchorMin = trt.anchorMax = new Vector2(0f, 1f);
+            trt.pivot = new Vector2(0f, 1f);
+            trt.sizeDelta = new Vector2(_contentW, XqStyle.Fr(height));
+            trt.anchoredPosition = Vector2.zero;
+            return t;
         }
 
         private void LayoutCard()
         {
-            Canvas.ForceUpdateCanvases();
-            float h = _content.sizeDelta.y + XqStyle.Fr(28f);
-            _card.sizeDelta = new Vector2(XqStyle.Fr(CardWidth), h);
-
-            float w = XqStyle.Fr(CardWidth);
+            float h = _cursor + XqStyle.Fr(28f);
+            float w = _cardW;
             float sw = Screen.width, sh = Screen.height;
-            float x, y;
-            var r = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(sw * 0.5f, sh * 0.5f, 0, 0);
+            var r = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(sw * 0.5f, sh * 0.5f, 0f, 0f);
+            float x;
             if (r.xMax + XqStyle.Fr(16f) + w <= sw - XqStyle.Fr(8f)) x = r.xMax + XqStyle.Fr(16f);
             else if (r.xMin - XqStyle.Fr(16f) - w >= XqStyle.Fr(8f)) x = r.xMin - XqStyle.Fr(16f) - w;
             else x = Mathf.Clamp(r.center.x - w * 0.5f, XqStyle.Fr(8f), sw - w - XqStyle.Fr(8f));
-            y = Mathf.Clamp(r.center.y + h * 0.5f, h + XqStyle.Fr(8f), sh - XqStyle.Fr(8f));
-            _card.anchoredPosition = new Vector2(x, y - sh);
+
+            float top = Mathf.Clamp(r.center.y + h * 0.5f, h + XqStyle.Fr(8f), sh - XqStyle.Fr(8f));
+            _card.anchoredPosition = new Vector2(x, top - sh);
         }
 
         // ------------------------------------------------------------ pieces
 
         private void AddSchedule()
         {
-            XqUi.Label(_content, "日程", XqStyle.FontSmall, XqStyle.Muted, TextAnchor.MiddleLeft, 16f);
-            var row = XqUi.Node(_content, "Schedule");
-            row.sizeDelta = new Vector2(0f, XqStyle.Fr(14f));
-            var le = row.gameObject.AddComponent<LayoutElement>();
-            le.preferredHeight = XqStyle.Fr(14f);
-            le.minHeight = XqStyle.Fr(14f);
-
-            float w = _content.sizeDelta.x;
-            int totalFrom = int.MaxValue, totalTo = int.MinValue;
+            LabelAt("日程", XqStyle.FontSmall, XqStyle.Muted, 16f);
+            var row = Row(XqStyle.Fr(16f));
+            float w = _contentW;
+            int from = int.MaxValue, to = int.MinValue;
             foreach (var s in _data.segs ?? new Seg[0])
             {
-                totalFrom = Mathf.Min(totalFrom, s.a);
-                totalTo = Mathf.Max(totalTo, s.b);
+                from = Mathf.Min(from, s.a);
+                to = Mathf.Max(to, s.b);
             }
-            if (totalTo <= totalFrom) { totalTo = totalFrom + 1; }
+            if (to <= from) to = from + 1;
 
-            float y = -XqStyle.Fr(2f);
             foreach (var s in _data.segs ?? new Seg[0])
             {
-                float x0 = (s.a - totalFrom) / (float)(totalTo - totalFrom) * w;
-                float x1 = (s.b - totalFrom) / (float)(totalTo - totalFrom) * w;
+                float x0 = (s.a - from) / (float)(to - from) * w;
+                float x1 = (s.b - from) / (float)(to - from) * w;
                 var segGo = new GameObject("Seg", typeof(RectTransform));
                 segGo.transform.SetParent(row, false);
                 var img = segGo.AddComponent<Image>();
-                img.sprite = XqUi.Pill(Mathf.Max(6, Mathf.RoundToInt(x1 - x0)), Mathf.RoundToInt(XqStyle.Fr(10f)),
-                    s.where != "dorm" ? XqStyle.GrayLine : XqStyle.PinkGuide, XqStyle.PinkGuide);
+                int pw = Mathf.Max(6, Mathf.RoundToInt(x1 - x0));
+                img.sprite = XqUi.Pill(pw, Mathf.RoundToInt(XqStyle.Fr(10f)),
+                    s.where == "dorm" ? XqStyle.PinkGuide : XqStyle.GrayLine, XqStyle.PinkGuide);
                 img.type = Image.Type.Simple;
                 img.raycastTarget = false;
                 var rt = (RectTransform)segGo.transform;
                 rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
                 rt.pivot = new Vector2(0f, 1f);
                 rt.sizeDelta = new Vector2(Mathf.Max(6f, x1 - x0), XqStyle.Fr(10f));
-                rt.anchoredPosition = new Vector2(x0, y);
+                rt.anchoredPosition = new Vector2(x0, -XqStyle.Fr(2f));
             }
 
-            // now marker
-            if (_data.now_min > 0 && totalTo > totalFrom)
+            if (_data.now_min > 0)
             {
-                float t = Mathf.Clamp01((_data.now_min - totalFrom) / (float)(totalTo - totalFrom));
+                float t = Mathf.Clamp01((_data.now_min - from) / (float)(to - from));
                 var nowGo = new GameObject("Now", typeof(RectTransform));
                 nowGo.transform.SetParent(row, false);
                 var img = nowGo.AddComponent<Image>();
@@ -277,52 +276,46 @@ namespace Xiaoqi.Spike
                 var rt = (RectTransform)nowGo.transform;
                 rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
                 rt.pivot = new Vector2(0f, 1f);
-                rt.sizeDelta = new Vector2(1f, XqStyle.Fr(12f));
-                rt.anchoredPosition = new Vector2(t * w, y - XqStyle.Fr(1f));
+                rt.sizeDelta = new Vector2(1f, XqStyle.Fr(13f));
+                rt.anchoredPosition = new Vector2(t * w, 0f);
             }
         }
 
         private void AddMarks()
         {
-            XqUi.Label(_content, "情绪点", XqStyle.FontSmall, XqStyle.Muted, TextAnchor.MiddleLeft, 16f);
+            LabelAt("情绪点", XqStyle.FontSmall, XqStyle.Muted, 16f);
             var marks = _data.marks ?? new Mark[0];
             if (marks.Length == 0)
             {
-                XqUi.Label(_content, "今天还没有什么特别的", XqStyle.FontSmall, XqStyle.Body, TextAnchor.MiddleLeft, 18f);
+                LabelAt("今天还没有什么特别的", XqStyle.FontSmall, XqStyle.Body, 18f);
                 return;
             }
             int shown = 0;
             for (int i = marks.Length - 1; i >= 0 && shown < 6; i--, shown++)
             {
                 var m = marks[i];
-                var row = XqUi.Node(_content, "Mark");
-                var le = row.gameObject.AddComponent<LayoutElement>();
-                le.preferredHeight = XqStyle.Fr(22f);
-                le.minHeight = XqStyle.Fr(22f);
+                var row = Row(XqStyle.Fr(20f));
                 var time = XqUi.Label(row, m.at ?? "", XqStyle.FontSmall, XqStyle.Muted, TextAnchor.MiddleLeft, 18f);
-                var trt = time.rectTransform;
-                trt.anchorMin = trt.anchorMax = new Vector2(0f, 1f);
-                trt.pivot = new Vector2(0f, 1f);
-                trt.sizeDelta = new Vector2(XqStyle.Fr(44f), XqStyle.Fr(18f));
+                Place(time.rectTransform, 0f, XqStyle.Fr(46f));
                 var emo = XqUi.Label(row, m.emo ?? "", XqStyle.FontSmall, XqStyle.Ink, TextAnchor.MiddleLeft, 18f);
-                var ert = emo.rectTransform;
-                ert.anchorMin = ert.anchorMax = new Vector2(0f, 1f);
-                ert.pivot = new Vector2(0f, 1f);
-                ert.sizeDelta = new Vector2(XqStyle.Fr(52f), XqStyle.Fr(18f));
-                ert.anchoredPosition = new Vector2(XqStyle.Fr(46f), 0f);
+                Place(emo.rectTransform, XqStyle.Fr(48f), XqStyle.Fr(56f));
                 var note = XqUi.Label(row, m.note ?? "", XqStyle.FontSmall, XqStyle.Body, TextAnchor.MiddleLeft, 18f);
-                var nrt = note.rectTransform;
-                nrt.anchorMin = nrt.anchorMax = new Vector2(0f, 1f);
-                nrt.pivot = new Vector2(0f, 1f);
-                nrt.sizeDelta = new Vector2(_content.sizeDelta.x - XqStyle.Fr(100f), XqStyle.Fr(18f));
-                nrt.anchoredPosition = new Vector2(XqStyle.Fr(102f), 0f);
+                Place(note.rectTransform, XqStyle.Fr(106f), _contentW - XqStyle.Fr(106f));
             }
+        }
+
+        private static void Place(RectTransform rt, float x, float w)
+        {
+            rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.sizeDelta = new Vector2(w, XqStyle.Fr(18f));
+            rt.anchoredPosition = new Vector2(x, 0f);
         }
 
         private void AddBody()
         {
             if (_data.body == null) return;
-            XqUi.Label(_content, "身体", XqStyle.FontSmall, XqStyle.Muted, TextAnchor.MiddleLeft, 16f);
+            LabelAt("身体", XqStyle.FontSmall, XqStyle.Muted, 16f);
             AddBar("困意", _data.body.sleepy);
             AddBar("体力", _data.body.stamina);
             AddBar("社交", _data.body.social);
@@ -330,18 +323,11 @@ namespace Xiaoqi.Spike
 
         private void AddBar(string label, float value)
         {
-            var row = XqUi.Node(_content, "Bar_" + label);
-            var le = row.gameObject.AddComponent<LayoutElement>();
-            le.preferredHeight = XqStyle.Fr(22f);
-            le.minHeight = XqStyle.Fr(22f);
-
+            var row = Row(XqStyle.Fr(22f));
             var name = XqUi.Label(row, label, XqStyle.FontSmall, XqStyle.Body, TextAnchor.MiddleLeft, 18f);
-            var nrt = name.rectTransform;
-            nrt.anchorMin = nrt.anchorMax = new Vector2(0f, 1f);
-            nrt.pivot = new Vector2(0f, 1f);
-            nrt.sizeDelta = new Vector2(XqStyle.Fr(36f), XqStyle.Fr(18f));
+            Place(name.rectTransform, 0f, XqStyle.Fr(40f));
 
-            float w = _content.sizeDelta.x - XqStyle.Fr(96f);
+            float w = _contentW - XqStyle.Fr(100f);
             var track = new GameObject("Track", typeof(RectTransform));
             track.transform.SetParent(row, false);
             var timg = track.AddComponent<Image>();
@@ -352,7 +338,7 @@ namespace Xiaoqi.Spike
             trt.anchorMin = trt.anchorMax = new Vector2(0f, 1f);
             trt.pivot = new Vector2(0f, 1f);
             trt.sizeDelta = new Vector2(w, XqStyle.Fr(8f));
-            trt.anchoredPosition = new Vector2(XqStyle.Fr(42f), -XqStyle.Fr(6f));
+            trt.anchoredPosition = new Vector2(XqStyle.Fr(44f), -XqStyle.Fr(7f));
 
             float fillW = Mathf.Clamp01(value / 100f) * w;
             if (fillW > 2f)
@@ -374,7 +360,7 @@ namespace Xiaoqi.Spike
             var vrt = val.rectTransform;
             vrt.anchorMin = vrt.anchorMax = new Vector2(1f, 1f);
             vrt.pivot = new Vector2(1f, 1f);
-            vrt.sizeDelta = new Vector2(XqStyle.Fr(48f), XqStyle.Fr(18f));
+            vrt.sizeDelta = new Vector2(XqStyle.Fr(40f), XqStyle.Fr(18f));
             vrt.anchoredPosition = Vector2.zero;
         }
 
