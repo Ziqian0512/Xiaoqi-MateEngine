@@ -81,6 +81,8 @@ namespace Xiaoqi.Spike
             cam.fieldOfView = 55f;
             camGo.transform.position = center + new Vector3(2.15f, 2.25f, -2.15f);
             camGo.transform.LookAt(center + new Vector3(-0.45f, 0.65f, 0.10f));
+            var orbit = camGo.AddComponent<RoomOrbitCamera>();
+            orbit.Setup(cam, center + new Vector3(-0.45f, 0.65f, 0.10f));
 
             var lightGo = new GameObject("RoomLight");
             var light = lightGo.AddComponent<Light>();
@@ -136,7 +138,7 @@ namespace Xiaoqi.Spike
                     // bed mesh_10.006 ≈ center + (-1.5, 0, -1.74)
                     // desk sm_401   ≈ center + (-0.02, 0, -2.39)，取桌前沿以免穿墙
                     action.Setup(vrm.Root, home,
-                        center + new Vector3(-0.02f, 0f, -1.75f),
+                        center + new Vector3(-0.04f, 0f, -1.35f),
                         center + new Vector3(-1.20f, 0f, -1.60f),
                         bubble);
 
