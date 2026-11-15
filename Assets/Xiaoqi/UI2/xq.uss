@@ -324,3 +324,131 @@
 .xq-tail-down {
     picking-mode: position;
 }
+
+.xq-gate {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+}
+
+.xq-gate .xq-body {
+    width: 40px;
+    height: 40px;
+    min-width: 0;
+    min-height: 0;
+    border-radius: 14px;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.xq-gate-mark {
+    position: absolute;
+    left: 9px;
+    right: 9px;
+    top: 9px;
+    bottom: 9px;
+}
+
+.xq-quiet {
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+}
+
+.xq-quiet-word,
+.xq-quiet-shade {
+    font-size: 15px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+
+.xq-quiet-word {
+    color: rgb(255, 255, 255);
+}
+
+.xq-quiet-shade {
+    position: absolute;
+    left: 0;
+    top: 1px;
+    color: rgba(90, 50, 120, 0.45);
+}
+
+.xq-ring-detail {
+    position: absolute;
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    background-color: rgba(255, 255, 255, 0.88);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.8);
+    border-radius: var(--xq-r-pill, 999px);
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+    white-space: nowrap;
+}
+
+.xq-entries {
+    position: absolute;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.xq-entry {
+    margin-bottom: 6px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 14px;
+    padding-right: 14px;
+    border-radius: var(--xq-r-pill, 999px);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.8);
+    font-size: 15px;
+    -unity-text-align: middle-center;
+}
+
+.xq-entry-on {
+    background-color: var(--xq-accent, #FF8FB8);
+    color: rgb(255, 255, 255);
+    border-color: rgba(255, 255, 255, 0.9);
+}
+
+.xq-entry-soon {
+    background-color: rgba(255, 255, 255, 0.35);
+    color: rgba(59, 47, 85, 0.45);
+    border-color: rgba(255, 255, 255, 0.55);
+}
+
+.xq-soon-tip {
+    position: absolute;
+    right: 100%;
+    top: 0;
+    margin-right: 8px;
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    background-color: rgba(255, 255, 255, 0.88);
+    border-radius: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+    white-space: nowrap;
+    display: none;
+}
+
+.xq-entry-soon:hover .xq-soon-tip,
+.xq-soon-tip.xq-tip-on {
+    display: flex;
+}
+
+.xq-gate .xq-body,
+.xq-entry-on {
+    picking-mode: position;
+}
+
+.xq-entry-soon {
+    picking-mode: position;
+}
