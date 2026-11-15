@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -67,37 +67,39 @@ public class XiaoqiStartCard : MonoBehaviour
         var panel = new GameObject("Card");
         panel.transform.SetParent(canvasGo.transform, false);
         var bg = panel.AddComponent<Image>();
-        bg.color = new Color(1f, 1f, 1f, 0.92f);
+        bg.sprite = Xiaoqi.UI.XqUi.Pill(240, 64, Xiaoqi.UI.XqStyle.PinkFill, Xiaoqi.UI.XqStyle.PinkLine);
+        bg.type = Image.Type.Simple;
+        bg.color = Color.white;
         var rt = panel.GetComponent<RectTransform>();
-        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0f);
-        rt.pivot = new Vector2(0.5f, 0f);
-        rt.sizeDelta = new Vector2(320, 88);
-        rt.anchoredPosition = new Vector2(0, 120);
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
+        rt.pivot = new Vector2(0.5f, 1f);
+        rt.sizeDelta = new Vector2(240, 64);
+        rt.anchoredPosition = new Vector2(0, -80);
 
         var title = new GameObject("Name");
         title.transform.SetParent(panel.transform, false);
         var t = title.AddComponent<Text>();
         t.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        t.fontSize = 18;
-        t.color = new Color(0.15f, 0.15f, 0.18f);
+        t.fontSize = 16;
+        t.color = Xiaoqi.UI.XqStyle.Ink;
         t.text = _brand.name;
         var trt = title.GetComponent<RectTransform>();
         trt.anchorMin = new Vector2(0f, 0.5f);
         trt.anchorMax = new Vector2(1f, 1f);
-        trt.offsetMin = new Vector2(76, 0);
+        trt.offsetMin = new Vector2(20, 0);
         trt.offsetMax = new Vector2(-12, -14);
 
         var status = new GameObject("Status");
         status.transform.SetParent(panel.transform, false);
         _status = status.AddComponent<Text>();
         _status.font = t.font;
-        _status.fontSize = 13;
-        _status.color = new Color(0.42f, 0.42f, 0.46f);
+        _status.fontSize = 12;
+        _status.color = Xiaoqi.UI.XqStyle.InkSoft;
         _status.text = _brand.waking;
         var srt = status.GetComponent<RectTransform>();
         srt.anchorMin = new Vector2(0f, 0f);
         srt.anchorMax = new Vector2(1f, 0.5f);
-        srt.offsetMin = new Vector2(76, 12);
+        srt.offsetMin = new Vector2(20, 12);
         srt.offsetMax = new Vector2(-12, 0);
     }
 

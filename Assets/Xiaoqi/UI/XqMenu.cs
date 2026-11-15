@@ -71,6 +71,8 @@ namespace Xiaoqi.UI
         private float _capH;
         private float _avatarScale = 1f;
         private float _r;
+        private float _menuScale = 1f;
+        private Image _link;
 
         private static XqMenu _instance;
 
@@ -483,7 +485,7 @@ namespace Xiaoqi.UI
 
         private void PositionSub()
         {
-            float gap = XqStyle.Fr(12f);
+            float gap = XqStyle.Fr(6f);
             float step = XqStyle.Fr(44f);
             string anchorId = _subKind == "quiet" ? "quiet" : "doing";
             var anchor = AnchorSlot(anchorId);
@@ -542,6 +544,23 @@ namespace Xiaoqi.UI
                 rt.localScale = Vector3.one;
                 s.Group.alpha = 1f;
             }
+
+            if (_link == null)
+            {
+                var lo = new GameObject("Link", typeof(RectTransform));
+                lo.transform.SetParent(_root, false);
+                _link = lo.AddComponent<Image>();
+                _link.raycastTarget = false;
+            }
+            _link.gameObject.SetActive(true);
+            _link.color = XqStyle.PinkGuide;
+            var lrt = _link.rectTransform;
+            lrt.anchorMin = lrt.anchorMax = new Vector2(0.5f, 0.5f);
+            lrt.pivot = new Vector2(0f, 0.5f);
+            float parentEdge = _left ? anchor.BasePos.x - anchorW : anchor.BasePos.x + anchorW;
+            float linkLen = Mathf.Abs(base0 - parentEdge);
+            lrt.sizeDelta = new Vector2(Mathf.Max(2f, linkLen), XqStyle.Fr(2f));
+            lrt.anchoredPosition = new Vector2(Mathf.Min(parentEdge, base0), centerY - XqStyle.Fr(1f));
         }
 
         private void ClearSub()
@@ -550,6 +569,7 @@ namespace Xiaoqi.UI
                 if (s.View != null) Destroy(s.View.Root.gameObject);
             _sub.Clear();
             _subKind = "";
+            if (_link != null) _link.gameObject.SetActive(false);
             _hintGroup.alpha = 0f;
             SetDim(false);
         }
@@ -557,7 +577,20 @@ namespace Xiaoqi.UI
         private void SetDim(bool dim)
         {
             float a = dim ? 0.72f : 1f;
-            foreach (var s in _slots) s.Group.alpha = a;
+            foreach (var s in _slots)
+            {
+                s.Group.alpha = a;
+                s.View.Bg.color = Color.white;
+            }
+            if (dim)
+            {
+                var par = AnchorSlot(_subKind == "quiet" ? "quiet" : "doing");
+                if (par != null)
+                {
+                    par.Group.alpha = 1f;
+                    par.View.Bg.color = XqStyle.PinkFill;
+                }
+            }
             _statusGroup.alpha = a;
         }
 
@@ -709,7 +742,7 @@ namespace Xiaoqi.UI
             _settingsGroup.alpha = 1f;
             _dotsGroup.alpha = 0.9f;
             foreach (var s in _slots) s.Group.alpha = 1f;
-            _root.localScale = Vector3.one;
+            _root.localScale = Vector3.one * _menuScale;
             Debug.Log("XQ_MENU open side=" + (_left ? "L" : "R") + " c=(" + _center.x.ToString("0") + "," +
                       _center.y.ToString("0") + ") s=" + _s.ToString("0.00"));
             Debug.Log("XQ_MENU rect cap=" + _slots[0].View.Root.rect.size + " status=" + _status.Root.rect.size
@@ -749,13 +782,20 @@ namespace Xiaoqi.UI
                 _center = c;
                 _root.anchoredPosition = _center - new Vector2(Screen.width, Screen.height) * 0.5f;
             }
+
+            var br = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, Screen.width, Screen.height * 0.45f);
+            float bodyH = br.height > 10f ? br.height : Screen.height * 0.45f;
+            float target = Mathf.Clamp(bodyH / XqStyle.Fr(380f), 0.7f, 1.15f);
+            if (Mathf.Abs(target - _menuScale) > 0.02f)
+            {
+                _menuScale = Mathf.Lerp(_menuScale, target, 0.25f);
+                _root.localScale = Vector3.one * _menuScale;
+            }
         }
 
         private static float BaseRadius()
         {
-            float size = PetHost.I != null ? Mathf.Clamp(PetHost.I.Size, 0.75f, 1.4f) : 1f;
-            bool chibi = PetHost.I != null && PetHost.I.IsChibi;
-            return XqStyle.Fr(RadiusPx) * size * (chibi ? 0.6f : 1f);
+            return XqStyle.Fr(RadiusPx);
         }
 
         private void ApplyVisible()
@@ -1016,7 +1056,7 @@ namespace Xiaoqi.UI
                 t += Time.unscaledDeltaTime;
                 float k = Mathf.Clamp01(t / XqStyle.OutSec);
                 _group.alpha = Mathf.Lerp(a0, 0f, k);
-                _root.localScale = Vector3.one * Mathf.Lerp(1f, 0.94f, k);
+                _root.localScale = Vector3.one * (_menuScale * Mathf.Lerp(1f, 0.94f, k));
                 yield return null;
             }
             _go.SetActive(false);
