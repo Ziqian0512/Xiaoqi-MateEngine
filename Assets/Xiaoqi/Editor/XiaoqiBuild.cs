@@ -33,6 +33,7 @@ public static class XiaoqiBuild
         temp.AddComponent<Xiaoqi.Spike.EmotionLineTuner>();
         temp.AddComponent<Xiaoqi.Spike.XiaoqiShotRunner>();
         temp.AddComponent<Xiaoqi.UI.XqMenu>();
+        temp.AddComponent<XqFullscreenHide>();
         var ui2 = temp.AddComponent<Xiaoqi.UI2.XqUi2Sample>();
         Xiaoqi.UI2.XqUi2Authoring.Wire(ui2);
         PrefabUtility.SaveAsPrefabAsset(temp, prefabPath);

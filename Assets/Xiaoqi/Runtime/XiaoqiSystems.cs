@@ -15,6 +15,9 @@ public class XiaoqiSystems : MonoBehaviour
         ResolveModelPath(cfg);
 
         XiaoqiDefaults.Apply(cfg);
+        if (PetHost.I != null) PetHost.I.Topmost = cfg.topmost;
+        if (GetComponent<XqFullscreenHide>() == null)
+            gameObject.AddComponent<XqFullscreenHide>();
         XiaoqiRunKey.Migrate();
         XiaoqiHide.Apply();
         XiaoqiTray.Install();

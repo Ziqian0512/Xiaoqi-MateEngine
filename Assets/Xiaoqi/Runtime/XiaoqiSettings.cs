@@ -218,7 +218,15 @@ public class XiaoqiSettings : MonoBehaviour
 
         Section("外观");
         AddSlider("大小", 0.5f, 2f, host.Size, "0.00", v => host.Size = v);
-        AddSwitch("置顶", host.Topmost, v => host.Topmost = v);
+        AddSwitch("置顶", host.Topmost, v =>
+        {
+            host.Topmost = v;
+            if (XiaoqiRuntime.Config != null)
+            {
+                XiaoqiRuntime.Config.topmost = v;
+                XiaoqiConfig.Save(XiaoqiRuntime.Config);
+            }
+        });
         AddSegmented("画质", new[] { "低", "中", "高", "最高" }, Mathf.Clamp(host.Quality, 0, 3), i => host.Quality = i);
         int[] fpsOpts = { 30, 60, 90, 144 };
         int fpsIdx = Nearest(fpsOpts, host.Fps);

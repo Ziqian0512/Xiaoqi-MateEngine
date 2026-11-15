@@ -15,6 +15,8 @@ public class XiaoqiConfig
     public string dnd_until = "";
     public int nap_min = 20;
     public bool emotion_line = false;
+    public bool topmost = true;
+    public bool hide_on_fullscreen = true;
 
     public static void Save(XiaoqiConfig cfg)
     {
@@ -35,10 +37,26 @@ public class XiaoqiConfig
         try
         {
             if (File.Exists(path))
-                return JsonUtility.FromJson<XiaoqiConfig>(File.ReadAllText(path)) ?? new XiaoqiConfig();
-            var cfg = new XiaoqiConfig();
-            File.WriteAllText(path, JsonUtility.ToJson(cfg, true));
-            return cfg;
+            {
+                var text = File.ReadAllText(path);
+                var cfg = JsonUtility.FromJson<XiaoqiConfig>(text) ?? new XiaoqiConfig();
+                bool dirty = false;
+                if (text.IndexOf("\"topmost\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.topmost = true;
+                    dirty = true;
+                }
+                if (text.IndexOf("\"hide_on_fullscreen\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.hide_on_fullscreen = true;
+                    dirty = true;
+                }
+                if (dirty) Save(cfg);
+                return cfg;
+            }
+            var created = new XiaoqiConfig();
+            File.WriteAllText(path, JsonUtility.ToJson(created, true));
+            return created;
         }
         catch (Exception e)
         {

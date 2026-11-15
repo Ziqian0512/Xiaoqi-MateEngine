@@ -1,0 +1,124 @@
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text;
+using Kirurobo;
+using UnityEngine;
+
+/// <summary>
+/// P1-2d: default topmost, and hide with SW_HIDE while another window covers a whole monitor.
+/// Maximized windows (taskbar still visible) do not count. Hit-test math is unchanged; it is only paused while hidden.
+/// </summary>
+public class XqFullscreenHide : MonoBehaviour
+{
+    const int SW_HIDE = 0;
+    const int SW_SHOWNOACTIVATE = 4;
+    const uint MONITOR_DEFAULTTONEAREST = 2;
+
+    [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+    [DllImport("user32.dll")] static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+    [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern IntPtr FindWindow(string cls, string title);
+    [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct RECT { public int left, top, right, bottom; }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    struct MONITORINFO
+    {
+        public int cbSize;
+        public RECT rcMonitor;
+        public RECT rcWork;
+        public uint dwFlags;
+    }
+
+    bool _hidden;
+    float _nextCheck;
+    uint _selfPid;
+
+    void Awake()
+    {
+        _selfPid = (uint)Process.GetCurrentProcess().Id;
+    }
+
+    void Update()
+    {
+        if (Time.unscaledTime < _nextCheck) return;
+        _nextCheck = Time.unscaledTime + (_hidden ? 0.25f : 1f);
+        var cfg = XiaoqiRuntime.Config;
+        if (cfg != null && !cfg.hide_on_fullscreen)
+        {
+            if (_hidden) ShowAgain();
+            return;
+        }
+        bool full = ForegroundIsFullscreen();
+        if (full && !_hidden) HideSelf();
+        else if (!full && _hidden) ShowAgain();
+    }
+
+    void HideSelf()
+    {
+        var hwnd = SelfWindow();
+        if (hwnd == IntPtr.Zero) return;
+        SetHitTest(false);
+        ShowWindow(hwnd, SW_HIDE);
+        _hidden = true;
+        UnityEngine.Debug.Log("XQ_FS hide");
+    }
+
+    void ShowAgain()
+    {
+        var hwnd = SelfWindow();
+        if (hwnd != IntPtr.Zero) ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+        SetHitTest(true);
+        _hidden = false;
+        UnityEngine.Debug.Log("XQ_FS show");
+    }
+
+    static void SetHitTest(bool on)
+    {
+        var uw = UnityEngine.Object.FindFirstObjectByType<UniWindowController>();
+        if (uw != null) uw.isHitTestEnabled = on;
+    }
+
+    bool ForegroundIsFullscreen()
+    {
+        var fg = GetForegroundWindow();
+        if (fg == IntPtr.Zero) return false;
+        var self = SelfWindow();
+        if (fg == self) return false;
+        GetWindowThreadProcessId(fg, out uint pid);
+        if (pid == _selfPid) return false;
+
+        var cls = new StringBuilder(256);
+        GetClassName(fg, cls, cls.Capacity);
+        var name = cls.ToString();
+        if (name == "Progman" || name == "WorkerW" || name == "Shell_TrayWnd") return false;
+
+        if (!GetWindowRect(fg, out RECT wr)) return false;
+        var mon = MonitorFromWindow(fg, MONITOR_DEFAULTTONEAREST);
+        var info = new MONITORINFO { cbSize = Marshal.SizeOf(typeof(MONITORINFO)) };
+        if (mon == IntPtr.Zero || !GetMonitorInfo(mon, ref info)) return false;
+        var m = info.rcMonitor;
+        const int tol = 8;
+        int ww = wr.right - wr.left;
+        int wh = wr.bottom - wr.top;
+        int mw = m.right - m.left;
+        int mh = m.bottom - m.top;
+        if (ww < mw - tol || wh < mh - tol) return false;
+        if (wr.left > m.left + tol || wr.top > m.top + tol) return false;
+        if (wr.right < m.right - tol || wr.bottom < m.bottom - tol) return false;
+        return true;
+    }
+
+    static IntPtr SelfWindow()
+    {
+        var hwnd = FindWindow("UnityWndClass", "小祈");
+        if (hwnd == IntPtr.Zero) hwnd = FindWindow("UnityWndClass", null);
+        return hwnd;
+    }
+}
