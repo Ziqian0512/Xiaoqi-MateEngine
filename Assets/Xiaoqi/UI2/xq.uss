@@ -1,0 +1,167 @@
+/* P1-1 样品。变量只写在三套主题 class 上，不用 :root。
+   换主题 = 根上只留其中一个 class。
+   阴影留给后面，这里不写 box-shadow，也不用九宫格。
+   字号 16：面板缩放最低 0.8 时仍约 12.8 物理像素。 */
+
+.xq-theme-pink {
+    --xq-accent: #FF8FB8;
+    --xq-accent2: #FFB36B;
+    --xq-accent-ink: #D6477F;
+    --xq-ink: #3B2F55;
+    --xq-ink-soft: rgba(59, 47, 85, 0.62);
+    --xq-r-card: 22px;
+    --xq-r-panel: 32px;
+    --xq-r-pill: 999px;
+}
+
+.xq-theme-blue {
+    --xq-accent: #5AA8FF;
+    --xq-accent2: #6FD6D0;
+    --xq-accent-ink: #2A6FC4;
+    --xq-ink: #3B2F55;
+    --xq-ink-soft: rgba(59, 47, 85, 0.62);
+    --xq-r-card: 22px;
+    --xq-r-panel: 32px;
+    --xq-r-pill: 999px;
+}
+
+.xq-theme-violet {
+    --xq-accent: #B184FF;
+    --xq-accent2: #FF9EC7;
+    --xq-accent-ink: #7B4FD0;
+    --xq-ink: #3B2F55;
+    --xq-ink-soft: rgba(59, 47, 85, 0.62);
+    --xq-r-card: 22px;
+    --xq-r-panel: 32px;
+    --xq-r-pill: 999px;
+}
+
+.xq-root {
+    flex-grow: 1;
+    background-color: rgba(0, 0, 0, 0);
+    -unity-font: url("Fonts/NotoSansSC-Medium.ttf");
+    font-size: 16px;
+    color: var(--xq-accent-ink, #D6477F);
+}
+
+.xq-sample {
+    position: absolute;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.xq-bubble {
+    position: relative;
+    margin-bottom: 10px;
+    margin-left: 16px;
+    margin-right: 16px;
+}
+
+.xq-row {
+    flex-direction: row;
+    align-items: center;
+    margin-left: 16px;
+}
+
+.xq-pill {
+    margin-right: 8px;
+}
+
+.xq-tail {
+    position: absolute;
+    width: 16px;
+    height: 14px;
+    left: -14px;
+    top: 18px;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.xq-tail.xq-point-right {
+    left: auto;
+    right: -14px;
+}
+
+.xq-body {
+    background-color: var(--xq-accent, #FF8FB8);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.8);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.xq-bubble .xq-body {
+    border-radius: var(--xq-r-card, 22px);
+    min-width: 96px;
+    min-height: 48px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+.xq-pill .xq-body {
+    border-radius: var(--xq-r-pill, 999px);
+    min-height: 36px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+.xq-btn .xq-body {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.xq-glass {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.78);
+}
+
+.xq-glass-emph {
+    background-color: rgba(255, 255, 255, 0.88);
+}
+
+.xq-hi {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: 0;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.xq-label {
+    font-size: 16px;
+    color: var(--xq-accent-ink, #D6477F);
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+
+.xq-glass,
+.xq-hi,
+.xq-label,
+.xq-sample,
+.xq-root,
+.xq-bubble,
+.xq-row,
+.xq-pill,
+.xq-btn {
+    picking-mode: ignore;
+}
+
+.xq-body,
+.xq-tail {
+    picking-mode: position;
+}

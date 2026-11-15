@@ -49,6 +49,8 @@ namespace Xiaoqi.Host
 
         private Func<bool> _menuBlocker;
         private GameObject _blockerGo;
+        private GameObject _uiHitBlocker;
+        private MenuActions _uiHitMenu;
         private bool _menuSuppressed;
 
         public bool Ready => _model != null && _animator != null;
@@ -590,6 +592,35 @@ namespace Xiaoqi.Host
                 blockReaction = true,
                 blockChibiMode = false
             });
+        }
+
+        public void SetUiBlocksMovement(bool on)
+        {
+            if (_uiHitBlocker == null)
+            {
+                _uiHitBlocker = new GameObject("XqUi2HitBlocker");
+                _uiHitBlocker.transform.SetParent(transform, false);
+                _uiHitBlocker.SetActive(false);
+            }
+            var ma = _uiHitMenu != null ? _uiHitMenu : FindFirstObjectByType<MenuActions>();
+            if (ma != null && ma != _uiHitMenu)
+            {
+                _uiHitMenu = ma;
+                bool found = false;
+                var list = ma.menuEntries;
+                for (int i = 0; i < list.Count; i++)
+                    if (list[i] != null && list[i].menu == _uiHitBlocker) { found = true; break; }
+                if (!found)
+                    list.Add(new MenuEntry
+                    {
+                        menu = _uiHitBlocker,
+                        blockMovement = true,
+                        blockHandTracking = true,
+                        blockReaction = true,
+                        blockChibiMode = false
+                    });
+            }
+            if (_uiHitBlocker.activeSelf != on) _uiHitBlocker.SetActive(on);
         }
     }
 }

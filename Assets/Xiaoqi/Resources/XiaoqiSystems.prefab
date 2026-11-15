@@ -26,6 +26,7 @@ GameObject:
   - component: {fileID: 2785170503361536077}
   - component: {fileID: 8422286727865382117}
   - component: {fileID: 610522837237395210}
+  - component: {fileID: 7344556677889900112}
   m_Layer: 0
   m_Name: XiaoqiSystems
   m_TagString: Untagged
@@ -252,3 +253,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e0e6cf09d5da294ca6e942a5e452dcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.UI.XqMenu
+--- !u!114 &7344556677889900112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6d1f4e82c9b4d57a3e0b8c5f1d27a46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.UI2.XqUi2Sample
+  panel: {fileID: 11400000, guid: b7e2c4a18f6d4c0e9a3b5d7f1e8c2a40, type: 2}
+  uss: {fileID: 7433441132597871023, guid: d4f8a2c67b1e4d39a0c5e7f9182b6d53, type: 3}
+  font: {fileID: 12800000, guid: e91b6d3a4c7f4e28b5a0d1c8f3e72b64, type: 3}
+  documentPrefab: {fileID: 100100000, guid: f2a8c5d17e3b4a69c0d4f8e1b7a39520, type: 3}

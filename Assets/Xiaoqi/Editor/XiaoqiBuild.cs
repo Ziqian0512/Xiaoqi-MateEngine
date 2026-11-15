@@ -10,6 +10,7 @@ public static class XiaoqiBuild
     public static void Win64()
     {
         XiaoqiIdentity.Apply();
+        Xiaoqi.UI2.XqUi2Authoring.Ensure();
         EditorSceneManager.OpenScene("Assets/MATE ENGINE - Scenes/Mate Engine Main.unity", OpenSceneMode.Single);
 
         var prefabPath = "Assets/Xiaoqi/Resources/XiaoqiSystems.prefab";
@@ -32,6 +33,8 @@ public static class XiaoqiBuild
         temp.AddComponent<Xiaoqi.Spike.EmotionLineTuner>();
         temp.AddComponent<Xiaoqi.Spike.XiaoqiShotRunner>();
         temp.AddComponent<Xiaoqi.UI.XqMenu>();
+        var ui2 = temp.AddComponent<Xiaoqi.UI2.XqUi2Sample>();
+        Xiaoqi.UI2.XqUi2Authoring.Wire(ui2);
         PrefabUtility.SaveAsPrefabAsset(temp, prefabPath);
         Object.DestroyImmediate(temp);
         AssetDatabase.SaveAssets();

@@ -59,6 +59,9 @@ namespace Xiaoqi.Host
 
         void SuppressHostMenu();
         void RegisterMenuBlocker(Func<bool> isOpen);
+
+        /// <summary>指针在小祈自己的 UI 上时，别把这次点击当成拖动。</summary>
+        void SetUiBlocksMovement(bool on);
     }
 
     public static class PetHost
