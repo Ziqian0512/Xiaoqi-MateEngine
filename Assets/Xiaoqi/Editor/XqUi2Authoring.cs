@@ -47,6 +47,10 @@ namespace Xiaoqi.UI2
                 panel.colorClearValue = Color.clear;
                 panel.targetTexture = null;
                 panel.sortingOrder = 360;
+                var panelSo = new SerializedObject(panel);
+                var depth = panelSo.FindProperty("m_ClearDepthStencil");
+                if (depth != null) depth.boolValue = false;
+                panelSo.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(panel);
                 WarnIfShaderMissing(panel);
                 AssetDatabase.SaveAssetIfDirty(panel);

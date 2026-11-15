@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Xiaoqi.Host;
 using Xiaoqi.Spike;
@@ -16,11 +17,12 @@ namespace Xiaoqi.UI2
     /// （Mate Engine Main 的 hitTestType = Opacity）区分样品和透明区。
     /// 6000.2.6f2 的 PanelSettings 没有公开 renderMode。targetTexture 为空时画到屏幕
     /// （手册里 Target Texture 属于 Screen Space Overlay，设了才改去贴图）。
-    /// clearColor 保持关闭，避免整屏清成不透明。
+    /// clearColor 与 clearDepthStencil 都关：点透或窗口移出屏幕后，深度清会把
+    /// 后缓冲的颜色一起清掉，VRM 从帧里消失，样品还在。
     /// 换蓝色主题：命令行 -xq-theme blue，或 XqUi2Sample.SetTheme("blue")。
     /// 指针在样品上时经 MeHost.SetUiBlocksMovement 挡住「任意左键即拖动」，不改穿透判断。
     /// </summary>
-    [DefaultExecutionOrder(-200)]
+    [DefaultExecutionOrder(-2000)]
     public class XqUi2Sample : MonoBehaviour
     {
         const float RefHeight = 364f;
@@ -48,6 +50,8 @@ namespace Xiaoqi.UI2
         string _theme = "pink";
         bool _fading;
         bool _logged;
+        bool _cameraHeld;
+        Graphic _moveHandle;
         HeadAnchor _head;
         float _nextHeadFind;
 
@@ -75,6 +79,7 @@ namespace Xiaoqi.UI2
             _runtimePanel.name = "XqPanelSettingsRuntime";
             _runtimePanel.scaleMode = PanelScaleMode.ConstantPixelSize;
             _runtimePanel.clearColor = false;
+            SetBoolMember(_runtimePanel, "clearDepthStencil", "m_ClearDepthStencil", false);
             _runtimePanel.colorClearValue = Color.clear;
             _runtimePanel.targetTexture = null;
             _runtimePanel.sortingOrder = 360;
@@ -105,6 +110,7 @@ namespace Xiaoqi.UI2
 
         void LateUpdate()
         {
+            KeepAvatarInWindow();
             if (_root == null || _sample == null || _runtimePanel == null) return;
             if (_root.panel == null) return;
             if (_tail != null && _root.customStyle.TryGetValue(AccentColor, out var accent))
@@ -160,6 +166,7 @@ namespace Xiaoqi.UI2
                     + " fontPx=" + fontPx.ToString("0.0")
                     + " scaleMode=" + _runtimePanel.scaleMode
                     + " clearColor=" + _runtimePanel.clearColor
+                    + " clearDepth=" + ReadBoolMember(_runtimePanel, "clearDepthStencil", "m_ClearDepthStencil")
                     + " hook=GetOnOpaquePixel");
                 if (fontPx < 12f) Debug.LogWarning("XQ_UI2 font below 12px");
             }
@@ -174,6 +181,7 @@ namespace Xiaoqi.UI2
             }
             bool over = Hit(_sample);
             PetHost.I?.SetUiBlocksMovement(over);
+            GuardWindowDrag(over);
             if (!Input.GetMouseButtonDown(0)) return;
             if (!_fading && Hit(_bubble)) FadeBubble();
             else if (Hit(_pill)) Debug.Log("XQ_UI2 click pill");
@@ -276,6 +284,84 @@ namespace Xiaoqi.UI2
             _root.RemoveFromClassList(Violet);
             _root.AddToClassList(ThemeClass(_theme));
             Debug.Log("XQ_UI2 theme=" + _theme + " class=" + ThemeClass(_theme));
+        }
+
+        static void SetBoolMember(object target, string propertyName, string fieldName, bool value)
+        {
+            if (target == null) return;
+            var prop = target.GetType().GetProperty(propertyName);
+            if (prop != null && prop.CanWrite && prop.PropertyType == typeof(bool))
+            {
+                prop.SetValue(target, value);
+                return;
+            }
+            var field = target.GetType().GetField(fieldName,
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (field != null && field.FieldType == typeof(bool))
+                field.SetValue(target, value);
+        }
+
+        static bool ReadBoolMember(object target, string propertyName, string fieldName)
+        {
+            if (target == null) return false;
+            var prop = target.GetType().GetProperty(propertyName);
+            if (prop != null && prop.CanRead && prop.PropertyType == typeof(bool))
+                return (bool)prop.GetValue(target);
+            var field = target.GetType().GetField(fieldName,
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            if (field != null && field.FieldType == typeof(bool))
+                return (bool)field.GetValue(target);
+            return false;
+        }
+
+        void KeepAvatarInWindow()
+        {
+            var cam = Camera.main;
+            if (cam == null) return;
+            if (!cam.enabled) cam.enabled = true;
+            var full = new Rect(0f, 0f, 1f, 1f);
+            if (cam.rect != full) cam.rect = full;
+            // HDR 中间缓冲不带窗口需要的 alpha。点透或窗口移出屏幕后交换链重建，
+            // 后处理那一跳会把人物留在窗口外的缓冲里，样品仍画在窗口上。
+            if (cam.allowHDR) cam.allowHDR = false;
+            if (cam.allowMSAA) cam.allowMSAA = false;
+            if (_cameraHeld) return;
+            var behaviours = cam.GetComponents<MonoBehaviour>();
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                var b = behaviours[i];
+                if (b == null || b.GetType().Name != "PostProcessLayer") continue;
+                var finalBlit = b.GetType().GetField("finalBlitToCameraTarget");
+                if (finalBlit != null && finalBlit.FieldType == typeof(bool))
+                    finalBlit.SetValue(b, false);
+                var fxaa = b.GetType().GetField("fastApproximateAntialiasing");
+                var fxaaValue = fxaa != null ? fxaa.GetValue(b) : null;
+                var keep = fxaaValue != null ? fxaaValue.GetType().GetField("keepAlpha") : null;
+                if (keep != null && keep.FieldType == typeof(bool))
+                    keep.SetValue(fxaaValue, true);
+                _cameraHeld = true;
+                Debug.Log("XQ_UI2 camera direct hdr=0 msaa=0 keepAlpha=1");
+                break;
+            }
+        }
+
+        void GuardWindowDrag(bool overSample)
+        {
+            if (_moveHandle == null)
+            {
+                var go = GameObject.Find("WindowMoveHandle");
+                if (go != null) _moveHandle = go.GetComponent<Graphic>();
+            }
+            if (_moveHandle == null) return;
+            bool overBody = false;
+            if (PetHost.I != null)
+            {
+                var r = PetHost.I.ScreenRect();
+                if (r.width > 2f && r.height > 2f)
+                    overBody = r.Contains((Vector2)Input.mousePosition);
+            }
+            // 全屏拖拽层在点到样品或空区时也收得到按下。只在人物身上才让它拖窗口。
+            _moveHandle.raycastTarget = overBody && !overSample;
         }
 
         bool Hit(VisualElement target)
