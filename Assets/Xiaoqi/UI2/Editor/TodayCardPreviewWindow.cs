@@ -94,9 +94,12 @@ namespace Xiaoqi.UI2
                 b.style.position = Position.Absolute;
                 b.style.left = 24;
                 b.style.top = 330;
+                var bubbleText = b.Q<Label>("bubble-text");
+                if (bubbleText != null) bubbleText.text = "你终于看我了。";
                 rootVisualElement.Add(b);
             }
 
+            // Editor mock only. The game window never uses these sentences.
             _root.Q<Label>("today-clock").text = "22:20";
             _root.Q<Label>("today-line").text = "今天你玩了三个小时游戏，我只在旁边看着。";
             _root.Q<Label>("today-doing").text = "坐在窗口上晃脚";

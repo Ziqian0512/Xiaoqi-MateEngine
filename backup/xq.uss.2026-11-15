@@ -1,0 +1,105 @@
+/* XQ: G57 V1 - Today card stylesheet.
+   USS has no CSS custom properties, so this file uses one "variable table" (below)
+   plus literal values. Change the table and the matching literals to restyle.
+
+   Variables used below:
+     bg        rgba(18, 20, 26, 0.92)
+     bgSoft    rgba(28, 31, 40, 0.92)
+     fg        rgb(238, 242, 248)
+     fgDim     rgb(169, 178, 194)
+     accent    rgb(127, 180, 255)
+     line      rgba(255, 255, 255, 0.10)
+     radius    18px / 12px
+     pad       16px
+     gap       10px
+     font      17 / 13 / 11
+*/
+
+.xq-card {
+    flex-direction: column;
+    background-color: rgba(18, 20, 26, 0.92);
+    border-radius: 18px;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.10);
+    padding: 16px;
+    min-width: 280px;
+    max-width: 340px;
+}
+
+.xq-card--soft {
+    background-color: rgba(28, 31, 40, 0.92);
+}
+
+.xq-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.xq-row--tight {
+    margin-bottom: 4px;
+}
+
+.xq-title {
+    font-size: 17px;
+    color: rgb(238, 242, 248);
+    -unity-font-style: bold;
+}
+
+.xq-body {
+    font-size: 13px;
+    color: rgb(238, 242, 248);
+    white-space: normal;
+}
+
+.xq-dim {
+    font-size: 11px;
+    color: rgb(169, 178, 194);
+}
+
+.xq-pill {
+    padding: 3px 9px;
+    border-radius: 12px;
+    background-color: rgba(127, 180, 255, 0.16);
+    color: rgb(127, 180, 255);
+    font-size: 11px;
+}
+
+.xq-sep {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.10);
+    margin: 10px 0;
+}
+
+.xq-btn {
+    padding: 6px 12px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.06);
+    color: rgb(238, 242, 248);
+    font-size: 13px;
+}
+
+.xq-btn:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.xq-btn--ghost {
+    background-color: rgba(0, 0, 0, 0);
+    color: rgb(169, 178, 194);
+}
+
+.xq-bubble {
+    flex-direction: column;
+    background-color: rgba(24, 27, 35, 0.94);
+    border-radius: 12px;
+    padding: 10px 14px;
+    max-width: 300px;
+}
+
+.xq-bubble__tail {
+    width: 14px;
+    height: 8px;
+    background-color: rgba(24, 27, 35, 0.94);
+    border-radius: 2px;
+    margin-left: 18px;
+}

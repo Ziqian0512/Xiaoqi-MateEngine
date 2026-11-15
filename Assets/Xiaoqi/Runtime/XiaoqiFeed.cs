@@ -7,6 +7,11 @@ public class XiaoqiFeed : MonoBehaviour
 {
     private int _since = -1;
 
+    // XQ: G57 UI2 paints these. The old PetBubble path below is unchanged.
+    public static string LatestText { get; private set; }
+    public static string LatestDoing { get; private set; }
+    public static event Action FeedChanged;
+
     [Serializable]
     private class Envelope
     {
@@ -69,6 +74,8 @@ public class XiaoqiFeed : MonoBehaviour
                         if (env != null)
                         {
                             _since = env.last_id;
+                            if (env.now != null && !string.IsNullOrEmpty(env.now.doing))
+                                LatestDoing = env.now.doing;
                             var allow = cfg.bubble && !XiaoqiRuntime.Dnd
                                         && (env.rules == null || env.rules.show_private_text);
                             if (allow && env.items != null)
@@ -76,8 +83,10 @@ public class XiaoqiFeed : MonoBehaviour
                                 {
                                     if (string.IsNullOrEmpty(item.text)) continue;
                                     if (!string.IsNullOrEmpty(item.scope) && item.scope != "private") continue;
+                                    LatestText = item.text;
                                     Show(item.text, item.media);
                                 }
+                            FeedChanged?.Invoke();
                         }
                     }
                     catch (Exception e)

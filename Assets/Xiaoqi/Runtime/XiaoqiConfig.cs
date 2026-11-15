@@ -15,6 +15,8 @@ public class XiaoqiConfig
     public string dnd_until = "";
     public int nap_min = 20;
     public bool emotion_line = false;
+    // G57: draw the UI Toolkit today card and 「她开口」 bubble in the pet window. Default off.
+    public bool ui2 = false;
 
     public static void Save(XiaoqiConfig cfg)
     {

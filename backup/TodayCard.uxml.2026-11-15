@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+         xsi="http://www.w3.org/2001/XMLSchema-instance"
+         editor-extension-mode="False">
+    <Style src="xq.uss" />
+    <ui:VisualElement name="today-card" class="xq-card">
+        <ui:VisualElement class="xq-row">
+            <ui:Label text="今天" class="xq-title" />
+            <ui:VisualElement style="flex-grow: 1;" />
+            <ui:Label name="today-clock" text="--:--" class="xq-pill" />
+        </ui:VisualElement>
+
+        <ui:Label name="today-line" text="今天还没聊过。" class="xq-body" />
+
+        <ui:VisualElement class="xq-sep" />
+
+        <ui:VisualElement class="xq-row xq-row--tight">
+            <ui:Label text="她在做" class="xq-dim" style="width: 64px;" />
+            <ui:Label name="today-doing" text="坐着发呆" class="xq-body" />
+        </ui:VisualElement>
+        <ui:VisualElement class="xq-row xq-row--tight">
+            <ui:Label text="心情" class="xq-dim" style="width: 64px;" />
+            <ui:Label name="today-mood" text="中性" class="xq-body" />
+        </ui:VisualElement>
+
+        <ui:VisualElement style="flex-grow: 1;" />
+        <ui:VisualElement class="xq-row" style="justify-content: flex-end; margin-bottom: 0;">
+            <ui:Button name="today-close" text="收起" class="xq-btn xq-btn--ghost" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -204,6 +204,36 @@ namespace Kirurobo
         [Tooltip("Select the method")]
         public HitTestType hitTestType = HitTestType.Opacity;
 
+        // XQ: G57 — UI Toolkit is not a uGUI raycast target, and a control whose
+        // background alpha is 0 (the today card's 「收起」 button) does not leave
+        // an opaque pixel for HitTestByOpaquePixel. onObject and
+        // GetClientCursorPosition are private, and UpdateClickThrough only reads
+        // onObject, so the predicate has to run inside this hit test.
+        // Screen point is bottom-left, the same space GetClientCursorPosition returns.
+        // True means the cursor is on a solid UITK element and must count as a hit.
+        public static Func<Vector2, bool> ExtraHitTest;
+
+        static bool _extraHitFailed;
+
+        static bool ExtraHit(Vector2 mousePos)
+        {
+            var fn = ExtraHitTest;
+            if (fn == null) return false;
+            try
+            {
+                return fn(mousePos);
+            }
+            catch (Exception ex)
+            {
+                if (!_extraHitFailed)
+                {
+                    _extraHitFailed = true;
+                    Debug.LogException(ex);
+                }
+                return false;
+            }
+        }
+
         /// <summary>
         /// クリックスルー判定方法が不透明度の場合に使うしきい値
         /// カーソル下のアルファがこの値以上ならヒットとなる
@@ -696,8 +726,8 @@ namespace Kirurobo
         {
             Vector2 mousePos = GetClientCursorPosition();
 
-            // マウス座標を調べる
-            if (GetOnOpaquePixel(mousePos))
+            // マウス座標を調べる。XQ: UITK solid elements count even when the pixel is clear.
+            if (GetOnOpaquePixel(mousePos) || ExtraHit(mousePos))
             {
                 //Debug.Log("Mouse " + mousePos);
                 onObject = true;
@@ -804,6 +834,13 @@ namespace Kirurobo
             {
                 // カメラが有効でなければメインカメラを取得
                 currentCamera = Camera.main;
+            }
+
+            // XQ: same UITK predicate as the opacity path. The shipped scene uses Opacity.
+            if (ExtraHit(position))
+            {
+                onObject = true;
+                return;
             }
 
             // いずれもヒットしなければオブジェクト上ではないと判断
