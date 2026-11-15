@@ -408,30 +408,8 @@ namespace Xiaoqi.Host
                           + (loco.Length > 0 ? " enabled=" + loco[0].EnableLocomotion : ""));
                 return true;
             }
-            if (id.StartsWith("dance_") && _animator != null)
-            {
-                if (int.TryParse(id.Substring(6), out var di))
-                {
-                    var ac = _animator.GetComponent<AvatarAnimatorController>();
-                    if (ac != null)
-                    {
-                        ac.ForceDance(di);
-                        var rac = _animator.runtimeAnimatorController;
-                        var af = ac.GetType().GetField("animator", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
-                        var acAnim = af != null ? af.GetValue(ac) as Animator : null;
-                        Debug.Log("XQ_HOST anim me=" + _animator.GetInstanceID() + " ac=" + (acAnim != null ? acAnim.GetInstanceID() : 0)
-                                  + " same=" + (acAnim == _animator) + " state=" + _animator.GetCurrentAnimatorStateInfo(0).shortNameHash
-                                  + " speed=" + _animator.speed + " ctrl=" + _animator.runtimeAnimatorController.name);
-                        Debug.Log("XQ_HOST dance=" + di + " ctrl=" + (rac != null ? rac.name : "null")
-                                  + " clips=" + (rac != null ? rac.animationClips.Length : 0)
-                                  + " isDancing=" + _animator.GetBool("isDancing")
-                                  + " idx=" + _animator.GetFloat("DanceIndex"));
-                        return true;
-                    }
-                    Debug.Log("XQ_HOST_MISS AvatarAnimatorController");
-                }
-                return false;
-            }
+            if (id.StartsWith("dance_") && int.TryParse(id.Substring(6), out var di))
+                return BeginHoldDance(di);
             if (id == "pose_next" && _animator != null)
             {
                 _idleNext = (_idleNext + 3) % 10;
@@ -442,31 +420,74 @@ namespace Xiaoqi.Host
             }
             return false;
         }
-        public bool IsDancing => _animator != null && _animator.GetBool("isCustomDancing");
+        public bool IsDancing
+        {
+            get
+            {
+                if (_animator == null) return false;
+                if (_animator.GetBool("isDancing")) return true;
+                return _animator.GetBool("isCustomDancing");
+            }
+        }
 
         public bool PlayDance(string name)
         {
-            if (_dance == null || _clickMi == null || _entriesField == null) return false;
-            if (!(_entriesField.GetValue(_dance) is IList list)) return false;
-            for (int i = 0; i < list.Count; i++)
-            {
-                var id = _entryIdField?.GetValue(list[i]) as string;
-                if (string.Equals(id, name, StringComparison.OrdinalIgnoreCase))
-                {
-                    try { _clickMi.Invoke(_dance, new object[] { i }); return true; }
-                    catch (Exception e) { Debug.Log("XQ_HOST dance play: " + e.Message); return false; }
-                }
-            }
-            return false;
+            if (!TryBuiltInDance(name, out int index)) return false;
+            return BeginHoldDance(index);
         }
 
         public void StopDance()
         {
-            if (_dance == null) return;
-            try { _dance.StopPlay(); }
-            catch (Exception e) { Debug.Log("XQ_HOST dance stop: " + e.Message); }
-            var ac = _animator != null ? _animator.GetComponent<AvatarAnimatorController>() : null;
-            if (ac != null) ac.ForceStopDance();
+            var ac = AnimatorController();
+            if (ac == null) return;
+            ac.xqHoldDance = false;
+            ac.forcedDance = false;
+            ac.SetDancing(false);
+            Debug.Log("XQ_HOST dance stop");
+        }
+
+        bool BeginHoldDance(int index)
+        {
+            var ac = AnimatorController();
+            if (ac == null) { Debug.Log("XQ_HOST_MISS AvatarAnimatorController"); return false; }
+            // XQ: hold through CheckForSound. enableDancing stays false and does not cancel this.
+            // Menu close keeps IsMovementBlocked for the fade; Update skips that cancel while held.
+            ac.ignoreClickUntil = Time.unscaledTime + 0.35f;
+            ac.xqHoldDance = true;
+            ac.StartDancing();
+            ac.XqSetDanceIndex(index);
+            Debug.Log("XQ_HOST hold dance=" + index + " isDancing=" + (_animator != null && _animator.GetBool("isDancing"))
+                      + " idx=" + (_animator != null ? _animator.GetFloat("DanceIndex") : -1f));
+            return true;
+        }
+
+        static bool TryBuiltInDance(string name, out int index)
+        {
+            index = -1;
+            if (string.IsNullOrEmpty(name)) return false;
+            var s = name.Trim();
+            if (s.StartsWith("dance_") && int.TryParse(s.Substring(6), out var di) && di >= 0 && di < 5)
+            {
+                index = di;
+                return true;
+            }
+            if (s.StartsWith("舞") && int.TryParse(s.Substring(1).Trim(), out var n) && n >= 1 && n <= 5)
+            {
+                index = n - 1;
+                return true;
+            }
+            if (int.TryParse(s, out var plain) && plain >= 1 && plain <= 5)
+            {
+                index = plain - 1;
+                return true;
+            }
+            return false;
+        }
+
+        AvatarAnimatorController AnimatorController()
+        {
+            if (_animator == null) return null;
+            return _animator.GetComponent<AvatarAnimatorController>();
         }
 
         // ---------------------------------------------------------- settings

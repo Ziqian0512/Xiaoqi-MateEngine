@@ -38,6 +38,8 @@ public class AvatarAnimatorController : MonoBehaviour
     public bool isDragging, isDancing, isIdle;
     // Xiaoqi patch: allow the pet menu to force one of the built-in dance clips.
     [HideInInspector] public bool forcedDance;
+    // XQ: menu dance. CheckForSound must not clear it when enableDancing is off or the system is silent.
+    [HideInInspector] public bool xqHoldDance;
     [HideInInspector] public float ignoreClickUntil;
 
     public void ForceDance(int index)
@@ -86,6 +88,8 @@ public class AvatarAnimatorController : MonoBehaviour
 
     void CheckForSound()
     {
+        // XQ: a dance chosen from the menu stays until Stop or drag.
+        if (xqHoldDance) return;
         if (forcedDance) return;
         if (MenuActions.IsMovementBlocked() || !enableDancing)
         {
@@ -101,7 +105,8 @@ public class AvatarAnimatorController : MonoBehaviour
         }
     }
 
-    void StartDancing()
+    // XQ: menu dance uses this same path, then sets DanceIndex.
+    public void StartDancing()
     {
         isDancing = true;
         danceTimer = 0f;
@@ -109,7 +114,16 @@ public class AvatarAnimatorController : MonoBehaviour
         animator.SetBool(isDancingParam, true);
         animator.SetFloat(danceIndexParam, danceState);
     }
-    void SetDancing(bool value)
+
+    // XQ: 舞 1–5 are DanceIndex 0–4.
+    public void XqSetDanceIndex(int index)
+    {
+        danceState = Mathf.Clamp(index, 0, Mathf.Max(0, DANCE_CLIP_COUNT - 1));
+        if (animator != null) animator.SetFloat(danceIndexParam, danceState);
+    }
+
+    // XQ: StopDance and drag call this.
+    public void SetDancing(bool value)
     {
         isDancing = value;
         animator.SetBool(isDancingParam, value);
@@ -156,7 +170,9 @@ public class AvatarAnimatorController : MonoBehaviour
         animator.SetFloat(isFemaleParam, enableHusbandoMode ? 0f : 1f);
         animator.SetFloat(isMaleParam, enableHusbandoMode ? 1f : 0f);
 
-        if (!forcedDance && (BlockDraggingOverride || MenuActions.IsMovementBlocked() || TutorialMenu.IsActive))
+        // XQ: the menu stays blocking through its close fade. A held dance must survive that frame.
+        // Auto-dance (enableDancing) still stops while the menu is open.
+        if (!forcedDance && !xqHoldDance && (BlockDraggingOverride || MenuActions.IsMovementBlocked() || TutorialMenu.IsActive))
         {
             if (isDragging) SetDragging(false);
             if (isDancing) SetDancing(false);
@@ -167,6 +183,7 @@ public class AvatarAnimatorController : MonoBehaviour
             SetDragging(true);
             mouseHeld = true;
             dragLockTimer = 0.30f;
+            xqHoldDance = false; // XQ: drag ends a menu dance; enableDancing can run again
             SetDancing(false);
         }
         if (Input.GetMouseButtonUp(0)) mouseHeld = false;
@@ -192,7 +209,7 @@ public class AvatarAnimatorController : MonoBehaviour
         }
         UpdateIdleStatus();
 
-        if (isDancing && enableDanceSwitch && !forcedDance)
+        if (isDancing && enableDanceSwitch && !forcedDance && !xqHoldDance)
         {
             danceTimer += Time.deltaTime;
             if (danceTimer > DANCE_SWITCH_TIME)
