@@ -35,7 +35,6 @@ namespace Xiaoqi.UI2
                 AssetDatabase.CreateAsset(panel, XqUi2Paths.Panel);
             }
 
-            panel.renderMode = PanelRenderMode.ScreenSpaceOverlay;
             panel.scaleMode = PanelScaleMode.ConstantPixelSize;
             panel.scale = 1f;
             panel.clearColor = false;

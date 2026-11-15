@@ -14,7 +14,9 @@ namespace Xiaoqi.UI2
     /// 和 uGUI 同一条 overlay，发生在 WaitForEndOfFrame 之前。
     /// HitTestCoroutine 在那一帧末尾 ReadPixels，GetOnOpaquePixel 用 alpha ≥ 0.1
     /// （Mate Engine Main 的 hitTestType = Opacity）区分样品和透明区。
-    /// PanelSettings.clearColor 保持关闭，避免整屏清成不透明。
+    /// 6000.2.6f2 的 PanelSettings 没有公开 renderMode。targetTexture 为空时画到屏幕
+    /// （手册里 Target Texture 属于 Screen Space Overlay，设了才改去贴图）。
+    /// clearColor 保持关闭，避免整屏清成不透明。
     /// 换蓝色主题：命令行 -xq-theme blue，或 XqUi2Sample.SetTheme("blue")。
     /// 指针在样品上时经 MeHost.SetUiBlocksMovement 挡住「任意左键即拖动」，不改穿透判断。
     /// </summary>
@@ -71,7 +73,6 @@ namespace Xiaoqi.UI2
 
             _runtimePanel = Instantiate(panel);
             _runtimePanel.name = "XqPanelSettingsRuntime";
-            _runtimePanel.renderMode = PanelRenderMode.ScreenSpaceOverlay;
             _runtimePanel.scaleMode = PanelScaleMode.ConstantPixelSize;
             _runtimePanel.clearColor = false;
             _runtimePanel.colorClearValue = Color.clear;
