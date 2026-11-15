@@ -6,6 +6,9 @@ public class AvatarSleepController : MonoBehaviour
     [Header("Enable Sleep Feature")]
     public bool enableSleep = false;
 
+    // XQ: menu nap holds IsSleeping while enableSleep stays off (P1-5 idle-sleep stays default off).
+    [HideInInspector] public bool xqHold;
+
     [Header("Sleep Timer (seconds)")]
     [Range(30f, 360f)]
     public float sleepTimer = 60f;
@@ -31,8 +34,28 @@ public class AvatarSleepController : MonoBehaviour
         idleTime = 0f;
     }
 
+    // XQ: menu sleep. Drag wakes her; wakeUpBools already includes isDragging.
+    public void XqSetSleeping(bool on)
+    {
+        xqHold = on;
+        SetSleeping(on);
+        idleTime = 0f;
+    }
+
     void Update()
     {
+        // XQ: held sleep is not cleared every frame when enableSleep is off.
+        if (xqHold)
+        {
+            if (animator == null) animator = GetComponent<Animator>();
+            if (IsAnyWakeUpBoolTrue())
+            {
+                xqHold = false;
+                WakeUp();
+            }
+            return;
+        }
+
         if (!enableSleep || animator == null)
         {
             SetSleeping(false);

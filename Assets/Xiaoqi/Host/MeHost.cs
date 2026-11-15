@@ -82,6 +82,9 @@ namespace Xiaoqi.Host
                 bool on = _menuBlocker != null && _menuBlocker();
                 if (_blockerGo.activeSelf != on) _blockerGo.SetActive(on);
             }
+            if (_holdingSleep && _animator != null && !_animator.GetBool("IsSleeping"))
+                _holdingSleep = false;
+            if (_holdingSleep) MaybeZzz();
         }
 
         private void LateUpdate()
@@ -206,16 +209,52 @@ namespace Xiaoqi.Host
             loader.LoadVRM(path);
         }
 
+        int _sleepTicket;
+        bool _holdingSleep;
+        float _nextZzz = -1f;
+
         public void SetSleeping(bool on)
-        {            if (_animator == null) return;
-            foreach (var p in _animator.parameters)
+        {
+            _sleepTicket++;
+            if (!on)
             {
-                if (p.type == AnimatorControllerParameterType.Bool && p.name == "IsSleeping")
-                {
-                    _animator.SetBool("IsSleeping", on);
-                    return;
-                }
+                _holdingSleep = false;
+                ApplySleep(false);
+                return;
             }
+            StartCoroutine(SleepWhenIdle(_sleepTicket));
+        }
+
+        System.Collections.IEnumerator SleepWhenIdle(int ticket)
+        {
+            if (IsWindowSitting) ExitWindowSit();
+            if (IsDancing) StopDance();
+            float until = Time.unscaledTime + 2f;
+            while (Time.unscaledTime < until && ticket == _sleepTicket)
+            {
+                bool idle = _animator != null && _animator.GetCurrentAnimatorStateInfo(0).IsName("Idle");
+                if (idle && !IsDragging && !IsWindowSitting) break;
+                yield return null;
+            }
+            if (ticket != _sleepTicket) yield break;
+            ApplySleep(true);
+            _holdingSleep = true;
+            MaybeZzz();
+            Debug.Log("XQ_SLEEP hold idle=" + (_animator != null && _animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")));
+        }
+
+        void ApplySleep(bool on)
+        {
+            var sc = _animator != null ? _animator.GetComponent<AvatarSleepController>() : null;
+            if (sc != null) sc.XqSetSleeping(on);
+            else if (_animator != null) _animator.SetBool("IsSleeping", on);
+        }
+
+        void MaybeZzz()
+        {
+            if (Time.unscaledTime < _nextZzz) return;
+            Xiaoqi.Spike.PetBubble.Enqueue("Zzz…", "");
+            _nextZzz = Time.unscaledTime + 300f;
         }
 
         // ------------------------------------------------------------ window

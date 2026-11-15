@@ -84,10 +84,7 @@ namespace Xiaoqi.Spike
 
         private void Update()
         {
-            if (!XiaoqiRuntime.Config.emotion_line) return;
             if (PetHost.I == null) return;
-
-
             if (_napUntil > 0f && Time.unscaledTime >= _napUntil)
             {
                 _napUntil = -1f;
@@ -95,6 +92,16 @@ namespace Xiaoqi.Spike
                 PetHost.I.SetSleeping(false);
                 Debug.Log("XQ_NAP end");
             }
+            if (PetHost.I.IsDragging && !_dragWas && IsAsleep)
+            {
+                IsAsleep = false;
+                PetHost.I.SetSleeping(false);
+                _napUntil = -1f;
+                if (_cfg != null) _wakeAt = Time.unscaledTime + _cfg.presence.wake_on_drag_sec;
+                Debug.Log("XQ_NAP wake_drag");
+            }
+            _dragWas = PetHost.I.IsDragging;
+            if (!XiaoqiRuntime.Config.emotion_line) return;
 
             bool dragging = PetHost.I.IsDragging;
             bool quiet = XiaoqiRuntime.IsQuiet();
@@ -105,16 +112,6 @@ namespace Xiaoqi.Spike
                 if (_stage != null && _head != null && _stage.where == "dorm" && !IsAsleep)
                     _head.SetLabel(quiet ? XiaoqiRuntime.QuietLabel() : "");
             }
-
-            if (dragging && !_dragWas && IsAsleep)
-            {
-                IsAsleep = false;
-                PetHost.I.SetSleeping(false);
-                _napUntil = -1f;
-                _wakeAt = Time.unscaledTime + _cfg.presence.wake_on_drag_sec;
-                Debug.Log("XQ_NAP wake_drag");
-            }
-            _dragWas = dragging;
 
             if (!dragging && _wakeAt > 0f && Time.unscaledTime >= _wakeAt)
             {
