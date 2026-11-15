@@ -5,6 +5,9 @@ using UnityEngine.Networking;
 
 public class XiaoqiFeed : MonoBehaviour
 {
+    public static string LatestSay { get; private set; }
+    public static event Action<string> OnSay;
+
     private int _since = -1;
 
     [Serializable]
@@ -71,12 +74,17 @@ public class XiaoqiFeed : MonoBehaviour
                             _since = env.last_id;
                             var allow = cfg.bubble && !XiaoqiRuntime.Dnd
                                         && (env.rules == null || env.rules.show_private_text);
-                            if (allow && env.items != null)
+                            if (env.items != null)
                                 foreach (var item in env.items)
                                 {
                                     if (string.IsNullOrEmpty(item.text)) continue;
                                     if (!string.IsNullOrEmpty(item.scope) && item.scope != "private") continue;
-                                    Show(item.text, item.media);
+                                    if (item.kind == "say")
+                                    {
+                                        LatestSay = item.text;
+                                        OnSay?.Invoke(item.text);
+                                    }
+                                    if (allow) Show(item.text, item.media);
                                 }
                         }
                     }

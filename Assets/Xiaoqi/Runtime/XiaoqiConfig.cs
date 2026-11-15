@@ -17,6 +17,8 @@ public class XiaoqiConfig
     public bool emotion_line = false;
     public bool topmost = true;
     public bool hide_on_fullscreen = true;
+    // 身边小胶囊：stay 常驻 / fade 淡出（默认）/ off 全关。设置页 P1-5 再接。
+    public string chips = "fade";
 
     public static void Save(XiaoqiConfig cfg)
     {
@@ -49,6 +51,11 @@ public class XiaoqiConfig
                 if (text.IndexOf("\"hide_on_fullscreen\"", StringComparison.Ordinal) < 0)
                 {
                     cfg.hide_on_fullscreen = true;
+                    dirty = true;
+                }
+                if (text.IndexOf("\"chips\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.chips = "fade";
                     dirty = true;
                 }
                 if (dirty) Save(cfg);

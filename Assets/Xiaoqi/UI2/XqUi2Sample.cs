@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
@@ -31,7 +30,6 @@ namespace Xiaoqi.UI2
         const string Blue = "xq-theme-blue";
         const string Violet = "xq-theme-violet";
 
-        static readonly CustomStyleProperty<Color> AccentColor = new CustomStyleProperty<Color>("--xq-accent");
         static XqUi2Sample _instance;
 
         [SerializeField] PanelSettings panel;
@@ -43,12 +41,8 @@ namespace Xiaoqi.UI2
         UIDocument _doc;
         VisualElement _root;
         VisualElement _sample;
-        VisualElement _bubble;
-        VisualElement _pill;
-        VisualElement _btn;
-        XqTail _tail;
+        XqPetHud _hud;
         string _theme = "pink";
-        bool _fading;
         bool _logged;
         bool _cameraHeld;
         Graphic _moveHandle;
@@ -113,11 +107,9 @@ namespace Xiaoqi.UI2
             KeepAvatarInWindow();
             if (_root == null || _sample == null || _runtimePanel == null) return;
             if (_root.panel == null) return;
-            if (_tail != null && _root.customStyle.TryGetValue(AccentColor, out var accent))
-                _tail.SetColor(accent);
 
             bool hidden = PetHost.I != null && !PetHost.I.AvatarVisible;
-            if (hidden || !TryHead(out var screen))
+            if (hidden)
             {
                 _sample.style.display = DisplayStyle.None;
                 return;
@@ -129,31 +121,7 @@ namespace Xiaoqi.UI2
             float scale = bodyH >= 8f ? Mathf.Clamp(bodyH / RefHeight, 0.8f, 2f) : 1f;
             if (Mathf.Abs(_runtimePanel.scale - scale) > 0.01f)
                 _runtimePanel.scale = scale;
-
-            float w = _sample.worldBound.width;
-            float h = _sample.worldBound.height;
-            if (float.IsNaN(w) || w < 2f || float.IsNaN(h) || h < 2f)
-            {
-                _sample.style.left = -10000f;
-                return;
-            }
-
-            var p = RuntimePanelUtils.ScreenToPanel(_root.panel, screen);
-            float gap = 28f;
-            float left = p.x + gap;
-            float top = p.y - 16f;
-            float limit = _root.worldBound.width;
-            bool onLeft = left + w > limit - 8f;
-            if (onLeft) left = p.x - gap - w;
-            if (limit > 8f)
-            {
-                left = Mathf.Clamp(left, 8f, Mathf.Max(8f, limit - w - 8f));
-                float limitH = _root.worldBound.height;
-                top = Mathf.Clamp(top, 8f, Mathf.Max(8f, limitH - h - 8f));
-            }
-            _sample.style.left = left;
-            _sample.style.top = top;
-            _tail.PointLeft = !onLeft;
+            _hud?.Tick(_root.panel, _runtimePanel.scale);
 
             if (!_logged && bodyH >= 8f)
             {
@@ -183,9 +151,8 @@ namespace Xiaoqi.UI2
             PetHost.I?.SetUiBlocksMovement(over);
             GuardWindowDrag(over);
             if (!Input.GetMouseButtonDown(0)) return;
-            if (!_fading && Hit(_bubble)) FadeBubble();
-            else if (Hit(_pill)) Debug.Log("XQ_UI2 click pill");
-            else if (Hit(_btn)) Debug.Log("XQ_UI2 click button");
+            var picked = _root.panel.Pick(RuntimePanelUtils.ScreenToPanel(_root.panel, Input.mousePosition));
+            if (_hud != null && _hud.HitBubble(picked)) _hud.ToggleSay();
         }
 
         GameObject SpawnDocument()
@@ -203,76 +170,10 @@ namespace Xiaoqi.UI2
 
         void Build(VisualElement root)
         {
-            _sample = new VisualElement { name = "xq-sample", pickingMode = PickingMode.Ignore };
-            _sample.AddToClassList("xq-sample");
-
-            _bubble = new VisualElement { name = "xq-bubble", pickingMode = PickingMode.Ignore };
-            _bubble.AddToClassList("xq-bubble");
-            _tail = new XqTail();
-            _tail.AddToClassList("xq-tail");
-            var bubbleBody = Body(false);
-            bubbleBody.RegisterCallback<ClickEvent>(_ => FadeBubble());
-            _tail.RegisterCallback<ClickEvent>(_ => FadeBubble());
-            _bubble.Add(_tail);
-            _bubble.Add(bubbleBody);
-
-            var row = new VisualElement { name = "xq-row", pickingMode = PickingMode.Ignore };
-            row.AddToClassList("xq-row");
-            _pill = new VisualElement { name = "xq-pill", pickingMode = PickingMode.Ignore };
-            _pill.AddToClassList("xq-pill");
-            _pill.Add(Body(false));
-            _btn = new VisualElement { name = "xq-btn", pickingMode = PickingMode.Ignore };
-            _btn.AddToClassList("xq-btn");
-            _btn.Add(Body(true));
-            row.Add(_pill);
-            row.Add(_btn);
-
-            _sample.Add(_bubble);
-            _sample.Add(row);
-            root.Add(_sample);
+            _hud = new XqPetHud();
+            _hud.Attach(root, font);
+            _sample = _hud.Root;
             _sample.style.display = DisplayStyle.None;
-        }
-
-        static VisualElement Body(bool emph)
-        {
-            var body = new VisualElement { name = "xq-body" };
-            body.AddToClassList("xq-body");
-            var glass = new VisualElement();
-            glass.AddToClassList("xq-glass");
-            if (emph) glass.AddToClassList("xq-glass-emph");
-            var hi = new VisualElement();
-            hi.AddToClassList("xq-hi");
-            var label = new Label("测试");
-            label.AddToClassList("xq-label");
-            body.Add(glass);
-            body.Add(hi);
-            body.Add(label);
-            return body;
-        }
-
-        void FadeBubble()
-        {
-            if (_fading || _bubble == null) return;
-            _fading = true;
-            Debug.Log("XQ_UI2 click bubble -> fade");
-            StartCoroutine(Fade());
-        }
-
-        IEnumerator Fade()
-        {
-            const float dur = 0.2f;
-            float t = 0f;
-            while (t < dur)
-            {
-                t += Time.unscaledDeltaTime;
-                if (_bubble != null) _bubble.style.opacity = Mathf.Clamp01(1f - t / dur);
-                yield return null;
-            }
-            if (_bubble == null) yield break;
-            _bubble.style.opacity = 0f;
-            _bubble.style.display = DisplayStyle.None;
-            _bubble.pickingMode = PickingMode.Ignore;
-            if (_tail != null) _tail.pickingMode = PickingMode.Ignore;
         }
 
         void ApplyTheme(string theme)
@@ -431,66 +332,6 @@ namespace Xiaoqi.UI2
             if (theme == "violet") return Violet;
             return Pink;
         }
-
-        sealed class XqTail : VisualElement
-        {
-            Color _color = new Color(1f, 0.56f, 0.72f, 1f);
-            bool _left = true;
-
-            public XqTail()
-            {
-                generateVisualContent += Draw;
-                pickingMode = PickingMode.Position;
-                RegisterCallback<GeometryChangedEvent>(_ => MarkDirtyRepaint());
-                RegisterCallback<CustomStyleResolvedEvent>(_ =>
-                {
-                    if (customStyle.TryGetValue(AccentColor, out var c))
-                        SetColor(c);
-                });
-            }
-
-            public bool PointLeft
-            {
-                get => _left;
-                set
-                {
-                    if (_left == value) return;
-                    _left = value;
-                    EnableInClassList("xq-point-right", !value);
-                    MarkDirtyRepaint();
-                }
-            }
-
-            public void SetColor(Color color)
-            {
-                if (_color == color) return;
-                _color = color;
-                MarkDirtyRepaint();
-            }
-
-            void Draw(MeshGenerationContext ctx)
-            {
-                float w = contentRect.width;
-                float h = contentRect.height;
-                if (w < 1f || h < 1f) return;
-                var p = ctx.painter2D;
-                p.fillColor = _color;
-                p.BeginPath();
-                if (_left)
-                {
-                    p.MoveTo(new Vector2(0f, h * 0.5f));
-                    p.LineTo(new Vector2(w, 0f));
-                    p.LineTo(new Vector2(w, h));
-                }
-                else
-                {
-                    p.MoveTo(new Vector2(w, h * 0.5f));
-                    p.LineTo(new Vector2(0f, 0f));
-                    p.LineTo(new Vector2(0f, h));
-                }
-                p.ClosePath();
-                p.Fill();
-            }
-        }
     }
 }
+

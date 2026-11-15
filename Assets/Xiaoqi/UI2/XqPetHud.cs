@@ -1,0 +1,476 @@
+using System;
+using UnityEngine;
+using UnityEngine.UIElements;
+using Xiaoqi.Host;
+using Xiaoqi.Spike;
+
+namespace Xiaoqi.UI2
+{
+    /// <summary>
+    /// P1-3 桌宠界面。尺寸是样式稿 px，由 PanelSettings.scale（身高/364）变成物理像素。
+    /// 空像素不设背景，穿透仍走 ME 的 opacity hit-test。
+    /// </summary>
+    public class XqPetHud
+    {
+        const float FadeSec = 0.6f;
+        const float IdleSec = 8f;
+        const float NearPx = 400f;
+
+        public VisualElement Root { get; private set; }
+        public VisualElement Bubble { get; private set; }
+
+        VisualElement _next;
+        VisualElement _here;
+        VisualElement _ringHost;
+        XqArc _arc;
+        Label _bubbleText;
+        Label _nextLine;
+        Label _hereLine;
+        Label _ringWord;
+        XqTailDown _tail;
+        string _say;
+        float _sayUntil;
+        bool _sayOpen;
+        float _chip;
+        float _chipVel;
+        float _lastOp;
+        bool _wasNear;
+
+        public void Attach(VisualElement parent, Font font)
+        {
+            Root = new VisualElement { name = "xq-hud", pickingMode = PickingMode.Ignore };
+            Root.AddToClassList("xq-hud");
+            if (font != null) Root.style.unityFont = font;
+
+            Bubble = Glass("xq-bubble-real", false);
+            _tail = new XqTailDown();
+            _tail.AddToClassList("xq-tail-down");
+            _bubbleText = new Label();
+            _bubbleText.AddToClassList("xq-copy");
+            Bubble.Q(className: "xq-body").Add(_bubbleText);
+            Bubble.Add(_tail);
+
+            _next = Glass("xq-cap", false);
+            _next.AddToClassList("xq-next");
+            _next.Q(className: "xq-body").Add(Icon("clock"));
+            _nextLine = Column(_next, "下一件事", "");
+
+            _here = Glass("xq-cap", false);
+            _here.Q(className: "xq-body").Add(Icon("book"));
+            _hereLine = Column(_here, "她在", "还没有");
+
+            _ringHost = Glass("xq-ring", true);
+            _arc = new XqArc();
+            _arc.AddToClassList("xq-arc");
+            _ringWord = new Label("还没有");
+            _ringWord.AddToClassList("xq-ring-word");
+            var ringBody = _ringHost.Q(className: "xq-body");
+            ringBody.Add(_arc);
+            ringBody.Add(_ringWord);
+
+            Root.Add(Bubble);
+            Root.Add(_next);
+            Root.Add(_here);
+            Root.Add(_ringHost);
+            parent.Add(Root);
+
+            XiaoqiLink.OnStage += _ => Refresh();
+            XiaoqiFeed.OnSay += OnSay;
+            if (!string.IsNullOrEmpty(XiaoqiFeed.LatestSay)) OnSay(XiaoqiFeed.LatestSay);
+            _lastOp = Time.unscaledTime;
+            Refresh();
+        }
+
+        public void Tick(IPanel panel, float scale)
+        {
+            if (Root == null || panel == null) return;
+            Refresh();
+            NoteActivity();
+            Animate(scale);
+            Place(panel, scale);
+            if (_tail != null) _tail.SetColor(new Color(1f, 1f, 1f, 0.9f));
+        }
+
+        public bool HitBubble(VisualElement picked)
+        {
+            return Inside(Bubble, picked);
+        }
+
+        public void ToggleSay()
+        {
+            _sayOpen = !_sayOpen;
+            Bubble.EnableInClassList("xq-open", _sayOpen);
+            NoteOperation();
+        }
+
+        void OnSay(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return;
+            if (XiaoqiRuntime.Config != null && !XiaoqiRuntime.Config.bubble) return;
+            if (XiaoqiRuntime.IsQuiet()) return;
+            _say = text;
+            _sayOpen = false;
+            Bubble.EnableInClassList("xq-open", false);
+            _sayUntil = Time.unscaledTime + 7f;
+            if (_bubbleText != null) _bubbleText.text = text;
+        }
+
+        void Refresh()
+        {
+            var s = XiaoqiLink.Current;
+            bool asleep = PetPresence.IsAsleep || (s != null && s.pose == "sleep");
+            bool away = s != null && s.where == "out";
+
+            bool showNext = s != null && s.next != null && HasNext(s.next);
+            _next.style.display = showNext ? DisplayStyle.Flex : DisplayStyle.None;
+            if (showNext) _nextLine.text = NextLine(s.next);
+
+            if (s == null)
+                _hereLine.text = "还没有";
+            else if (asleep)
+                _hereLine.text = "睡着了";
+            else if (away)
+                _hereLine.text = "外出";
+            else
+            {
+                string place = Where(s.where);
+                string act = s.seg != null ? (string.IsNullOrEmpty(s.seg.name) ? s.seg.act : s.seg.name) : "";
+                _hereLine.text = string.IsNullOrEmpty(place) && string.IsNullOrEmpty(act)
+                    ? "还没有"
+                    : (string.IsNullOrEmpty(act) ? place : place + " · " + act);
+            }
+
+            if (s == null || s.body == null)
+            {
+                _ringWord.text = "还没有";
+                _arc.Amount = 0f;
+                _arc.MarkDirtyRepaint();
+            }
+            else
+            {
+                // 假数据里 stamina/sleepy 是 0–100。字的阈值写在回报里，等 WB 确认量纲。
+                float st = Mathf.Clamp(s.body.stamina, 0f, 100f);
+                _arc.Amount = st / 100f;
+                _arc.MarkDirtyRepaint();
+                if (s.body.sleepy >= 70f) _ringWord.text = "困";
+                else if (st <= 35f) _ringWord.text = "累";
+                else _ringWord.text = "精神";
+            }
+
+            bool quiet = XiaoqiRuntime.IsQuiet() || (XiaoqiRuntime.Config != null && !XiaoqiRuntime.Config.bubble);
+            bool showSay = !quiet && !string.IsNullOrEmpty(_say) && Time.unscaledTime < _sayUntil;
+            Bubble.style.display = showSay ? DisplayStyle.Flex : DisplayStyle.None;
+            if (showSay && _bubbleText.text != _say) _bubbleText.text = _say;
+        }
+
+        void NoteActivity()
+        {
+            if (PetHost.I != null && PetHost.I.IsDragging) NoteOperation();
+            if (Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(0))
+            {
+                var r = Body();
+                if (r.width > 2f && r.Contains((Vector2)Input.mousePosition)) NoteOperation();
+            }
+            var body = Body();
+            if (body.width > 2f)
+            {
+                var p = (Vector2)Input.mousePosition;
+                float dx = Mathf.Max(body.xMin - p.x, 0f, p.x - body.xMax);
+                float dy = Mathf.Max(body.yMin - p.y, 0f, p.y - body.yMax);
+                bool near = dx * dx + dy * dy <= NearPx * NearPx || body.Contains(p);
+                if (near && !_wasNear) NoteOperation();
+                _wasNear = near;
+            }
+        }
+
+        void NoteOperation() { _lastOp = Time.unscaledTime; }
+
+        void Animate(float scale)
+        {
+            string mode = XiaoqiRuntime.Config != null ? XiaoqiRuntime.Config.chips : "fade";
+            if (string.IsNullOrEmpty(mode)) mode = "fade";
+            float target = 1f;
+            if (mode == "off") target = 0f;
+            else if (mode == "stay") target = 1f;
+            else target = Time.unscaledTime - _lastOp > IdleSec ? 0f : 1f;
+
+            float k = Ease(Mathf.Clamp01(Time.unscaledDeltaTime / FadeSec));
+            _chip = Mathf.Lerp(_chip, target, k);
+            ApplyChip(_next, 0f, scale);
+            ApplyChip(_here, -1.7f, scale);
+            ApplyChip(_ringHost, -3.4f, scale);
+        }
+
+        void ApplyChip(VisualElement el, float phase, float scale)
+        {
+            if (el == null || el.resolvedStyle.display == DisplayStyle.None) return;
+            float bob = Mathf.Sin((Time.unscaledTime + phase) * (Mathf.PI * 2f / 7f)) * 5f * scale;
+            el.style.opacity = _chip;
+            el.style.scale = new Scale(Vector3.one * Mathf.Lerp(0.96f, 1f, _chip));
+            el.style.translate = new Translate(Mathf.Lerp(14f * scale, 0f, _chip), bob, 0f);
+        }
+
+        void Place(IPanel panel, float scale)
+        {
+            var r = Body();
+            if (r.height < 8f) return;
+            float H = r.height;
+            float W = r.width > 2f ? r.width : H * 0.58f;
+            float cx = r.x + r.width * 0.5f;
+            float top = r.yMax;
+            float left = r.xMin;
+
+            PlaceBox(panel, Bubble, cx + 0.28f * W - Width(Bubble, 236f * scale), top + 8f * scale);
+            float y44 = top - 0.44f * H;
+            float y61 = top - 0.61f * H;
+            float y78 = top - 0.78f * H;
+            PlaceRight(panel, _next, left - 1.0f * W, y44);
+            PlaceRight(panel, _here, left - 0.8f * W, y61);
+            PlaceRight(panel, _ringHost, left - 0.26f * W, y78);
+            KeepOffFace(panel, _next, r, H);
+            KeepOffFace(panel, _here, r, H);
+            KeepOffFace(panel, _ringHost, r, H);
+        }
+
+        static void KeepOffFace(IPanel panel, VisualElement el, Rect body, float H)
+        {
+            if (el == null || el.resolvedStyle.display == DisplayStyle.None) return;
+            var face = new Rect(body.xMin, body.yMax - H * 0.28f, body.width, H * 0.28f);
+            var b = el.worldBound;
+            if (b.width < 2f || !b.Overlaps(PanelRect(panel, face))) return;
+            float shift = PanelRect(panel, face).xMin - b.xMax - 8f;
+            if (shift < 0f) el.style.left = el.resolvedStyle.left + shift;
+        }
+
+        static Rect PanelRect(IPanel panel, Rect screen)
+        {
+            var a = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(screen.xMin, screen.yMax));
+            var c = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(screen.xMax, screen.yMin));
+            return Rect.MinMaxRect(Mathf.Min(a.x, c.x), Mathf.Min(a.y, c.y), Mathf.Max(a.x, c.x), Mathf.Max(a.y, c.y));
+        }
+
+        static void PlaceBox(IPanel panel, VisualElement el, float screenLeft, float screenBottom)
+        {
+            if (el == null) return;
+            float h = Height(el, 48f);
+            var p = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(screenLeft, screenBottom + h));
+            el.style.left = p.x;
+            el.style.top = p.y;
+        }
+
+        static void PlaceRight(IPanel panel, VisualElement el, float screenRight, float screenMidY)
+        {
+            if (el == null) return;
+            float w = Width(el, 120f);
+            float h = Height(el, 46f);
+            var p = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(screenRight - w, screenMidY + h * 0.5f));
+            el.style.left = p.x;
+            el.style.top = p.y;
+        }
+
+        static float Width(VisualElement el, float fallback)
+        {
+            float w = el.resolvedStyle.width;
+            return float.IsNaN(w) || w < 2f ? fallback : w;
+        }
+
+        static float Height(VisualElement el, float fallback)
+        {
+            float h = el.resolvedStyle.height;
+            return float.IsNaN(h) || h < 2f ? fallback : h;
+        }
+
+        static Rect Body()
+        {
+            if (PetHost.I == null) return new Rect(0, 0, 0, 0);
+            return PetHost.I.ScreenRect();
+        }
+
+        static bool HasNext(StageData.StageNext n)
+        {
+            return !string.IsNullOrEmpty(n.at) || !string.IsNullOrEmpty(n.where)
+                || !string.IsNullOrEmpty(n.spot) || !string.IsNullOrEmpty(n.pose);
+        }
+
+        static string NextLine(StageData.StageNext n)
+        {
+            string place = Where(n.where);
+            if (string.IsNullOrEmpty(place)) place = n.spot ?? "";
+            if (!string.IsNullOrEmpty(n.at) && !string.IsNullOrEmpty(place)) return n.at + "  " + place;
+            if (!string.IsNullOrEmpty(n.at)) return n.at;
+            return place;
+        }
+
+        static string Where(string where)
+        {
+            if (string.IsNullOrEmpty(where)) return "";
+            if (where == "dorm") return "宿舍";
+            if (where == "out") return "外出";
+            return where;
+        }
+
+        static float Ease(float t)
+        {
+            t = Mathf.Clamp01(t);
+            return t < 0.5f ? 4f * t * t * t : 1f - Mathf.Pow(-2f * t + 2f, 3f) / 2f;
+        }
+
+        static bool Inside(VisualElement root, VisualElement picked)
+        {
+            for (var e = picked; e != null; e = e.parent)
+                if (e == root) return true;
+            return false;
+        }
+
+        static VisualElement Glass(string cls, bool emph)
+        {
+            var host = new VisualElement { pickingMode = PickingMode.Ignore };
+            host.AddToClassList(cls);
+            var shadow = new VisualElement();
+            shadow.AddToClassList("xq-shadow");
+            var body = new VisualElement { name = "xq-body" };
+            body.AddToClassList("xq-body");
+            var glass = new VisualElement();
+            glass.AddToClassList("xq-glass");
+            if (emph) glass.AddToClassList("xq-glass-emph");
+            var hi = new VisualElement();
+            hi.AddToClassList("xq-hi");
+            body.Add(glass);
+            body.Add(hi);
+            host.Add(shadow);
+            host.Add(body);
+            return host;
+        }
+
+        static Label Column(VisualElement host, string kicker, string line)
+        {
+            var col = new VisualElement();
+            col.AddToClassList("xq-cap-col");
+            var a = new Label(kicker);
+            a.AddToClassList("xq-cap-kicker");
+            var b = new Label(line);
+            b.AddToClassList("xq-cap-line");
+            col.Add(a);
+            col.Add(b);
+            host.Q(className: "xq-body").Add(col);
+            return b;
+        }
+
+        static VisualElement Icon(string kind)
+        {
+            var icon = new XqIcon(kind);
+            icon.AddToClassList("xq-icon");
+            return icon;
+        }
+
+        sealed class XqTailDown : VisualElement
+        {
+            Color _c = new Color(1f, 1f, 1f, 0.9f);
+            public XqTailDown()
+            {
+                generateVisualContent += Draw;
+                pickingMode = PickingMode.Position;
+            }
+            public void SetColor(Color c)
+            {
+                if (_c == c) return;
+                _c = c;
+                MarkDirtyRepaint();
+            }
+            void Draw(MeshGenerationContext ctx)
+            {
+                float w = contentRect.width, h = contentRect.height;
+                if (w < 1f || h < 1f) return;
+                var p = ctx.painter2D;
+                p.fillColor = _c;
+                p.BeginPath();
+                p.MoveTo(new Vector2(0f, 0f));
+                p.LineTo(new Vector2(w, 0f));
+                p.LineTo(new Vector2(w * 0.5f, h));
+                p.ClosePath();
+                p.Fill();
+            }
+        }
+
+        sealed class XqArc : VisualElement
+        {
+            public float Amount;
+            public XqArc()
+            {
+                generateVisualContent += Draw;
+                pickingMode = PickingMode.Ignore;
+                style.position = Position.Absolute;
+                style.left = 7;
+                style.top = 7;
+                style.width = 50;
+                style.height = 50;
+            }
+            void Draw(MeshGenerationContext ctx)
+            {
+                float w = contentRect.width, h = contentRect.height;
+                if (w < 4f) return;
+                var c = new Vector2(w * 0.5f, h * 0.5f);
+                float rad = Mathf.Min(w, h) * 0.5f - 2f;
+                var p = ctx.painter2D;
+                p.lineWidth = 4f;
+                p.strokeColor = new Color(1f, 1f, 1f, 0.55f);
+                p.BeginPath();
+                p.Arc(c, rad, Angle.Degrees(0f), Angle.Degrees(359f));
+                p.Stroke();
+                if (Amount > 0.01f)
+                {
+                    p.strokeColor = new Color(1f, 0.56f, 0.72f, 1f);
+                    p.BeginPath();
+                    p.Arc(c, rad, Angle.Degrees(-90f), Angle.Degrees(-90f + 360f * Mathf.Clamp01(Amount)));
+                    p.Stroke();
+                }
+            }
+        }
+
+        sealed class XqIcon : VisualElement
+        {
+            readonly string _kind;
+            public XqIcon(string kind)
+            {
+                _kind = kind;
+                generateVisualContent += Draw;
+                pickingMode = PickingMode.Ignore;
+            }
+            void Draw(MeshGenerationContext ctx)
+            {
+                float w = contentRect.width, h = contentRect.height;
+                if (w < 4f) return;
+                var p = ctx.painter2D;
+                var c = new Vector2(w * 0.5f, h * 0.5f);
+                p.strokeColor = new Color(0.84f, 0.28f, 0.5f, 1f);
+                p.lineWidth = 1.6f;
+                if (_kind == "clock")
+                {
+                    p.BeginPath();
+                    p.Arc(c, w * 0.28f, Angle.Degrees(0), Angle.Degrees(359));
+                    p.Stroke();
+                    p.BeginPath();
+                    p.MoveTo(c);
+                    p.LineTo(c + new Vector2(0f, -w * 0.16f));
+                    p.MoveTo(c);
+                    p.LineTo(c + new Vector2(w * 0.12f, 0f));
+                    p.Stroke();
+                }
+                else
+                {
+                    p.BeginPath();
+                    p.MoveTo(new Vector2(w * 0.28f, h * 0.3f));
+                    p.LineTo(new Vector2(w * 0.72f, h * 0.3f));
+                    p.LineTo(new Vector2(w * 0.72f, h * 0.72f));
+                    p.LineTo(new Vector2(w * 0.28f, h * 0.72f));
+                    p.ClosePath();
+                    p.Stroke();
+                    p.BeginPath();
+                    p.MoveTo(new Vector2(w * 0.28f, h * 0.48f));
+                    p.LineTo(new Vector2(w * 0.72f, h * 0.48f));
+                    p.Stroke();
+                }
+            }
+        }
+    }
+}

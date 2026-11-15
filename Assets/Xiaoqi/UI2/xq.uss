@@ -1,7 +1,5 @@
-/* P1-1 样品。变量只写在三套主题 class 上，不用 :root。
-   换主题 = 根上只留其中一个 class。
-   阴影留给后面，这里不写 box-shadow，也不用九宫格。
-   字号 16：面板缩放最低 0.8 时仍约 12.8 物理像素。 */
+/* 变量只写在三套主题 class 上，不用 :root。换主题 = 根上只换这一个 class。
+   字号至少 15：面板缩放到 0.8 时仍有 12 物理像素。阴影用 Sprites/xq-shadow.png 九宫格。 */
 
 .xq-theme-pink {
     --xq-accent: #FF8FB8;
@@ -163,5 +161,166 @@
 
 .xq-body,
 .xq-tail {
+    picking-mode: position;
+}
+
+.xq-hud {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.xq-bubble-real {
+    position: absolute;
+    width: 236px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.xq-bubble-real .xq-body {
+    border-radius: 20px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left: 16px;
+    padding-right: 16px;
+    min-width: 0;
+    min-height: 0;
+    align-items: flex-start;
+}
+
+.xq-bubble-real .xq-copy {
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    white-space: normal;
+    -unity-text-align: upper-left;
+    max-height: 44px;
+    overflow: hidden;
+}
+
+.xq-bubble-real.xq-open .xq-copy {
+    max-height: 160px;
+}
+
+.xq-tail-down {
+    position: absolute;
+    width: 20px;
+    height: 12px;
+    right: 30px;
+    bottom: -10px;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.xq-cap {
+    position: absolute;
+    flex-direction: row;
+    align-items: center;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 10px;
+    padding-right: 16px;
+    min-height: 46px;
+}
+
+.xq-cap .xq-body {
+    flex-direction: row;
+    align-items: center;
+    border-radius: var(--xq-r-pill, 999px);
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 10px;
+    padding-right: 16px;
+    min-height: 46px;
+    min-width: 0;
+}
+
+.xq-cap-col {
+    flex-direction: column;
+    margin-left: 8px;
+}
+
+.xq-cap-kicker {
+    font-size: 15px;
+    color: var(--xq-ink-soft, rgba(59, 47, 85, 0.62));
+    -unity-text-align: middle-left;
+}
+
+.xq-cap-line {
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    -unity-text-align: middle-left;
+    white-space: nowrap;
+}
+
+.xq-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.88);
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.xq-ring {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    align-items: center;
+    justify-content: center;
+}
+
+.xq-ring .xq-body {
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    min-width: 0;
+    min-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.xq-ring-word {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--xq-ink, #3B2F55);
+    -unity-text-align: middle-center;
+}
+
+.xq-shadow {
+    position: absolute;
+    left: -28px;
+    right: -28px;
+    top: -18px;
+    bottom: -28px;
+    background-image: url("Sprites/xq-shadow.png");
+    -unity-slice-left: 100;
+    -unity-slice-right: 100;
+    -unity-slice-top: 100;
+    -unity-slice-bottom: 100;
+    -unity-slice-scale: 0.5;
+    picking-mode: ignore;
+}
+
+.xq-cap,
+.xq-bubble-real,
+.xq-ring,
+.xq-icon,
+.xq-cap-col,
+.xq-cap-kicker,
+.xq-cap-line,
+.xq-copy,
+.xq-ring-word,
+.xq-shadow {
+    picking-mode: ignore;
+}
+
+.xq-bubble-real .xq-body,
+.xq-tail-down {
     picking-mode: position;
 }
