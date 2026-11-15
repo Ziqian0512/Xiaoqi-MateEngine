@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance"
+         editor-extension-mode="False">
+    <Style src="xq.uss" />
+    <ui:VisualElement name="bubble-root" style="flex-direction: column; align-items: flex-start;">
+        <ui:VisualElement class="xq-bubble">
+            <ui:Label name="bubble-text" text="你终于看我了。" class="xq-body" />
+        </ui:VisualElement>
+        <ui:VisualElement class="xq-bubble__tail" />
+    </ui:VisualElement>
+</ui:UXML>
