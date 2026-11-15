@@ -95,6 +95,7 @@ namespace Xiaoqi.Spike
 
         private void Update()
         {
+            if (_open && Xiaoqi.Host.PetHost.I != null && !Xiaoqi.Host.PetHost.I.AvatarVisible) { Close(); }
             if (!XiaoqiRuntime.Config.emotion_line) return;
             if (!EnableClickOpen) return;
 

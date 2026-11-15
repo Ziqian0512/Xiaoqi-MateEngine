@@ -59,6 +59,12 @@ public class XiaoqiSystems : MonoBehaviour
             Xiaoqi.Spike.PetPresence.Nap(1);
             Debug.Log("XQ_DEMO nap");
         }
+        if (Array.IndexOf(a, "-demo-hide") >= 0)
+        {
+            var av = PetHost.I != null ? PetHost.I.Avatar : null;
+            if (av != null) av.gameObject.SetActive(false);
+            Debug.Log("XQ_DEMO hide");
+        }
         if (Array.IndexOf(a, "-demo-tuner") >= 0)
         {
             Xiaoqi.Spike.EmotionLineTuner.Toggle();

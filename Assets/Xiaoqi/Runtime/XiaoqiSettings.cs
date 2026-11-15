@@ -70,6 +70,11 @@ public class XiaoqiSettings : MonoBehaviour
         _go.SetActive(false);
     }
 
+    private void Update()
+    {
+        if (_open && !ShotMode() && Xiaoqi.Host.PetHost.I != null && !Xiaoqi.Host.PetHost.I.AvatarVisible) Close();
+    }
+
     private void OnApplicationFocus(bool hasFocus)
     {
         if (!hasFocus && _open && !ShotMode()) Close();

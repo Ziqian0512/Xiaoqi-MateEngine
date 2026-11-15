@@ -333,8 +333,8 @@ namespace Xiaoqi.UI
             ToggleSub("doing");
             yield return new WaitForSecondsRealtime(0.5f);
             ToggleSub("dance");
-            yield return new WaitForSecondsRealtime(0.6f);
-            if (PetHost.I != null) PetHost.I.RunAction("dance_0");
+            yield return new WaitForSecondsRealtime(0.2f);
+            if (PetHost.I != null) PetHost.I.RunAction("dance_2");
             Debug.Log("XQ_DEMO_DANCE done");
         }
 
@@ -617,6 +617,7 @@ namespace Xiaoqi.UI
             if (Input.GetMouseButtonDown(1)) { Close("right"); return; }
             if (Input.GetMouseButtonDown(0) && !IsPointerOverMenu()) { Close("blank"); return; }
 
+            if (PetHost.I != null && !PetHost.I.AvatarVisible) { Close("hidden"); return; }
             FollowHead();
 
             if (_since < XqStyle.InSec * 1.2f) AnimateOpen();
@@ -717,7 +718,9 @@ namespace Xiaoqi.UI
             else
             {
                 var head = FindFirstObjectByType<Xiaoqi.Spike.HeadAnchor>(FindObjectsInactive.Include);
-                if (head != null && head.ScreenPoint != Vector2.zero) _center = head.ScreenPoint;
+                var openRect = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, Screen.width, Screen.height * 0.45f);
+                float openBody = openRect.height > 10f ? openRect.height : Screen.height * 0.45f;
+                if (head != null && head.ScreenPoint != Vector2.zero) _center = MenuCenter(head.ScreenPoint, openBody);
                 else
                 {
                     _center = Input.mousePosition;
@@ -763,11 +766,23 @@ namespace Xiaoqi.UI
 
         private void FollowHead()
         {
+            var br = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, Screen.width, Screen.height * 0.45f);
+            float bodyH = br.height > 10f ? br.height : Screen.height * 0.45f;
+
+            float target = Mathf.Clamp(bodyH / XqStyle.Fr(380f), 0.7f, 1.15f);
+            if (Mathf.Abs(target - _menuScale) > 0.02f)
+            {
+                _menuScale = Mathf.Lerp(_menuScale, target, 0.25f);
+                _root.localScale = Vector3.one * _menuScale;
+            }
+
             var head = FindFirstObjectByType<Xiaoqi.Spike.HeadAnchor>(FindObjectsInactive.Include);
             Vector2 c = head != null && head.ScreenPoint != Vector2.zero ? head.ScreenPoint : _center;
             if (float.IsNaN(c.x) || float.IsNaN(c.y)) return;
+            c = MenuCenter(c, bodyH);
             c.x = Mathf.Clamp(c.x, XqStyle.Fr(40f), Screen.width - XqStyle.Fr(40f));
             c.y = Mathf.Clamp(c.y, XqStyle.Fr(20f), Screen.height - XqStyle.Fr(20f));
+
             float wantR = BaseRadius();
             if (Mathf.Abs(wantR - _r) > 2f)
             {
@@ -782,20 +797,18 @@ namespace Xiaoqi.UI
                 _center = c;
                 _root.anchoredPosition = _center - new Vector2(Screen.width, Screen.height) * 0.5f;
             }
-
-            var br = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, Screen.width, Screen.height * 0.45f);
-            float bodyH = br.height > 10f ? br.height : Screen.height * 0.45f;
-            float target = Mathf.Clamp(bodyH / XqStyle.Fr(380f), 0.7f, 1.15f);
-            if (Mathf.Abs(target - _menuScale) > 0.02f)
-            {
-                _menuScale = Mathf.Lerp(_menuScale, target, 0.25f);
-                _root.localScale = Vector3.one * _menuScale;
-            }
+        }
+        private float BaseRadius()
+        {
+            var r = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, Screen.width, Screen.height * 0.45f);
+            float bodyH = r.height > 10f ? r.height : Screen.height * 0.45f;
+            float screenR = Mathf.Clamp(bodyH * 0.34f, XqStyle.Fr(70f), XqStyle.Fr(200f));
+            return screenR / Mathf.Max(0.1f, _menuScale);
         }
 
-        private static float BaseRadius()
+        private static Vector2 MenuCenter(Vector2 head, float bodyH)
         {
-            return XqStyle.Fr(RadiusPx);
+            return new Vector2(head.x, head.y - bodyH * 0.30f);
         }
 
         private void ApplyVisible()

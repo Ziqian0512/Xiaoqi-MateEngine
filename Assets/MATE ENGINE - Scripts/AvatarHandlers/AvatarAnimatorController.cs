@@ -38,6 +38,7 @@ public class AvatarAnimatorController : MonoBehaviour
     public bool isDragging, isDancing, isIdle;
     // Xiaoqi patch: allow the pet menu to force one of the built-in dance clips.
     [HideInInspector] public bool forcedDance;
+    [HideInInspector] public float ignoreClickUntil;
 
     public void ForceDance(int index)
     {
@@ -155,13 +156,13 @@ public class AvatarAnimatorController : MonoBehaviour
         animator.SetFloat(isFemaleParam, enableHusbandoMode ? 0f : 1f);
         animator.SetFloat(isMaleParam, enableHusbandoMode ? 1f : 0f);
 
-        if (BlockDraggingOverride || MenuActions.IsMovementBlocked() || TutorialMenu.IsActive)
+        if (!forcedDance && (BlockDraggingOverride || MenuActions.IsMovementBlocked() || TutorialMenu.IsActive))
         {
             if (isDragging) SetDragging(false);
             if (isDancing) SetDancing(false);
             return;
         }
-        if (Input.GetMouseButtonDown(0))
+        if (!forcedDance && Time.unscaledTime >= ignoreClickUntil && Input.GetMouseButtonDown(0))
         {
             SetDragging(true);
             mouseHeld = true;
@@ -191,7 +192,7 @@ public class AvatarAnimatorController : MonoBehaviour
         }
         UpdateIdleStatus();
 
-        if (isDancing && enableDanceSwitch)
+        if (isDancing && enableDanceSwitch && !forcedDance)
         {
             danceTimer += Time.deltaTime;
             if (danceTimer > DANCE_SWITCH_TIME)

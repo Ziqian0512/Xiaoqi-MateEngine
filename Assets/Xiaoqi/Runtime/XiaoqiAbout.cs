@@ -25,6 +25,11 @@ public class XiaoqiAbout : MonoBehaviour
         Debug.Log("XQ_ABOUT show active=" + _instance._go.activeInHierarchy + " card=" + _instance._card.rect);
     }
 
+    private void Update()
+    {
+        if (_open && Xiaoqi.Host.PetHost.I != null && !Xiaoqi.Host.PetHost.I.AvatarVisible) Hide();
+    }
+
     public static void Hide()
     {
         _open = false;

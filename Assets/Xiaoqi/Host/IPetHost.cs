@@ -37,6 +37,7 @@ namespace Xiaoqi.Host
 
         bool IsWindowSitting { get; }
         bool IsChibi { get; }
+        bool AvatarVisible { get; }
         void ExitWindowSit();
         void MoveToCenter();
 

@@ -220,6 +220,18 @@ namespace Xiaoqi.Host
 
         public bool IsWindowSitting => _animator != null && _animator.GetBool("isWindowSit");
 
+        public bool AvatarVisible
+        {
+            get
+            {
+                if (_model == null) return false;
+                if (_model.gameObject.activeInHierarchy) return true;
+                foreach (Transform t in _model.transform)
+                    if (t.gameObject.activeInHierarchy) return true;
+                return false;
+            }
+        }
+
         public bool IsChibi
         {
             get
@@ -291,6 +303,16 @@ namespace Xiaoqi.Host
 
         private IEnumerator InitDances()
         {
+            yield return null;
+            var rac0 = _animator != null ? _animator.runtimeAnimatorController : null;
+            if (rac0 != null)
+            {
+                var names = new System.Text.StringBuilder();
+                foreach (var c in rac0.animationClips)
+                    if (c != null && (c.name.ToLower().Contains("dance") || c.name.ToLower().Contains("idle")))
+                        names.Append(c.name).Append(" | ");
+                Debug.Log("XQ_CLIPS " + names);
+            }
             yield return null;
             yield return null;
             _dance = FindFirstObjectByType<AvatarDanceHandler>(FindObjectsInactive.Include);
@@ -364,6 +386,8 @@ namespace Xiaoqi.Host
         public bool RunAction(string id)
         {
             if (string.IsNullOrEmpty(id)) return false;
+            var guard = _animator != null ? _animator.GetComponent<AvatarAnimatorController>() : null;
+            if (guard != null) guard.ignoreClickUntil = Time.unscaledTime + 0.35f;
             if (id == "chibi")
             {
                 var chibi = _model != null ? _model.GetComponentInChildren<ChibiToggle>(true) : null;
@@ -373,7 +397,15 @@ namespace Xiaoqi.Host
             }
             if (id == "unsit") { ExitWindowSit(); return true; }
             if (id == "sit_toggle") { WindowSitEnabled = !WindowSitEnabled; SaveSettings(); return true; }
-            if (id == "walk_toggle") { LocomotionEnabled = !LocomotionEnabled; SaveSettings(); return true; }
+            if (id == "walk_toggle")
+            {
+                LocomotionEnabled = !LocomotionEnabled;
+                SaveSettings();
+                var loco = Resources.FindObjectsOfTypeAll<AvatarLocomotionController>();
+                Debug.Log("XQ_HOST walk=" + LocomotionEnabled + " comps=" + loco.Length
+                          + (loco.Length > 0 ? " enabled=" + loco[0].EnableLocomotion : ""));
+                return true;
+            }
             if (id.StartsWith("dance_") && _animator != null)
             {
                 if (int.TryParse(id.Substring(6), out var di))
@@ -382,7 +414,16 @@ namespace Xiaoqi.Host
                     if (ac != null)
                     {
                         ac.ForceDance(di);
-                        Debug.Log("XQ_HOST dance=" + di);
+                        var rac = _animator.runtimeAnimatorController;
+                        var af = ac.GetType().GetField("animator", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
+                        var acAnim = af != null ? af.GetValue(ac) as Animator : null;
+                        Debug.Log("XQ_HOST anim me=" + _animator.GetInstanceID() + " ac=" + (acAnim != null ? acAnim.GetInstanceID() : 0)
+                                  + " same=" + (acAnim == _animator) + " state=" + _animator.GetCurrentAnimatorStateInfo(0).shortNameHash
+                                  + " speed=" + _animator.speed + " ctrl=" + _animator.runtimeAnimatorController.name);
+                        Debug.Log("XQ_HOST dance=" + di + " ctrl=" + (rac != null ? rac.name : "null")
+                                  + " clips=" + (rac != null ? rac.animationClips.Length : 0)
+                                  + " isDancing=" + _animator.GetBool("isDancing")
+                                  + " idx=" + _animator.GetFloat("DanceIndex"));
                         return true;
                     }
                     Debug.Log("XQ_HOST_MISS AvatarAnimatorController");
