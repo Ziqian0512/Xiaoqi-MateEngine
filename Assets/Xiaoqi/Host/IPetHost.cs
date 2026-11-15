@@ -36,6 +36,7 @@ namespace Xiaoqi.Host
         void SetSleeping(bool on);
 
         bool IsWindowSitting { get; }
+        bool IsChibi { get; }
         void ExitWindowSit();
         void MoveToCenter();
 

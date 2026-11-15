@@ -24,7 +24,7 @@ namespace Xiaoqi.UI
         public const float HoverSec = 0.10f;
         public const float StaggerSec = 0.03f;
 
-        public const int FontCapsule = 15;
+        public const int FontCapsule = 16;
         public const int FontStatus = 13;
         public const int FontCardTitle = 16;
         public const int FontBody = 14;

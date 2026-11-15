@@ -220,6 +220,17 @@ namespace Xiaoqi.Host
 
         public bool IsWindowSitting => _animator != null && _animator.GetBool("isWindowSit");
 
+        public bool IsChibi
+        {
+            get
+            {
+                var chibi = _model != null ? _model.GetComponentInChildren<ChibiToggle>(true) : null;
+                if (chibi == null) return false;
+                var f = chibi.GetType().GetField("isChibi", AnyInstance);
+                return f != null && (bool)f.GetValue(chibi);
+            }
+        }
+
         public void ExitWindowSit()
         {
             var h = FindFirstObjectByType<AvatarWindowHandler>(FindObjectsInactive.Include);

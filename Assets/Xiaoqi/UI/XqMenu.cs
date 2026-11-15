@@ -506,11 +506,13 @@ namespace Xiaoqi.UI
             }
 
             float base0 = baseX;
-            int cols = _sub.Count > 6 ? 2 : 1;
+            int cols = _sub.Count > 8 ? 2 : 1;
             int perCol = Mathf.CeilToInt(_sub.Count / (float)cols);
             float colStep = XqStyle.Fr(160f);
             float half = (perCol - 1) * step * 0.5f;
-            centerY = Mathf.Clamp(centerY, half + XqStyle.Fr(8f), Screen.height - half - XqStyle.Fr(8f));
+            float minY = half + XqStyle.Fr(8f) - _center.y;
+            float maxY = Screen.height - half - XqStyle.Fr(8f) - _center.y;
+            centerY = Mathf.Clamp(centerY, minY, maxY);
 
             for (int i = 0; i < _sub.Count; i++)
             {
@@ -533,12 +535,12 @@ namespace Xiaoqi.UI
                 var rt = s.View.Root;
                 rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
                 rt.pivot = new Vector2(_left ? 1f : 0f, 0.5f);
-                float y = centerY + ((_sub.Count - 1) * 0.5f - i) * step;
+                float y = centerY + ((perCol - 1) * 0.5f - row) * step;
                 s.BasePos = new Vector2(baseX, y);
                 rt.anchoredPosition = s.BasePos;
 
                 rt.localScale = Vector3.one;
-                s.Group.alpha = 0f;
+                s.Group.alpha = 1f;
             }
         }
 
@@ -554,7 +556,7 @@ namespace Xiaoqi.UI
 
         private void SetDim(bool dim)
         {
-            float a = dim ? 0.4f : 1f;
+            float a = dim ? 0.72f : 1f;
             foreach (var s in _slots) s.Group.alpha = a;
             _statusGroup.alpha = a;
         }
@@ -611,8 +613,7 @@ namespace Xiaoqi.UI
 
         private void OnApplicationFocus(bool hasFocus)
         {
-            if (_demoMode) return;
-            if (!hasFocus && _open) Close("focus");
+            // 菜单不再因窗口失焦关闭：宠物窗口经常被鼠标移出就失焦，会误关。
         }
 
         private bool IsPointerOverMenu()
@@ -734,9 +735,7 @@ namespace Xiaoqi.UI
             if (float.IsNaN(c.x) || float.IsNaN(c.y)) return;
             c.x = Mathf.Clamp(c.x, XqStyle.Fr(40f), Screen.width - XqStyle.Fr(40f));
             c.y = Mathf.Clamp(c.y, XqStyle.Fr(20f), Screen.height - XqStyle.Fr(20f));
-            var br = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, Screen.width, Screen.height * 0.45f);
-            float bodyH = br.height > 10f ? br.height : Screen.height * 0.45f;
-            float wantR = Mathf.Clamp(bodyH * 0.55f, XqStyle.Fr(90f), XqStyle.Fr(260f));
+            float wantR = BaseRadius();
             if (Mathf.Abs(wantR - _r) > 2f)
             {
                 _center = c;
@@ -752,15 +751,22 @@ namespace Xiaoqi.UI
             }
         }
 
+        private static float BaseRadius()
+        {
+            float size = PetHost.I != null ? Mathf.Clamp(PetHost.I.Size, 0.75f, 1.4f) : 1f;
+            bool chibi = PetHost.I != null && PetHost.I.IsChibi;
+            return XqStyle.Fr(RadiusPx) * size * (chibi ? 0.6f : 1f);
+        }
+
         private void ApplyVisible()
         {
             _group.alpha = 1f;
-            _statusGroup.alpha = _subKind == "" ? 1f : 0.4f;
+            _statusGroup.alpha = _subKind == "" ? 1f : 0.72f;
             _settingsGroup.alpha = 1f;
             _dotsGroup.alpha = 0.9f;
             foreach (var s in _slots)
             {
-                s.Group.alpha = _subKind == "" ? 1f : 0.4f;
+                s.Group.alpha = _subKind == "" ? 1f : 0.72f;
                 s.View.Root.localScale = Vector3.one;
                 s.View.Root.anchoredPosition = s.BasePos;
             }
@@ -886,9 +892,7 @@ namespace Xiaoqi.UI
         private void Layout()
         {
             float w = Screen.width, h = Screen.height;
-            var bodyRect = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, Screen.width, Screen.height * 0.45f);
-            float bodyH = bodyRect.height > 10f ? bodyRect.height : Screen.height * 0.45f;
-            float R = Mathf.Clamp(bodyH * 0.55f, XqStyle.Fr(90f), XqStyle.Fr(260f));
+            float R = BaseRadius();
             _r = R;
 
             // capsule widths depend on text; measure once
