@@ -224,7 +224,7 @@ public class XiaoqiSettings : MonoBehaviour
         int fpsIdx = Nearest(fpsOpts, host.Fps);
         AddSegmented("帧率", new[] { "30", "60", "90", "144" }, fpsIdx, i => host.Fps = fpsOpts[i]);
         AddSwitch("坐窗口", host.WindowSitEnabled, v => host.WindowSitEnabled = v);
-        AddSwitch("桌面上自己走", host.LocomotionEnabled, v => host.LocomotionEnabled = v);
+        // 撤掉：见 G59-P1-2c。设置页不显示「自己走」；LocomotionEnabled 字段仍在。
 
         Section("陪伴");
         bool hide = XiaoqiRuntime.Config.pet_when_out == "hide";

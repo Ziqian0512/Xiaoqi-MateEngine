@@ -418,7 +418,7 @@ namespace Xiaoqi.Host
             if (chibi != null) _actions.Add(new HostAction { Id = "chibi", Label = chibiOn ? "恢复大小" : "变小" });
             if (IsWindowSitting) _actions.Add(new HostAction { Id = "unsit", Label = "下窗" });
             _actions.Add(new HostAction { Id = "sit_toggle", Label = WindowSitEnabled ? "禁止坐窗口" : "允许坐窗口" });
-            _actions.Add(new HostAction { Id = "walk_toggle", Label = LocomotionEnabled ? "停下脚步" : "自己走" });
+            // 撤掉：见 G59-P1-2c。LocomotionEnabled / enableLocomotion 仍保留，菜单不再露出「自己走 / 停下脚步」。
             _actions.Add(new HostAction { Id = "pose_next", Label = "换个姿势" });
             for (int i = 0; i < 5; i++)
                 _actions.Add(new HostAction { Id = "dance_" + i, Label = "舞 " + (i + 1) });
