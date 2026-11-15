@@ -84,3 +84,6 @@ BuildMate2/
 Assets/StreamingAssets/16.vrm
 Assets/StreamingAssets/16.vrm.meta
 Assets/Xiaoqi/_Private.meta
+
+# 烘焙用的模型副本（87MB，不进 git；需要时从 StreamingAssets 拷）
+Assets/__VrmaBake/16.vrm
