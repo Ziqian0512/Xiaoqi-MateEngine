@@ -19,7 +19,8 @@ namespace Xiaoqi.Spike
         [Serializable] private class Mark { public string at; public int min; public string emo; public float delta; public string note, src; }
         [Serializable] private class Body { public float sleepy, stamina, social; }
 
-        private const bool EnableClickOpen = true;
+        // P1-3c 玻璃今天卡接管单击。这张 uGUI 卡留着当备份，点击不再打开它。
+        private const bool EnableClickOpen = false;
         private const float CardWidth = 360f;
 
         private bool _open;

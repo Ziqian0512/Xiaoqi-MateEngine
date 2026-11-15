@@ -452,3 +452,113 @@
 .xq-entry-soon {
     picking-mode: position;
 }
+
+.xq-today {
+    position: absolute;
+    width: 280px;
+}
+
+.xq-today .xq-body {
+    width: 280px;
+    border-radius: var(--xq-r-card, 22px);
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 16px;
+    padding-right: 16px;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.xq-today-title {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--xq-ink, #3B2F55);
+    -unity-text-align: upper-left;
+    margin-bottom: 2px;
+}
+
+.xq-today-date {
+    font-size: 15px;
+    color: var(--xq-ink-soft, rgba(59, 47, 85, 0.62));
+    -unity-text-align: upper-left;
+    margin-bottom: 8px;
+    white-space: nowrap;
+}
+
+.xq-today-empty {
+    font-size: 15px;
+    color: rgba(59, 47, 85, 0.45);
+    -unity-text-align: upper-left;
+    white-space: normal;
+}
+
+.xq-today-rows {
+    flex-direction: column;
+}
+
+.xq-today-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 10px;
+}
+
+.xq-today-row.xq-past {
+    opacity: 0.4;
+}
+
+.xq-today-row.xq-now {
+    background-color: var(--xq-accent, #FF8FB8);
+}
+
+.xq-today-time {
+    font-size: 15px;
+    color: var(--xq-ink-soft, rgba(59, 47, 85, 0.62));
+    width: 108px;
+    -unity-text-align: middle-left;
+    white-space: nowrap;
+}
+
+.xq-today-name {
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    flex-grow: 1;
+    -unity-text-align: middle-left;
+    white-space: normal;
+}
+
+.xq-today-row.xq-now .xq-today-time,
+.xq-today-row.xq-now .xq-today-name {
+    color: rgb(255, 255, 255);
+}
+
+.xq-today-next {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.88);
+}
+
+.xq-today-kicker {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--xq-accent-ink, #D6477F);
+    margin-right: 8px;
+    white-space: nowrap;
+}
+
+.xq-today-next-line {
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    flex-grow: 1;
+    white-space: normal;
+}

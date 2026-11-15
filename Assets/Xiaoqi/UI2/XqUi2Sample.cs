@@ -150,9 +150,7 @@ namespace Xiaoqi.UI2
             bool over = Hit(_sample);
             PetHost.I?.SetUiBlocksMovement(over);
             GuardWindowDrag(over);
-            if (!Input.GetMouseButtonDown(0)) return;
-            var picked = _root.panel.Pick(RuntimePanelUtils.ScreenToPanel(_root.panel, Input.mousePosition));
-            if (_hud != null && _hud.HitBubble(picked)) _hud.ToggleSay();
+            _hud?.HandlePointer(this);
         }
 
         GameObject SpawnDocument()

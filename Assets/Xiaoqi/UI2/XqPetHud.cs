@@ -44,6 +44,10 @@ namespace Xiaoqi.UI2
         float _chipTarget = 1f;
         float _chipT0;
         bool _chipReady;
+        XqTodayCard _today;
+        bool _armPet;
+        Vector3 _armPos;
+        float _armAt;
         string _say;
         float _sayUntil;
         bool _sayOpen;
@@ -123,6 +127,8 @@ namespace Xiaoqi.UI2
             Root.Add(_ringDetail);
             Root.Add(_entries);
             Root.Add(_gate);
+            _today = new XqTodayCard();
+            _today.Build(Root);
             parent.Add(Root);
 
             XiaoqiLink.OnStage += _ => Refresh();
@@ -152,6 +158,50 @@ namespace Xiaoqi.UI2
             _sayOpen = !_sayOpen;
             Bubble.EnableInClassList("xq-open", _sayOpen);
             NoteOperation();
+        }
+
+        public void HandlePointer(MonoBehaviour host)
+        {
+            if (Root == null || Root.panel == null || _today == null) return;
+            var picked = Root.panel.Pick(RuntimePanelUtils.ScreenToPanel(Root.panel, Input.mousePosition));
+            if (_today.IsOpen && Input.GetKeyDown(KeyCode.Escape)) _today.Close();
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (HitBubble(picked)) ToggleSay();
+                bool chrome = BlocksChrome(picked);
+                bool onHer = OnBody() && !chrome;
+                if (_today.IsOpen)
+                {
+                    if (_today.Hit(picked)) _today.Close();
+                    else if (!chrome && !onHer) _today.Close();
+                }
+                _armPet = onHer;
+                _armPos = Input.mousePosition;
+                _armAt = Time.unscaledTime;
+            }
+            if (Input.GetMouseButtonUp(0) && _armPet)
+            {
+                _armPet = false;
+                float moved = Vector2.Distance(Input.mousePosition, _armPos);
+                bool click = Time.unscaledTime - _armAt <= 0.35f && moved <= 8f;
+                if (!click) return;
+                if (_today.IsOpen) _today.Close();
+                else _today.Open(host);
+            }
+        }
+
+        bool BlocksChrome(VisualElement picked)
+        {
+            return Inside(Bubble, picked) || Inside(_next, picked) || Inside(_here, picked)
+                || Inside(_ringHost, picked) || Inside(_ringDetail, picked) || Inside(_gate, picked)
+                || Inside(_entries, picked) || Inside(_quiet, picked)
+                || (_today != null && _today.Hit(picked));
+        }
+
+        static bool OnBody()
+        {
+            var r = Body();
+            return r.width > 2f && r.height > 2f && r.Contains((Vector2)Input.mousePosition);
         }
 
         void OnSay(string text)
@@ -437,6 +487,28 @@ namespace Xiaoqi.UI2
                 _gate.style.opacity = showGate ? 1f : 0f;
                 _gate.style.display = showGate ? DisplayStyle.Flex : DisplayStyle.None;
             }
+            PlaceToday(panel, r, scale);
+        }
+
+        void PlaceToday(IPanel panel, Rect body, float scale)
+        {
+            if (_today == null || !_today.IsOpen || _today.Root == null) return;
+            var card = _today.Root;
+            float cw = Width(card, 280f * scale);
+            float ch = Height(card, 180f * scale);
+            float left = body.xMin - 16f * scale - cw;
+            float bottom = body.center.y - ch * 0.5f;
+            var p = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(left, bottom + ch));
+            var origin = RuntimePanelUtils.ScreenToPanel(panel, Vector2.zero);
+            var span = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(cw, ch));
+            float pw = Mathf.Abs(span.x - origin.x);
+            float ph = Mathf.Abs(span.y - origin.y);
+            float limitW = Root != null ? Root.worldBound.width : 0f;
+            float limitH = Root != null ? Root.worldBound.height : 0f;
+            if (limitW > 16f) p.x = Mathf.Clamp(p.x, 8f, Mathf.Max(8f, limitW - pw - 8f));
+            if (limitH > 16f) p.y = Mathf.Clamp(p.y, 8f, Mathf.Max(8f, limitH - ph - 8f));
+            card.style.left = p.x;
+            card.style.top = p.y;
         }
 
         static void KeepOffFace(IPanel panel, VisualElement el, Rect body, float H)
