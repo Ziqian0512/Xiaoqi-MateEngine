@@ -19,6 +19,20 @@ namespace Xiaoqi.UI
         public static readonly Color GrayText = Hex("B4B2A9");
         public static readonly Color ShadowColor = new Color(0f, 0f, 0f, 0.10f);
 
+        // 主题 A：胶囊的描边 / 柔和投影 / 按下缩放，以及主次文字层级。
+        public static readonly Color ShadowSoft = new Color(0.29f, 0.09f, 0.16f, 0.15f);
+        public static readonly Color TextPrimary = Ink;
+        public static readonly Color TextSecondary = InkSoft;
+        public static readonly Color TextTertiary = Muted;
+        public static readonly Color TextDisabled = GrayText;
+
+        public const float StrokeWidth = 1f;
+        public const float PressScale = 0.96f;
+        public const float ShadowBlur = 6f;
+        public const float ShadowOffsetY = 1.5f;
+        public const float ShadowSpread = 3f;
+        public const float CapsuleRadius = 18f;
+
         public const float InSec = 0.18f;
         public const float OutSec = 0.12f;
         public const float HoverSec = 0.10f;

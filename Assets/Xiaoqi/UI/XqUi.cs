@@ -17,6 +17,31 @@ namespace Xiaoqi.UI
         public void OnPointerClick(PointerEventData e) => OnClick?.Invoke();
     }
 
+    /// <summary>主题 A：按下轻微内缩（视觉反馈，不改变任何点击逻辑）。</summary>
+    public class XqPress : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+    {
+        private Vector3 _base = Vector3.one;
+        private bool _down;
+
+        private void Release()
+        {
+            if (!_down) return;
+            _down = false;
+            transform.localScale = _base;
+        }
+
+        public void OnPointerDown(PointerEventData e)
+        {
+            _base = transform.localScale;
+            _down = true;
+            transform.localScale = _base * XqStyle.PressScale;
+        }
+
+        public void OnPointerUp(PointerEventData e) => Release();
+        public void OnPointerExit(PointerEventData e) => Release();
+        private void OnDisable() => Release();
+    }
+
     /// <summary>G55 §3.4：纯代码 uGUI 控件。尺寸都按 XqStyle.Scale 放大。</summary>
     public static class XqUi
     {
@@ -60,25 +85,35 @@ namespace Xiaoqi.UI
 
         // ------------------------------------------------------------ sprites
 
-        public static Sprite Round(Color fill, Color line, float radiusPx)
+        /// <summary>填充 + 内侧描边（strokePx 为描边像素宽），抗锯齿由 0.5px 覆盖率给出。</summary>
+        private static Color32 Shade(Color fill, Color line, float d, float stroke)
         {
-            string key = "r" + ColorKey(fill) + ColorKey(line) + Mathf.RoundToInt(radiusPx * 10);
+            float shape = Mathf.Clamp01(-d + 0.5f);
+            float inner = stroke <= 0f ? shape : Mathf.Clamp01(-(d + stroke) + 0.5f);
+            float ring = Mathf.Max(0f, shape - inner);
+            float fw = inner * fill.a, lw = ring * line.a;
+            float sum = fw + lw;
+            if (sum <= 0.0001f) return new Color32(0, 0, 0, 0);
+            Color c = (fill * fw + line * lw) / sum;
+            c.a = Mathf.Clamp01(Mathf.Max(fw, lw));
+            return c;
+        }
+
+        public static Sprite Round(Color fill, Color line, float radiusPx, float strokePx = 1.5f)
+        {
+            string key = "r" + ColorKey(fill) + ColorKey(line) + Mathf.RoundToInt(radiusPx * 10)
+                         + "s" + Mathf.RoundToInt(strokePx * 10);
             if (Sprites.TryGetValue(key, out var s)) return s;
             const int size = 64;
             int r = Mathf.Clamp(Mathf.RoundToInt(radiusPx), 2, 30);
+            float stroke = Mathf.Max(0f, strokePx);
             var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
             var px = new Color32[size * size];
             for (int y = 0; y < size; y++)
             for (int x = 0; x < size; x++)
             {
                 float d = RoundRectDist(x + 0.5f, y + 0.5f, size, size, r);
-                float inside = Mathf.Clamp01(-d + 0.5f);
-                float border = Mathf.Clamp01(-Mathf.Abs(d) + 0.75f);
-                Color c = Color.Lerp(fill, line, border);
-                float a = Mathf.Lerp(0f, fill.a, inside);
-                if (border > 0f) a = Mathf.Max(a, Mathf.Lerp(0f, line.a, border));
-                px[y * size + x] = c * 1f;
-                px[y * size + x].a = (byte)(Mathf.Clamp01(a) * 255f);
+                px[y * size + x] = Shade(fill, line, d, stroke);
             }
             tex.SetPixels32(px);
 tex.Apply();
@@ -91,25 +126,21 @@ tex.Apply();
         }
 
         /// <summary>整块精确尺寸的胶囊贴图（不用九宫格，圆角不会被拉方）。</summary>
-        public static Sprite Pill(int w, int h, Color fill, Color line)
+        public static Sprite Pill(int w, int h, Color fill, Color line, float strokePx = 1f)
         {
             w = Mathf.Max(8, w);
             h = Mathf.Max(8, h);
-            string key = "p" + w + "x" + h + ColorKey(fill) + ColorKey(line);
+            string key = "p" + w + "x" + h + ColorKey(fill) + ColorKey(line) + "s" + Mathf.RoundToInt(strokePx * 10);
             if (Sprites.TryGetValue(key, out var s)) return s;
             var tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
             var px = new Color32[w * h];
             float r = h * 0.5f - 1f;
+            float stroke = Mathf.Max(0f, strokePx);
             for (int y = 0; y < h; y++)
             for (int x = 0; x < w; x++)
             {
                 float d = RoundRectDist(x + 0.5f, y + 0.5f, w, h, r);
-                float inside = Mathf.Clamp01(-d + 0.5f);
-                float border = Mathf.Clamp01(-Mathf.Abs(d + 0.6f) + 0.9f);
-                Color c = Color.Lerp(fill, line, border);
-                float a = Mathf.Max(fill.a * inside, line.a * border);
-                c.a = a;
-                px[y * w + x] = c;
+                px[y * w + x] = Shade(fill, line, d, stroke);
             }
             tex.SetPixels32(px);
 tex.Apply();
@@ -120,27 +151,30 @@ tex.Apply();
             return s;
         }
 
+        /// <summary>柔和外投影蒙版（白色 + 渐隐 alpha，颜色由 Image.color 给）。</summary>
         public static Sprite Shadow(float radiusPx)
         {
-            string key = "sh" + Mathf.RoundToInt(radiusPx);
+            string key = "sh" + Mathf.RoundToInt(radiusPx) + "b" + Mathf.RoundToInt(XqStyle.ShadowBlur * 10);
             if (Sprites.TryGetValue(key, out var s)) return s;
             const int size = 64;
             int r = Mathf.Clamp(Mathf.RoundToInt(radiusPx), 2, 28);
+            float blur = Mathf.Max(1f, XqStyle.ShadowBlur);
             var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
             var px = new Color32[size * size];
             for (int y = 0; y < size; y++)
             for (int x = 0; x < size; x++)
             {
                 float d = RoundRectDist(x + 0.5f, y + 0.5f, size, size, r);
-                float a = Mathf.Clamp01(1f - d / 8f) * 0.10f;
-                px[y * size + x] = new Color32(0, 0, 0, (byte)(a * 255f));
+                float a = Mathf.Clamp01(1f - d / blur);
+                a *= a;
+                px[y * size + x] = new Color32(255, 255, 255, (byte)(a * 255f));
             }
             tex.SetPixels32(px);
 tex.Apply();
             tex.wrapMode = TextureWrapMode.Clamp;
             tex.filterMode = FilterMode.Bilinear;
             s = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f, 0,
-                SpriteMeshType.FullRect, new Vector4(10, 10, 10, 10));
+                SpriteMeshType.FullRect, new Vector4(12, 12, 12, 12));
             Sprites[key] = s;
             return s;
         }
@@ -211,7 +245,20 @@ tex.Apply();
         public static CapsuleView Capsule(Transform parent, string text, Action onClick = null, bool dark = false)
         {
             var rt = Node(parent, "Capsule");
-            var bg = Panel(rt, Round(XqStyle.Paper, XqStyle.PinkLine, 18f), Color.white);
+
+            // 主题 A：柔和投影（比本体略外扩、略下沉，跟着胶囊尺寸走）。
+            var shadowRt = Node(rt, "Shadow");
+            shadowRt.anchorMin = Vector2.zero;
+            shadowRt.anchorMax = Vector2.one;
+            shadowRt.offsetMin = new Vector2(-XqStyle.Fr(XqStyle.ShadowSpread),
+                -XqStyle.Fr(XqStyle.ShadowSpread) - XqStyle.Fr(XqStyle.ShadowOffsetY));
+            shadowRt.offsetMax = new Vector2(XqStyle.Fr(XqStyle.ShadowSpread),
+                XqStyle.Fr(XqStyle.ShadowSpread) - XqStyle.Fr(XqStyle.ShadowOffsetY));
+            var shadow = Panel(shadowRt, Shadow(XqStyle.CapsuleRadius), XqStyle.ShadowSoft);
+            shadow.raycastTarget = false;
+
+            var bg = Panel(rt, Round(XqStyle.Paper, XqStyle.PinkLine, XqStyle.CapsuleRadius, XqStyle.StrokeWidth),
+                Color.white);
             bg.raycastTarget = true;
 
             var hoverRt = Node(rt, "HoverBg");
@@ -219,10 +266,12 @@ tex.Apply();
             hoverRt.anchorMax = Vector2.one;
             hoverRt.offsetMin = Vector2.zero;
             hoverRt.offsetMax = Vector2.zero;
-            var hoverImg = Panel(hoverRt, Round(XqStyle.PinkFill, XqStyle.PinkStrong, 18f), new Color(1f, 1f, 1f, 0f));
+            var hoverImg = Panel(hoverRt, Round(XqStyle.PinkFill, XqStyle.PinkStrong, XqStyle.CapsuleRadius,
+                XqStyle.StrokeWidth), new Color(1f, 1f, 1f, 0f));
             hoverImg.raycastTarget = false;
 
-            var t = Label(rt, text, XqStyle.FontCapsule, dark ? XqStyle.GrayText : XqStyle.Ink, TextAnchor.MiddleCenter, 0f);
+            var t = Label(rt, text, XqStyle.FontCapsule, dark ? XqStyle.TextDisabled : XqStyle.TextPrimary,
+                TextAnchor.MiddleCenter, 0f);
             t.rectTransform.anchorMin = Vector2.zero;
             t.rectTransform.anchorMax = Vector2.one;
             t.rectTransform.offsetMin = new Vector2(XqStyle.Fr(18f), 0f);
@@ -234,6 +283,7 @@ tex.Apply();
 
             var hover = rt.gameObject.AddComponent<XqHover>();
             if (onClick != null) hover.OnClick = onClick;
+            rt.gameObject.AddComponent<XqPress>();
 
             return new CapsuleView { Root = rt, Bg = bg, HoverBg = hoverImg, Text = t, Hover = hover };
         }
@@ -327,8 +377,9 @@ tex.Apply();
 
         private static void Apply(bool on, CapsuleView v)
         {
-            v.Bg.sprite = Round(on ? XqStyle.PinkFill : XqStyle.Paper, on ? XqStyle.PinkStrong : XqStyle.PinkLine, 18f);
-            v.Text.color = on ? XqStyle.PinkStrong : XqStyle.Ink;
+            v.Bg.sprite = Round(on ? XqStyle.PinkFill : XqStyle.Paper, on ? XqStyle.PinkStrong : XqStyle.PinkLine,
+                XqStyle.CapsuleRadius, on ? XqStyle.StrokeWidth * 1.5f : XqStyle.StrokeWidth);
+            v.Text.color = on ? XqStyle.PinkStrong : XqStyle.TextPrimary;
         }
 
         public static SegmentedView Segmented(Transform parent, string[] options, int index, Action<int> onChange)
@@ -351,7 +402,8 @@ tex.Apply();
                 var cap = Capsule(rt, options[i], null);
                 cap.Hover.OnClick = () => view.SetIndex(idx);
                 var cw = cap.Root.gameObject.GetComponent<LayoutElement>();
-                var textWidth = options[i].Length * XqStyle.FontCapsule * XqStyle.Scale * 1.0f + XqStyle.Fr(34f);
+                var textWidth = options[i].Length * XqStyle.FontCapsule * XqStyle.Scale * 1.0f
+                                + XqStyle.Fr(2f * XqStyle.CapsulePadX + 2f);
                 cw.preferredWidth = Mathf.Max(XqStyle.Fr(52f), textWidth);
                 view.Items.Add(cap);
                 Apply(i == index, cap);

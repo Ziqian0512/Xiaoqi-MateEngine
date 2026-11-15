@@ -173,8 +173,8 @@ namespace Xiaoqi.UI
 
             _status = XqUi.Capsule(_root, "", null);
             _statusGroup = _status.Root.gameObject.AddComponent<CanvasGroup>();
-            _status.Bg.sprite = XqUi.Round(XqStyle.PinkFill, XqStyle.PinkFill, 16f);
-            _status.Text.color = XqStyle.InkSoft;
+            _status.Bg.sprite = XqUi.Round(XqStyle.PinkFill, XqStyle.PinkGuide, XqStyle.CapsuleRadius, XqStyle.StrokeWidth);
+            _status.Text.color = XqStyle.TextSecondary;
             _status.Text.fontSize = XqStyle.Px(XqStyle.FontStatus);
             _status.Bg.raycastTarget = true;
             _status.Hover.OnClick = () => { Close("action"); Xiaoqi.Spike.TodayCard.DebugOpen(); };
@@ -221,13 +221,11 @@ namespace Xiaoqi.UI
             };
             if (gray)
             {
-                cap.Bg.sprite = XqUi.Round(XqStyle.GrayFill, XqStyle.GrayLine, 18f);
-                cap.Text.color = XqStyle.GrayText;
+                cap.Bg.sprite = XqUi.Round(XqStyle.GrayFill, XqStyle.GrayLine, XqStyle.CapsuleRadius, XqStyle.StrokeWidth);
+                cap.Text.color = XqStyle.TextDisabled;
             }
             cap.Hover.OnEnter = () => OnEnter(slot);
             cap.Hover.OnExit = () => OnExit(slot);
-            cap.Hover.OnDown = () => cap.Root.localScale = Vector3.one * 0.96f;
-            cap.Hover.OnUp = () => cap.Root.localScale = Vector3.one;
             cap.Hover.OnClick = () =>
             {
                 if (slot.Gray) { Debug.Log("XQ_MENU gray " + slot.Id); return; }
@@ -470,11 +468,9 @@ namespace Xiaoqi.UI
             var cap = XqUi.Capsule(_root, label, null);
             var grp = cap.Root.gameObject.AddComponent<CanvasGroup>();
             var slot = new Slot { Id = "sub", Text = label, View = cap, Group = grp, Gray = gray, Hint = hint, Act = act };
-            if (gray) cap.Text.color = XqStyle.GrayText;
+            if (gray) cap.Text.color = XqStyle.TextDisabled;
             cap.Hover.OnEnter = () => OnEnter(slot);
             cap.Hover.OnExit = () => OnExit(slot);
-            cap.Hover.OnDown = () => cap.Root.localScale = Vector3.one * 0.96f;
-            cap.Hover.OnUp = () => cap.Root.localScale = Vector3.one;
             cap.Hover.OnClick = () =>
             {
                 if (slot.Gray) { Debug.Log("XQ_MENU gray sub"); return; }
@@ -970,7 +966,7 @@ namespace Xiaoqi.UI
             float sw = Mathf.Max(XqStyle.Fr(120f), statusW);
             float sh = XqStyle.Fr(28f);
             _status.Root.sizeDelta = new Vector2(sw, sh);
-            _status.Bg.sprite = XqUi.Pill(Mathf.RoundToInt(sw), Mathf.RoundToInt(sh), XqStyle.PinkFill, XqStyle.PinkFill);
+            _status.Bg.sprite = XqUi.Pill(Mathf.RoundToInt(sw), Mathf.RoundToInt(sh), XqStyle.PinkFill, XqStyle.PinkGuide);
             _status.Bg.type = Image.Type.Simple;
             _status.Bg.color = Color.white;
 

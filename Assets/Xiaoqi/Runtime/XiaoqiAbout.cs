@@ -116,7 +116,7 @@ public class XiaoqiAbout : MonoBehaviour
     private void AddButton(string label, ref float y, Action onClick)
     {
         var cap = XqUi.Capsule(_card, label, null);
-        float w = XqStyle.Fr(200f);
+        float w = XqStyle.Fr(216f);
         var rt = cap.Root;
         rt.anchorMin = rt.anchorMax = new Vector2(0f, 1f);
         rt.pivot = new Vector2(0f, 1f);
