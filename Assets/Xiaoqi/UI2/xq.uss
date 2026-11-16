@@ -80,13 +80,12 @@
 }
 
 .xq-body {
-    background-color: var(--xq-accent, #FF8FB8);
+    background-color: rgba(255, 255, 255, 0.82);
     border-width: 1px;
-    border-color: rgba(255, 255, 255, 0.8);
+    border-color: rgba(255, 255, 255, 0.88);
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
 }
 
 .xq-bubble .xq-body {
@@ -119,6 +118,7 @@
 }
 
 .xq-glass {
+    display: none;
     position: absolute;
     left: 0;
     top: 0;

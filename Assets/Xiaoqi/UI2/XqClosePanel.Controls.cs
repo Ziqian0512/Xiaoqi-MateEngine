@@ -65,6 +65,8 @@ namespace Xiaoqi.UI2
                 try
                 {
                     e.StopPropagation();
+                    if (_lastClickFrame == Time.frameCount) return;
+                    _lastClickFrame = Time.frameCount;
                     Debug.Log("XQ_CLOSE btn pet");
                     XqMode.Set(XqView.Pet);
                 }

@@ -32,6 +32,54 @@ namespace Xiaoqi.UI2
         float _animT;
         float _u = 1f;
         bool _scheduled;
+        bool _benchHover;
+        int _lastClickFrame = -1;
+
+        public static bool OverAny()
+        {
+            return _inst != null && _inst._shown && _inst.OverAnySelf();
+        }
+
+        bool OverAnySelf()
+        {
+            return OverEl(_rail) || OverEl(_plate) || OverEl(_btnPet) || OverEl(_btnBench)
+                || OverEl(_cardNext) || OverEl(_cardEnergy) || OverEl(_cardSay) || OverEl(_cardTiny) || OverEl(_ringFocus);
+        }
+
+        bool OverEl(VisualElement el)
+        {
+            if (el == null || _host == null || _host.panel == null) return false;
+            if (el.resolvedStyle.display == DisplayStyle.None || !el.visible) return false;
+            var r = el.worldBound;
+            if (float.IsNaN(r.x) || r.width < 1f || r.height < 1f) return false;
+            var m = Input.mousePosition;
+            var p0 = RuntimePanelUtils.ScreenToPanel(_host.panel, m);
+            float sc = Mathf.Max(0.1f, Screen.height / Mathf.Max(1f, _host.worldBound.height));
+            var p1 = new Vector2(m.x / sc, (Screen.height - m.y) / sc);
+            return r.Contains(p0) || r.Contains(p1);
+        }
+
+        void TickPointer()
+        {
+            if (!_shown || _host == null || _host.panel == null) return;
+            bool hb = OverEl(_btnBench);
+            if (hb != _benchHover)
+            {
+                _benchHover = hb;
+                if (_tipBench != null) _tipBench.EnableInClassList("on", hb);
+                Debug.Log("XQ_CLOSE bench-hover=" + hb);
+            }
+            if (Input.GetMouseButtonDown(0) && _lastClickFrame != Time.frameCount)
+            {
+                if (OverEl(_btnPet)) { _lastClickFrame = Time.frameCount; Debug.Log("XQ_CLOSE btn pet"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet); return; }
+                if (OverEl(_ringFocus)) { _lastClickFrame = Time.frameCount; Pair("ring placeholder"); return; }
+                if (OverEl(DotByWord("♥"))) { _lastClickFrame = Time.frameCount; Pair("rail pet"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet); return; }
+                if (OverEl(DotByWord("今"))) { _lastClickFrame = Time.frameCount; Focus(_cardNext); return; }
+                if (OverEl(DotByWord("话"))) { _lastClickFrame = Time.frameCount; Focus(_cardSay); return; }
+                if (OverEl(DotByWord("待"))) { _lastClickFrame = Time.frameCount; Pair("todo placeholder"); return; }
+                if (OverEl(DotByWord("设"))) { _lastClickFrame = Time.frameCount; Pair("settings not in this branch"); return; }
+            }
+        }
 
         void AnimAdd(VisualElement el, int order, Vector2 off)
         {
@@ -96,13 +144,24 @@ namespace Xiaoqi.UI2
             if (_animMode == 0) return;
             if (_host == null || _host.panel == null) return;
 
+            TickPointer();
             _animT += Time.unscaledDeltaTime;
 
             if (_animMode == 1)
             {
                 ApplyEnter(_animT);
                 float total = EnterTotal();
-                if (_animT >= total) { _animMode = 2; Pair("anim settled"); }
+                if (_animT >= total)
+                {
+                    _animMode = 2;
+                    Pair("anim settled");
+                    if (_data != null)
+                    {
+                        _data.Shot("settled.png", 0.4f);
+                        if (Array.IndexOf(Environment.GetCommandLineArgs(), "-xq-close-ui-test") >= 0)
+                            _data.StartCoroutine(RunUiTest());
+                    }
+                }
             }
             else if (_animMode == 2)
             {
@@ -191,6 +250,44 @@ namespace Xiaoqi.UI2
                 el.style.opacity = 1f;
                 el.style.scale = new Scale(Vector3.one);
                 el.style.translate = new Translate(0f, 0f, 0f);
+            }
+        }
+
+        System.Collections.IEnumerator RunUiTest()
+        {
+            yield return new WaitForSecondsRealtime(1.0f);
+            if (_tipBench != null) { _tipBench.EnableInClassList("on", true); Debug.Log("XQ_CLOSE bench-hover=True"); }
+            if (_data != null) _data.Shot("tip-bench.png", 0.15f);
+            yield return new WaitForSecondsRealtime(0.4f);
+            if (_tipBench != null) { _tipBench.EnableInClassList("on", false); Debug.Log("XQ_CLOSE bench-hover=False"); }
+
+            Focus(_cardNext);
+            if (_data != null) _data.Shot("focus-next-on.png", 0.35f);
+            yield return new WaitForSecondsRealtime(0.55f);
+            Focus(_cardNext);
+            yield return new WaitForSecondsRealtime(0.35f);
+
+            Focus(_cardSay);
+            if (_data != null) _data.Shot("focus-say-on.png", 0.35f);
+            yield return new WaitForSecondsRealtime(0.55f);
+            Focus(_cardSay);
+            yield return new WaitForSecondsRealtime(0.35f);
+
+            Pair("todo placeholder");
+            Pair("settings not in this branch");
+            Pair("ring placeholder");
+            yield return new WaitForSecondsRealtime(0.3f);
+
+            var a = Environment.GetCommandLineArgs();
+            if (Array.IndexOf(a, "-xq-exit-heart") >= 0)
+            {
+                Pair("rail pet");
+                Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet);
+            }
+            else if (Array.IndexOf(a, "-xq-exit-btn") >= 0)
+            {
+                Debug.Log("XQ_CLOSE btn pet");
+                Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet);
             }
         }
     }
