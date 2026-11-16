@@ -52,3 +52,8 @@
 - **不能用 `AnimatorOverrideController` 偷换剪辑**：`AvatarDancePlayer`（第 690–697 行）自己会把 Animator 的控制器换成 override，两边打架。
 - **`XQ_CLIPS` 日志只打印名字含 `dance` / `idle` 的剪辑**（`MeHost.InitDances`），它不是完整清单。完整清单看 `95d973d5:app/desk/web/anim/index.tsv`（125 条）或 `XqClipSheet` 的 `clips.csv`。
 - 另外 `Assets/MATE ENGINE - Scripts/CustomVRM.prefab` 引用的是旧的 `AvatarAnimatorController.controller`；运行时加载的 VRM 具体用哪份，B3 编译后看 `XQ_IDLE bound` 日志与 `XQ_CLIPS` 对照（旧版没有 `isEating`/`WalkLeft` 等参数）。
+
+## 9. 设置页要不要撑大窗口（WB 11-16 判断）
+
+- INORI02 上她的窗口 884×520。D1 的 `XqSettingsPanel.Place()` 把面板高度夹到 `Screen.height - 20`（约 500），宽按 610:492 取约 620，窗口放得下。样式稿的设计高度本来就是 492，所以**不需要为设置页临时撑大窗口**，只是比 G59 写的「屏高 70%」小。
+- 因此不写撑窗口/还原窗口的代码（撑窗口会改相机取景、她的大小，风险大于收益）。若屏幕前验收发现面板被裁或字太小，再回头定。
