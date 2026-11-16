@@ -22,8 +22,8 @@
 | P1-4b | 停轮换 + IdleDirector | 已写，未编 | 见下（B3） | `IdleDirector` + `XqPoseBlend`（骨骼姿势淡入，不滑过中间编号）；`IDLE_SWITCH_TIME=1e9`；池默认前 10 槽 | 无 | |
 | P1-4c | BodyDirector + brain.log + 悬停 | 已写，未编 | 见下（B3） | `BodyDirector` / `BrainLog` / `XqHoverReact`；验收用 `-xq-brain-fast` | 无 | |
 | P1-4d | 接服务器意图 | 代码已写 `[未编]` | `xiaoqi/p1` | 批次 B7：`XqStageBody` + PetPresence 不再被每次 poll 冲掉；见 INTENT-MAP-DRAFT §8 | — | |
-| P1-5a | 设置页壳 + 行为页 | 未开始 | — | 批次 B4 | — | |
-| P1-5b | 其余 5 页 | 未开始 | — | 批次 B5 | — | |
+| P1-5a | 设置页壳 + 行为页 | 已写，未编（DeepSeek 分支 `xiaoqi/b4-deepseek`）| D1/D2 | 6 页框架 + 行为/外观/显示；WB 审查通过 | 7 处 `TODO(编译员)` 见 B4-REPORT | |
+| P1-5b | 其余 3 页 + 入口 | 已写，未编（同上，D3/D4 `863d577d`）| D3/D4 | 声音/连接/关于 + `XiaoqiSettings.Open()` 入口（默认关，`settings_v2` 或 `-settings-v2`）+ `ApplyOnStart`；启动接线在 `xiaoqi/int-d1`（`XiaoqiSystems.ApplySettingsOnStart`，仅新页启用时），随 b4 合并进 p1 一起带 | 无 | |
 | P1-6 | 托盘与三个状态变体 | 未开始 | — | 批次 B6 | — | |
 | P1-7 | 验收包与回归 | 未开始 | — | 批次 B8 | — | |
 
@@ -35,8 +35,8 @@
 | B1 | 编译验收 | 编译员（Grok 远程 Inori02）| **进行中**：编译 + 冒烟已过（`a73dd06`，见 evidence/a73dd06-inori02/）；截图全黑无效；人工验收 8 项未做 |
 | B2 | P1-4a 映射草案 | WB | 主人已确认 |
 | B3 | P1-4b/c | WB | 代码已写 `[未编]`，等编译（`xiaoqi/int-d1`）|
-| B4 | P1-5a | 同上 | 等 B1 |
-| B5 | P1-5b | 同上 | 等 B4 |
+| B4 | P1-5a | DeepSeek | 代码完成未编，WB 审查通过 |
+| B5 | P1-5b | DeepSeek | 代码完成未编，WB 审查通过 |
 | B6 | P1-6 | 同上 | 等 B4 |
 | B7 | P1-4d | 同上 | 代码已写 `[未编]`（在 `xiaoqi/p1`），等编译 |
 | B8 | P1-7 | 编译员 | 等 B3–B7 |
