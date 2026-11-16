@@ -9,8 +9,9 @@ namespace Xiaoqi.UI2
     /// XqClosePanel 的 3b 部分：② 下一件事卡、③ 精力卡、④ 她说卡、⑤ 今日小事卡、⑥ 一起专注圆环。
     /// 位置尺寸见 XqCloseLayout；玻璃结构沿用 xq.uss 的 xq-body / xq-glass / xq-hi。
     ///
-    /// 本阶段（3b）只搭样子：②③④ 显示灰字「还没有」（P2-5 才接 stage / day / feed），
-    /// ⑤ 按 P2 文档 §3.3 整张标「占位」并写死示例，⑥ 灰色、点了没反应、标「占位」。
+    /// ⑤ 按 §3.3 整张标「占位」并写死示例（服务器没有这些字段），
+    /// ⑥ 灰色、点击无反应、标「占位」（服务器没有这个功能）。
+    /// ②③④ 由 XqClosePanel.Bind.cs 填内容，本文件只把结构和引用备好。
     /// 不加 xq-shadow：§6 的顺序铁律是先确认全屏窗口里的穿透（卡片上能点、旁边透明处
     /// 透到记事本）依然成立，再补阴影。
     /// </summary>
@@ -20,36 +21,55 @@ namespace Xiaoqi.UI2
         VisualElement _bodyNext, _bodyEnergy, _bodySay, _bodyTiny;
         Label _ringWord;
 
+        // ② 下一件事：大字时间 + 小字事项
+        Label _nextTime, _nextWhat;
+        // ③ 精力：圆环 + 一个词
+        XqArc _energyArc;
+        Label _energyWord;
+        // ④ 她说：整句
+        Label _sayText;
+
         // 字号要跟着 u 走的三类文本，建的时候直接存下来，不在运行时遍历树
         readonly List<Label> _kickers = new List<Label>();
         readonly List<Label> _marks = new List<Label>();
         readonly List<Label> _texts = new List<Label>();
+        readonly List<Label> _bigs = new List<Label>();
 
-        // ⑤ 占位折线的写死示例值（0–1），P2-5 之前不接任何数据
+        // ⑤ 占位折线的写死示例值（0–1），服务器没这个字段，不接数据
         static readonly float[] TinyDemo = { 0.28f, 0.46f, 0.34f, 0.62f, 0.55f, 0.78f, 0.70f };
 
         void BuildCards()
         {
-            // ② 下一件事
+            // ② 下一件事：大字时间 + 小字事项 + 地点
             _cardNext = CardShell("xq-cl-card-next", false, "xq-close-card-next", out _bodyNext);
             _bodyNext.Add(Kicker("下一件事"));
-            // 3b 没接 stage/next，先给灰字「还没有」；P2-5 接上后，有数据才显示
-            // 时间 + 事项 + 地点，「今天没有更多安排」只用于「接口通但没有后续安排」。
-            _bodyNext.Add(Empty("还没有"));
+            _nextTime = Big("");
+            _bodyNext.Add(_nextTime);
+            _nextWhat = Text("还没有");
+            _bodyNext.Add(_nextWhat);
             Add("card-next", XqCloseLayout.NextL, XqCloseLayout.NextT,
                 XqCloseLayout.NextW, XqCloseLayout.NextH);
 
-            // ③ 精力（圆环 + 一个词，P2-5 再画圆环）
+            // ③ 精力：圆环 + 一个词
             _cardEnergy = CardShell("xq-cl-card-energy", false, "xq-close-card-energy", out _bodyEnergy);
             _bodyEnergy.Add(Kicker("精力"));
-            _bodyEnergy.Add(Empty("还没有"));
+            var energyRow = new VisualElement { pickingMode = PickingMode.Ignore };
+            energyRow.AddToClassList("xq-cl-row-left");
+            _energyArc = new XqArc();
+            _energyArc.AddToClassList("xq-cl-arc");
+            energyRow.Add(_energyArc);
+            _energyWord = Text("还没有");
+            energyRow.Add(_energyWord);
+            _bodyEnergy.Add(energyRow);
             Add("card-energy", XqCloseLayout.EnergyL, XqCloseLayout.EnergyT,
                 XqCloseLayout.EnergyW, XqCloseLayout.EnergyH);
 
-            // ④ 她说（强调版玻璃）
+            // ④ 她说（强调版玻璃）：整句完整显示
             _cardSay = CardShell("xq-cl-card-say", true, "xq-close-card-say", out _bodySay);
             _bodySay.Add(Kicker("她说"));
-            _bodySay.Add(Empty("还没有", "xq-cl-say-text"));
+            _sayText = Text("还没有");
+            _sayText.AddToClassList("xq-cl-say-text");
+            _bodySay.Add(_sayText);
             Add("card-say", XqCloseLayout.SayL, XqCloseLayout.SayT,
                 XqCloseLayout.SayW, XqCloseLayout.SayH);
 
@@ -121,25 +141,19 @@ namespace Xiaoqi.UI2
             return l;
         }
 
-        Label Empty(string word)
-        {
-            return Empty(word, null);
-        }
-
-        Label Empty(string word, string extra)
-        {
-            var l = new Label(word) { pickingMode = PickingMode.Ignore };
-            l.AddToClassList("xq-cl-empty");
-            if (!string.IsNullOrEmpty(extra)) l.AddToClassList(extra);
-            _texts.Add(l);
-            return l;
-        }
-
         Label Text(string word)
         {
             var l = new Label(word) { pickingMode = PickingMode.Ignore };
             l.AddToClassList("xq-cl-text");
             _texts.Add(l);
+            return l;
+        }
+
+        Label Big(string word)
+        {
+            var l = new Label(word) { pickingMode = PickingMode.Ignore };
+            l.AddToClassList("xq-cl-big");
+            _bigs.Add(l);
             return l;
         }
 
@@ -151,30 +165,7 @@ namespace Xiaoqi.UI2
             return l;
         }
 
-        /// <summary>占位圆环：白色底圈 + 一段灰色进度，写死 40%，不接倒计时。</summary>
-        void DrawRing(MeshGenerationContext ctx)
-        {
-            float w = _ringFocus.contentRect.width;
-            float h = _ringFocus.contentRect.height;
-            if (w < 8f || h < 8f) return;
-            var p = ctx.painter2D;
-            var c = new Vector2(w * 0.5f, h * 0.5f);
-            float stroke = Mathf.Max(3f, w * 0.085f);
-            float rad = Mathf.Min(w, h) * 0.5f - stroke;
-            p.lineWidth = stroke;
-
-            p.strokeColor = new Color(1f, 1f, 1f, 0.6f);
-            p.BeginPath();
-            p.Arc(c, rad, Angle.Degrees(0f), Angle.Degrees(359f));
-            p.Stroke();
-
-            p.strokeColor = new Color(0.62f, 0.58f, 0.70f, 0.6f);
-            p.BeginPath();
-            p.Arc(c, rad, Angle.Degrees(-90f), Angle.Degrees(-90f + 360f * 0.4f));
-            p.Stroke();
-        }
-
-        /// <summary>卡片的圆角、内边距、字号随 u 变；尺寸在 Place() 里给。</summary>
+        /// <summary>卡片的圆角、内边距、字号、精力圆环直径随 u 变；尺寸在 Place() 里给。</summary>
         void PlaceCards(float u)
         {
             float r = XqCloseLayout.CardR * u;
@@ -192,9 +183,10 @@ namespace Xiaoqi.UI2
             for (int i = 0; i < _marks.Count; i++) _marks[i].style.fontSize = m;
             float t = XqCloseLayout.CardTextFont * u;
             for (int i = 0; i < _texts.Count; i++) _texts[i].style.fontSize = t;
+            float b = XqCloseLayout.CardBigFont * u;
+            for (int i = 0; i < _bigs.Count; i++) _bigs[i].style.fontSize = b;
 
-            if (_ringWord != null) _ringWord.style.fontSize = t;
-            if (_ringFocus != null) _ringFocus.MarkDirtyRepaint();
+            PlaceGlyphs(u);
         }
 
         static void PlaceBody(VisualElement body, float r, float padX, float padY)
@@ -205,36 +197,6 @@ namespace Xiaoqi.UI2
             body.style.paddingBottom = padY;
             body.style.paddingLeft = padX;
             body.style.paddingRight = padX;
-        }
-
-        /// <summary>⑤ 的小折线。值写死在 TinyDemo，P2-5 再接真数据。</summary>
-        sealed class XqMiniLine : VisualElement
-        {
-            readonly float[] _v;
-            public XqMiniLine(float[] values)
-            {
-                _v = values;
-                pickingMode = PickingMode.Ignore;
-                generateVisualContent += Draw;
-            }
-
-            void Draw(MeshGenerationContext ctx)
-            {
-                float w = contentRect.width, h = contentRect.height;
-                if (_v == null || _v.Length < 2 || w < 8f || h < 4f) return;
-                var p = ctx.painter2D;
-                p.lineWidth = 2f;
-                p.strokeColor = new Color(1f, 0.56f, 0.72f, 0.95f);
-                p.BeginPath();
-                for (int i = 0; i < _v.Length; i++)
-                {
-                    float x = w * i / (_v.Length - 1);
-                    float y = h - Mathf.Clamp01(_v[i]) * h;
-                    if (i == 0) p.MoveTo(new Vector2(x, y));
-                    else p.LineTo(new Vector2(x, y));
-                }
-                p.Stroke();
-            }
         }
     }
 }

@@ -70,6 +70,9 @@ namespace Xiaoqi.UI2
         public const float CardBigFont = 26f;      // 大字（时间 / 精力百分比）
         public const float CardTextFont = 15f;     // 正文
         public const float CardMarkFont = 14f;     // 「占位」角标
+        public const float EnergyArc = 46f;        // ③ 精力圆环直径（样式稿 px）
+        public const float FocusZoom = 1.04f;      // P2-5 竖栏点击卡片聚焦的放大倍数
+        public const float FocusSec = 0.25f;       // 聚焦动画时长
 
         /// <summary>样式稿 px 矩形 → 屏幕比例矩形（宽按屏宽、高按屏高换算）。</summary>
         public static Rect Norm(float left, float top, float wStage, float hStage)

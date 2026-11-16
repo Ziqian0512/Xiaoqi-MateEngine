@@ -57,6 +57,10 @@ namespace Xiaoqi.UI2
         {
             _animMode = 1;
             _animT = 0f;
+            _focusOn = false;
+            _focusCard = null;
+            _focusT = 1f;
+            _focusK = 1f;
             for (int i = 0; i < _anim.Count; i++)
             {
                 var el = _anim[i].el;
@@ -115,6 +119,7 @@ namespace Xiaoqi.UI2
                     Pair("anim done");
                 }
             }
+            if (_animMode == 2) TickFocus();
         }
 
         float EnterTotal()
@@ -152,8 +157,10 @@ namespace Xiaoqi.UI2
                 if (a.el == null) continue;
                 float bob = Mathf.Sin(phase + a.order * XqCloseAnim.BobPhaseStep)
                     * XqCloseAnim.BobAmp * _u;
+                // 聚焦系数只作用在目标卡上（P2-5 的 1.04 倍）
+                float k = (a.el == _focusCard) ? _focusK : 1f;
                 a.el.style.opacity = 1f;
-                a.el.style.scale = new Scale(Vector3.one);
+                a.el.style.scale = new Scale(Vector3.one * k);
                 a.el.style.translate = new Translate(0f, bob, 0f);
             }
         }

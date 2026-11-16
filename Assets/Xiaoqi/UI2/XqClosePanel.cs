@@ -73,6 +73,11 @@ namespace Xiaoqi.UI2
             _shown = true;
             _host.style.display = DisplayStyle.Flex;
             Place();
+            BindData();
+            if (_data != null) _data.Begin();
+            RefreshNext();
+            RefreshEnergy(XiaoqiLink.Current);
+            RefreshSay();
             StartEnter();
             Pair("open");
         }
@@ -82,6 +87,7 @@ namespace Xiaoqi.UI2
             _shown = false;
             if (_host == null) return;
             if (_host.style.display == DisplayStyle.None) return;
+            UnbindData();
             StartExit();
             Pair("close");
         }
@@ -133,6 +139,7 @@ namespace Xiaoqi.UI2
             BuildButtons();
             BuildCards();
             AnimRegister();
+            WireRail();
 
             root.Add(_host);
             _built = true;

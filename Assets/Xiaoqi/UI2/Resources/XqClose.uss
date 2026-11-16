@@ -157,6 +157,25 @@
     white-space: normal;
 }
 
+.xq-cl-big {
+    font-size: 26px;
+    -unity-font-style: bold;
+    color: var(--xq-ink, #3B2F55);
+    -unity-text-align: upper-left;
+    white-space: nowrap;
+    margin-top: 4px;
+}
+
+.xq-cl-row-left {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.xq-cl-arc {
+    margin-right: 10px;
+}
+
 /* ④ 她说卡正文：整句完整显示，不截断 */
 .xq-cl-say-text {
     font-size: 15px;
