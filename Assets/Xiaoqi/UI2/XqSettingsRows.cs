@@ -303,6 +303,8 @@ namespace Xiaoqi.UI2
             public string Value { get { return _field.value ?? ""; } }
 
             readonly TextField _field;
+            // 上次提交过的值：Enter 提交后紧跟一次失焦，值没变就不再写一遍盘
+            string _last;
 
             internal InputRow(string label, string value, bool password,
                               Action<string> onCommit, string buttonText, Action<InputRow> onButton)
@@ -313,12 +315,15 @@ namespace Xiaoqi.UI2
                 _field.AddToClassList("xq-st-input");
                 _field.isPasswordField = password;
                 _field.SetValueWithoutNotify(value ?? "");
+                _last = value ?? "";
+                // TODO(编译员)：确认 KeyDownEvent + KeyCode.Return/KeypadEnter（UI Toolkit 标准 API，本仓库无先例）
                 _field.RegisterCallback<KeyDownEvent>(e =>
                 {
                     if (e.keyCode != KeyCode.Return && e.keyCode != KeyCode.KeypadEnter) return;
                     e.StopPropagation();
                     Commit(onCommit);
                 });
+                // TODO(编译员)：确认 FocusOutEvent（UI Toolkit 标准 API，本仓库无先例）
                 _field.RegisterCallback<FocusOutEvent>(_ => Commit(onCommit));
                 right.Add(_field);
 
@@ -338,11 +343,19 @@ namespace Xiaoqi.UI2
             }
 
             /// <summary>外部改文本（粘贴）用，不触发提交。</summary>
-            public void SetText(string v) { _field.SetValueWithoutNotify(v ?? ""); }
+            public void SetText(string v)
+            {
+                _field.SetValueWithoutNotify(v ?? "");
+                _last = v ?? "";
+            }
 
             void Commit(Action<string> onCommit)
             {
-                try { onCommit?.Invoke(Value); }
+                var v = Value;
+                // Enter 后紧跟失焦、或点到别处再回来，值没变就不重复写盘
+                if (v == _last) return;
+                _last = v;
+                try { onCommit?.Invoke(v); }
                 catch (Exception e) { Debug.LogWarning("XQ_SET2 " + e.Message); }
             }
         }

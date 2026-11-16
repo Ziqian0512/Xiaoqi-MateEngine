@@ -117,14 +117,14 @@ namespace Xiaoqi.UI2
 
         /// <summary>
         /// 静音 / 总音量一起作用于 AudioListener.volume。
-        /// 音量只在其它设置把 AudioListener 改回去之后才需要重调，所以两个入口都走这里。
+        /// log 只在提交（松手 / 切开关）时为 true：拖滑条每帧调，不能每帧一行日志。
         /// </summary>
-        public static void ApplyVolume()
+        public static void ApplyVolume(bool log = false)
         {
             var cfg = XiaoqiRuntime.Config;
             if (cfg == null) { Debug.Log("XQ_SET2 miss cfg"); return; }
             AudioListener.volume = cfg.muted ? 0f : Mathf.Clamp01(cfg.volume);
-            Debug.Log("XQ_SET2 volume=" + AudioListener.volume.ToString("0.00"));
+            if (log) Debug.Log("XQ_SET2 volume=" + AudioListener.volume.ToString("0.00"));
         }
 
         /// <summary>静音开关：cfg.muted 由 Bind 写入，这里只把结果应用到 AudioListener。</summary>
@@ -132,15 +132,80 @@ namespace Xiaoqi.UI2
         {
             var cfg = XiaoqiRuntime.Config;
             if (cfg != null) cfg.muted = on;
-            ApplyVolume();
+            ApplyVolume(true);
         }
 
-        /// <summary>总音量 0-1：写 cfg.volume 并立即应用（滑条拖动时也调）。</summary>
+        /// <summary>总音量 0-1：拖动中调用，写 cfg 并应用，不打日志。</summary>
         public static void SetVolume(float volume01)
         {
             var cfg = XiaoqiRuntime.Config;
             if (cfg != null) cfg.volume = Mathf.Clamp01(volume01);
             ApplyVolume();
+        }
+
+        /// <summary>总音量提交（松手 / 双击回默认）：写 cfg、存盘、应用，只打一行日志。</summary>
+        public static void CommitVolume(float volume01)
+        {
+            var cfg = XiaoqiRuntime.Config;
+            if (cfg == null) { Debug.Log("XQ_SET2 miss cfg"); return; }
+            cfg.volume = Mathf.Clamp01(volume01);
+            AudioListener.volume = cfg.muted ? 0f : cfg.volume;
+            XiaoqiConfig.Save(cfg);
+            Debug.Log("XQ_SET2 set volume=" + cfg.volume.ToString("0.00"));
+        }
+
+        /// <summary>
+        /// 把 cfg 里的设置值全部重新应用一遍。
+        /// 两处调用：面板第一次 Open() 时（§4 D4 要求）、启动时 ApplyOnStart()。
+        /// 拿不到组件只打 miss，不抛也不重试。
+        /// 注意：SetDancing / WindowSit 的宿主 setter 会触发 ApplyAll 并把 isDancing 置 false，
+        /// 所以这两项只在值真的不同时才调，避免一次启动连调好几遍、停掉正在跳的舞。
+        /// </summary>
+        public static void ApplyAll(XiaoqiConfig cfg)
+        {
+            if (cfg == null) { Debug.Log("XQ_SET2 miss cfg"); return; }
+
+            // 看向鼠标 + 力度（会同时写 SaveLoadHandler.data，避免被宿主 ApplyAll 冲回）
+            SetLookAtMouse(cfg.look_at_mouse);
+            SetLookStrength(cfg.look_strength);
+
+            // 多久不动就睡着：0 = 关；非 0 时同时设 enableSleep 与 sleepTimer
+            SetIdleSleep(cfg.idle_sleep_min);
+
+            // 双击摸头
+            SetPatDouble(cfg.pat_double);
+
+            // 静音 / 总音量 → AudioListener.volume
+            AudioListener.volume = cfg.muted ? 0f : Mathf.Clamp01(cfg.volume);
+            Debug.Log("XQ_SET2 volume=" + AudioListener.volume.ToString("0.00"));
+
+            // 放音乐时自己跳：只在与现值不同时调（会触发宿主 ApplyAll）
+            bool dancing = GetDancing();
+            if (dancing != cfg.dance_on_music) SetDancing(cfg.dance_on_music);
+
+            // 坐在窗口上：同上，只在与现值不同时写（setter 会触发宿主 ApplyAll）
+            var h = PetHost.I;
+            if (h == null) { Debug.Log("XQ_SET2 miss PetHost"); }
+            else if (h.WindowSitEnabled != cfg.window_sit) h.WindowSitEnabled = cfg.window_sit;
+        }
+
+        /// <summary>
+        /// 启动时把存盘的值重新应用一遍：读 XiaoqiRuntime.Config 后交给 ApplyAll。
+        /// 由 XiaoqiSystems 在模型加载完成后调一次（见 docs/unity-progress/2026-11-16-P1/B4-REPORT.md）。
+        /// 前提：XiaoqiRuntime.Config 已赋值；AvatarMouseTracking / SaveLoadHandler / AvatarSleepController
+        /// 这些宿主组件已随模型加载出来。拿不到就只打 miss，不抛不重试。
+        /// </summary>
+        public static void ApplyOnStart()
+        {
+            try
+            {
+                ApplyAll(XiaoqiRuntime.Config);
+                Debug.Log("XQ_SET2 apply start done");
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("XQ_SET2 apply start " + e.Message);
+            }
         }
     }
 }

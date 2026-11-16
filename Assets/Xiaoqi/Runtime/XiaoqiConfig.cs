@@ -38,6 +38,10 @@ public class XiaoqiConfig
     public bool muted = false;
     // XQ: P1-5 总音量 0-1。
     public float volume = 1f;
+    // XQ: P1-5 放音乐时自己跳（宿主 SaveLoadHandler.data.enableDancing）。默认关。
+    public bool dance_on_music = false;
+    // XQ: P1-5 坐在窗口上（PetHost.WindowSitEnabled）。默认开。
+    public bool window_sit = true;
 
     public static void Save(XiaoqiConfig cfg)
     {
@@ -121,6 +125,16 @@ public class XiaoqiConfig
                 if (text.IndexOf("\"volume\"", StringComparison.Ordinal) < 0)
                 {
                     cfg.volume = 1f;
+                    dirty = true;
+                }
+                if (text.IndexOf("\"dance_on_music\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.dance_on_music = false;
+                    dirty = true;
+                }
+                if (text.IndexOf("\"window_sit\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.window_sit = true;
                     dirty = true;
                 }
                 if (dirty) Save(cfg);

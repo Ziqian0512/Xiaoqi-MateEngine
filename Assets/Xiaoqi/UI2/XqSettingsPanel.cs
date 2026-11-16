@@ -32,6 +32,7 @@ namespace Xiaoqi.UI2
         bool _built;
         bool _placed;
         bool _scheduled;
+        bool _applied;
 
         // 连接页：订阅 XiaoqiLink.OnStage 记最近一次收到的时间，用来判断「已连接」
         XqSettingsRows.StatusRow _status;
@@ -61,6 +62,12 @@ namespace Xiaoqi.UI2
                 _scheduled = true;
             }
             PetHost.I?.SetUiBlocksMovement(true);
+            // 第一次打开时把存盘值重新应用一遍（§4 D4：不为列表单独再建 Update 循环）
+            if (!_applied)
+            {
+                _applied = true;
+                XqSettingsApply.ApplyAll(XiaoqiRuntime.Config);
+            }
             Debug.Log("XQ_SET2 open");
         }
 
@@ -201,10 +208,10 @@ namespace Xiaoqi.UI2
         {
             var cfg = XiaoqiRuntime.Config;
 
-            // 1 坐在窗口上（开）
+            // 1 坐在窗口上（默认开）。读 cfg：宿主现值可能已被 XiaoqiDefaults 复位
             page.Add(XqSettingsRows.Toggle("坐在窗口上",
-                PetHost.I != null && PetHost.I.WindowSitEnabled,
-                v => Bind(XqSettingsApply.SetWindowSit, null, "window_sit", v)));
+                cfg != null ? cfg.window_sit : (PetHost.I != null && PetHost.I.WindowSitEnabled),
+                v => Bind(XqSettingsApply.SetWindowSit, (c, x) => c.window_sit = x, "window_sit", v)));
 
             // 2 坐姿高度微调：ME 无对应字段，整行灰掉，只存盘不连宿主
             var sit = XqSettingsRows.Slider("坐姿高度微调", -50f, 50f,
@@ -234,10 +241,10 @@ namespace Xiaoqi.UI2
             };
             page.Add(look.Root);
 
-            // 5 放音乐时自己跳（默认关，G55 的 XiaoqiDefaults 写的 false）
+            // 5 放音乐时自己跳（默认关）。读 cfg：宿主现值可能已被 XiaoqiDefaults 复位
             page.Add(XqSettingsRows.Toggle("放音乐时自己跳",
-                XqSettingsApply.GetDancing(),
-                v => Bind(XqSettingsApply.SetDancing, null, "enableDancing", v)));
+                cfg != null ? cfg.dance_on_music : XqSettingsApply.GetDancing(),
+                v => Bind(XqSettingsApply.SetDancing, (c, x) => c.dance_on_music = x, "dance_on_music", v)));
 
             // 6 多久不动就睡着（默认关）
             int idle = cfg != null ? cfg.idle_sleep_min : 0;
@@ -366,13 +373,13 @@ namespace Xiaoqi.UI2
                 cfg != null && cfg.muted,
                 v => Bind<bool>(XqSettingsApply.SetMuted, (c, x) => c.muted = x, "muted", v)));
 
-            // 2 总音量：0-100%，拖动即时应用，松手落盘
+            // 2 总音量：0-100%，拖动即时应用（不打日志），松手调 CommitVolume 落盘并打一行
             var vol = XqSettingsRows.Slider("总音量", 0f, 100f,
                 (cfg != null ? cfg.volume : 1f) * 100f,
                 v => XqSettingsApply.SetVolume(v / 100f), 100f);
             vol.Suffix = "%";
             vol.Refresh();
-            vol.OnCommit = () => Bind<float>(null, (c, v) => c.volume = v / 100f, "volume", vol.Value / 100f);
+            vol.OnCommit = () => XqSettingsApply.CommitVolume(vol.Value / 100f);
             page.Add(vol.Root);
 
             // 打开面板时按 cfg 应用一次，避免别人改过 AudioListener 后这里显示与听感不一致
