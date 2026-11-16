@@ -52,3 +52,56 @@
 ## 旧 Xiaoqi.zip（11-16 03:55）是从哪个提交编的
 
 不知道（非本次接手构建，未见对应产物清单）。
+
+---
+
+## 第二次实测（`int-all @ 701e6174`，WB-G67 复测）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `701e6174`（含 `b7e7ba88` `XqPanelXf` / 菜单锁外框 / 设置页去重）；`xiaoqi/p2-agy3` @ `118532b`（仅新增 `XqPanelXf.cs.meta`）。
+- **编译**：**过**（0 个错误，76 条警告，耗时 69s，见 `evidence/2026-11-17-B1-r2/build-summary-701e617.md`）。未改动任何定位逻辑文件。
+- **证据文件**：`evidence/2026-11-17-B1-r2/B1-round2-Player.log`、`B1-round2-brain.log`、`build-summary-701e617.md`。
+
+### B1 `#2 #4 #5 #7 #8` 复测结果表（按主人屏幕前实测逐项记录）
+
+| # | 项 | 结果 | 主人原话与现场/日志依据 |
+|---|---|---|---|
+| 2 | P1-1 主题切换（及大小/上下定位复看） | **没通过** | 主人原话：「1 是，都是还是会有轻微抖动，而且还有个问题就是她本地待机好像也会抖动，这导致放大或者近景的情况下会抽搐连带着菜单。」且「6 无法打开设置无法查看」（设置页点完秒关，无法验证主题下设置页；另放大/近景下待机抽搐连带菜单仍未稳）。 |
+| 4 | P1-2b 睡姿（含坐窗/拖动边界） | **没通过** | 主人原话：「2 严重问题，当拖动超过屏幕中间以上，他会闪现回屏幕下面中间，就是在两点间疯狂闪动，而且无法拖动到边缘，会被直接拽回中间。」拖动被强拽回下方中间致无法正常拖到上方窗口/边缘完成坐窗与睡姿复测。 |
+| 5 | P1-2c 菜单（不飞/锁外框/命中） | **没通过** | 主人原话：「3 前面回答过了，是好了点，但还是会有过于敏感的抖动，其实我怀疑这部分还是xiaoqi本身的轻微抖动放大到了菜单上。」菜单位置已不再上下镜像飞天、日志行点击命中 `XQ_MENU2 click` 均有行名（不再 `picked=null`），但开菜单待机时仍出现敏感轻微抖动（日志中 `scale` 在 `1.24 / 1.25 / 1.29 / 1.32` 间随 `bodyH` 波动）。 |
+| 7 | P1-3 桌宠界面（方钮与三药丸） | **通过** | 主人原话：「4 可以点击」。日志实证 `XQ_HUD gate shown=True rect(panel)=1109,1047 40x40 scale=1.25`（已落入面板下半部脚边），`XQ_HUD gate-click open=True`、`XQ_HUD entry-click view=Close`。（注：未补 100%/175% `P1_桌宠_纯净.png` 叠图。） |
+| 8 | 旧功能不退化 + 设置页/托盘 | **没通过** | 主人原话：「5 设置页直接无法打开，点击后直接菜单全部隐藏」「6 无法打开设置无法查看」「要慎重的是小祈抖动这里，我感觉本身自带抖动以及动作是可以理解的，但关于放大之后怎么处理以及菜单怎么跟随需要思考」。日志确认点击菜单「设置」后同次/瞬时触发 `XQ_SET2 open` → `XQ_SET2 close`，并记录退出时 `AvatarWindowHandler.SetOtherQuadsActive` 空指针 `NullReferenceException`。 |
+
+### WB 指定三类关键日志摘录（`evidence/2026-11-17-B1-r2/B1-round2-Player.log`）
+
+1. **`XQ_PANEL`**：
+```text
+XQ_PANEL ScreenToPanel flipsY=False origin=0.0,0.0 H=1440
+```
+2. **`XQ_MENU2 place` / `click`**：
+```text
+XQ_MENU2 place body(screen)=1159..1415 y=6..459 H=1440 tl(panel)=918,777 l1=662,791 scale=1.26
+XQ_MENU2 place body(screen)=1164..1420 y=39..492 H=1440 tl(panel)=882,718 l1=626,732 scale=1.32
+XQ_MENU2 place body(screen)=1167..1414 y=13..472 H=1440 tl(panel)=944,783 l1=1156,798 scale=1.24
+XQ_MENU2 place body(screen)=1181..1434 y=-16..451 H=1440 tl(panel)=915,766 l1=1124,768 scale=1.29
+XQ_MENU2 click l1/p1 row='设置' picked=VisualElement.xq-mrow.xq-mrow-set
+XQ_MENU2 click l1/p1 row='让她…' picked=VisualElement.xq-mrow
+XQ_MENU2 click l2/p1 row='跳舞' picked=VisualElement.xq-mrow
+XQ_MENU2 click l2/p1 row='舞 1' picked=Label.unity-text-element.unity-label.xq-mchip
+```
+3. **`XQ_HUD gate`（与设置页秒关日志）**：
+```text
+XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=1369,1337 40x40 scale=1.33
+XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=1096,1052 40x40 scale=1.25
+XQ_HUD gate shown=True near=True menuOpen=False rect(panel)=1109,1047 40x40 scale=1.25
+XQ_HUD gate-click open=True
+XQ_HUD entry-click view=Close
+XQ_SET2 open
+XQ_SET2 close
+```
+4. **退出时异常堆栈（`Player.log` 末尾）**：
+```text
+NullReferenceException: Object reference not set to an instance of an object.
+  at UnityEngine.GameObject.get_activeSelf () ...
+  at AvatarWindowHandler.SetOtherQuadsActive (System.Int32 activeCount) ... AvatarWindowHandler.cs:858
+```
+

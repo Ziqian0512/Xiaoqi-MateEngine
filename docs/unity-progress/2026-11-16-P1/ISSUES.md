@@ -13,3 +13,5 @@
 | 6 | AGY+主人 | B1·#7 | 桌宠态右下角看不到入口方钮（`B1-shot3` 右下角无钮），日志 `XQ_HUD gate shown=True rect(panel)=1041,78 40x40 scale=1.31` 显示 `y=78` 画到了屏幕上方 | 按 G66 规矩未改 `XqPetHud.cs` | 修复 `XqPetHud.PlaceBox` 传入 `ScreenToPanel` 时的 Y 轴方向，确保位于脚边 82% | |
 | 7 | AGY | P2·R-5 | 近景态下点顶部关闭设置页时同时误触发了 `XqPetHud` 的「今日日程」弹窗（`XQ_TODAY open` + 502），且 `R5-Player.log` 记录 `XQ_CLOSE settings open` 触发了两次 | 按 G66 未改 `XqPetHud.cs` | 近景态屏蔽 `XqPetHud` 单击开今天卡，并排查 `XqClosePanel` 竖栏 `设` 双重触发 | |
 | 8 | AGY+主人 | B1·#3 | 跳舞仅「舞 1」有动作响应，其余舞项无反应；日志 `XQ_HOST dances=0` | 已核对构建与日志 | 若需验收完整跳舞，需补齐 `StreamingAssets/CustomDances` 舞蹈资源（G66 §5 暂不算阻塞） | |
+| 9 | AGY+主人 | G67 B1·#8 / R-5 | 点击「设置」（或近景 ⚙）打开设置页后 `XQ_SET2 open` 紧接着就输出 `XQ_SET2 close`，设置页直接打不开/菜单全部隐藏 | 复测 `701e6174`，按 G67 未改 `XqSettingsPanel.cs` | `XqSettingsPanel.Tick()` 在打开当帧 `Input.GetMouseButtonDown(0)` 仍为真且鼠标在页外（点的是菜单或 ⚙），立即触发 `Close()`；应跳过打开当帧或等左键抬起后再判定点页外关闭 | |
+| 10 | 主人+AGY | G67 B1·#2/#4/#5 | ①拖动超过屏幕中间以上时闪回下方中间两点间疯狂闪动、无法拖到边缘；②菜单不再飞天，但放大/近景下人物待机微抖连带 `PanelSettings.scale`（1.24~1.32）与菜单轻微抖动；③退出时报 `AvatarWindowHandler.SetOtherQuadsActive` 空指针 | 复测 `701e6174`，未改代码 | ①排查拖动过屏幕中线以上被拉回底部的窗口钳位逻辑；②菜单打开期间同步锁定 `PanelSettings.scale`/面板坐标，并对放大/近景待机抖动做平滑/降敏评估 | |
