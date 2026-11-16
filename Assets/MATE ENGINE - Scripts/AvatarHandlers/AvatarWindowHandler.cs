@@ -480,13 +480,31 @@ public class AvatarWindowHandler : MonoBehaviour
     }
     // ---- XQ: P3-2b 工作台入口（[未编]，新增 3 个公开成员，不改 ME 原有逻辑）----
     bool _xqFixedFraction;
+    /// <summary>最近一次 XqSitOn 失败的原因（成功为空串）。</summary>
+    public string XqLastFail = "";
+    [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, EntryPoint = "FindWindowW")]
+    static extern IntPtr XqFindWindowW(string cls, string title);
+    static IntPtr XqFindUnityWindow()
+    {
+        var h = XqFindWindowW("UnityWndClass", "小祈");
+        if (h == IntPtr.Zero) h = XqFindWindowW("UnityWndClass", null);
+        return h;
+    }
     /// <summary>当前坐着的窗口句柄；没坐返回 IntPtr.Zero。</summary>
     public IntPtr XqSnappedHwnd { get { return snappedHWND; } }
     /// <summary>不经拖拽探针，直接坐到指定窗口上沿，水平位置 = 窗口宽度 × fraction。</summary>
     public bool XqSitOn(IntPtr hwnd, float fraction)
     {
-        if (hwnd == IntPtr.Zero || unityHWND == IntPtr.Zero || animator == null) return false;
-        if (!GetWindowRect(hwnd, out RECT tr)) return false;
+        XqLastFail = "";
+        // XQ: 启动早期 MainWindowHandle 可能为 0，这里补取一次；动画器为空时再从子物体找
+        if (unityHWND == IntPtr.Zero) { try { Process.GetCurrentProcess().Refresh(); unityHWND = Process.GetCurrentProcess().MainWindowHandle; } catch (Exception) { } }
+        if (unityHWND == IntPtr.Zero) { try { unityHWND = XqFindUnityWindow(); } catch (Exception) { } }
+        if (animator == null) animator = GetComponent<Animator>();
+        if (animator == null) animator = GetComponentInChildren<Animator>(true);
+        if (hwnd == IntPtr.Zero) { XqLastFail = "target hwnd=0"; return false; }
+        if (unityHWND == IntPtr.Zero) { XqLastFail = "unityHWND=0"; return false; }
+        if (animator == null) { XqLastFail = "animator=null"; return false; }
+        if (!GetWindowRect(hwnd, out RECT tr)) { XqLastFail = "GetWindowRect failed"; return false; }
         lastDesktopPosition = GetUnityWindowPosition();
         snappedHWND = hwnd;
         _guardZoneActive = false;

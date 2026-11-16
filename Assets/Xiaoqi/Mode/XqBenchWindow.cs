@@ -78,9 +78,18 @@ namespace Xiaoqi.Mode
             _i = this;
         }
 
+        [DllImport("user32.dll", CharSet = CharSet.Unicode, EntryPoint = "FindWindowW")] private static extern IntPtr FindWindowW(string cls, string title);
+        [DllImport("user32.dll")] private static extern IntPtr GetActiveWindow();
         private IntPtr UnityHwnd()
         {
-            if (_unityHwnd == IntPtr.Zero) _unityHwnd = Process.GetCurrentProcess().MainWindowHandle;
+            if (_unityHwnd != IntPtr.Zero && IsWindow(_unityHwnd)) return _unityHwnd;
+            _unityHwnd = IntPtr.Zero;
+            string how = "";
+            try { var p = Process.GetCurrentProcess(); p.Refresh(); _unityHwnd = p.MainWindowHandle; how = "MainWindowHandle"; } catch (Exception) { }
+            if (_unityHwnd == IntPtr.Zero) { _unityHwnd = FindWindowW("UnityWndClass", "小祈"); how = "FindWindow(title)"; }
+            if (_unityHwnd == IntPtr.Zero) { _unityHwnd = FindWindowW("UnityWndClass", null); how = "FindWindow(class)"; }
+            if (_unityHwnd == IntPtr.Zero) { _unityHwnd = GetActiveWindow(); how = "GetActiveWindow"; }
+            Debug.Log("XQ_BENCH unity hwnd=0x" + _unityHwnd.ToInt64().ToString("X") + " via=" + (_unityHwnd == IntPtr.Zero ? "none" : how));
             return _unityHwnd;
         }
 
@@ -134,9 +143,12 @@ namespace Xiaoqi.Mode
             if (uh != IntPtr.Zero)
             {
                 var m = new MONITORINFO { cbSize = Marshal.SizeOf(typeof(MONITORINFO)) };
-                if (GetMonitorInfo(MonitorFromWindow(uh, MONITOR_DEFAULTTONEAREST), ref m)) mon = m.rcMonitor;
+                var hm = MonitorFromWindow(uh, MONITOR_DEFAULTTONEAREST);
+                if (hm != IntPtr.Zero && GetMonitorInfo(hm, ref m)) mon = m.rcMonitor;
+                Debug.Log("XQ_BENCH monitor=" + mon.left + "," + mon.top + " " + (mon.right - mon.left) + "x" + (mon.bottom - mon.top));
                 _savedRectOk = GetWindowRect(uh, out _savedRect);
             }
+            else Debug.Log("XQ_BENCH monitor fallback (no unity hwnd) " + (mon.right - mon.left) + "x" + (mon.bottom - mon.top));
             int mw = mon.right - mon.left, mh = mon.bottom - mon.top;
             int w = Mathf.Max(mc.bench_min_w, Mathf.RoundToInt(mw * mc.bench_w_pct));
             int h = Mathf.Max(mc.bench_min_h, Mathf.RoundToInt(mh * mc.bench_h_pct));
@@ -264,7 +276,7 @@ namespace Xiaoqi.Mode
             if (_hwnd == IntPtr.Zero || !IsWindow(_hwnd)) return;
             _lastSit = Time.unscaledTime;
             bool ok = _sit.XqSitOn(_hwnd, SitFraction());
-            if (log) Debug.Log("XQ_BENCH sit ok=" + ok + " frac=" + SitFraction().ToString("0.00"));
+            if (log) Debug.Log("XQ_BENCH sit ok=" + ok + " frac=" + SitFraction().ToString("0.00") + (ok ? "" : " why=" + _sit.XqLastFail));
         }
 
         private void Update()
