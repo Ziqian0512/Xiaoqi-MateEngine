@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -26,6 +27,12 @@ namespace Xiaoqi.UI2
         readonly Action _openToday;
         VisualElement _l1, _l2, _l1Box, _l2Box;
         VisualElement _subRow;
+        // 点击不再靠 ClickEvent / panel.Pick（实机上 Pick 在卡上返回 null）：每行登记 (元素,动作)，鼠标按下时按几何命中
+        static readonly List<KeyValuePair<VisualElement, Action>> _c1 = new List<KeyValuePair<VisualElement, Action>>();
+        static readonly List<KeyValuePair<VisualElement, Action>> _c2 = new List<KeyValuePair<VisualElement, Action>>();
+        static List<KeyValuePair<VisualElement, Action>> _cur = _c1;
+        IPanel _panelRef;
+        float _scaleRef = 1f;
         bool _open, _sideRight; // _sideRight = 菜单在她右边
         string _sub;
         bool _danceOpen;
@@ -185,6 +192,59 @@ namespace Xiaoqi.UI2
             if (!_open) return false;
             for (var e = picked; e != null; e = e.parent)
                 if (e == _l1 || e == _l2) return true;
+            return OverCard();
+        }
+
+        /// <summary>用几何判断鼠标是否在卡上（两种坐标换算都试）。</summary>
+        bool OverCard()
+        {
+            if (!_open || _panelRef == null) return false;
+            foreach (var p in MousePanelPoints(_panelRef, _scaleRef))
+            {
+                if (Contains(_l1, p)) return true;
+                if (!string.IsNullOrEmpty(_sub) && Contains(_l2, p)) return true;
+            }
+            return false;
+        }
+
+        static bool Contains(VisualElement el, Vector2 p)
+        {
+            if (el == null) return false;
+            var r = el.worldBound;
+            if (float.IsNaN(r.x) || r.width < 1f) return false;
+            return r.Contains(p);
+        }
+
+        static Vector2[] MousePanelPoints(IPanel panel, float scale)
+        {
+            var m = Input.mousePosition;
+            float sc = Mathf.Max(0.1f, scale);
+            return new[]
+            {
+                RuntimePanelUtils.ScreenToPanel(panel, m),
+                new Vector2(m.x / sc, (Screen.height - m.y) / sc),
+            };
+        }
+
+        /// <summary>按下时找被点的那一行。inside=点在卡上（含灰行/空隙）。</summary>
+        bool Locate(IPanel panel, float scale, out Action act, out string how)
+        {
+            act = null; how = "";
+            var pts = MousePanelPoints(panel, scale);
+            for (int i = 0; i < pts.Length; i++)
+            {
+                var p = pts[i];
+                if (!string.IsNullOrEmpty(_sub))
+                {
+                    foreach (var kv in _c2)
+                        if (Contains(kv.Key, p)) { act = kv.Value; how = "l2/p" + i; return true; }
+                    if (Contains(_l2, p)) { how = "l2-card/p" + i; return true; }
+                }
+                foreach (var kv in _c1)
+                    if (Contains(kv.Key, p)) { act = kv.Value; how = "l1/p" + i; return true; }
+                if (Contains(_l1, p)) { how = "l1-card/p" + i; return true; }
+            }
+            how = "none p0=" + pts[0].x.ToString("0") + "," + pts[0].y.ToString("0") + " p1=" + pts[1].x.ToString("0") + "," + pts[1].y.ToString("0") + " H=" + Screen.height;
             return false;
         }
 
@@ -199,6 +259,8 @@ namespace Xiaoqi.UI2
                 PetHost.I.SuppressHostMenu();
                 PetHost.I.RegisterMenuBlocker(() => Xiaoqi.UI.XqMenu.IsOpen);
             }
+            _panelRef = panel;
+            _scaleRef = scale;
             if (_open)
             {
                 if (Input.GetKeyDown(KeyCode.Escape))
@@ -208,9 +270,18 @@ namespace Xiaoqi.UI2
                     return true;
                 }
                 if (Input.GetMouseButtonDown(1)) { Close("right"); return true; }
-                if (Input.GetMouseButtonDown(0) && !Hit(picked))
+                if (Input.GetMouseButtonDown(0))
                 {
-                    Debug.Log("XQ_MENU2 blank-click picked=" + Describe(picked) + " mouse=" + Input.mousePosition.x.ToString("0") + "," + Input.mousePosition.y.ToString("0")
+                    Action act; string how;
+                    if (Locate(panel, scale, out act, out how))
+                    {
+                        Debug.Log("XQ_MENU2 click " + how + " picked=" + Describe(picked) + (act == null ? " (no action)" : ""));
+                        act?.Invoke();
+                        return true;
+                    }
+                    if (Hit(picked)) return true;
+
+                    Debug.Log("XQ_MENU2 blank-click " + how + " picked=" + Describe(picked) + " mouse=" + Input.mousePosition.x.ToString("0") + "," + Input.mousePosition.y.ToString("0")
                         + " l1=" + Rect2(_l1) + (_l2.resolvedStyle.display == DisplayStyle.None ? "" : " l2=" + Rect2(_l2)));
                     Close("blank");
                     return false;
@@ -231,6 +302,8 @@ namespace Xiaoqi.UI2
         public void Tick(IPanel panel, float scale)
         {
             if (!_open || Root == null || panel == null) return;
+            _panelRef = panel;
+            _scaleRef = scale;
             if (_dumpAt >= 0 && Time.frameCount >= _dumpAt) { _dumpAt = -1; DumpTree(_l1, 0); }
             var body = XqBodyAnchor.Stable();
             if (body.height < 8f) return;
@@ -293,6 +366,9 @@ namespace Xiaoqi.UI2
         {
             _l1Box.Clear();
             _l2Box.Clear();
+            _c1.Clear();
+            _c2.Clear();
+            _cur = _c1;
             _subRow = null;
             var st = XiaoqiLink.Current;
 
@@ -310,7 +386,7 @@ namespace Xiaoqi.UI2
             energy.style.color = XqTheme.AccentInk;
             dot.style.backgroundColor = XqTheme.Accent;
             stat.Add(dot); stat.Add(where); stat.Add(energy);
-            stat.RegisterCallback<ClickEvent>(_ => { Close("action"); _openToday?.Invoke(); });
+            _c1.Add(new KeyValuePair<VisualElement, Action>(stat, () => { Close("action"); _openToday?.Invoke(); }));
             _l1Box.Add(stat);
 
             // 形态切换（桌宠/近景/工作台）只放右下方钮，菜单里不再放（主人 11-16 定）
@@ -328,6 +404,7 @@ namespace Xiaoqi.UI2
             setRow.AddToClassList("xq-mrow-set");
             _l1Box.Add(setRow);
 
+            _cur = _c2;
             if (_sub == "doing") BuildDoing();
             else if (_sub == "quiet") BuildQuiet();
         }
@@ -466,7 +543,7 @@ namespace Xiaoqi.UI2
                 c.AddToClassList("xq-mchev");
                 row.Add(c);
             }
-            if (click != null) row.RegisterCallback<ClickEvent>(_ => click());
+            if (click != null) _cur.Add(new KeyValuePair<VisualElement, Action>(row, click));
             return row;
         }
 
@@ -489,34 +566,8 @@ namespace Xiaoqi.UI2
             c.AddToClassList("xq-mchip");
             c.style.color = stop ? XqTheme.AccentInk : XqTheme.Ink;
             if (stop) c.AddToClassList("xq-mchip-stop");
-            c.RegisterCallback<ClickEvent>(_ => click());
+            _cur.Add(new KeyValuePair<VisualElement, Action>(c, click));
             return c;
-        }
-
-        VisualElement Seg(string text, string glyph, XqView view)
-        {
-            var el = new VisualElement();
-            el.AddToClassList("xq-mseg-btn");
-            bool on = XqMode.Current == view;
-            bool avail = view != XqView.Bench || XqMode.BenchAvailable;
-            if (on) el.AddToClassList("xq-mseg-on");
-            if (!avail) el.AddToClassList("xq-mseg-off");
-            var g = new XqGlyph(glyph, on ? Color.white : XqTheme.Ink);
-            g.AddToClassList("xq-mseg-glyph");
-            var t = new Label(avail ? text : "工作台 ·未开") { pickingMode = PickingMode.Ignore };
-            t.AddToClassList("xq-mseg-text");
-            t.style.color = on ? Color.white : XqTheme.Ink;
-            if (on) { t.AddToClassList("xq-mseg-text-on"); el.style.backgroundColor = XqTheme.Accent; }
-            el.Add(g);
-            el.Add(t);
-            el.RegisterCallback<ClickEvent>(e =>
-            {
-                e.StopPropagation();
-                if (!avail || on || XqMode.Busy) return;
-                Close("action");
-                XqMode.Set(view);
-            });
-            return el;
         }
 
         static string StatusLine(StageData s)
