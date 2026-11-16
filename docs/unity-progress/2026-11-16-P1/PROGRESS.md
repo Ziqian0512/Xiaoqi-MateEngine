@@ -32,7 +32,7 @@
 | 批次 | 内容 | 谁 | 状态 |
 |---|---|---|---|
 | B0 | 补账 | WB | 完成 |
-| B1 | 编译验收 | 编译员 | **下一个** |
+| B1 | 编译验收 | 编译员（Grok 远程 Inori02）| **进行中**：编译 + 冒烟已过（`a73dd06`，见 evidence/a73dd06-inori02/）；截图全黑无效；人工验收 8 项未做 |
 | B2 | P1-4a 映射草案 | WB | 未开始 |
 | B3 | P1-4b/c | WB 或代码 Agent | 等 B1 |
 | B4 | P1-5a | 同上 | 等 B1 |
@@ -40,3 +40,20 @@
 | B6 | P1-6 | 同上 | 等 B4 |
 | B7 | P1-4d | 同上 | 等 B2、B3 |
 | B8 | P1-7 | 编译员 | 等 B3–B7 |
+
+## B1 记录（WB 11-16 12:30）
+
+Grok 在 Inori02（Windows，1920×1080 / 100%）用 `tools/xq-verify.ps1 -NoGit` 对 `a73dd06` 跑：
+
+| 项 | 结果 | 依据 |
+|---|---|---|
+| 编译 | **通过**，Unity exit 0，59 秒，error CS 0，warning CS 0 | `Build Finished, Result: Success.` |
+| 代码与 03:55 的包是否一致 | 是（`Assembly-CSharp.dll` 749056 字节、时间未变）| Grok 报 |
+| 启动 | 4 个场景（base / nap / theme-blue / settings-v2）都活过 20 秒 | summary.md |
+| 日志里的 2 条「异常」 | 都是 `Curl error 28`（连服务器超时），不是崩溃 | player-*.log |
+| nap | 有 `XQ_NAP start`、`XQ_SLEEP hold` | xq-lines-nap.txt（只说明睡姿保持的代码跑到了，**没看到姿势**）|
+| 主题 | `theme=blue class=xq-theme-blue` | xq-lines-theme-blue.txt |
+| 截图 | **4 张全黑，无效**（疑似锁屏 / 熄屏）| smoke-*.png 未收 |
+| 人工验收 8 项 | **未做**（需要有人在屏幕前）| — |
+
+结论（WB）：**能编、能启动、没有崩溃**；P1-1~3c 的功能是否对，**仍然没有证据**，步骤状态保持「待验收」。

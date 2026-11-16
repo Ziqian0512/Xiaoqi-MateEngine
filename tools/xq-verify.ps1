@@ -113,7 +113,8 @@ if (-not $NoBuild) {
   if (Test-Path $logFile) {
     $errs = @(Select-String -Path $logFile -Pattern 'error CS\d+' | ForEach-Object { $_.Line.Trim() } | Select-Object -Unique)
     $warnN = @(Select-String -Path $logFile -Pattern 'warning CS\d+').Count
-    $ok = Select-String -Path $logFile -Pattern 'Build completed with a result of ''(\w+)''' | Select-Object -Last 1
+    $ok = Select-String -Path $logFile -Pattern 'Build Finished, Result: (\w+)' | Select-Object -Last 1
+    if (-not $ok) { $ok = Select-String -Path $logFile -Pattern 'Build completed with a result of ''(\w+)''' | Select-Object -Last 1 }
     if ($ok) { $okLine = $ok.Matches[0].Groups[1].Value }
   }
   $buildOk = ($exit -eq 0 -and (Test-Path $exe))
@@ -169,21 +170,27 @@ public class XqDpi { [DllImport("user32.dll")] public static extern bool SetProc
     Start-Sleep -Seconds $SmokeWaitSec
     $alive = -not $sp.HasExited
     $shot = Join-Path $ev ("smoke-" + $s.n + ".png")
+    $blackShot = $false
     try {
       $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
       $g = [System.Drawing.Graphics]::FromImage($bmp)
       $g.CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+      $nz = 0
+      foreach ($yy in 1..12) { foreach ($xx in 1..20) {
+        $px = $bmp.GetPixel([int]($b.Width * $xx / 21), [int]($b.Height * $yy / 13))
+        if (($px.R + $px.G + $px.B) -gt 0) { $nz++ } } }
+      $blackShot = ($nz -eq 0)
       $bmp.Save($shot, [System.Drawing.Imaging.ImageFormat]::Png); $g.Dispose(); $bmp.Dispose()
     } catch { Say ("screenshot failed: " + $_.Exception.Message) }
     $xq = @(); $exc = 0
     if (Test-Path $playerLog) {
       Copy-Item $playerLog (Join-Path $ev ("player-" + $s.n + ".log")) -ErrorAction SilentlyContinue
       $xq = @(Select-String -Path $playerLog -Pattern 'XQ_|XIAOQI_' | ForEach-Object { $_.Line.Trim() })
-      $exc = @(Select-String -Path $playerLog -Pattern 'Exception|NullReference|error CS|ERROR').Count
+      $exc = @(Select-String -Path $playerLog -Pattern 'Exception|NullReference|error CS|ERROR' | Where-Object { $_.Line -notmatch 'Curl error' }).Count
       $xq | Out-File (Join-Path $ev ("xq-lines-" + $s.n + ".txt")) -Encoding utf8
     }
     if (-not $sp.HasExited) { try { $sp.Kill() } catch {} }
-    [void]$summary.Add("- **" + $s.n + "**: alive after " + $SmokeWaitSec + "s = " + $alive + "; XQ_ lines = " + $xq.Count + "; exception-ish lines = " + $exc + "; screenshot = smoke-" + $s.n + ".png")
+    [void]$summary.Add("- **" + $s.n + "**: alive after " + $SmokeWaitSec + "s = " + $alive + "; XQ_ lines = " + $xq.Count + "; exception-ish lines = " + $exc + "; screenshot = smoke-" + $s.n + ".png" + $(if ($blackShot) { " (ALL BLACK - screen locked or asleep? INVALID, rerun with someone at the screen)" } else { "" }))
   }
   Get-Process Xiaoqi -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
   [void]$summary.Add("")

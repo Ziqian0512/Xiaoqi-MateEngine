@@ -33,3 +33,12 @@
 - `/api/body/stage`、`/day`、`/feed` 各一份真实 JSON（令牌打码）。
 - 旧 `Xiaoqi.zip`（11-16 03:55）是从哪个提交编的。
 - `xiaoqi_config.json` 在主人本机已被运行改写；升级覆盖安装时不要覆盖它。
+
+## 7. B1 运行得到的事实（Inori02，`a73dd06`，100%，1920×1080，RTX 5090 D，D3D11）
+
+- **游戏窗口矩形** `XQ_WATCH rect=349,511,1233,1031` → **884 × 520**，位置固定在屏幕左中下。**设置页要 70% 屏高（756）放不下，必须临时撑大窗口**，G59 已写，B4/B5 留意。
+- **UI 缩放**：`scale=0.91 bodyH=332 fontPx=14.6`（身高 332 物理像素 / 364 样式稿 px）。穿透钩子 `hook=GetOnOpaquePixel`（ME 的不透明像素判断）。
+- **ME 待机动作**：`PET_IDLE`、`PET_IDLE_2…15`、`PET_IDLE_UPDATE2_01…04`、`HUS_IDLE01…09`；舞蹈 `HUS_DANCE_01…04`；另有 `CUSTOM_DANCE`、`FACE_IDLE_1`。B3 的待机池从这里选。
+- **`XQ_HOST dances=0`**：正常。这是 ME 自定义舞蹈文件夹（`Xiaoqi/Dances`）的列表，空的；菜单「舞 1–5」走内置 `dance_0…4`（`BuildActions`）。
+- `KeyBindHandler`、`LaunchMateEngineInstances` 在场景里找不到（`not found`）；`SteamAPI_Init failed` 是预期（不用 Steam）。
+- 这台机器连不上服务器（Curl 28），所以冒烟只用假数据（`-fake-stage` / `-fake-day`）。

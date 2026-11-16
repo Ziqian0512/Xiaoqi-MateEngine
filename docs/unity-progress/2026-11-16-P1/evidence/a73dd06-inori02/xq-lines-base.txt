@@ -1,0 +1,53 @@
+﻿Mono path[0] = 'E:/dsh-pet-projects/Xiaoqi-ME/Build/Xiaoqi/Xiaoqi_Data/Managed'
+[Subsystems] Discovering subsystems at path E:/dsh-pet-projects/Xiaoqi-ME/Build/Xiaoqi/Xiaoqi_Data/UnitySubsystems
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XQ_UI2 theme=pink class=xq-theme-pink
+XQ_SHOT_Awake args=5 index=-1
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XIAOQI_SYSTEMS ready model=E:\dsh-pet-projects\Xiaoqi-ME\Build\Xiaoqi\XiaoqiData\16.vrm host=True
+XIAOQI_FAKE_STAGE E:/dsh-pet-projects/Xiaoqi-ME/Build/Xiaoqi/Xiaoqi_Data/StreamingAssets\Xiaoqi\fake_stage\stand_tidy.json
+XQ_PRESENCE dorm=True sleep=False seg=fake stand_tidy
+XQ_HOST me-menu suppressed
+XQ_UI2 camera direct hdr=0 msaa=0 keepAlpha=1
+XQ_HOST avatar CustomVRM(Clone) animator=True proxy=True
+XQ_CLIPS PET_IDLE | PET_IDLE_UPDATE2_01 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_2 | PET_IDLE_14 | PET_IDLE_4 | PET_IDLE_3 | PET_IDLE_5 | PET_IDLE_15 | PET_IDLE_13 | PET_IDLE_9 | PET_IDLE_12 | PET_IDLE_6 | PET_IDLE_10 | PET_IDLE_11 | PET_IDLE_7 | PET_IDLE_8 | PET_IDLE | HUS_IDLE01 | HUS_IDLE02 | HUS_IDLE03 | HUS_IDLE04 | HUS_IDLE05 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE08 | HUS_IDLE09 | HUS_IDLE05 | HUS_IDLE03 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE02 | HUS_IDLE04 | HUS_IDLE09 | HUS_IDLE06 | HUS_IDLE08 | HUS_IDLE03 | HUS_IDLE01 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_02 | HUS_DANCE_01 | HUS_IDLE09 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_UPDATE2_01 | CUSTOM_DANCE | PET_IDLE_12 | FACE_IDLE_1 |
+XQ_START waking→ok 2.3s
+XQ_UI2 on theme=pink class=xq-theme-pink scale=0.91 bodyH=332 fontPx=14.6 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+XQ_HOST dances=0
+XQ_WATCH start
+XQ_WATCH hwnd=721588
+XQ_WATCH rect=349,511,1233,1031
+XQ_WATCH hwnd=721588
+XQ_WATCH rect=349,511,1233,1031
+XQ_WATCH hwnd=721588
+XQ_WATCH rect=349,511,1233,1031
+XQ_WATCH hwnd=721588
+XQ_WATCH rect=349,511,1233,1031
+XQ_WATCH hwnd=721588
+XQ_WATCH rect=349,511,1233,1031
+XQ_WATCH hwnd=721588
+XQ_WATCH rect=349,511,1233,1031
+XQ_WATCH hwnd=721588
+XQ_WATCH rect=349,511,1233,1031
+XQ_WATCH hwnd=721588
+XQ_WATCH rect=349,511,1233,1031
