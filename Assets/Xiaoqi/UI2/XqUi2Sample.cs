@@ -276,7 +276,7 @@ namespace Xiaoqi.UI2
         bool Hit(VisualElement target)
         {
             if (target == null || _root == null || _root.panel == null) return false;
-            var picked = _root.panel.Pick(RuntimePanelUtils.ScreenToPanel(_root.panel, Input.mousePosition));
+            var picked = _root.panel.Pick(XqPanelXf.FromScreen(_root.panel, Input.mousePosition));
             for (var e = picked; e != null; e = e.parent)
                 if (e == target) return true;
             return false;

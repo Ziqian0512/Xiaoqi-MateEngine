@@ -189,7 +189,18 @@ namespace Xiaoqi.UI2
             DotClick("今", () => Focus(_cardNext));
             DotClick("话", () => Focus(_cardSay));
             DotClick("待", () => Pair("todo placeholder"));
-            DotClick("设", () => { Pair("settings open"); XiaoqiSettings.Open(); });
+            DotClick("设", OpenSettingsOnce);
+        }
+
+        float _settingsAt = -10f;
+
+        // XQ: B1 #7 竖栏「设」有两条触发路径（按下时的几何命中 + 抬起时的 ClickEvent），不在同一帧，帧号去重挡不住 → 加时间去重
+        void OpenSettingsOnce()
+        {
+            if (Time.unscaledTime - _settingsAt < 0.5f) return;
+            _settingsAt = Time.unscaledTime;
+            Pair("settings open");
+            XiaoqiSettings.Open();
         }
 
         void DotClick(string word, Action act)

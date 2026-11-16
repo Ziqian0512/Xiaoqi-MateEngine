@@ -185,7 +185,7 @@ namespace Xiaoqi.UI2
         public void HandlePointer(MonoBehaviour host)
         {
             if (Root == null || Root.panel == null || _today == null) return;
-            var picked = Root.panel.Pick(RuntimePanelUtils.ScreenToPanel(Root.panel, Input.mousePosition));
+            var picked = Root.panel.Pick(XqPanelXf.FromScreen(Root.panel, Input.mousePosition));
             UpdatePts(Root.panel);
             _hostForToday = host;
             if (_glass != null)
@@ -215,7 +215,8 @@ namespace Xiaoqi.UI2
                     if (_today.Hit(picked)) _today.Close();
                     else if (!chrome && !onHer) _today.Close();
                 }
-                _armPet = onHer;
+                // XQ: B1 #7 近景/工作台里点她不出桌宠态的今天卡（近景有自己的卡）
+                _armPet = onHer && Xiaoqi.Mode.XqMode.Current == Xiaoqi.Mode.XqView.Pet;
                 _armPos = Input.mousePosition;
                 _armAt = Time.unscaledTime;
             }
@@ -609,7 +610,7 @@ namespace Xiaoqi.UI2
                 float ew = Width(_entries, 72f);
                 float eh = Height(_entries, 108f);
                 float above = mid82 + gh * 0.5f + 8f * scale + eh;
-                var ep = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(gateRight - ew, above));
+                var ep = XqPanelXf.FromScreen(panel, new Vector2(gateRight - ew, above)); // XQ: B1 #6
                 _entries.style.left = ep.x;
                 _entries.style.top = ep.y;
                 _entries.style.translate = new Translate((1f - _menu) * 10f * scale, 0f, 0f);
@@ -619,7 +620,7 @@ namespace Xiaoqi.UI2
             if (_quiet != null && _quiet.resolvedStyle.display != DisplayStyle.None)
             {
                 float qw = Width(_quiet, 120f);
-                var qp = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(cx - qw * 0.5f, top + 28f * scale));
+                var qp = XqPanelXf.FromScreen(panel, new Vector2(cx - qw * 0.5f, top + 28f * scale));
                 _quiet.style.left = qp.x;
                 _quiet.style.top = qp.y;
             }
@@ -627,7 +628,7 @@ namespace Xiaoqi.UI2
             {
                 float dw = Width(_ringDetail, 96f);
                 float ringRight = left - 0.26f * W;
-                var dp = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(ringRight - Width(_ringHost, 64f) - dw - 8f, y78 + 16f));
+                var dp = XqPanelXf.FromScreen(panel, new Vector2(ringRight - Width(_ringHost, 64f) - dw - 8f, y78 + 16f));
                 _ringDetail.style.left = dp.x;
                 _ringDetail.style.top = dp.y;
             }
@@ -655,7 +656,7 @@ namespace Xiaoqi.UI2
             float ch = Height(card, 180f * scale);
             float left = body.xMin - 16f * scale - cw;
             float bottom = body.center.y - ch * 0.5f;
-            var p = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(left, bottom + ch));
+            var p = XqPanelXf.FromScreen(panel, new Vector2(left, bottom + ch));
             var origin = RuntimePanelUtils.ScreenToPanel(panel, Vector2.zero);
             var span = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(cw, ch));
             float pw = Mathf.Abs(span.x - origin.x);
@@ -680,16 +681,16 @@ namespace Xiaoqi.UI2
 
         static Rect PanelRect(IPanel panel, Rect screen)
         {
-            var a = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(screen.xMin, screen.yMax));
-            var c = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(screen.xMax, screen.yMin));
+            var a = XqPanelXf.FromScreen(panel, new Vector2(screen.xMin, screen.yMax));
+            var c = XqPanelXf.FromScreen(panel, new Vector2(screen.xMax, screen.yMin));
             return Rect.MinMaxRect(Mathf.Min(a.x, c.x), Mathf.Min(a.y, c.y), Mathf.Max(a.x, c.x), Mathf.Max(a.y, c.y));
         }
 
         static void PlaceBox(IPanel panel, VisualElement el, float screenLeft, float screenBottom)
         {
             if (el == null) return;
-            float h = Height(el, 48f);
-            var p = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(screenLeft, screenBottom + h));
+            float h = Height(el, 48f) / XqPanelXf.UnitsPerPx(panel); // XQ: 面板单位 → 屏幕像素
+            var p = XqPanelXf.FromScreen(panel, new Vector2(screenLeft, screenBottom + h));
             el.style.left = p.x;
             el.style.top = p.y;
         }
@@ -697,9 +698,10 @@ namespace Xiaoqi.UI2
         static void PlaceRight(IPanel panel, VisualElement el, float screenRight, float screenMidY)
         {
             if (el == null) return;
-            float w = Width(el, 120f);
-            float h = Height(el, 46f);
-            var p = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(screenRight - w, screenMidY + h * 0.5f));
+            float upp = XqPanelXf.UnitsPerPx(panel);
+            float w = Width(el, 120f) / upp; // XQ: 面板单位 → 屏幕像素
+            float h = Height(el, 46f) / upp;
+            var p = XqPanelXf.FromScreen(panel, new Vector2(screenRight - w, screenMidY + h * 0.5f));
             el.style.left = p.x;
             el.style.top = p.y;
         }

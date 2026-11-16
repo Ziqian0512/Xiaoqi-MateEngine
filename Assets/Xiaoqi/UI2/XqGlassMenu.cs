@@ -149,8 +149,14 @@ namespace Xiaoqi.UI2
 
         // ------------------------------------------------------------ 打开 / 关闭
 
+        Rect _anch;
+        bool _hasAnch;
+        bool _placeLogged;
+
         public void Open(IPanel panel, float scale)
         {
+            _hasAnch = false; // XQ: 每次打开重新取外框
+            _placeLogged = false;
             if (_open) return;
             var body = XqBodyAnchor.Stable();
             if (body.height < 8f) return;
@@ -326,11 +332,27 @@ namespace Xiaoqi.UI2
             _panelRef = panel;
             _scaleRef = scale;
             if (_dumpAt >= 0 && Time.frameCount >= _dumpAt) { _dumpAt = -1; DumpTree(_l1, 0); }
-            var body = XqBodyAnchor.Stable();
-            if (body.height < 8f) return;
+            var live = XqBodyAnchor.Stable();
+            if (live.height < 8f) return;
+            // XQ: B1 #5 菜单开着期间锁住位置：她在窗口里待机/抬手/歪头都不动菜单（ME 走路是挪窗口，菜单跟着窗口走）；
+            // 只有外框真的挪了（中心偏出高度 25%，或高度变了 20%）才换到新位置，并重新打一条日志。
+            if (!_hasAnch)
+            {
+                _anch = live; _hasAnch = true;
+            }
+            else
+            {
+                float tol = Mathf.Max(40f, _anch.height * 0.25f);
+                if (Vector2.Distance(live.center, _anch.center) > tol || Mathf.Abs(live.height - _anch.height) > _anch.height * 0.2f)
+                {
+                    _anch = live;
+                    if (Debug2) Debug.Log("XQ_MENU2 anchor-moved body=" + live.xMin.ToString("0") + ".." + live.xMax.ToString("0") + " y=" + live.yMin.ToString("0") + ".." + live.yMax.ToString("0"));
+                }
+            }
+            var body = _anch;
 
-            var tl = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(body.xMin, body.yMax));
-            var br = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(body.xMax, body.yMin));
+            var tl = XqPanelXf.FromScreen(panel, new Vector2(body.xMin, body.yMax)); // XQ: B1 #5 屏幕左下→面板左上（ScreenToPanel 不翻 Y）
+            var br = XqPanelXf.FromScreen(panel, new Vector2(body.xMax, body.yMin));
             float limitW = Root.parent != null ? Root.parent.worldBound.width : 0f;
             float limitH = Root.parent != null ? Root.parent.worldBound.height : 0f;
             if (limitW < 16f) limitW = Screen.width / Mathf.Max(0.1f, scale);
@@ -355,6 +377,7 @@ namespace Xiaoqi.UI2
             y1 = Mathf.Clamp(y1, 8f, Mathf.Max(8f, limitH - h1 - 56f));
             _l1.style.left = x1;
             _l1.style.top = y1;
+            if (!_placeLogged) { _placeLogged = true; Debug.Log("XQ_MENU2 place body(screen)=" + body.xMin.ToString("0") + ".." + body.xMax.ToString("0") + " y=" + body.yMin.ToString("0") + ".." + body.yMax.ToString("0") + " H=" + Screen.height + " tl(panel)=" + tl.x.ToString("0") + "," + tl.y.ToString("0") + " l1=" + x1.ToString("0") + "," + y1.ToString("0") + " scale=" + scale.ToString("0.00")); }
             if (k < 0.999f) _l1.style.opacity = k; else _l1.style.opacity = StyleKeyword.Null;
             _l1.style.translate = new Translate((1f - k) * 10f * -dir, 0f, 0f);
 

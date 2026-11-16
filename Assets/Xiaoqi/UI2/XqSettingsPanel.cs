@@ -583,8 +583,8 @@ namespace Xiaoqi.UI2
             if (w > maxW) { w = maxW; h = w * 492f / 610f; }
             float cx = Screen.width * 0.5f;
             float cy = Screen.height * 0.5f;
-            var a = RuntimePanelUtils.ScreenToPanel(_panel.panel, new Vector2(cx - w * 0.5f, cy + h * 0.5f));
-            var b = RuntimePanelUtils.ScreenToPanel(_panel.panel, new Vector2(cx + w * 0.5f, cy - h * 0.5f));
+            var a = XqPanelXf.FromScreen(_panel.panel, new Vector2(cx - w * 0.5f, cy + h * 0.5f)); // XQ: B1 #4
+            var b = XqPanelXf.FromScreen(_panel.panel, new Vector2(cx + w * 0.5f, cy - h * 0.5f));
             _panel.style.left = a.x;
             _panel.style.top = a.y;
             _panel.style.width = Mathf.Abs(b.x - a.x);
@@ -606,7 +606,7 @@ namespace Xiaoqi.UI2
             // 连接状态每半秒刷一次（跟 Tick 的 16ms 节流分开，别每帧改文字）
             if (Time.unscaledTime - _statusAt > 0.5f) { _statusAt = Time.unscaledTime; RefreshStatus(); }
             var picked = _panel.panel.Pick(
-                RuntimePanelUtils.ScreenToPanel(_panel.panel, Input.mousePosition));
+                XqPanelXf.FromScreen(_panel.panel, Input.mousePosition)); // XQ: B1 #7 Pick 要用翻过 Y 的面板坐标，否则点设置页里面被当成点外面→关掉并穿到今天卡
             bool over = Inside(_panel, picked);
             PetHost.I?.SetUiBlocksMovement(over);
             if (!over && Input.GetMouseButtonDown(0)) Close();
