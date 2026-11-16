@@ -1,0 +1,114 @@
+/* P2-3 近景界面样式（G59-P2 §3.2 / P1 §4 玻璃风）。
+   放在 UI2/Resources/ 下是为了运行时能 Resources.Load<StyleSheet>("XqClose")，
+   不改动已有的 xq.uss。几何量（left/top/width/height/font-size）全部由
+   XqClosePanel.Place() 按屏幕尺寸写进 style，不写在这里，避免两处数字打架；
+   这里只写颜色、圆角、描边、对齐这些不随分辨率变的部分。 */
+
+.xq-cl-rail {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.78);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.85);
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.xq-cl-dot {
+    position: relative;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.88);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.9);
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.xq-cl-dot.on {
+    background-color: var(--xq-accent, #FF8FB8);
+    border-color: rgba(255, 255, 255, 0.95);
+}
+
+.xq-cl-dot.off {
+    opacity: 0.45;
+}
+
+.xq-cl-dot-word {
+    font-size: 16px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    color: var(--xq-ink, #3B2F55);
+}
+
+.xq-cl-dot.on .xq-cl-dot-word {
+    color: rgb(255, 255, 255);
+}
+
+.xq-cl-plate {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.78);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.85);
+    border-radius: 999px;
+    align-items: center;
+    justify-content: center;
+}
+
+.xq-cl-plate-text {
+    font-size: 17px;
+    -unity-font-style: bold;
+    color: var(--xq-ink, #3B2F55);
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+
+.xq-cl-btn {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.78);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.85);
+    align-items: center;
+    justify-content: center;
+}
+
+.xq-cl-btn-word {
+    font-size: 15px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    color: var(--xq-ink, #3B2F55);
+    white-space: nowrap;
+}
+
+.xq-cl-btn.off {
+    background-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.55);
+    opacity: 0.55;
+}
+
+.xq-cl-btn.off .xq-cl-btn-word {
+    color: rgba(59, 47, 85, 0.5);
+}
+
+.xq-cl-tip {
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    margin-right: 8px;
+    margin-top: -14px;
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    background-color: rgba(255, 255, 255, 0.92);
+    border-radius: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+    white-space: nowrap;
+    display: none;
+}
+
+.xq-cl-tip.on {
+    display: flex;
+}
