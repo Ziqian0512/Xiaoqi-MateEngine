@@ -31,6 +31,8 @@ namespace Xiaoqi.UI2
         float _t0;
         float _subT0;
         bool _blockerSet;
+        int _dumpAt = -1;
+        string _lastPicked = "";
 
         public static bool Enabled
         {
@@ -85,6 +87,7 @@ namespace Xiaoqi.UI2
             _danceOpen = false;
             _subRow = null;
             _t0 = Time.unscaledTime;
+            _dumpAt = Time.frameCount + 4;
 
             // 选哪一侧：默认放在她靠近屏幕中间的一侧；那一侧放不下两张卡时换另一侧
             float need = (L1W + L2W + Gap * 3f) * scale;
@@ -140,7 +143,13 @@ namespace Xiaoqi.UI2
                     return true;
                 }
                 if (Input.GetMouseButtonDown(1)) { Close("right"); return true; }
-                if (Input.GetMouseButtonDown(0) && !Hit(picked)) { Close("blank"); return false; }
+                if (Input.GetMouseButtonDown(0) && !Hit(picked))
+                {
+                    Debug.Log("XQ_MENU2 blank-click picked=" + Describe(picked) + " mouse=" + Input.mousePosition.x.ToString("0") + "," + Input.mousePosition.y.ToString("0")
+                        + " l1=" + Rect2(_l1) + (_l2.resolvedStyle.display == DisplayStyle.None ? "" : " l2=" + Rect2(_l2)));
+                    Close("blank");
+                    return false;
+                }
                 if (PetHost.I != null && !PetHost.I.AvatarVisible) { Close("hidden"); return false; }
                 return false;
             }
@@ -157,6 +166,7 @@ namespace Xiaoqi.UI2
         public void Tick(IPanel panel, float scale)
         {
             if (!_open || Root == null || panel == null) return;
+            if (_dumpAt >= 0 && Time.frameCount >= _dumpAt) { _dumpAt = -1; DumpTree(_l1, 0); }
             var body = XqBodyAnchor.Stable();
             if (body.height < 8f) return;
 
@@ -219,9 +229,12 @@ namespace Xiaoqi.UI2
             dot.AddToClassList("xq-mdot");
             var where = new Label(StatusLine(st)) { pickingMode = PickingMode.Ignore };
             where.AddToClassList("xq-mstat-text");
+            where.style.color = new Color(0.23f, 0.18f, 0.33f, 0.62f);
             var energy = new Label(st != null && st.body != null ? "精力 " + Mathf.RoundToInt(Mathf.Clamp(st.body.stamina, 0f, 100f)) : "")
             { pickingMode = PickingMode.Ignore };
             energy.AddToClassList("xq-mstat-energy");
+            energy.style.color = XqTheme.AccentInk;
+            dot.style.backgroundColor = XqTheme.Accent;
             stat.Add(dot); stat.Add(where); stat.Add(energy);
             stat.RegisterCallback<ClickEvent>(_ => { Close("action"); _openToday?.Invoke(); });
             _l1Box.Add(stat);
@@ -374,6 +387,9 @@ namespace Xiaoqi.UI2
             ic.Add(g);
             var label = new Label(text) { pickingMode = PickingMode.Ignore };
             label.AddToClassList("xq-mtext");
+            // 不全靠 USS 变量：颜色同时直接写在元素上，主题变量没解析出来也看得见
+            label.style.color = XqTheme.Ink;
+            ic.style.backgroundColor = XqTheme.Accent;
             row.Add(ic);
             row.Add(label);
             if (chev)
@@ -390,8 +406,11 @@ namespace Xiaoqi.UI2
         {
             var row = Row(glyph, text, null);
             row.AddToClassList("xq-mrow-gray");
+            row.Q<Label>().style.color = new Color(0.23f, 0.18f, 0.33f, 0.4f);
+            row.Q(className: "xq-mic").style.backgroundColor = new Color(0.23f, 0.18f, 0.33f, 0.14f);
             var t = new Label(tag) { pickingMode = PickingMode.Ignore };
             t.AddToClassList("xq-mtag");
+            t.style.color = new Color(0.23f, 0.18f, 0.33f, 0.45f);
             row.Add(t);
             return row;
         }
@@ -400,6 +419,7 @@ namespace Xiaoqi.UI2
         {
             var c = new Label(text);
             c.AddToClassList("xq-mchip");
+            c.style.color = stop ? XqTheme.AccentInk : XqTheme.Ink;
             if (stop) c.AddToClassList("xq-mchip-stop");
             c.RegisterCallback<ClickEvent>(_ => click());
             return c;
@@ -417,7 +437,8 @@ namespace Xiaoqi.UI2
             g.AddToClassList("xq-mseg-glyph");
             var t = new Label(avail ? text : "工作台 ·未开") { pickingMode = PickingMode.Ignore };
             t.AddToClassList("xq-mseg-text");
-            if (on) t.AddToClassList("xq-mseg-text-on");
+            t.style.color = on ? Color.white : XqTheme.Ink;
+            if (on) { t.AddToClassList("xq-mseg-text-on"); el.style.backgroundColor = XqTheme.Accent; }
             el.Add(g);
             el.Add(t);
             el.RegisterCallback<ClickEvent>(e =>
@@ -466,6 +487,39 @@ namespace Xiaoqi.UI2
         {
             float h = el.resolvedStyle.height;
             return float.IsNaN(h) || h < 2f ? fb : h;
+        }
+
+        // ---------------- 诊断：卡里到底有没有东西、画在哪、什么颜色（每次打开只打一次）
+        static string Describe(VisualElement e)
+        {
+            if (e == null) return "null";
+            string cls = "";
+            foreach (var c in e.GetClasses()) cls += "." + c;
+            return e.GetType().Name + cls;
+        }
+
+        static string Rect2(VisualElement e)
+        {
+            var b = e.worldBound;
+            return b.xMin.ToString("0") + "," + b.yMin.ToString("0") + " " + b.width.ToString("0") + "x" + b.height.ToString("0");
+        }
+
+        static void DumpTree(VisualElement e, int depth)
+        {
+            if (e == null || depth > 4) return;
+            var rs = e.resolvedStyle;
+            string extra = "";
+            var lb = e as Label;
+            if (lb != null) extra = " text=\"" + lb.text + "\" color=" + ColorUtility.ToHtmlStringRGBA(rs.color) + " font=" + rs.fontSize.ToString("0");
+            Debug.Log("XQ_MENU2 tree " + new string(' ', depth * 2) + Describe(e) + " rect=" + Rect2(e)
+                + " disp=" + rs.display + " vis=" + rs.visibility + " op=" + rs.opacity.ToString("0.00")
+                + " bg=" + ColorUtility.ToHtmlStringRGBA(rs.backgroundColor) + extra);
+            int n = 0;
+            foreach (var c in e.Children())
+            {
+                if (depth >= 3 && n++ >= 3) break;
+                DumpTree(c, depth + 1);
+            }
         }
 
         static float Ease(float t)
