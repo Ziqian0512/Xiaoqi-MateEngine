@@ -313,13 +313,7 @@ namespace Xiaoqi.UI2
             stat.RegisterCallback<ClickEvent>(_ => { Close("action"); _openToday?.Invoke(); });
             _l1Box.Add(stat);
 
-            // 形态三段开关
-            var seg = new VisualElement { pickingMode = PickingMode.Ignore };
-            seg.AddToClassList("xq-mseg");
-            seg.Add(Seg("桌宠", "user", XqView.Pet));
-            seg.Add(Seg("近景", "expand", XqView.Close));
-            seg.Add(Seg("工作台", "cal", XqView.Bench));
-            _l1Box.Add(seg);
+            // 形态切换（桌宠/近景/工作台）只放右下方钮，菜单里不再放（主人 11-16 定）
 
             _l1Box.Add(Row("sun", "今天", () => { Close("action"); _openToday?.Invoke(); }));
             _l1Box.Add(Gray("chat", "说句话", "还没开通"));
