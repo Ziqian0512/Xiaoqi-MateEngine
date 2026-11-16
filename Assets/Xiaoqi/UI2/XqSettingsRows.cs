@@ -275,6 +275,128 @@ namespace Xiaoqi.UI2
             return row;
         }
 
+        /// <summary>说明行：整行一段灰字（如模型授权），不做左右分栏。</summary>
+        public static VisualElement Note(string text)
+        {
+            var l = new Label(text ?? "");
+            l.AddToClassList("xq-st-note");
+            l.pickingMode = PickingMode.Ignore;
+            return l;
+        }
+
+        /// <summary>一行两列的输入框行。password=true 时显示为圆点。</summary>
+        public static InputRow Input(string label, string value, bool password, Action<string> onCommit)
+        {
+            return new InputRow(label, value, password, onCommit, null, null);
+        }
+
+        /// <summary>带右侧按钮的输入框行（令牌行的「粘贴」）。</summary>
+        public static InputRow Input(string label, string value, bool password, Action<string> onCommit,
+                                     string buttonText, Action<InputRow> onButton)
+        {
+            return new InputRow(label, value, password, onCommit, buttonText, onButton);
+        }
+
+        public sealed class InputRow
+        {
+            public VisualElement Root { get; private set; }
+            public string Value { get { return _field.value ?? ""; } }
+
+            readonly TextField _field;
+
+            internal InputRow(string label, string value, bool password,
+                              Action<string> onCommit, string buttonText, Action<InputRow> onButton)
+            {
+                Root = MakeRow(label, out var right);
+                // TODO(编译员)：确认 UI Toolkit 的 TextField / isPasswordField / SetValueWithoutNotify（标准 API，本仓库无先例）
+                _field = new TextField { pickingMode = PickingMode.Position };
+                _field.AddToClassList("xq-st-input");
+                _field.isPasswordField = password;
+                _field.SetValueWithoutNotify(value ?? "");
+                _field.RegisterCallback<KeyDownEvent>(e =>
+                {
+                    if (e.keyCode != KeyCode.Return && e.keyCode != KeyCode.KeypadEnter) return;
+                    e.StopPropagation();
+                    Commit(onCommit);
+                });
+                _field.RegisterCallback<FocusOutEvent>(_ => Commit(onCommit));
+                right.Add(_field);
+
+                if (string.IsNullOrEmpty(buttonText)) return;
+                var btn = new Label(buttonText);
+                btn.AddToClassList("xq-st-btn");
+                btn.AddToClassList("xq-st-btn-gap");
+                btn.pickingMode = PickingMode.Position;
+                btn.RegisterCallback<ClickEvent>(e =>
+                {
+                    e.StopPropagation();
+                    if (!Root.enabledSelf) return;
+                    try { onButton?.Invoke(this); }
+                    catch (Exception ex) { Debug.LogWarning("XQ_SET2 " + ex.Message); }
+                });
+                right.Add(btn);
+            }
+
+            /// <summary>外部改文本（粘贴）用，不触发提交。</summary>
+            public void SetText(string v) { _field.SetValueWithoutNotify(v ?? ""); }
+
+            void Commit(Action<string> onCommit)
+            {
+                try { onCommit?.Invoke(Value); }
+                catch (Exception e) { Debug.LogWarning("XQ_SET2 " + e.Message); }
+            }
+        }
+
+        /// <summary>状态行：右侧一盏灯 + 文字，可再挂一个按钮（连接页的连接状态）。</summary>
+        public static StatusRow Status(string label, string buttonText, Action onButton)
+        {
+            return new StatusRow(label, buttonText, onButton);
+        }
+
+        public sealed class StatusRow
+        {
+            public VisualElement Root { get; private set; }
+
+            readonly Label _led;
+            readonly Label _text;
+
+            internal StatusRow(string label, string buttonText, Action onButton)
+            {
+                Root = MakeRow(label, out var right);
+                _led = new Label("");
+                _led.AddToClassList("xq-st-led");
+                _led.pickingMode = PickingMode.Ignore;
+                _text = new Label("");
+                _text.AddToClassList("xq-st-statustext");
+                _text.pickingMode = PickingMode.Ignore;
+                right.Add(_led);
+                right.Add(_text);
+
+                if (string.IsNullOrEmpty(buttonText)) return;
+                var btn = new Label(buttonText);
+                btn.AddToClassList("xq-st-btn");
+                btn.AddToClassList("xq-st-btn-gap");
+                btn.pickingMode = PickingMode.Position;
+                btn.RegisterCallback<ClickEvent>(e =>
+                {
+                    e.StopPropagation();
+                    if (!Root.enabledSelf) return;
+                    try { onButton?.Invoke(); }
+                    catch (Exception ex) { Debug.LogWarning("XQ_SET2 " + ex.Message); }
+                });
+                right.Add(btn);
+            }
+
+            /// <summary>state：0 = 未知，1 = 正常，2 = 异常。</summary>
+            public void Set(string text, int state)
+            {
+                if (_text != null) _text.text = text ?? "";
+                if (_led == null) return;
+                _led.EnableInClassList("xq-st-led-on", state == 1);
+                _led.EnableInClassList("xq-st-led-off", state == 2);
+            }
+        }
+
         /// <summary>色点行：右侧三个（或 N 个）圆点，点一下选中。colors 与 labels 一一对应。</summary>
         public static VisualElement Dots(string label, string[] labels, Color[] colors, int index, Action<int> onChange)
         {

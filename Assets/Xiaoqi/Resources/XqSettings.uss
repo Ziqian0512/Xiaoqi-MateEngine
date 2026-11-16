@@ -229,6 +229,54 @@
     max-width: 240px;
 }
 
+.xq-st-note {
+    font-size: 13px;
+    color: var(--xq-ink-soft, rgba(59, 47, 85, 0.62));
+    margin-top: 4px;
+    margin-left: 14px;
+    margin-right: 14px;
+    margin-bottom: 10px;
+}
+
+.xq-st-input {
+    width: 200px;
+    height: 30px;
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    background-color: rgba(255, 255, 255, 0.9);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.xq-st-btn-gap {
+    margin-left: 8px;
+}
+
+.xq-st-led {
+    width: 9px;
+    height: 9px;
+    border-radius: var(--xq-r-pill, 999px);
+    background-color: rgba(80, 50, 130, 0.25);
+    margin-right: 7px;
+}
+
+.xq-st-led-on {
+    background-color: #4CC27A;
+}
+
+.xq-st-led-off {
+    background-color: #E4697B;
+}
+
+.xq-st-statustext {
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    margin-right: 4px;
+}
+
 .xq-st-dot {
     width: 22px;
     height: 22px;

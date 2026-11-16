@@ -114,5 +114,33 @@ namespace Xiaoqi.UI2
         {
             PetPat.Enabled = on;
         }
+
+        /// <summary>
+        /// 静音 / 总音量一起作用于 AudioListener.volume。
+        /// 音量只在其它设置把 AudioListener 改回去之后才需要重调，所以两个入口都走这里。
+        /// </summary>
+        public static void ApplyVolume()
+        {
+            var cfg = XiaoqiRuntime.Config;
+            if (cfg == null) { Debug.Log("XQ_SET2 miss cfg"); return; }
+            AudioListener.volume = cfg.muted ? 0f : Mathf.Clamp01(cfg.volume);
+            Debug.Log("XQ_SET2 volume=" + AudioListener.volume.ToString("0.00"));
+        }
+
+        /// <summary>静音开关：cfg.muted 由 Bind 写入，这里只把结果应用到 AudioListener。</summary>
+        public static void SetMuted(bool on)
+        {
+            var cfg = XiaoqiRuntime.Config;
+            if (cfg != null) cfg.muted = on;
+            ApplyVolume();
+        }
+
+        /// <summary>总音量 0-1：写 cfg.volume 并立即应用（滑条拖动时也调）。</summary>
+        public static void SetVolume(float volume01)
+        {
+            var cfg = XiaoqiRuntime.Config;
+            if (cfg != null) cfg.volume = Mathf.Clamp01(volume01);
+            ApplyVolume();
+        }
     }
 }
