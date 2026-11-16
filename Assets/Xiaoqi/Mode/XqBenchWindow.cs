@@ -47,6 +47,7 @@ namespace Xiaoqi.Mode
         [DllImport("user32.dll")] private static extern bool IsIconic(IntPtr h);
         [DllImport("user32.dll")] private static extern bool IsZoomed(IntPtr h);
         [DllImport("user32.dll")] private static extern bool IsWindow(IntPtr h);
+        [DllImport("user32.dll")] private static extern uint GetDpiForWindow(IntPtr h);
         [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr h, uint flags);
         [DllImport("user32.dll")] private static extern bool GetMonitorInfo(IntPtr mon, ref MONITORINFO mi);
         private const uint SWP_NOZORDER = 0x4, SWP_NOACTIVATE = 0x10;
@@ -194,6 +195,14 @@ namespace Xiaoqi.Mode
             }
 
             _hwnd = hwnd;
+            // 最小尺寸 900x560 是 DIP（G59-P3 §3.2、§4.3），换成物理像素：175% 下 900 DIP = 1575 px
+            uint dpi = 0;
+            try { dpi = GetDpiForWindow(hwnd); } catch (Exception) { }
+            float scale = dpi > 0 ? dpi / 96f : 1f;
+            var mc0 = XqModeConfig.I;
+            w = Mathf.Max(w, Mathf.RoundToInt(mc0.bench_min_w * scale));
+            h = Mathf.Max(h, Mathf.RoundToInt(mc0.bench_min_h * scale));
+            Debug.Log("XQ_BENCH dpi=" + dpi + " scale=" + scale.ToString("0.00") + " size=" + w + "x" + h);
             // 按物理像素摆（不信 --window-position；实测值记在日志里，给 FACTS 第 6 条用）
             RECT before; GetWindowRect(hwnd, out before);
             SetWindowPos(hwnd, IntPtr.Zero, x, y, w, h, SWP_NOZORDER | SWP_NOACTIVATE);
