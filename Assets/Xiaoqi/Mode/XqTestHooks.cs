@@ -34,19 +34,65 @@ namespace Xiaoqi.Mode
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Boot()
         {
-            string sit = null; bool nap = false, close = false;
+            string sit = null; bool nap = false, close = false, snap = false;
             foreach (var a in Environment.GetCommandLineArgs())
             {
                 if (a == "-xq-sit-test") sit = "";
                 else if (a.StartsWith("-xq-sit-test=")) sit = a.Substring("-xq-sit-test=".Length);
                 else if (a == "-xq-nap-test") nap = true;
                 else if (a == "-xq-close-test") close = true;
+                else if (a == "-xq-snap-mode") snap = true; // XQ: 默认关；仅 R-3 位置快照验收启用
             }
-            if (sit == null && !nap && !close) return;
+            if (sit == null && !nap && !close && !snap) return;
             var go = new GameObject("XqTestHooks");
             DontDestroyOnLoad(go);
             var hooks = go.AddComponent<XqTestHooks>();
-            hooks.StartCoroutine(close ? hooks.RunClose() : hooks.Run(sit, nap));
+            if (snap) hooks.StartCoroutine(hooks.RunSnapMode());
+            if (close) hooks.StartCoroutine(hooks.RunClose());
+            else if (sit != null || nap) hooks.StartCoroutine(hooks.Run(sit, nap));
+        }
+
+        // XQ: P2 R-3 四种真实退出前后的位置快照与漂移统计（-xq-snap-mode 才启用）
+        IEnumerator RunSnapMode()
+        {
+            while (PetHost.I == null || !PetHost.I.Ready) yield return null;
+            var uh = FindWindowW("UnityWndClass", "小祈");
+            if (uh == IntPtr.Zero) uh = FindWindowW("UnityWndClass", null);
+            R r0 = default(R);
+            Rect b0 = default(Rect);
+            bool hasBefore = false;
+            XqMode.OnModeChanged += (from, to) =>
+            {
+                if (from == XqView.Pet && to == XqView.Close)
+                {
+                    GetWindowRect(uh, out r0);
+                    b0 = PetHost.I != null ? PetHost.I.ScreenRect() : default(Rect);
+                    hasBefore = true;
+                    Debug.Log("XQ_TEST snap before " + Snap(uh));
+                }
+                else if (from == XqView.Close && to == XqView.Pet && hasBefore)
+                {
+                    StartCoroutine(SnapExitAfterSettle(uh, r0, b0));
+                }
+            };
+            XqMode.OnCloseReady += () => StartCoroutine(SnapCloseAfterSettle(uh));
+        }
+
+        IEnumerator SnapCloseAfterSettle(IntPtr uh)
+        {
+            yield return new WaitForSecondsRealtime(1.2f);
+            Debug.Log("XQ_TEST snap close " + Snap(uh));
+        }
+
+        IEnumerator SnapExitAfterSettle(IntPtr uh, R r0, Rect b0)
+        {
+            while (XqMode.Busy) yield return null;
+            yield return new WaitForSecondsRealtime(1.0f);
+            R r1; GetWindowRect(uh, out r1);
+            var b1 = PetHost.I != null ? PetHost.I.ScreenRect() : default(Rect);
+            Debug.Log("XQ_TEST snap after " + Snap(uh));
+            Debug.Log("XQ_TEST snap drift win=" + (r1.l - r0.l) + "," + (r1.t - r0.t) + " size=" + ((r1.r - r1.l) - (r0.r - r0.l)) + "," + ((r1.b - r1.t) - (r0.b - r0.t))
+                + " bodyCx=" + (b1.center.x - b0.center.x).ToString("0") + " bodyBottom=" + (b1.yMin - b0.yMin).ToString("0") + " bodyH=" + (b1.height - b0.height).ToString("0"));
         }
 
         static string Snap(IntPtr uh)
