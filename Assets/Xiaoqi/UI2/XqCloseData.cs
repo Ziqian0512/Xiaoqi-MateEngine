@@ -167,7 +167,8 @@ namespace Xiaoqi.UI2
         IEnumerator FetchFeed()
         {
             var url = Url("/api/body/feed");
-            if (url == null) { Say = null; yield break; }
+            if (url == null) { Say = Day != null ? Day.say : null; yield break; }
+            if (Day != null && !string.IsNullOrEmpty(Day.say)) { Say = Day.say; yield break; }
 
             int lastId = 0;
             bool ok = false;
@@ -215,6 +216,33 @@ namespace Xiaoqi.UI2
                 catch (Exception e) { Debug.Log("XQ_CLOSE feed parse: " + e.Message); }
                 done(env);
             }
+        }
+
+        public void Shot(string fileName, float delaySec = 0f)
+        {
+            var args = Environment.GetCommandLineArgs();
+            int i = Array.IndexOf(args, "-xq-close-shots");
+            if (i < 0 || i + 1 >= args.Length) return;
+            string dir = args[i + 1];
+            if (string.IsNullOrEmpty(dir)) return;
+            StartCoroutine(ShotCo(System.IO.Path.Combine(dir, fileName), delaySec));
+        }
+
+        IEnumerator ShotCo(string fullPath, float delaySec)
+        {
+            if (delaySec > 0f) yield return new WaitForSecondsRealtime(delaySec);
+            yield return new WaitForEndOfFrame();
+            try
+            {
+                System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(fullPath));
+                var tex = new Texture2D(Screen.width, Screen.height, TextureFormat.RGBA32, false);
+                tex.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+                tex.Apply();
+                System.IO.File.WriteAllBytes(fullPath, tex.EncodeToPNG());
+                Destroy(tex);
+                Debug.Log("XQ_CLOSE shot " + fullPath + " " + Screen.width + "x" + Screen.height);
+            }
+            catch (Exception e) { Debug.LogWarning("XQ_CLOSE shot err: " + e.Message); }
         }
     }
 }

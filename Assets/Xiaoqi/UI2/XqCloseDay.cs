@@ -14,6 +14,8 @@ namespace Xiaoqi.UI2
         public string now;
         public int now_min;
         public Seg[] segs;
+        public StageData.StageBody body;
+        public string say;
 
         [Serializable]
         public class Seg
