@@ -1,0 +1,79 @@
+== P3-0v2-page-pink-1640x680  完成 16:55:19 (UTC+8)  viewport 1640x680 DPR 1  模式 data  url /p/bench#t=<mock>&theme=pink
+  请求(去重): GET /api/body/day X-Token=set; GET /api/body/feed X-Token=set; GET /api/body/feed?since=190&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console error/warning: 0 条；去重: 无
+  JS 异常(pageerror): 无
+  requestfailed: 0 次；去重: 无
+  HTTP>=400: 0 次；去重: 无
+  非 GET: 无
+== P3-0v2-page-blue-1640x680  完成 16:55:21 (UTC+8)  viewport 1640x680 DPR 1  模式 data  url /p/bench#t=<mock>&theme=blue
+  请求(去重): GET /api/body/day X-Token=set; GET /api/body/feed X-Token=set; GET /api/body/feed?since=190&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console error/warning: 0 条；去重: 无
+  JS 异常(pageerror): 无
+  requestfailed: 0 次；去重: 无
+  HTTP>=400: 0 次；去重: 无
+  非 GET: 无
+== P3-0v2-page-violet-1640x680  完成 16:55:23 (UTC+8)  viewport 1640x680 DPR 1  模式 data  url /p/bench#t=<mock>&theme=violet
+  请求(去重): GET /api/body/day X-Token=set; GET /api/body/feed X-Token=set; GET /api/body/feed?since=190&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console error/warning: 0 条；去重: 无
+  JS 异常(pageerror): 无
+  requestfailed: 0 次；去重: 无
+  HTTP>=400: 0 次；去重: 无
+  非 GET: 无
+== P3-0v2-page-pink-820x340@2x  完成 16:55:25 (UTC+8)  viewport 820x340 DPR 2  模式 data  url /p/bench#t=<mock>&theme=pink
+  请求(去重): GET /api/body/day X-Token=set; GET /api/body/feed X-Token=set; GET /api/body/feed?since=190&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console error/warning: 0 条；去重: 无
+  JS 异常(pageerror): 无
+  requestfailed: 0 次；去重: 无
+  HTTP>=400: 0 次；去重: 无
+  非 GET: 无
+== P3-0v2-small-900x560  完成 16:55:27 (UTC+8)  viewport 900x560 DPR 1  模式 data  url /p/bench#t=<mock>&theme=pink
+  请求(去重): GET /api/body/day X-Token=set; GET /api/body/feed X-Token=set; GET /api/body/feed?since=190&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console error/warning: 0 条；去重: 无
+  JS 异常(pageerror): 无
+  requestfailed: 0 次；去重: 无
+  HTTP>=400: 0 次；去重: 无
+  非 GET: 无
+== P3-0v2-empty-1640x680  完成 16:55:29 (UTC+8)  viewport 1640x680 DPR 1  模式 empty  url /p/bench#t=<mock>&theme=pink
+  请求(去重): GET /api/body/day X-Token=set; GET /api/body/feed X-Token=set; GET /api/body/feed?since=0&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console error/warning: 0 条；去重: 无
+  JS 异常(pageerror): 无
+  requestfailed: 0 次；去重: 无
+  HTTP>=400: 0 次；去重: 无
+  非 GET: 无
+== P3-0v2-offline-firstload-1640x680  完成 16:55:31 (UTC+8)  viewport 1640x680 DPR 1  模式 offline  url /p/bench#t=<mock>&theme=pink
+  请求(去重): GET /api/body/day X-Token=set; GET /api/body/feed X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console error/warning: 3 条；去重: error: Failed to load resource: the server responded with a status of 503 (Service Unavailable)
+  JS 异常(pageerror): 无
+  requestfailed: 0 次；去重: 无
+  HTTP>=400: 3 次；去重: GET /api/body/day -> 503 | GET /api/body/feed -> 503 | GET /api/body/stage -> 503
+  非 GET: 无
+== P3-0v2-401-1640x680  完成 16:55:33 (UTC+8)  viewport 1640x680 DPR 1  模式 data  url /p/bench#t=<wrong>&theme=pink
+  请求(去重): GET /api/body/day X-Token=set; GET /api/body/feed X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console error/warning: 3 条；去重: error: Failed to load resource: the server responded with a status of 401 (Unauthorized)
+  JS 异常(pageerror): 无
+  requestfailed: 0 次；去重: 无
+  HTTP>=400: 3 次；去重: GET /api/body/day -> 401 | GET /api/body/feed -> 401 | GET /api/body/stage -> 401
+  非 GET: 无
+== P3-0v2-data-then-503-restored-1640x680  完成 16:55:44 (UTC+8)  viewport 1640x680 DPR 1  模式 data→503→data  url /p/bench#t=<mock>&theme=pink
+  t_disconnect: 16:55:35.555
+  sec_until_conn_shown: 3.22
+  t_restore: 16:55:39.422
+  sec_until_conn_hidden: 4.35
+  请求(去重): GET /api/body/day X-Token=set; GET /api/body/feed X-Token=set; GET /api/body/feed?since=190&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console error/warning: 3 条；去重: error: Failed to load resource: the server responded with a status of 503 (Service Unavailable)
+  JS 异常(pageerror): 无
+  requestfailed: 0 次；去重: 无
+  HTTP>=400: 3 次；去重: GET /api/body/day -> 503 | GET /api/body/feed?since=190&limit=50 -> 503 | GET /api/body/stage -> 503
+  非 GET: 无
+== P3-0v2-data-then-netdown-restored-1640x680  完成 16:56:50 (UTC+8)  viewport 1640x680 DPR 1  模式 data→netdown→data  url /p/bench#t=<mock>&theme=pink
+  t_disconnect: 16:55:46.283
+  sec_until_conn_shown: 3.21
+  t_restore: 16:56:45.331
+  restart_wait_s: 55.2
+  sec_until_conn_hidden: 4.17
+  请求(去重): GET /api/body/day X-Token=set; GET /api/body/feed X-Token=set; GET /api/body/feed?since=190&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console error/warning: 36 条；去重: error: Failed to load resource: net::ERR_CONNECTION_REFUSED
+  JS 异常(pageerror): 无
+  requestfailed: 36 次；去重: GET /api/body/day net::ERR_CONNECTION_REFUSED | GET /api/body/feed?since=190&limit=50 net::ERR_CONNECTION_REFUSED | GET /api/body/stage net::ERR_CONNECTION_REFUSED
+  HTTP>=400: 0 次；去重: 无
+  非 GET: 无
