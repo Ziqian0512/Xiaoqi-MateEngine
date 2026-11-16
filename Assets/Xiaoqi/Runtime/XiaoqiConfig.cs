@@ -20,6 +20,25 @@ public class XiaoqiConfig
     // 身边小胶囊：stay 常驻 / fade 淡出（默认）/ off 全关。设置页 P1-5 再接。
     public string chips = "fade";
 
+    // XQ: P1-5 新设置页（B4）。默认关，WB 验证后再翻默认值。
+    public bool settings_v2 = false;
+    // XQ: P1-5 主题色 pink / blue / violet。
+    public string theme = "pink";
+    // XQ: P1-5 行为页。看向鼠标。
+    public bool look_at_mouse = true;
+    // XQ: P1-5 看向的力度 0-1（1 = ME 原值）。
+    public float look_strength = 1f;
+    // XQ: P1-5 坐姿高度微调 -50 ~ +50。ME 侧暂无对应字段，仅存盘。
+    public float sit_offset = 0f;
+    // XQ: P1-5 多久不动就睡着，0 = 关，可选 1/3/5/10（分钟）。
+    public int idle_sleep_min = 0;
+    // XQ: P1-5 双击摸头。
+    public bool pat_double = true;
+    // XQ: P1-5 静音。
+    public bool muted = false;
+    // XQ: P1-5 总音量 0-1。
+    public float volume = 1f;
+
     public static void Save(XiaoqiConfig cfg)
     {
         try
@@ -56,6 +75,52 @@ public class XiaoqiConfig
                 if (text.IndexOf("\"chips\"", StringComparison.Ordinal) < 0)
                 {
                     cfg.chips = "fade";
+                    dirty = true;
+                }
+                // XQ: P1-5 新设置页字段补缺。
+                if (text.IndexOf("\"settings_v2\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.settings_v2 = false;
+                    dirty = true;
+                }
+                if (text.IndexOf("\"theme\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.theme = "pink";
+                    dirty = true;
+                }
+                if (text.IndexOf("\"look_at_mouse\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.look_at_mouse = true;
+                    dirty = true;
+                }
+                if (text.IndexOf("\"look_strength\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.look_strength = 1f;
+                    dirty = true;
+                }
+                if (text.IndexOf("\"sit_offset\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.sit_offset = 0f;
+                    dirty = true;
+                }
+                if (text.IndexOf("\"idle_sleep_min\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.idle_sleep_min = 0;
+                    dirty = true;
+                }
+                if (text.IndexOf("\"pat_double\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.pat_double = true;
+                    dirty = true;
+                }
+                if (text.IndexOf("\"muted\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.muted = false;
+                    dirty = true;
+                }
+                if (text.IndexOf("\"volume\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.volume = 1f;
                     dirty = true;
                 }
                 if (dirty) Save(cfg);
