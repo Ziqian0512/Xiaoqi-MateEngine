@@ -237,6 +237,7 @@ namespace Xiaoqi.UI2
                 || Inside(_entries, picked) || Inside(_quiet, picked)
                 || Over(Bubble) || Over(_next) || Over(_here) || Over(_ringHost) || Over(_gate)
                 || (_entries != null && _menu > 0.02f && (Over(_modeEntries[0]) || Over(_modeEntries[1]) || Over(_modeEntries[2])))
+                || (XqClosePanel.IsShown && XqClosePanel.OverAny())
                 || (_glass != null && _glass.Hit(picked))
                 || (_today != null && (_today.Hit(picked) || (_today.IsOpen && Over(_today.Root))));
         }
@@ -261,6 +262,16 @@ namespace Xiaoqi.UI2
 
         void Refresh()
         {
+            if (Xiaoqi.Mode.XqMode.Current != Xiaoqi.Mode.XqView.Pet)
+            {
+                _next.style.display = DisplayStyle.None;
+                _here.style.display = DisplayStyle.None;
+                _ringHost.style.display = DisplayStyle.None;
+                _ringDetail.style.display = DisplayStyle.None;
+                _quiet.style.display = DisplayStyle.None;
+                Bubble.style.display = DisplayStyle.None;
+                return;
+            }
             var s = XiaoqiLink.Current;
             bool asleep = PetPresence.IsAsleep || (s != null && s.pose == "sleep");
             bool away = s != null && s.where == "out";
@@ -619,17 +630,18 @@ namespace Xiaoqi.UI2
                 _ringDetail.style.left = dp.x;
                 _ringDetail.style.top = dp.y;
             }
-            bool showGate = (_near || _menuOpen || GateAlways) && !Xiaoqi.UI.XqMenu.IsOpen;
-            if (showGate != _gateLogged)
-            {
-                _gateLogged = showGate;
-                var gr = _gate != null ? _gate.worldBound : default(Rect);
-                Debug.Log("XQ_HUD gate shown=" + showGate + " near=" + _near + " menuOpen=" + _menuOpen + " rect(panel)=" + gr.x.ToString("0") + "," + gr.y.ToString("0") + " " + gr.width.ToString("0") + "x" + gr.height.ToString("0") + " scale=" + scale.ToString("0.00"));
-            }
+            // D-3 方案 B「常显」：桌宠态下方钮常显，近景/右键菜单打开时隐藏；且仅在布局宽高有效后记录日志
+            bool showGate = !Xiaoqi.UI.XqMenu.IsOpen && Xiaoqi.Mode.XqMode.Current == Xiaoqi.Mode.XqView.Pet;
             if (_gate != null)
             {
                 _gate.style.opacity = showGate ? 1f : 0f;
                 _gate.style.display = showGate ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+            var gr = _gate != null ? _gate.worldBound : default(Rect);
+            if (showGate != _gateLogged && (!showGate || gr.width > 1f))
+            {
+                _gateLogged = showGate;
+                Debug.Log("XQ_HUD gate shown=" + showGate + " near=" + _near + " menuOpen=" + _menuOpen + " rect(panel)=" + gr.x.ToString("0") + "," + gr.y.ToString("0") + " " + gr.width.ToString("0") + "x" + gr.height.ToString("0") + " scale=" + scale.ToString("0.00"));
             }
             PlaceToday(panel, r, scale);
         }

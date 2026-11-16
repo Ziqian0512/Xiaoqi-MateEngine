@@ -91,13 +91,13 @@ namespace Xiaoqi.UI2
             _ringFocus = new VisualElement { name = "xq-close-ring", pickingMode = PickingMode.Position };
             _ringFocus.AddToClassList("xq-cl-ring");
             _ringFocus.generateVisualContent += DrawRing;
-            _ringWord = new Label("占位") { pickingMode = PickingMode.Ignore };
+            _ringWord = new Label("25:00\n一起专注 · 占位") { pickingMode = PickingMode.Ignore };
             _ringWord.AddToClassList("xq-cl-ring-word");
             _ringFocus.Add(_ringWord);
             // 占位圆环点了不该有反应，也不该让点击漏到下面的窗口
             _ringFocus.RegisterCallback<ClickEvent>(e =>
             {
-                try { e.StopPropagation(); Pair("ring placeholder"); }
+                try { e.StopPropagation(); if (_lastClickFrame != Time.frameCount) { _lastClickFrame = Time.frameCount; Pair("ring placeholder"); } }
                 catch (Exception ex) { Debug.LogWarning("XQ_CLOSE ring: " + ex.Message); }
             });
             Add("ring", XqCloseLayout.RingL, XqCloseLayout.RingT,
@@ -110,7 +110,7 @@ namespace Xiaoqi.UI2
             _host.Add(_ringFocus);
         }
 
-        /// <summary>玻璃卡外壳：host（可点）→ body（玻璃 + 高光），返回 host 并给出内容容器。</summary>
+        /// <summary>玻璃卡外壳：host（可点）→ body（直接铺满设半透明白底，避免 overflow:hidden 触发模板缓冲裁剪导致卡面空白）。</summary>
         VisualElement CardShell(string cls, bool emph, string name, out VisualElement body)
         {
             var host = new VisualElement { name = name, pickingMode = PickingMode.Position };
@@ -119,15 +119,12 @@ namespace Xiaoqi.UI2
 
             body = new VisualElement { pickingMode = PickingMode.Ignore };
             body.AddToClassList("xq-body");
-
-            var glass = new VisualElement { pickingMode = PickingMode.Ignore };
-            glass.AddToClassList("xq-glass");
-            if (emph) glass.AddToClassList("xq-glass-emph");
+            body.style.flexGrow = 1f;
+            body.style.backgroundColor = new Color(1f, 1f, 1f, emph ? 0.90f : 0.82f);
 
             var hi = new VisualElement { pickingMode = PickingMode.Ignore };
             hi.AddToClassList("xq-hi");
 
-            body.Add(glass);
             body.Add(hi);
             host.Add(body);
             return host;

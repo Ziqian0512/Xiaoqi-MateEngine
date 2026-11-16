@@ -23,6 +23,7 @@ namespace Xiaoqi.UI2
         bool _daySub;
         bool _stageSub;
         int _saySeq = -1;
+        int _dataShotIdx;
         VisualElement _focusCard;
         float _focusT = 1f;
         bool _focusOn;
@@ -63,7 +64,16 @@ namespace Xiaoqi.UI2
 
         void OnDataChanged()
         {
-            try { RefreshSay(); RefreshNext(); }
+            try
+            {
+                RefreshSay();
+                RefreshNext();
+                RefreshEnergy(XiaoqiLink.Current);
+                Pair("data next=" + (_nextTime != null && _nextTime.style.display == DisplayStyle.Flex ? _nextTime.text + " " : "") + (_nextWhat != null ? _nextWhat.text : "")
+                    + " | energy=" + (_energyWord != null ? _energyWord.text : "")
+                    + " | say=" + (_sayText != null ? _sayText.text : ""));
+                if (_data != null && _shown) _data.Shot("data-" + (++_dataShotIdx) + ".png", 0.35f);
+            }
             catch (Exception e) { Debug.LogWarning("XQ_CLOSE refresh: " + e.Message); }
         }
 
@@ -124,12 +134,13 @@ namespace Xiaoqi.UI2
             if (_energyWord == null || _energyArc == null) return;
             string word = null;
             float amount = -1f;
-            if (s != null && s.body != null)
+            var b = (s != null && s.body != null) ? s.body : (_data != null && _data.Day != null ? _data.Day.body : null);
+            if (b != null)
             {
                 // 量纲沿用 XqPetHud：假数据里 stamina / sleepy 是 0–100
-                float st = Mathf.Clamp(s.body.stamina, 0f, 100f);
+                float st = Mathf.Clamp(b.stamina, 0f, 100f);
                 amount = st / 100f;
-                if (s.body.sleepy >= 70f) word = "有点困";
+                if (b.sleepy >= 70f) word = "有点困";
                 else if (st <= 35f) word = "累了";
                 else word = "精神";
             }
@@ -192,6 +203,8 @@ namespace Xiaoqi.UI2
                 try
                 {
                     e.StopPropagation();
+                    if (_lastClickFrame == Time.frameCount) return;
+                    _lastClickFrame = Time.frameCount;
                     if (act != null) act();
                 }
                 catch (Exception ex) { Debug.LogWarning("XQ_CLOSE dot " + word + ": " + ex.Message); }

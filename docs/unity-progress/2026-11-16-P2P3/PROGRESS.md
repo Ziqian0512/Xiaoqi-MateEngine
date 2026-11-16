@@ -10,8 +10,12 @@
 | P2-0 | 服务器 `POST /api/body/event` | WB | **双端已测**（WB 本机 19 项 + 真 HTTP 5 项；Grok 另机 19 项全过 EXIT=0），未部署 | 主库 `server/E1c-body-event` `fa70cb2b` |
 | P2-1 | `XqMode` 三态 + `XqEventSink` + 入口 | WB | 写完[未编] | `Assets/Xiaoqi/Mode/XqMode.cs`、`XqEventSink.cs`、`XqModeConfig.cs`；入口：右键「让她…」子菜单末尾 3 项（`XqMenu.cs`），热键 Ctrl+Alt+1/2/3（默认关，`-xq-hotkeys` 或 `xq_mode.json`），`Esc` |
 | P2-2 | 近景镜头 | WB | 写完[未编] | `XqCloseCamera.cs`（包 ME `AvatarBigScreenHandler`，不改它）|
-| P2-3 | 近景界面 | DeepSeek | 未开始 | 分支 `xiaoqi/p2-deepseek`；订阅 `XqMode.OnCloseReady / OnCloseLeaving` 出现和收起 |
-| P2-4/5 | 延展动画、数据接入 | DeepSeek | 未开始 | |
+| P2-3 | 近景界面 | DeepSeek | 已合入 `xiaoqi/p2` | 分支 `xiaoqi/p2-deepseek`；订阅 `XqMode.OnCloseReady / OnCloseLeaving` 出现和收起 |
+| P2-4/5 | 延展动画、数据接入 | DeepSeek | 已合入 `xiaoqi/p2` | |
+| D-1 | 近景取景调参（眼睛 43%、居中，±5%）| AGY（新 Agent）| **实机过[已编]** | `Assets/Xiaoqi/Mode/XqCloseCamera.cs`、`XqModeConfig.cs`（分支 `xiaoqi/p2-agy`）|
+| D-2 | 近景界面的位置/脸区/占位与卡面裁剪修复 | AGY（新 Agent）| **实机过[已编]** | `UI2/XqCloseLayout.cs`、`XqClosePanel*.cs`、`XqClose.uss`、`xq.uss` |
+| D-3 | 方钮点击与常显（方案 B）+ 近景隐藏桌宠胶囊 | AGY（新 Agent）| **实机过[已编]** | `UI2/XqPetHud.cs` |
+| D-4 | 近景数据接入/断线显示「还没有」| AGY（新 Agent）| **实机过[已编]** | `UI2/XqCloseData.cs`、`XqCloseDay.cs`、`XqClosePanel.Bind.cs` |
 
 ## P3 工作台
 

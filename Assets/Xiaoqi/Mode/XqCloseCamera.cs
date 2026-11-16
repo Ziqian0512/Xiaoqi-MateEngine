@@ -15,6 +15,14 @@ namespace Xiaoqi.Mode
         public const float SettleSec = 1.0f;
 
         private static AvatarBigScreenHandler _h;
+        private static bool _active;
+        private static bool _hasSavedPos;
+        private static Vector3 _savedAvatarPos;
+        private static bool _hasSavedAnim;
+        private static int _savedStateHash;
+        private static float _savedNormTime;
+        private static float _savedClipLen;
+        private static float _savedIdleIdx;
 
         private static AvatarBigScreenHandler Handler()
         {
@@ -28,8 +36,7 @@ namespace Xiaoqi.Mode
         {
             get
             {
-                var h = Handler();
-                return h != null && h.avatarAnimator != null && h.avatarAnimator.GetBool("isBigScreen");
+                return _active && Handler() != null;
             }
         }
 
@@ -41,7 +48,40 @@ namespace Xiaoqi.Mode
             var c = XqModeConfig.I;
             if (c.close_zoom > 0f) h.TargetZoom = c.close_zoom;
             h.YOffset = c.close_yoffset;
-            if (!IsActive) h.ToggleBigScreenFromUI();
+            if (!_active)
+            {
+                _active = true;
+                // G59-P2 §3.1/§3.3：保持站姿待机平稳帧并把头部水平对齐镜头中线（50%），退出时原样恢复位置与动画相位
+                if (h.avatarAnimator != null)
+                {
+                    var a = h.avatarAnimator;
+                    if (!_hasSavedAnim)
+                    {
+                        var st = a.GetCurrentAnimatorStateInfo(0);
+                        _savedStateHash = st.fullPathHash;
+                        _savedNormTime = st.normalizedTime;
+                        _savedClipLen = st.length;
+                        _savedIdleIdx = a.GetFloat("IdleIndex");
+                        _hasSavedAnim = true;
+                    }
+                    _savedAvatarPos = a.transform.position;
+                    _hasSavedPos = true;
+                    a.SetBool("isBigScreen", false);
+                    a.SetFloat("IdleIndex", 0f);
+                    a.Play("Idle", 0, 0.55f);
+                    a.speed = 0.15f;
+                    a.Update(0f);
+                    var cam = h.MainCamera != null ? h.MainCamera : Camera.main;
+                    var head = a.GetBoneTransform(h.attachBone);
+                    if (cam != null && head != null)
+                    {
+                        float dx = cam.transform.position.x - head.position.x;
+                        a.transform.position += new Vector3(dx, 0f, 0f);
+                    }
+                }
+                h.ToggleBigScreenFromUI();
+                if (h.avatarAnimator != null) h.avatarAnimator.SetBool("isBigScreen", false);
+            }
             return true;
         }
 
@@ -49,14 +89,37 @@ namespace Xiaoqi.Mode
         public static bool BeginExit()
         {
             var h = Handler();
-            if (h == null) return false;
-            if (IsActive) h.ToggleBigScreenFromUI();
+            if (h == null) { _active = false; return false; }
+            if (_active)
+            {
+                _active = false;
+                if (h.avatarAnimator != null) h.avatarAnimator.speed = 1f;
+                h.ToggleBigScreenFromUI();
+            }
             return true;
         }
 
         public static IEnumerator Settle()
         {
             yield return new WaitForSecondsRealtime(SettleSec);
+            var h = Handler();
+            if (!_active && h != null && h.avatarAnimator != null)
+            {
+                var a = h.avatarAnimator;
+                a.speed = 1f;
+                if (_hasSavedPos)
+                {
+                    a.transform.position = _savedAvatarPos;
+                    _hasSavedPos = false;
+                }
+                if (_hasSavedAnim && _savedStateHash != 0)
+                {
+                    float rewind = _savedClipLen > 0.1f ? (1.0f / _savedClipLen) : 0f;
+                    a.SetFloat("IdleIndex", _savedIdleIdx);
+                    a.Play(_savedStateHash, 0, Mathf.Max(0f, _savedNormTime - rewind));
+                    a.Update(0f);
+                }
+            }
         }
     }
 }

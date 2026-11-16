@@ -122,10 +122,17 @@
 }
 
 .xq-cl-card .xq-body {
+    flex-grow: 1;
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
-    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.82);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.88);
+}
+
+.xq-cl-card-say .xq-body {
+    background-color: rgba(255, 255, 255, 0.90);
 }
 
 .xq-cl-row {

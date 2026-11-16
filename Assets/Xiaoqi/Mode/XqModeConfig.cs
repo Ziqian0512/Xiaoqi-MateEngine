@@ -18,7 +18,7 @@ namespace Xiaoqi.Mode
 
         // ---- 近景镜头（P2-2，0 = 沿用 ME 默认）----
         public float close_zoom = 0f;         // AvatarBigScreenHandler.TargetZoom
-        public float close_yoffset = 0.08f;   // AvatarBigScreenHandler.YOffset
+        public float close_yoffset = 0.045f;  // AvatarBigScreenHandler.YOffset（实机标定：站姿下眼睛位于屏高约 43%）
 
         // ---- 工作台窗口（P3-1/2，比例按 1920x1080 标准图：左 7.3% 上 29.6% 宽 85.4% 高 68.5%）----
         public float bench_left_pct = 0.073f;
