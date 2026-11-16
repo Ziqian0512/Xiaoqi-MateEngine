@@ -103,6 +103,12 @@ public class XqFullscreenHide : MonoBehaviour
         var mon = MonitorFromWindow(fg, MONITOR_DEFAULTTONEAREST);
         var info = new MONITORINFO { cbSize = Marshal.SizeOf(typeof(MONITORINFO)) };
         if (mon == IntPtr.Zero || !GetMonitorInfo(mon, ref info)) return false;
+        // 只看她所在的那块屏：另一块屏上的全屏窗口不该把她藏掉（主人 2026-11-16 定的规则，待确认）
+        if (self != IntPtr.Zero)
+        {
+            var selfMon = MonitorFromWindow(self, MONITOR_DEFAULTTONEAREST);
+            if (selfMon != IntPtr.Zero && selfMon != mon) return false;
+        }
         var m = info.rcMonitor;
         const int tol = 8;
         int ww = wr.right - wr.left;

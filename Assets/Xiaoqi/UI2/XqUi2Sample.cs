@@ -49,6 +49,16 @@ namespace Xiaoqi.UI2
         HeadAnchor _head;
         float _nextHeadFind;
 
+        /// <summary>从右键菜单打开玻璃版今天卡。桌宠界面没起来返回 false。</summary>
+        public static bool OpenToday()
+        {
+            if (_instance == null)
+                _instance = FindFirstObjectByType<XqUi2Sample>(FindObjectsInactive.Include);
+            if (_instance == null || _instance._hud == null || !_instance.enabled) return false;
+            _instance._hud.OpenToday(_instance);
+            return true;
+        }
+
         public static void SetTheme(string theme)
         {
             if (_instance == null)
