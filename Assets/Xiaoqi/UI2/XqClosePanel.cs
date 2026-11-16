@@ -73,13 +73,16 @@ namespace Xiaoqi.UI2
             _shown = true;
             _host.style.display = DisplayStyle.Flex;
             Place();
+            StartEnter();
             Pair("open");
         }
 
         void HideSelf()
         {
             _shown = false;
-            if (_host != null) _host.style.display = DisplayStyle.None;
+            if (_host == null) return;
+            if (_host.style.display == DisplayStyle.None) return;
+            StartExit();
             Pair("close");
         }
 
@@ -129,6 +132,7 @@ namespace Xiaoqi.UI2
             BuildPlate();
             BuildButtons();
             BuildCards();
+            AnimRegister();
 
             root.Add(_host);
             _built = true;
@@ -159,6 +163,7 @@ namespace Xiaoqi.UI2
             if (pw < 8f || ph < 8f) return;
 
             float u = ph / XqCloseLayout.Stage;
+            _u = u;
             PlaceOne(_rail, XqCloseLayout.RailL, XqCloseLayout.RailT,
                 XqCloseLayout.RailW, XqCloseLayout.RailH, pw, ph, u);
             PlaceOne(_plate, XqCloseLayout.PlateL, XqCloseLayout.PlateT,
