@@ -41,7 +41,7 @@ namespace Xiaoqi.UI2
         /// <summary>day 数据；null 表示这次没拿到（断线 / 解析失败 / 没配服务器）。</summary>
         public XqCloseDay Day { get; private set; }
 
-        /// <summary>最新一句 kind=say 的话；null 表示没有或没拿到。</summary>
+        /// <summary>最新一句 kind=said 的话（服务器写的是 said）；null 表示没有或没拿到。</summary>
         public string Say { get; private set; }
 
         /// <summary>day 与 feed 两者是否都拿到了。卡片用它区分「还没拿到」与「拿到了但没有」。</summary>
@@ -188,7 +188,7 @@ namespace Xiaoqi.UI2
                 foreach (var it in env.items)
                 {
                     if (it == null) continue;
-                    if (it.kind != "say") continue;              // 主人说的话是 kind='heard'，不要
+                    if (it.kind != "said" && it.kind != "say") continue;              // 主人说的话是 kind='heard'，不要
                     if (string.IsNullOrEmpty(it.text)) continue;
                     if (!string.IsNullOrEmpty(it.scope) && it.scope != "private") continue;
                     say = it.text;                               // 升序，最后一条最新
