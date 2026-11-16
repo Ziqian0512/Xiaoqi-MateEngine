@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Xiaoqi.Host;
@@ -54,10 +55,8 @@ namespace Xiaoqi.UI2
             Root.AddToClassList("xq-menu2");
             Root.style.display = DisplayStyle.None;
 
-            _l1 = XqPetHud.Glass("xq-mcard", true);
-            _l1Box = Content(_l1);
-            _l2 = XqPetHud.Glass("xq-mcard xq-mcard2", true);
-            _l2Box = Content(_l2);
+            _l1 = Card("xq-mcard", out _l1Box);
+            _l2 = Card("xq-mcard xq-mcard2", out _l2Box);
             _l2.style.display = DisplayStyle.None;
             Root.Add(_l1);
             Root.Add(_l2);
@@ -65,13 +64,67 @@ namespace Xiaoqi.UI2
             Xiaoqi.UI.XqMenu.Replaced = true;
         }
 
-        static VisualElement Content(VisualElement glassHost)
+        /// <summary>
+        /// 平铺结构：host 里 阴影 → 背景(绝对铺满，圆角) → 内容(正常流)。
+        /// 不再用 .xq-body：那一层是 overflow:hidden + 圆角 + 主题色底，内容放在里面，
+        /// 实机上整块内容不出现（卡面只剩白底）。这里内容不在任何裁剪容器里。
+        /// </summary>
+        static VisualElement Card(string cls, out VisualElement box)
         {
-            var body = glassHost.Q(className: "xq-body");
-            var box = new VisualElement { pickingMode = PickingMode.Ignore };
+            var host = new VisualElement { pickingMode = PickingMode.Ignore };
+            foreach (var c in cls.Split(' ')) if (c.Length > 0) host.AddToClassList(c);
+            var shadow = new VisualElement { pickingMode = PickingMode.Ignore };
+            shadow.AddToClassList("xq-shadow");
+            var bg = new VisualElement { pickingMode = PickingMode.Ignore };
+            bg.AddToClassList("xq-mbg");
+            box = new VisualElement { pickingMode = PickingMode.Position };
             box.AddToClassList("xq-mbox");
-            body.Add(box);
-            return box;
+            host.Add(shadow);
+            host.Add(bg);
+            host.Add(box);
+            if (Debug2)
+            {
+                bg.style.backgroundColor = new Color(0.2f, 0.9f, 0.9f, 1f);
+                box.style.backgroundColor = new Color(1f, 0.2f, 0.8f, 0.55f);
+            }
+            return host;
+        }
+
+        /// <summary>-xq-menu-debug：卡背景青、内容区洋红、每行绿、文字底黄，用来看是哪一层画不出来。</summary>
+        static readonly bool Debug2 = Array.IndexOf(Environment.GetCommandLineArgs(), "-xq-menu-debug") >= 0;
+
+        // ---- 桌面坐标：ME 移动的是窗口，她在窗口里基本不动，窗口内坐标不能用来判断她在屏幕哪一边 ----
+        [StructLayout(LayoutKind.Sequential)] struct WRECT { public int left, top, right, bottom; }
+        [StructLayout(LayoutKind.Sequential)] struct WPOINT { public int x, y; }
+        [StructLayout(LayoutKind.Sequential)] struct WMONINFO { public int cbSize; public WRECT rcMonitor; public WRECT rcWork; public uint dwFlags; }
+        [DllImport("user32.dll", CharSet = CharSet.Unicode, EntryPoint = "FindWindowW")] static extern IntPtr FindWindowW(string cls, string title);
+        [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr h, out WRECT r);
+        [DllImport("user32.dll")] static extern IntPtr MonitorFromPoint(WPOINT pt, uint flags);
+        [DllImport("user32.dll")] static extern bool GetMonitorInfo(IntPtr mon, ref WMONINFO mi);
+        static IntPtr _hwnd;
+
+        /// <summary>窗口左上角在桌面上的位置，以及她身体中线所在显示器的范围（桌面坐标）。失败返回 false。</summary>
+        static bool Desk(Rect body, out int winLeft, out int monLeft, out int monRight)
+        {
+            winLeft = monLeft = monRight = 0;
+            try
+            {
+                if (_hwnd == IntPtr.Zero) _hwnd = FindWindowW("UnityWndClass", "小祈");
+                if (_hwnd == IntPtr.Zero) _hwnd = FindWindowW("UnityWndClass", null);
+                if (_hwnd == IntPtr.Zero) return false;
+                WRECT wr;
+                if (!GetWindowRect(_hwnd, out wr)) return false;
+                var pt = new WPOINT { x = wr.left + Mathf.RoundToInt(body.center.x), y = wr.top + Mathf.RoundToInt(Screen.height - body.center.y) };
+                var mon = MonitorFromPoint(pt, 2);
+                if (mon == IntPtr.Zero) return false;
+                var mi = new WMONINFO { cbSize = Marshal.SizeOf(typeof(WMONINFO)) };
+                if (!GetMonitorInfo(mon, ref mi)) return false;
+                winLeft = wr.left;
+                monLeft = mi.rcMonitor.left;
+                monRight = mi.rcMonitor.right;
+                return monRight > monLeft;
+            }
+            catch (Exception) { _hwnd = IntPtr.Zero; return false; }
         }
 
         // ------------------------------------------------------------ 打开 / 关闭
@@ -94,9 +147,21 @@ namespace Xiaoqi.UI2
             float roomRight = Screen.width - body.xMax;
             float roomLeft = body.xMin;
             bool preferRight = body.center.x < Screen.width * 0.5f;
+            string how = "window";
+            int wl, ml, mr;
+            if (Desk(body, out wl, out ml, out mr))
+            {
+                // 她在显示器的哪半边，就决定菜单朝哪边；空间也按显示器边界算
+                float deskCx = wl + body.center.x;
+                preferRight = deskCx < (ml + mr) * 0.5f;
+                roomRight = mr - (wl + body.xMax);
+                roomLeft = (wl + body.xMin) - ml;
+                how = "desktop cx=" + deskCx.ToString("0") + " mon=" + ml + ".." + mr;
+            }
             _sideRight = preferRight;
             if (preferRight && roomRight < need && roomLeft > roomRight) _sideRight = false;
             else if (!preferRight && roomLeft < need && roomRight > roomLeft) _sideRight = true;
+            Debug.Log("XQ_MENU2 side-pick " + how + " roomL=" + roomLeft.ToString("0") + " roomR=" + roomRight.ToString("0") + " need=" + need.ToString("0") + " -> " + (_sideRight ? "R" : "L"));
 
             Rebuild();
             Root.style.display = DisplayStyle.Flex;
@@ -177,17 +242,26 @@ namespace Xiaoqi.UI2
             if (limitW < 16f) limitW = Screen.width / Mathf.Max(0.1f, scale);
             if (limitH < 16f) limitH = Screen.height / Mathf.Max(0.1f, scale);
 
+            float minX = 8f;
+            int wl2, ml2, mr2;
+            if (Desk(body, out wl2, out ml2, out mr2))
+            {
+                // 卡不出她所在的显示器（窗口比显示器大时，卡会画到别的屏上或屏外）
+                minX = Mathf.Max(8f, (ml2 - wl2) / Mathf.Max(0.1f, scale) + 8f);
+                float monRightPanel = (mr2 - wl2) / Mathf.Max(0.1f, scale) - 8f;
+                if (monRightPanel > minX + 100f) limitW = Mathf.Min(limitW, monRightPanel + 8f);
+            }
             float w1 = Wid(_l1, L1W), h1 = Hei(_l1, 340f);
             float k = Ease(Mathf.Clamp01((Time.unscaledTime - _t0) / 0.18f));
             float dir = _sideRight ? 1f : -1f;
 
             float x1 = _sideRight ? br.x + Gap : tl.x - Gap - w1;
             float y1 = tl.y + (br.y - tl.y) * 0.04f;
-            x1 = Mathf.Clamp(x1, 8f, Mathf.Max(8f, limitW - w1 - 8f));
+            x1 = Mathf.Clamp(x1, minX, Mathf.Max(minX, limitW - w1 - 8f));
             y1 = Mathf.Clamp(y1, 8f, Mathf.Max(8f, limitH - h1 - 56f));
             _l1.style.left = x1;
             _l1.style.top = y1;
-            _l1.style.opacity = k;
+            if (k < 0.999f) _l1.style.opacity = k; else _l1.style.opacity = StyleKeyword.Null;
             _l1.style.translate = new Translate((1f - k) * 10f * -dir, 0f, 0f);
 
             bool showSub = !string.IsNullOrEmpty(_sub);
@@ -204,11 +278,11 @@ namespace Xiaoqi.UI2
                 // 二级永远在一级的外侧
                 float x2 = _sideRight ? x1 + w1 + Gap : x1 - Gap - w2;
                 float y2 = Mathf.Clamp(rowTop, 8f, Mathf.Max(8f, limitH - h2 - 56f));
-                x2 = Mathf.Clamp(x2, 8f, Mathf.Max(8f, limitW - w2 - 8f));
+                x2 = Mathf.Clamp(x2, minX, Mathf.Max(minX, limitW - w2 - 8f));
                 float k2 = Ease(Mathf.Clamp01((Time.unscaledTime - _subT0) / 0.18f));
                 _l2.style.left = x2;
                 _l2.style.top = y2;
-                _l2.style.opacity = k2;
+                if (k2 < 0.999f) _l2.style.opacity = k2; else _l2.style.opacity = StyleKeyword.Null;
                 _l2.style.translate = new Translate((1f - k2) * 10f * -dir, 0f, 0f);
             }
         }
