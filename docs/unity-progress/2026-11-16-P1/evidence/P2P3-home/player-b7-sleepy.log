@@ -1,0 +1,219 @@
+Mono path[0] = 'E:/dsh-pet-projects/Xiaoqi-ME-int/Build/Xiaoqi/Xiaoqi_Data/Managed'
+Mono config path = 'E:/dsh-pet-projects/Xiaoqi-ME-int/Build/Xiaoqi/MonoBleedingEdge/etc'
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Initialize engine version: 6000.2.6f2 (4a4dcaec6541)
+[Subsystems] Discovering subsystems at path E:/dsh-pet-projects/Xiaoqi-ME-int/Build/Xiaoqi/Xiaoqi_Data/UnitySubsystems
+kGfxThreadingModeSplitJobs is not supported on Direct3D 11. Reverting to kGfxThreadingModeClientWorkerJobs instead.
+GfxDevice: creating device client; kGfxThreadingModeClientWorkerJobs
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 5090 D v2 (ID=0x2b8c)
+    Vendor:   NVIDIA
+    VRAM:     24035 MB
+    Driver:   32.0.16.1088
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.092 seconds
+- Finished resetting the current domain, in  0.002 seconds
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+<RI> Initializing input.
+<RI> Input initialized.
+The class named 'SteamDRM' is abstract. The script class can't be abstract!
+UnloadTime: 0.442400 ms
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+[Steamworks.NET] SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+FPS set to: 90
+<color=#bada55>[Receiver] Awake! Avatar: DEFAULT AVATAR</color>
+<color=#4FFFD7>[Receiver] Aktiviert: DEFAULT AVATAR (VRMModel)</color>
+[AvatarMinecraftMessages] UDP ready on 32145
+XiaoqiHide: not found = AI
+XiaoqiHide: not found = FOOD SYSTEM
+XiaoqiHide: not found = STEAM DLC
+XiaoqiHide: not found AI INPUT
+XiaoqiHide: not found AiSystemPrompt
+XiaoqiHide: not found AlarmMenuCanvas
+XiaoqiHide: not found BlendshapeMenuCanvas
+XiaoqiHide: not found DancePlayerMenuCanvas
+XiaoqiHide: not found Discord
+XiaoqiHide: not found Discord RPC
+XiaoqiHide: not found Food System
+XiaoqiHide: not found FoodMenu
+XiaoqiHide: not found LOCK_STEAM_DLC
+XiaoqiHide: not found Main Menu
+XiaoqiHide: not found MainMenuAlarm
+XiaoqiHide: not found MateEngineAPI/FoodMenu
+XiaoqiHide: not found MenuPanel
+XiaoqiHide: not found ModLoader
+XiaoqiHide: not found STEAM_DLC
+XiaoqiHide: not found STEAM_FS
+XiaoqiHide: not found STEAM_MC
+XiaoqiHide: not found SteamContent
+XiaoqiHide: not found SteamDRM
+XiaoqiHide: not found SteamSDK
+XiaoqiHide: not found SteamWorkshop
+XiaoqiHide: not found SystemStart
+XiaoqiHide: not found Tutorial
+XiaoqiHide: not found Welcome
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XQ_UI2 theme=pink class=xq-theme-pink
+XQ_SHOT_Awake args=4 index=-1
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+[SystemStartHandler] Enabled autostart (HKCU) as 'Xiaoqi' → "E:\dsh-pet-projects\Xiaoqi-ME-int\Build\Xiaoqi\Xiaoqi.exe"
+XiaoqiHide: not found = AI
+XiaoqiHide: not found = FOOD SYSTEM
+XiaoqiHide: not found = ME Modding
+XiaoqiHide: not found = Settings
+XiaoqiHide: not found = STEAM DLC
+XiaoqiHide: not found = Steam Exklusives
+XiaoqiHide: not found AI Alarm Speech
+XiaoqiHide: not found AI INPUT
+XiaoqiHide: not found AI Speech
+XiaoqiHide: not found AiSystemPrompt
+XiaoqiHide: not found AlarmMenuCanvas
+XiaoqiHide: not found BlendshapeMenuCanvas
+XiaoqiHide: not found Chat
+XiaoqiHide: not found ChatBot AI
+XiaoqiHide: not found DancePlayerMenuCanvas
+XiaoqiHide: not found Discord
+XiaoqiHide: not found Discord RPC
+XiaoqiHide: not found DiscordPresence
+XiaoqiHide: not found Food
+XiaoqiHide: not found Food System
+XiaoqiHide: not found FoodMenu
+XiaoqiHide: not found LOCK_STEAM_DLC
+XiaoqiHide: not found Main Menu
+XiaoqiHide: not found MainMenuAlarm
+XiaoqiHide: not found MateEngineAPI/FoodMenu
+XiaoqiHide: not found MateEngineAPI/ModLoader
+XiaoqiHide: not found MenuPanel
+XiaoqiHide: not found ModLoader
+XiaoqiHide: not found STEAM_DLC
+XiaoqiHide: not found STEAM_FS
+XiaoqiHide: not found STEAM_MC
+XiaoqiHide: not found SteamAPI
+XiaoqiHide: not found SteamContent
+XiaoqiHide: not found SteamDRM
+XiaoqiHide: not found SteamSDK
+XiaoqiHide: not found SteamWorkshop
+XiaoqiHide: not found SystemStart
+XiaoqiHide: not found Tutorial
+XiaoqiHide: not found Welcome
+XiaoqiHide: not found Welcome Window
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XIAOQI_SYSTEMS ready model=XiaoqiData/16.vrm host=True
+XIAOQI_FAKE_STAGE E:/dsh-pet-projects/Xiaoqi-ME-int/Build/Xiaoqi/Xiaoqi_Data/StreamingAssets\Xiaoqi\fake_stage\pet_sleepy.json
+XQ_PRESENCE dorm=True sleep=False seg=桌前发呆
+XQ_BRAIN 2026-11-16 19:22:30 src=server evt=stage where=dorm pose=sit_idle tier=calm label=- sleepy=80
+XQ_STAGE pose=sit_idle where=dorm tier=calm
+XQ_BRAIN 2026-11-16 19:22:30 src=server evt=tier tier=calm why=stage dorm/sit_idle
+XQ_HOST me-menu suppressed
+XQ_FS hide
+<color=#FFBC4F>[Receiver] Deaktiviert: DEFAULT AVATAR (VRMModel)</color>
+<color=#bada55>[Receiver] Awake! Avatar: Default</color>
+<color=#4FFFD7>[Receiver] Aktiviert: Default (CustomVRM(Clone))</color>
+<color=#93FF4F>[Receiver] SetAnimator called! Neuer Animator gesetzt f黵: MODDED AVATAR (CustomVRM(Clone))</color>
+[AvatarMinecraftMessages] UDP ready on 32145
+[AvatarLibraryMenu] VRM already exists in library, skipping: Ciel_VRC_bake_1.0
+Unloading 5 Unused Serialized files (Serialized files now loaded: 4)
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+XQ_UI2 camera direct hdr=0 msaa=0 keepAlpha=1
+Unloading 27 unused Assets to reduce memory usage. Loaded Objects now: 14924.
+Total: 3.583100 ms (FindLiveObjects: 0.523200 ms CreateObjectMapping: 0.219700 ms MarkObjects: 2.800000 ms  DeleteObjects: 0.040000 ms)
+
+XQ_HOST avatar CustomVRM(Clone) animator=True proxy=True
+XQ_IDLE bound anim=CustomVRM(Clone) cur=0 pool=10 switch_time=1e9
+XQ_CLIPS PET_IDLE | PET_IDLE_UPDATE2_01 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_2 | PET_IDLE_14 | PET_IDLE_4 | PET_IDLE_3 | PET_IDLE_5 | PET_IDLE_15 | PET_IDLE_13 | PET_IDLE_9 | PET_IDLE_12 | PET_IDLE_6 | PET_IDLE_10 | PET_IDLE_11 | PET_IDLE_7 | PET_IDLE_8 | PET_IDLE | HUS_IDLE01 | HUS_IDLE02 | HUS_IDLE03 | HUS_IDLE04 | HUS_IDLE05 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE08 | HUS_IDLE09 | HUS_IDLE05 | HUS_IDLE03 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE02 | HUS_IDLE04 | HUS_IDLE09 | HUS_IDLE06 | HUS_IDLE08 | HUS_IDLE03 | HUS_IDLE01 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_02 | HUS_DANCE_01 | HUS_IDLE09 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_UPDATE2_01 | CUSTOM_DANCE | PET_IDLE_12 | FACE_IDLE_1 | 
+XQ_START waking→ok 2.7s
+XQ_UI2 on theme=pink class=xq-theme-pink scale=0.91 bodyH=331 fontPx=14.6 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+XQ_HOST dances=0
+XQ_WATCH start
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_BRAIN 2026-11-16 19:22:34 src=random evt=skip reason=not-idle-state
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+Curl error 28: Operation timed out after 5000 milliseconds with 0 bytes received
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_BRAIN 2026-11-16 19:22:39 src=server evt=self_sleep start sleepy=80 hold=8 min=0.4
+XQ_NAP start min=0.4
+XQ_BRAIN 2026-11-16 19:22:40 src=random evt=skip reason=asleep
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_SLEEP hold idle=False
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+Curl error 28: Operation timed out after 5001 milliseconds with 0 bytes received
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+Curl error 28: Operation timed out after 5000 milliseconds with 0 bytes received
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+Curl error 28: Operation timed out after 5001 milliseconds with 0 bytes received
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_NAP end
+XQ_BRAIN 2026-11-16 19:23:03 src=server evt=self_sleep wake cooldown_min=0.5
+XQ_BRAIN 2026-11-16 19:23:04 src=random evt=idle from=0 pick=9:PET_IDLE_5 fade=0.56 tier=calm cand=1:PET_IDLE_UPDATE2_01(1.2)|2:PET_IDLE_UPDATE2_02(1.2)|3:PET_IDLE_UPDATE2_03(1.1)|4:PET_IDLE_UPDATE2_04(1.2)|5:PET_IDLE_2(1.5)|6:PET_IDLE_14(1.5)|7:PET_IDLE_4(1.4)|8:PET_IDLE_3(1.0)|9:PET_IDLE_5(1.9) why=timer
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+Curl error 28: Operation timed out after 5002 milliseconds with 0 bytes received
+XQ_BRAIN 2026-11-16 19:23:08 src=random evt=idle from=9 pick=8:PET_IDLE_3 fade=0.74 tier=calm cand=0:PET_IDLE(1.6)|1:PET_IDLE_UPDATE2_01(1.5)|2:PET_IDLE_UPDATE2_02(1.3)|3:PET_IDLE_UPDATE2_03(1.9)|4:PET_IDLE_UPDATE2_04(1.6)|5:PET_IDLE_2(1.8)|6:PET_IDLE_14(1.3)|7:PET_IDLE_4(1.4)|8:PET_IDLE_3(1.9) why=timer
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163
+XQ_BRAIN 2026-11-16 19:23:13 src=random evt=idle from=8 pick=0:PET_IDLE fade=0.75 tier=calm cand=0:PET_IDLE(2.0)|1:PET_IDLE_UPDATE2_01(1.9)|2:PET_IDLE_UPDATE2_02(1.1)|3:PET_IDLE_UPDATE2_03(1.1)|4:PET_IDLE_UPDATE2_04(1.7)|5:PET_IDLE_2(1.8)|6:PET_IDLE_14(1.9)|7:PET_IDLE_4(1.8) why=timer
+XQ_WATCH hwnd=20516308
+XQ_WATCH rect=-2560,-683,-1696,-163

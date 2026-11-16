@@ -1,0 +1,11 @@
+2026-11-16 19:21:39 src=server evt=stage where=dorm pose=lie_phone tier=calm label=回邮件 sleepy=0
+2026-11-16 19:21:39 src=server evt=tier tier=calm why=stage dorm/lie_phone
+2026-11-16 19:21:39 src=server evt=typing bubble=1
+2026-11-16 19:21:43 src=random evt=skip reason=not-idle-state
+2026-11-16 19:21:53 src=random evt=idle from=0 pick=2:PET_IDLE_UPDATE2_02 fade=0.57 tier=calm cand=1:PET_IDLE_UPDATE2_01(1.1)|2:PET_IDLE_UPDATE2_02(1.8)|3:PET_IDLE_UPDATE2_03(1.0)|4:PET_IDLE_UPDATE2_04(1.0)|5:PET_IDLE_2(1.6)|6:PET_IDLE_14(1.5)|7:PET_IDLE_4(1.6)|8:PET_IDLE_3(1.2)|9:PET_IDLE_5(1.3) why=timer
+2026-11-16 19:21:56 src=random evt=idle from=2 pick=6:PET_IDLE_14 fade=0.67 tier=calm cand=0:PET_IDLE(1.8)|1:PET_IDLE_UPDATE2_01(1.0)|3:PET_IDLE_UPDATE2_03(1.9)|4:PET_IDLE_UPDATE2_04(1.2)|5:PET_IDLE_2(1.8)|6:PET_IDLE_14(2.0)|7:PET_IDLE_4(1.6)|8:PET_IDLE_3(1.6)|9:PET_IDLE_5(1.2) why=timer
+2026-11-16 19:22:02 src=random evt=idle from=6 pick=5:PET_IDLE_2 fade=0.56 tier=calm cand=0:PET_IDLE(1.1)|1:PET_IDLE_UPDATE2_01(1.1)|3:PET_IDLE_UPDATE2_03(1.3)|4:PET_IDLE_UPDATE2_04(1.5)|5:PET_IDLE_2(1.9)|7:PET_IDLE_4(1.2)|8:PET_IDLE_3(1.9)|9:PET_IDLE_5(1.5) why=timer
+2026-11-16 19:22:05 src=random evt=idle from=5 pick=8:PET_IDLE_3 fade=0.42 tier=calm cand=0:PET_IDLE(1.6)|1:PET_IDLE_UPDATE2_01(1.3)|3:PET_IDLE_UPDATE2_03(1.9)|4:PET_IDLE_UPDATE2_04(1.1)|7:PET_IDLE_4(1.5)|8:PET_IDLE_3(1.9)|9:PET_IDLE_5(1.6) why=timer
+2026-11-16 19:22:08 src=random evt=idle from=8 pick=0:PET_IDLE fade=0.41 tier=calm cand=0:PET_IDLE(1.9)|1:PET_IDLE_UPDATE2_01(1.3)|3:PET_IDLE_UPDATE2_03(1.8)|4:PET_IDLE_UPDATE2_04(1.8)|7:PET_IDLE_4(1.6)|9:PET_IDLE_5(1.4) why=timer
+2026-11-16 19:22:13 src=random evt=idle from=0 pick=7:PET_IDLE_4 fade=0.70 tier=calm cand=1:PET_IDLE_UPDATE2_01(1.6)|3:PET_IDLE_UPDATE2_03(1.1)|4:PET_IDLE_UPDATE2_04(1.5)|7:PET_IDLE_4(2.0)|9:PET_IDLE_5(1.4) why=timer
+2026-11-16 19:22:18 src=random evt=idle from=7 pick=4:PET_IDLE_UPDATE2_04 fade=0.42 tier=calm cand=1:PET_IDLE_UPDATE2_01(1.1)|3:PET_IDLE_UPDATE2_03(1.5)|4:PET_IDLE_UPDATE2_04(1.8)|9:PET_IDLE_5(1.4) why=timer
