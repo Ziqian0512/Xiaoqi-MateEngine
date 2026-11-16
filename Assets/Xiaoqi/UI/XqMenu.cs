@@ -73,6 +73,8 @@ namespace Xiaoqi.UI
         private float _r;
         private float _menuScale = 1f;
         private Image _link;
+        private XqUi.PlateView _subPlate;
+        private readonly List<float> _subHover = new List<float>();
 
         private static XqMenu _instance;
 
@@ -246,6 +248,7 @@ namespace Xiaoqi.UI
             else if (kind == "dance") BuildDance();
             else if (kind == "idle") BuildIdle();
             PositionSub();
+            if (_subPlate != null) _subPlate.Group.alpha = 0f;
             SetDim(true);
             StartCoroutine(SubIn());
         }
@@ -345,9 +348,12 @@ namespace Xiaoqi.UI
         private IEnumerator SubIn()
         {
             float t = 0f;
+            if (_subPlate != null) _subPlate.Group.alpha = 0f;
             while (t < XqStyle.InSec)
             {
                 t += Time.unscaledDeltaTime;
+                float pe = Mathf.Clamp01(t / XqStyle.InSec);
+                if (_subPlate != null) _subPlate.Group.alpha = 1f - Mathf.Pow(1f - pe, 3f);
                 for (int i = 0; i < _sub.Count; i++)
                 {
                     var s = _sub[i];
@@ -359,6 +365,7 @@ namespace Xiaoqi.UI
                 }
                 yield return null;
             }
+            if (_subPlate != null) _subPlate.Group.alpha = 1f;
             foreach (var s in _sub) if (s.View != null) { s.Group.alpha = 1f; s.View.Root.localScale = Vector3.one; }
         }
 
@@ -481,11 +488,11 @@ namespace Xiaoqi.UI
 
         private void PositionSub()
         {
-            float gap = XqStyle.Fr(6f);
-            float step = XqStyle.Fr(44f);
+            float gap = XqStyle.Fr(XqStyle.SubGap);
+            float step = XqStyle.Fr(XqStyle.SubStep);
             string anchorId = _subKind == "quiet" ? "quiet" : "doing";
             var anchor = AnchorSlot(anchorId);
-            if (anchor == null) return;
+            if (anchor == null || _sub.Count == 0) return;
 
             var anchorRect = anchor.View.Root;
             float anchorW = anchorRect.sizeDelta.x;
@@ -503,43 +510,73 @@ namespace Xiaoqi.UI
                 }
             }
 
+            // 主题 B：列内统一宽度，整列读起来是一块面板里的行，而不是长短不齐的白胶囊。
+            float rowW = XqStyle.Fr(XqStyle.SubRowMinWidth);
+            foreach (var s in _sub)
+                rowW = Mathf.Max(rowW, s.View.Text.preferredWidth + XqStyle.Fr(2f * XqStyle.CapsulePadX));
+
+            float padX = XqStyle.Fr(XqStyle.SubPanelPadX);
+            float padY = XqStyle.Fr(XqStyle.SubPanelPadY);
             float base0 = baseX;
             int cols = _sub.Count > 8 ? 2 : 1;
             int perCol = Mathf.CeilToInt(_sub.Count / (float)cols);
-            float colStep = XqStyle.Fr(160f);
+            float colStep = XqStyle.Fr(XqStyle.SubColStep);
             float half = (perCol - 1) * step * 0.5f;
-            float minY = half + XqStyle.Fr(8f) - _center.y;
-            float maxY = Screen.height - half - XqStyle.Fr(8f) - _center.y;
+            float minY = half + padY + XqStyle.Fr(8f) - _center.y;
+            float maxY = Screen.height - half - padY - XqStyle.Fr(8f) - _center.y;
             centerY = Mathf.Clamp(centerY, minY, maxY);
+
+            float boxMinX = float.MaxValue, boxMaxX = float.MinValue;
+            float boxMinY = float.MaxValue, boxMaxY = float.MinValue;
 
             for (int i = 0; i < _sub.Count; i++)
             {
                 var s = _sub[i];
-                float tw = s.View.Text.preferredWidth + XqStyle.Fr(2f * XqStyle.CapsulePadX);
-                float w = Mathf.Max(XqStyle.Fr(96f), tw);
-                s.View.Root.sizeDelta = new Vector2(w, _capH);
+                var rt = s.View.Root;
                 int col = cols == 1 ? 0 : i / perCol;
                 int row = cols == 1 ? i : i % perCol;
-                baseX = base0 + (_left ? -col * colStep : col * colStep);
-                int pw2 = Mathf.RoundToInt(w), ph2 = Mathf.RoundToInt(_capH);
-                s.View.Bg.sprite = XqUi.Pill(pw2, ph2, s.Gray ? XqStyle.GrayFill : XqStyle.Paper,
-                    s.Gray ? XqStyle.GrayLine : XqStyle.PinkLine);
+                float x = base0 + (_left ? -col * colStep : col * colStep);
+                float y = centerY + ((perCol - 1) * 0.5f - row) * step;
+
+                rt.sizeDelta = new Vector2(rowW, _capH);
+                int pw2 = Mathf.RoundToInt(rowW), ph2 = Mathf.RoundToInt(_capH);
+                // 行底透明融进面板，hover 才浮出白胶囊（描边 1px，与一级项同一套）。
+                s.View.Bg.sprite = XqUi.Rounded(pw2, ph2, ph2 * 0.5f, XqStyle.SubRowFill, XqStyle.SubRowFill);
                 s.View.Bg.type = Image.Type.Simple;
                 s.View.Bg.color = Color.white;
-                s.View.HoverBg.sprite = XqUi.Pill(pw2, ph2, XqStyle.PinkFill, XqStyle.PinkStrong);
+                s.View.HoverBg.sprite = XqUi.Rounded(pw2, ph2, ph2 * 0.5f, XqStyle.SubRowHoverFill,
+                    s.Gray ? XqStyle.GrayLine : XqStyle.SubRowHoverLine, XqStyle.StrokeWidth);
                 s.View.HoverBg.type = Image.Type.Simple;
-                s.View.HoverBg.color = new Color(XqStyle.PinkFill.r, XqStyle.PinkFill.g, XqStyle.PinkFill.b, 0f);
+                s.View.HoverBg.color = new Color(XqStyle.SubRowHoverFill.r, XqStyle.SubRowHoverFill.g,
+                    XqStyle.SubRowHoverFill.b, 0f);
+                s.View.Text.color = s.Gray ? XqStyle.SubRowTextGray : XqStyle.SubRowText;
 
-                var rt = s.View.Root;
                 rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
                 rt.pivot = new Vector2(_left ? 1f : 0f, 0.5f);
-                float y = centerY + ((perCol - 1) * 0.5f - row) * step;
-                s.BasePos = new Vector2(baseX, y);
+                s.BasePos = new Vector2(x, y);
                 rt.anchoredPosition = s.BasePos;
-
                 rt.localScale = Vector3.one;
                 s.Group.alpha = 1f;
+
+                float leftEdge = _left ? x - rowW : x;
+                float rightEdge = _left ? x : x + rowW;
+                boxMinX = Mathf.Min(boxMinX, leftEdge);
+                boxMaxX = Mathf.Max(boxMaxX, rightEdge);
+                boxMinY = Mathf.Min(boxMinY, y - _capH * 0.5f);
+                boxMaxY = Mathf.Max(boxMaxY, y + _capH * 0.5f);
             }
+
+            // 浅粉面板包住整列；压在胶囊下面、不吃点击，空白处仍按旧逻辑穿透。
+            if (_subPlate == null)
+                _subPlate = XqUi.Plate(_root, "SubPlate");
+            _subPlate.Root.gameObject.SetActive(true);
+            _subPlate.Root.SetSiblingIndex(1);
+            XqUi.FitPlate(_subPlate,
+                new Vector2(boxMaxX - boxMinX + 2f * padX, boxMaxY - boxMinY + 2f * padY));
+            _subPlate.Root.anchoredPosition = new Vector2((boxMinX + boxMaxX) * 0.5f, (boxMinY + boxMaxY) * 0.5f);
+
+            _subHover.Clear();
+            for (int i = 0; i < _sub.Count; i++) _subHover.Add(0f);
 
             if (_link == null)
             {
@@ -554,9 +591,10 @@ namespace Xiaoqi.UI
             lrt.anchorMin = lrt.anchorMax = new Vector2(0.5f, 0.5f);
             lrt.pivot = new Vector2(0f, 0.5f);
             float parentEdge = _left ? anchor.BasePos.x - anchorW : anchor.BasePos.x + anchorW;
-            float linkLen = Mathf.Abs(base0 - parentEdge);
+            float plateEdge = _left ? base0 + padX : base0 - padX;
+            float linkLen = Mathf.Abs(plateEdge - parentEdge);
             lrt.sizeDelta = new Vector2(Mathf.Max(2f, linkLen), XqStyle.Fr(2f));
-            lrt.anchoredPosition = new Vector2(Mathf.Min(parentEdge, base0), centerY - XqStyle.Fr(1f));
+            lrt.anchoredPosition = new Vector2(Mathf.Min(parentEdge, plateEdge), centerY - XqStyle.Fr(1f));
         }
 
         private void ClearSub()
@@ -564,7 +602,13 @@ namespace Xiaoqi.UI
             foreach (var s in _sub)
                 if (s.View != null) Destroy(s.View.Root.gameObject);
             _sub.Clear();
+            _subHover.Clear();
             _subKind = "";
+            if (_subPlate != null)
+            {
+                _subPlate.Group.alpha = 0f;
+                _subPlate.Root.gameObject.SetActive(false);
+            }
             if (_link != null) _link.gameObject.SetActive(false);
             _hintGroup.alpha = 0f;
             SetDim(false);
@@ -627,6 +671,7 @@ namespace Xiaoqi.UI
                 foreach (var s in _slots) s.Group.alpha = 1f;
             }
             AnimateHover();
+            if (_sub.Count > 0) AnimateSubHover();
             if (!string.IsNullOrEmpty(_demoSub) && _since > 0.3f)
             {
                 var kind = _demoSub;
@@ -691,6 +736,26 @@ namespace Xiaoqi.UI
                 var dir = s.BasePos.sqrMagnitude > 1f ? s.BasePos.normalized : Vector2.zero;
                 if (_since >= XqStyle.InSec)
                     rt.anchoredPosition = s.BasePos + dir * (XqStyle.Fr(4f) * h);
+            }
+        }
+
+        /// <summary>主题 B：二级行 hover 才浮出白胶囊，位置不动（避免和入场错峰动画打架）。</summary>
+        private void AnimateSubHover()
+        {
+            for (int i = 0; i < _sub.Count; i++)
+            {
+                var s = _sub[i];
+                if (s.View == null) continue;
+                float prev = i < _subHover.Count ? _subHover[i] : 0f;
+                float target = !s.Gray && RectTransformUtility.RectangleContainsScreenPoint(
+                    s.View.Root, Input.mousePosition, null) ? 1f : 0f;
+                float h = Mathf.MoveTowards(prev, target, Time.unscaledDeltaTime / XqStyle.HoverSec);
+                if (i < _subHover.Count) _subHover[i] = h;
+                if (s.Gray) continue;
+                var c = s.View.HoverBg.color;
+                c.a = h;
+                s.View.HoverBg.color = c;
+                s.View.Text.color = Color.Lerp(XqStyle.SubRowText, XqStyle.PinkStrong, h * 0.4f);
             }
         }
 

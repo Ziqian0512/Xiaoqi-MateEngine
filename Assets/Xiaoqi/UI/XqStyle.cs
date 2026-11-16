@@ -33,6 +33,23 @@ namespace Xiaoqi.UI
         public const float ShadowSpread = 3f;
         public const float CapsuleRadius = 18f;
 
+        // 主题 B：二级面板——同色系浅粉底 + 1px 描边，整列胶囊收进一块圆角面板。
+        public static readonly Color SubPanelFill = PinkFill;
+        public static readonly Color SubPanelLine = PinkGuide;
+        public static readonly Color SubRowFill = new Color(1f, 1f, 1f, 0f);
+        public static readonly Color SubRowHoverFill = Paper;
+        public static readonly Color SubRowHoverLine = PinkStrong;
+        public static readonly Color SubRowText = TextPrimary;
+        public static readonly Color SubRowTextGray = TextDisabled;
+
+        public const float SubPanelRadius = 20f;
+        public const float SubPanelPadX = 10f;
+        public const float SubPanelPadY = 8f;
+        public const float SubRowMinWidth = 96f;
+        public const float SubStep = 44f;
+        public const float SubGap = 16f;
+        public const float SubColStep = 168f;
+
         public const float InSec = 0.18f;
         public const float OutSec = 0.12f;
         public const float HoverSec = 0.10f;

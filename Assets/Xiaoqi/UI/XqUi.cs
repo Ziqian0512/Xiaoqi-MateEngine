@@ -151,6 +151,33 @@ tex.Apply();
             return s;
         }
 
+        /// <summary>主题 B：精确尺寸的圆角矩形（任意半径，圆角不会被九宫格拉扁）。面板/底板用。</summary>
+        public static Sprite Rounded(int w, int h, float radiusPx, Color fill, Color line, float strokePx = 1f)
+        {
+            w = Mathf.Max(8, w);
+            h = Mathf.Max(8, h);
+            string key = "q" + w + "x" + h + "r" + Mathf.RoundToInt(radiusPx * 10)
+                         + ColorKey(fill) + ColorKey(line) + "s" + Mathf.RoundToInt(strokePx * 10);
+            if (Sprites.TryGetValue(key, out var s)) return s;
+            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+            var px = new Color32[w * h];
+            float r = Mathf.Clamp(radiusPx, 1f, Mathf.Min(w, h) * 0.5f);
+            float stroke = Mathf.Max(0f, strokePx);
+            for (int y = 0; y < h; y++)
+            for (int x = 0; x < w; x++)
+            {
+                float d = RoundRectDist(x + 0.5f, y + 0.5f, w, h, r);
+                px[y * w + x] = Shade(fill, line, d, stroke);
+            }
+            tex.SetPixels32(px);
+            tex.Apply();
+            tex.wrapMode = TextureWrapMode.Clamp;
+            tex.filterMode = FilterMode.Bilinear;
+            s = Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
+            Sprites[key] = s;
+            return s;
+        }
+
         /// <summary>柔和外投影蒙版（白色 + 渐隐 alpha，颜色由 Image.color 给）。</summary>
         public static Sprite Shadow(float radiusPx)
         {
@@ -230,6 +257,54 @@ tex.Apply();
             le.preferredHeight = XqStyle.Fr(height);
             le.minHeight = XqStyle.Fr(height);
             return t;
+        }
+
+        public class PlateView
+        {
+            public RectTransform Root;
+            public Image Bg, Shadow;
+            public CanvasGroup Group;
+        }
+
+        /// <summary>主题 B：底板（柔和投影 + 圆角填充 + 1px 描边）。永不参与点击，空白处仍按旧逻辑穿透。</summary>
+        public static PlateView Plate(Transform parent, string name)
+        {
+            var rt = Node(parent, name);
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+
+            var shadowRt = Node(rt, "Shadow");
+            shadowRt.anchorMin = Vector2.zero;
+            shadowRt.anchorMax = Vector2.one;
+            shadowRt.offsetMin = new Vector2(-XqStyle.Fr(XqStyle.ShadowSpread),
+                -XqStyle.Fr(XqStyle.ShadowSpread) - XqStyle.Fr(XqStyle.ShadowOffsetY));
+            shadowRt.offsetMax = new Vector2(XqStyle.Fr(XqStyle.ShadowSpread),
+                XqStyle.Fr(XqStyle.ShadowSpread) - XqStyle.Fr(XqStyle.ShadowOffsetY));
+            var shadow = Panel(shadowRt, Shadow(XqStyle.Fr(XqStyle.SubPanelRadius)), XqStyle.ShadowSoft);
+            shadow.raycastTarget = false;
+
+            var bg = Panel(rt, Rounded(64, 64, XqStyle.Fr(XqStyle.SubPanelRadius), XqStyle.SubPanelFill,
+                XqStyle.SubPanelLine), Color.white);
+            bg.type = Image.Type.Simple;
+            bg.raycastTarget = false;
+
+            var grp = rt.gameObject.AddComponent<CanvasGroup>();
+            grp.alpha = 0f;
+            grp.interactable = false;
+            grp.blocksRaycasts = false;
+            return new PlateView { Root = rt, Bg = bg, Shadow = shadow, Group = grp };
+        }
+
+        /// <summary>按内容包围盒换底板尺寸与贴图；圆角、描边宽度都从 XqStyle 取。</summary>
+        public static void FitPlate(PlateView p, Vector2 size)
+        {
+            if (p == null) return;
+            int w = Mathf.Max(8, Mathf.RoundToInt(size.x));
+            int h = Mathf.Max(8, Mathf.RoundToInt(size.y));
+            p.Root.sizeDelta = new Vector2(w, h);
+            p.Bg.sprite = Rounded(w, h, XqStyle.Fr(XqStyle.SubPanelRadius), XqStyle.SubPanelFill, XqStyle.SubPanelLine);
+            p.Bg.type = Image.Type.Simple;
+            p.Shadow.sprite = Shadow(XqStyle.Fr(XqStyle.SubPanelRadius));
         }
 
         public class CapsuleView
@@ -330,12 +405,19 @@ tex.Apply();
             var trackRt = Node(rt, "Track");
             trackRt.sizeDelta = new Vector2(XqStyle.Fr(44f), XqStyle.Fr(24f));
             trackRt.anchoredPosition = new Vector2(0f, -XqStyle.Fr(2f));
-            var track = Panel(trackRt, Round(XqStyle.GrayLine, XqStyle.GrayLine, 12f), Color.white);
+            int trackW = Mathf.RoundToInt(XqStyle.Fr(44f)), trackH = Mathf.RoundToInt(XqStyle.Fr(24f));
+            int knobPx = Mathf.RoundToInt(XqStyle.Fr(18f));
+            var track = Panel(trackRt, Rounded(trackW, trackH, trackH * 0.5f, XqStyle.GrayLine, XqStyle.GrayLine),
+                Color.white);
+            track.type = Image.Type.Simple;
             track.raycastTarget = true;
 
+            // 主题 B 附带修：旋钮原本用 Node() 的 pivot=(0,1) 又锚在右边，半个身子露在轨道外。
             var knobRt = Node(trackRt, "Knob");
-            knobRt.sizeDelta = new Vector2(XqStyle.Fr(18f), XqStyle.Fr(18f));
-            var knob = Panel(knobRt, Round(XqStyle.Paper, XqStyle.Paper, 10f), Color.white);
+            knobRt.pivot = new Vector2(0.5f, 0.5f);
+            knobRt.sizeDelta = new Vector2(knobPx, knobPx);
+            var knob = Panel(knobRt, Rounded(knobPx, knobPx, knobPx * 0.5f, XqStyle.Paper, XqStyle.Paper), Color.white);
+            knob.type = Image.Type.Simple;
             knob.raycastTarget = false;
 
             var state = new SwitchView { Root = rt, Track = track, Knob = knob };
@@ -348,10 +430,13 @@ tex.Apply();
             };
             void Apply()
             {
-                track.sprite = Round(value ? XqStyle.PinkStrong : XqStyle.GrayLine,
-                    value ? XqStyle.PinkStrong : XqStyle.GrayLine, 12f);
-                knobRt.anchorMin = knobRt.anchorMax = new Vector2(value ? 1f : 0f, 0.5f);
-                knobRt.anchoredPosition = new Vector2(value ? -XqStyle.Fr(12f) : XqStyle.Fr(12f), 0f);
+                track.sprite = Rounded(trackW, trackH, trackH * 0.5f,
+                    value ? XqStyle.PinkStrong : XqStyle.GrayLine,
+                    value ? XqStyle.PinkStrong : XqStyle.GrayLine);
+                track.type = Image.Type.Simple;
+                knobRt.anchorMin = knobRt.anchorMax = new Vector2(0.5f, 0.5f);
+                float inset = Mathf.Max(0f, (XqStyle.Fr(44f) - knobPx) * 0.5f - XqStyle.Fr(2f));
+                knobRt.anchoredPosition = new Vector2(value ? inset : -inset, 0f);
             }
             Apply();
 
@@ -373,6 +458,16 @@ tex.Apply();
                 for (int k = 0; k < Items.Count; k++) Apply(k == i, Items[k]);
                 Changed?.Invoke(i);
             }
+        }
+
+        /// <summary>粗略字宽：CJK 记 1em、ASCII 0.58em、空白 0.33em。只用于给胶囊定首选宽度。</summary>
+        public static float EstimateText(string s, float fontPx)
+        {
+            if (string.IsNullOrEmpty(s)) return 0f;
+            float w = 0f;
+            foreach (var ch in s)
+                w += ch <= 0x20 ? fontPx * 0.33f : (ch < 0x7F ? fontPx * 0.58f : fontPx);
+            return w;
         }
 
         private static void Apply(bool on, CapsuleView v)
@@ -401,8 +496,13 @@ tex.Apply();
                 int idx = i;
                 var cap = Capsule(rt, options[i], null);
                 cap.Hover.OnClick = () => view.SetIndex(idx);
+                // 分段按钮永远单行：空间不够时宁可让文字多占一点内边距，也不折成两行。
+                cap.Text.horizontalOverflow = HorizontalWrapMode.Overflow;
+                cap.Text.verticalOverflow = VerticalWrapMode.Overflow;
                 var cw = cap.Root.gameObject.GetComponent<LayoutElement>();
-                var textWidth = options[i].Length * XqStyle.FontCapsule * XqStyle.Scale * 1.0f
+                // 主题 B 附带：按字数估算（CJK 1em / ASCII 0.58em / 空白 0.33em），比等宽估算准，
+                // 也不会像 Text.preferredWidth 那样在 Wrap 模式下拿到被父宽影响的值。
+                var textWidth = EstimateText(options[i], XqStyle.FontCapsule * XqStyle.Scale)
                                 + XqStyle.Fr(2f * XqStyle.CapsulePadX + 2f);
                 cw.preferredWidth = Mathf.Max(XqStyle.Fr(52f), textWidth);
                 view.Items.Add(cap);
