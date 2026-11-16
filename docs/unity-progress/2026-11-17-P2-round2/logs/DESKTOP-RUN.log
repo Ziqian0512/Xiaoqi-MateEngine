@@ -1,0 +1,18 @@
+﻿Monitor \\.\DISPLAY2 Bounds=-2560,-683 2560x1440 u=2.667
+=== R-2: Passthrough ===
+SHOT R2-before.png
+After transparent click fg=无标题 - Notepad
+SHOT R2-after-transparent-click.png
+After card/rail click fg=小祈
+SHOT R2-after-card-click.png
+=== R-3: 4 Exits ===
+=== R-4: RightClick, Drag, Fullscreen ===
+SHOT R4-1-rclick.png
+SHOT R4-1-rclick-after.png
+SHOT R4-2-drag.png
+SHOT R4-3-fullscreen.png
+SHOT R4-3-fullscreen-after.png
+=== R-5: Settings via Gear ===
+SHOT R5-settings-open.png
+SHOT R5-settings-closed.png
+ALL DONE!

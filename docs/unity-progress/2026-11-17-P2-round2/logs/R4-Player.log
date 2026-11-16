@@ -1,0 +1,484 @@
+Mono path[0] = 'E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/Xiaoqi_Data/Managed'
+Mono config path = 'E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/MonoBleedingEdge/etc'
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Initialize engine version: 6000.2.6f2 (4a4dcaec6541)
+[Subsystems] Discovering subsystems at path E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/Xiaoqi_Data/UnitySubsystems
+kGfxThreadingModeSplitJobs is not supported on Direct3D 11. Reverting to kGfxThreadingModeClientWorkerJobs instead.
+GfxDevice: creating device client; kGfxThreadingModeClientWorkerJobs
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 5090 D v2 (ID=0x2b8c)
+    Vendor:   NVIDIA
+    VRAM:     24035 MB
+    Driver:   32.0.16.1088
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.069 seconds
+- Finished resetting the current domain, in  0.001 seconds
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+<RI> Initializing input.
+<RI> Input initialized.
+The class named 'SteamDRM' is abstract. The script class can't be abstract!
+UnloadTime: 0.346800 ms
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+[Steamworks.NET] SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+FPS set to: 90
+<color=#bada55>[Receiver] Awake! Avatar: DEFAULT AVATAR</color>
+<color=#4FFFD7>[Receiver] Aktiviert: DEFAULT AVATAR (VRMModel)</color>
+[AvatarMinecraftMessages] UDP ready on 32145
+XiaoqiHide: not found = AI
+XiaoqiHide: not found = FOOD SYSTEM
+XiaoqiHide: not found = STEAM DLC
+XiaoqiHide: not found AI INPUT
+XiaoqiHide: not found AiSystemPrompt
+XiaoqiHide: not found AlarmMenuCanvas
+XiaoqiHide: not found BlendshapeMenuCanvas
+XiaoqiHide: not found DancePlayerMenuCanvas
+XiaoqiHide: not found Discord
+XiaoqiHide: not found Discord RPC
+XiaoqiHide: not found Food System
+XiaoqiHide: not found FoodMenu
+XiaoqiHide: not found LOCK_STEAM_DLC
+XiaoqiHide: not found Main Menu
+XiaoqiHide: not found MainMenuAlarm
+XiaoqiHide: not found MateEngineAPI/FoodMenu
+XiaoqiHide: not found MenuPanel
+XiaoqiHide: not found ModLoader
+XiaoqiHide: not found STEAM_DLC
+XiaoqiHide: not found STEAM_FS
+XiaoqiHide: not found STEAM_MC
+XiaoqiHide: not found SteamContent
+XiaoqiHide: not found SteamDRM
+XiaoqiHide: not found SteamSDK
+XiaoqiHide: not found SteamWorkshop
+XiaoqiHide: not found SystemStart
+XiaoqiHide: not found Tutorial
+XiaoqiHide: not found Welcome
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XQ_UI2 theme=pink class=xq-theme-pink
+XQ_SHOT_Awake args=5 index=-1
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+[SystemStartHandler] Enabled autostart (HKCU) as 'Xiaoqi' → "E:\dsh-pet-projects\Xiaoqi-ME-p2\Build\Xiaoqi\Xiaoqi.exe"
+XiaoqiHide: not found = AI
+XiaoqiHide: not found = FOOD SYSTEM
+XiaoqiHide: not found = ME Modding
+XiaoqiHide: not found = Settings
+XiaoqiHide: not found = STEAM DLC
+XiaoqiHide: not found = Steam Exklusives
+XiaoqiHide: not found AI Alarm Speech
+XiaoqiHide: not found AI INPUT
+XiaoqiHide: not found AI Speech
+XiaoqiHide: not found AiSystemPrompt
+XiaoqiHide: not found AlarmMenuCanvas
+XiaoqiHide: not found BlendshapeMenuCanvas
+XiaoqiHide: not found Chat
+XiaoqiHide: not found ChatBot AI
+XiaoqiHide: not found DancePlayerMenuCanvas
+XiaoqiHide: not found Discord
+XiaoqiHide: not found Discord RPC
+XiaoqiHide: not found DiscordPresence
+XiaoqiHide: not found Food
+XiaoqiHide: not found Food System
+XiaoqiHide: not found FoodMenu
+XiaoqiHide: not found LOCK_STEAM_DLC
+XiaoqiHide: not found Main Menu
+XiaoqiHide: not found MainMenuAlarm
+XiaoqiHide: not found MateEngineAPI/FoodMenu
+XiaoqiHide: not found MateEngineAPI/ModLoader
+XiaoqiHide: not found MenuPanel
+XiaoqiHide: not found ModLoader
+XiaoqiHide: not found STEAM_DLC
+XiaoqiHide: not found STEAM_FS
+XiaoqiHide: not found STEAM_MC
+XiaoqiHide: not found SteamAPI
+XiaoqiHide: not found SteamContent
+XiaoqiHide: not found SteamDRM
+XiaoqiHide: not found SteamSDK
+XiaoqiHide: not found SteamWorkshop
+XiaoqiHide: not found SystemStart
+XiaoqiHide: not found Tutorial
+XiaoqiHide: not found Welcome
+XiaoqiHide: not found Welcome Window
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XIAOQI_SYSTEMS ready model=E:\dsh-pet-projects\Xiaoqi-ME-p2\Build\Xiaoqi\XiaoqiData\16.vrm host=True
+XQ_HOST me-menu suppressed
+<color=#FFBC4F>[Receiver] Deaktiviert: DEFAULT AVATAR (VRMModel)</color>
+<color=#bada55>[Receiver] Awake! Avatar: Default</color>
+<color=#4FFFD7>[Receiver] Aktiviert: Default (CustomVRM(Clone))</color>
+<color=#93FF4F>[Receiver] SetAnimator called! Neuer Animator gesetzt f黵: MODDED AVATAR (CustomVRM(Clone))</color>
+[AvatarMinecraftMessages] UDP ready on 32145
+[AvatarLibraryMenu] VRM already exists in library, skipping: Ciel_VRC_bake_1.0
+Unloading 5 Unused Serialized files (Serialized files now loaded: 4)
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+XQ_UI2 camera direct hdr=0 msaa=0 keepAlpha=1
+Unloading 27 unused Assets to reduce memory usage. Loaded Objects now: 15181.
+Total: 2.622300 ms (FindLiveObjects: 0.436300 ms CreateObjectMapping: 0.192300 ms MarkObjects: 1.961600 ms  DeleteObjects: 0.031900 ms)
+
+XQ_HOST avatar CustomVRM(Clone) animator=True proxy=True
+XQ_IDLE bound anim=CustomVRM(Clone) cur=0 pool=10 switch_time=1e9
+XQ_CLIPS PET_IDLE | PET_IDLE_UPDATE2_01 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_2 | PET_IDLE_14 | PET_IDLE_4 | PET_IDLE_3 | PET_IDLE_5 | PET_IDLE_15 | PET_IDLE_13 | PET_IDLE_9 | PET_IDLE_12 | PET_IDLE_6 | PET_IDLE_10 | PET_IDLE_11 | PET_IDLE_7 | PET_IDLE_8 | PET_IDLE | HUS_IDLE01 | HUS_IDLE02 | HUS_IDLE03 | HUS_IDLE04 | HUS_IDLE05 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE08 | HUS_IDLE09 | HUS_IDLE05 | HUS_IDLE03 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE02 | HUS_IDLE04 | HUS_IDLE09 | HUS_IDLE06 | HUS_IDLE08 | HUS_IDLE03 | HUS_IDLE01 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_02 | HUS_DANCE_01 | HUS_IDLE09 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_UPDATE2_01 | CUSTOM_DANCE | PET_IDLE_12 | FACE_IDLE_1 | 
+XQ_UI2 on theme=pink class=xq-theme-pink scale=2.00 bodyH=1063 fontPx=32.0 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=1504,164 40x40 scale=2.00
+XQ_HOST dances=0
+XQ_WATCH start
+XQ_WATCH hwnd=726848
+XQ_WATCH rect=-2559,-652,0,788
+XQ_MODE Pet -> Close
+XQ_EVENT view close
+XQ_TEST snap before win=-2559,-652 2559x1440 body=970..1939 y=53..982 h=929 mode=Pet
+XQ_HUD gate shown=False near=False menuOpen=False rect(panel)=926,106 40x40 scale=2.00
+XQ_CLOSE doc=XqUi2Document
+XQ_CLOSE ok rail rect=0.023,0.048 0.065x0.904
+XQ_CLOSE ok plate rect=0.375,0.826 0.229x0.074
+XQ_CLOSE ok btn-pet rect=0.869,0.896 0.042x0.074
+XQ_CLOSE ok btn-bench rect=0.919,0.896 0.042x0.074
+XQ_CLOSE ok card-next rect=0.113,0.178 0.235x0.237
+XQ_CLOSE ok card-energy rect=0.113,0.456 0.215x0.170
+XQ_CLOSE ok card-say rect=0.696,0.063 0.273x0.237
+XQ_CLOSE ok card-tiny rect=0.729,0.344 0.240x0.237
+XQ_CLOSE ok ring rect=0.833,0.652 0.123x0.219
+XQ_CLOSE ok tip-bench rect=0.811,0.905 0.100x0.056
+XQ_CLOSE anim enter
+XQ_CLOSE open
+XQ_CLOSE ok rail rect=0.023,0.048 0.065x0.904
+XQ_CLOSE ok plate rect=0.375,0.826 0.229x0.074
+XQ_CLOSE ok btn-pet rect=0.869,0.896 0.042x0.074
+XQ_CLOSE ok btn-bench rect=0.919,0.896 0.042x0.074
+XQ_CLOSE ok card-next rect=0.113,0.178 0.235x0.237
+XQ_CLOSE ok card-energy rect=0.113,0.456 0.215x0.170
+XQ_CLOSE ok card-say rect=0.696,0.063 0.273x0.237
+XQ_CLOSE ok card-tiny rect=0.729,0.344 0.240x0.237
+XQ_CLOSE ok ring rect=0.833,0.652 0.123x0.219
+XQ_CLOSE ok tip-bench rect=0.811,0.905 0.100x0.056
+XQ_WATCH hwnd=726848
+XQ_WATCH rect=-2560,-683,0,757
+XQ_CLOSE day fail: 502
+XQ_CLOSE eyes view=(0.50,0.55) target=(0.50,0.57)
+XQ_TEST snap close win=-2560,-683 2560x1440 body=-34..2671 y=-2573..1648 h=4221 mode=Close
+XQ_CLOSE feed fail: 502
+XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+XQ_WATCH hwnd=726848
+XQ_WATCH rect=-2560,-683,0,757
+XQ_CLOSE anim settled
+XQ_MENU2 side-pick desktop cx=-1215 mon=-2560..0 roomL=22 roomR=-108 need=1008 -> L
+XQ_MENU2 open side=L body=22..2668 scale=2.00
+XQ_MENU2 tree VisualElement.xq-mcard rect=13,373 244x291 disp=Flex vis=Visible op=0.49 bg=00000000
+XQ_MENU2 tree   VisualElement.xq-shadow rect=-15,355 300x337 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree   VisualElement.xq-mbg rect=13,373 244x291 disp=Flex vis=Visible op=1.00 bg=FFFFFFD2
+XQ_MENU2 tree   VisualElement.xq-mbox rect=13,373 244x291 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree     VisualElement.xq-mstat rect=23,383 224x30 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mdot rect=31,394 8x8 disp=Flex vis=Visible op=1.00 bg=FF8FB8FF
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mstat-text rect=47,387 192x22 disp=Flex vis=Visible op=1.00 bg=00000000 text="还没有" color=3B2E549E font=15
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mstat-energy rect=239,398 0x0 disp=Flex vis=Visible op=1.00 bg=00000000 text="" color=D6477FFF font=15
+XQ_MENU2 tree     VisualElement.xq-mrow rect=23,419 224x38 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mic rect=31,425 26x26 disp=Flex vis=Visible op=1.00 bg=FF8FB8FF
+XQ_MENU2 tree         XqGlyph.xq-mglyph rect=36,430 16x16 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtext rect=67,427 170x24 disp=Flex vis=Visible op=1.00 bg=00000000 text="今天" color=3B2F55FF font=16
+XQ_MENU2 tree     VisualElement.xq-mrow.xq-mrow-gray rect=23,457 224x38 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mic rect=31,463 26x26 disp=Flex vis=Visible op=1.00 bg=3B2E5424
+XQ_MENU2 tree         XqGlyph.xq-mglyph rect=36,468 16x16 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtext rect=67,465 110x24 disp=Flex vis=Visible op=1.00 bg=00000000 text="说句话" color=3B2E5466 font=16
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtag rect=177,465 61x22 disp=Flex vis=Visible op=1.00 bg=00000000 text="还没开通" color=3B2E5473 font=15
+XQ_MENU2 tree     VisualElement.xq-mrow rect=23,495 224x38 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mic rect=31,501 26x26 disp=Flex vis=Visible op=1.00 bg=FF8FB8FF
+XQ_MENU2 tree         XqGlyph.xq-mglyph rect=36,506 16x16 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtext rect=67,503 156x24 disp=Flex vis=Visible op=1.00 bg=00000000 text="让她…" color=3B2F55FF font=16
+XQ_MENU2 tree       XqGlyph.xq-mchev rect=223,507 14x14 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree     VisualElement.xq-mrow rect=23,533 224x38 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mic rect=31,539 26x26 disp=Flex vis=Visible op=1.00 bg=FF8FB8FF
+XQ_MENU2 tree         XqGlyph.xq-mglyph rect=36,544 16x16 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtext rect=67,541 156x24 disp=Flex vis=Visible op=1.00 bg=00000000 text="安静一会" color=3B2F55FF font=16
+XQ_MENU2 tree       XqGlyph.xq-mchev rect=223,545 14x14 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree     VisualElement.xq-mrow.xq-mrow-gray rect=23,571 224x38 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mic rect=31,577 26x26 disp=Flex vis=Visible op=1.00 bg=3B2E5424
+XQ_MENU2 tree         XqGlyph.xq-mglyph rect=36,582 16x16 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtext rect=67,579 125x24 disp=Flex vis=Visible op=1.00 bg=00000000 text="直播间" color=3B2E5466 font=16
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtag rect=192,579 46x22 disp=Flex vis=Visible op=1.00 bg=00000000 text="还在做" color=3B2E5473 font=15
+XQ_MENU2 tree     VisualElement.xq-msep rect=31,615 208x1 disp=Flex vis=Visible op=1.00 bg=FFFFFF9A
+XQ_MENU2 tree     VisualElement.xq-mrow.xq-mrow-set rect=23,622 224x32 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mic rect=31,625 26x26 disp=Flex vis=Visible op=1.00 bg=FF8FB8FF
+XQ_MENU2 tree         XqGlyph.xq-mglyph rect=36,630 16x16 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtext rect=67,627 170x22 disp=Flex vis=Visible op=1.00 bg=00000000 text="设置" color=3B2F55FF font=15
+XQ_WATCH hwnd=726848
+XQ_WATCH rect=-2560,-683,0,757
+XQ_CLOSE day fail: 502
+XQ_MENU2 blank-click none p0=652,252 p1=652,469 H=1440 picked=null mouse=1304,503 l1=8,373 244x291
+XQ_MENU2 close by=blank
+XQ_HUD down m=1304,503 p0=652,252 p1=652,469 gate=926,106 0x0 gateOn=False menu=0.00 H=1440 W=2560
+XQ_CLOSE feed fail: 502
+XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+XQ_WATCH hwnd=726848
+XQ_WATCH rect=-2560,-683,0,757
+XQ_SPIKE name=开心 at=debug note=F9
+XQ_BRAIN 2026-11-16 12:35:34 src=local evt=hover hold=0.5 face=开心 voice=none
+XQ_FS hide
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+XQ_WATCH hwnd=726848
+XQ_WATCH rect=-2560,-683,0,757
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+XQ_CLOSE day fail: 502
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+XQ_FS show
+ReadPixels was called to read pixels from system frame buffer, while not inside drawing frame.
+XQ_CLOSE feed fail: 502
+XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+XQ_EVENT drop view code=502
+XQ_WATCH hwnd=726848
+XQ_WATCH rect=-2560,-683,0,757
