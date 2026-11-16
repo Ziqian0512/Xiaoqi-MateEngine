@@ -10,6 +10,7 @@ namespace Xiaoqi.Mode
     /// <summary>
     /// 无人值守验收用的启动参数钩子（默认不启用，只在命令行带参数时才建）：
     ///   -xq-sit-test[=标题片段]   启动 12 秒后，把她直接坐到一个别的程序的可见窗口上（不靠拖拽），5 秒后再「下窗」。
+    ///   -xq-close-test            启动 12 秒后 Pet→Close→Pet 连做 3 轮，每轮打窗口位置和她的位置，最后给出漂移量。
     ///   -xq-nap-test              启动 12 秒后调用「睡一会」(0.5 分钟)，6 秒后「叫醒」。
     /// 日志前缀 XQ_TEST。
     /// </summary>
@@ -33,18 +34,57 @@ namespace Xiaoqi.Mode
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Boot()
         {
-            string sit = null; bool nap = false;
+            string sit = null; bool nap = false, close = false;
             foreach (var a in Environment.GetCommandLineArgs())
             {
                 if (a == "-xq-sit-test") sit = "";
                 else if (a.StartsWith("-xq-sit-test=")) sit = a.Substring("-xq-sit-test=".Length);
                 else if (a == "-xq-nap-test") nap = true;
+                else if (a == "-xq-close-test") close = true;
             }
-            if (sit == null && !nap) return;
+            if (sit == null && !nap && !close) return;
             var go = new GameObject("XqTestHooks");
             DontDestroyOnLoad(go);
             var hooks = go.AddComponent<XqTestHooks>();
-            hooks.StartCoroutine(hooks.Run(sit, nap));
+            hooks.StartCoroutine(close ? hooks.RunClose() : hooks.Run(sit, nap));
+        }
+
+        static string Snap(IntPtr uh)
+        {
+            R ur; GetWindowRect(uh, out ur);
+            var b = PetHost.I != null ? PetHost.I.ScreenRect() : default(Rect);
+            return "win=" + ur.l + "," + ur.t + " " + (ur.r - ur.l) + "x" + (ur.b - ur.t)
+                + " body=" + b.xMin.ToString("0") + ".." + b.xMax.ToString("0") + " y=" + b.yMin.ToString("0") + ".." + b.yMax.ToString("0")
+                + " h=" + b.height.ToString("0") + " mode=" + XqMode.Current;
+        }
+
+        IEnumerator RunClose()
+        {
+            yield return new WaitForSecondsRealtime(12f);
+            var uh = FindWindowW("UnityWndClass", "小祈");
+            string before = Snap(uh);
+            Debug.Log("XQ_TEST close before " + before);
+            R r0; GetWindowRect(uh, out r0);
+            var b0 = PetHost.I != null ? PetHost.I.ScreenRect() : default(Rect);
+            for (int i = 1; i <= 3; i++)
+            {
+                bool ok = XqMode.Set(XqView.Close);
+                Debug.Log("XQ_TEST close round=" + i + " enter accepted=" + ok);
+                float t0 = Time.unscaledTime;
+                while (XqMode.Busy && Time.unscaledTime - t0 < 6f) yield return null;
+                Debug.Log("XQ_TEST close round=" + i + " entered in=" + (Time.unscaledTime - t0).ToString("0.00") + "s " + Snap(uh));
+                yield return new WaitForSecondsRealtime(4f);
+                Debug.Log("XQ_TEST close round=" + i + " hold4s " + Snap(uh));
+                ok = XqMode.Set(XqView.Pet);
+                t0 = Time.unscaledTime;
+                while (XqMode.Busy && Time.unscaledTime - t0 < 6f) yield return null;
+                yield return new WaitForSecondsRealtime(1f);
+                Debug.Log("XQ_TEST close round=" + i + " exited accepted=" + ok + " " + Snap(uh));
+            }
+            R r1; GetWindowRect(uh, out r1);
+            var b1 = PetHost.I != null ? PetHost.I.ScreenRect() : default(Rect);
+            Debug.Log("XQ_TEST close drift win=" + (r1.l - r0.l) + "," + (r1.t - r0.t) + " size=" + ((r1.r - r1.l) - (r0.r - r0.l)) + "," + ((r1.b - r1.t) - (r0.b - r0.t))
+                + " bodyCx=" + (b1.center.x - b0.center.x).ToString("0") + " bodyBottom=" + (b1.yMin - b0.yMin).ToString("0") + " bodyH=" + (b1.height - b0.height).ToString("0"));
         }
 
         IEnumerator Run(string sit, bool nap)
