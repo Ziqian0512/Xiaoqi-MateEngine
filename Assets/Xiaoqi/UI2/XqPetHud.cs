@@ -220,7 +220,8 @@ namespace Xiaoqi.UI2
         {
             var s = XiaoqiLink.Current;
             bool asleep = PetPresence.IsAsleep || (s != null && s.pose == "sleep");
-            bool away = s != null && s.where == "out";
+            // XQ: P1-6 「路上」(transit) 也算她不在宿舍：样子和外出一样
+            bool away = s != null && !string.IsNullOrEmpty(s.where) && s.where != "dorm";
 
             bool showNext = s != null && s.next != null && HasNext(s.next);
             _next.style.display = showNext ? DisplayStyle.Flex : DisplayStyle.None;
@@ -234,7 +235,7 @@ namespace Xiaoqi.UI2
             else if (s == null)
                 _hereLine.text = "还没有";
             else if (away)
-                _hereLine.text = "外出";
+                _hereLine.text = AwayLine(s);
             else
             {
                 string place = Where(s.where);
@@ -578,6 +579,13 @@ namespace Xiaoqi.UI2
             if (!string.IsNullOrEmpty(n.at) && !string.IsNullOrEmpty(place)) return n.at + "  " + place;
             if (!string.IsNullOrEmpty(n.at)) return n.at;
             return place;
+        }
+
+        // XQ: P1-6 §3.4：「她出门了 · 约 18:00 回来」。回来的时间取下一段的开始时间（和头顶标签同口径），没有就不写。
+        static string AwayLine(StageData s)
+        {
+            string back = s != null && s.next != null ? s.next.at : "";
+            return string.IsNullOrEmpty(back) ? "她出门了" : "她出门了 · 约 " + back + " 回来";
         }
 
         static string Where(string where)
