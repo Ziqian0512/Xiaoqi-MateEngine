@@ -79,7 +79,7 @@ public class XiaoqiFeed : MonoBehaviour
                                 {
                                     if (string.IsNullOrEmpty(item.text)) continue;
                                     if (!string.IsNullOrEmpty(item.scope) && item.scope != "private") continue;
-                                    if (item.kind == "say")
+                                    if (item.kind == "said" || item.kind == "say") // 服务器 body_log 里她说的话是 said；say 留作兼容
                                     {
                                         LatestSay = item.text;
                                         OnSay?.Invoke(item.text);
