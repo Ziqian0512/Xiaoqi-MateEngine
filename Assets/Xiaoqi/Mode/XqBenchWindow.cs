@@ -18,7 +18,7 @@ namespace Xiaoqi.Mode
     /// - Edge 必须带独立 --user-data-dir，否则会并入已开着的 Edge、本进程立刻退出，拿不到窗口也判断不了关闭。
     /// - 位置不信 --window-position（缩放下是 DIP 还是物理像素没实测），窗口出来后用 SetWindowPos 按物理像素摆。
     /// - 坐窗口走 ME 现有机制：AvatarWindowHandler.XqSitOn（// XQ: 新增的一个公开入口），之后 ME 每帧自己跟随。
-    /// - 用户把她拖离窗口后，松手 1.5 秒会再坐回去；窗口最小化 / 最大化时不坐（ME 自己会下窗），还原后坐回。
+    /// - 用户把她拖离窗口后不再自动坐回（主人 11-17 定）。
     /// </summary>
     public class XqBenchWindow : MonoBehaviour
     {
@@ -289,14 +289,7 @@ namespace Xiaoqi.Mode
             try { exited = _proc.HasExited; } catch (Exception) { exited = true; }
             if (exited) { OnClosed("process exited"); return; }
 
-            // 被拖离 / 被 ME 放弃后，坐回去（最小化、最大化时不坐）
-            if (_sit != null && _sit.XqSnappedHwnd != _hwnd
-                && PetHost.I != null && !PetHost.I.IsDragging
-                && !IsIconic(_hwnd) && !IsZoomed(_hwnd)
-                && Time.unscaledTime - _lastSit > 1.5f)
-            {
-                TrySit(false);
-            }
+            // 被拖离后不再自动坐回（主人 11-17 定）；最小化/最大化时 ME 自己会下窗。
         }
 
         // =============== 关闭 ===============
