@@ -254,7 +254,7 @@ public class AvatarWindowHandler : MonoBehaviour
                 if (GetWindowRect(snappedHWND, out RECT tr))
                 {
                     CalibrateSeatAnchorToDesktopY(tr.Top + seatOffsetPx);
-                    if (ComputeSeatDesktop(out float px2, out _))
+                    if (!_xqFixedFraction && ComputeSeatDesktop(out float px2, out _)) // XQ: 工作台入口坐位固定，不回算
                     {
                         float w = Mathf.Max(1, tr.Right - tr.Left);
                         snapFraction = Mathf.Clamp01((px2 - tr.Left) / w);
@@ -356,6 +356,7 @@ public class AvatarWindowHandler : MonoBehaviour
         if (controller != null && controller.isDragging) _recentUnsnap = true;
         if (fromUnsnap) _unsnapCooldownUntil = Time.unscaledTime + Mathf.Max(0f, unsnapCooldownSeconds);
         snappedHWND = IntPtr.Zero;
+        _xqFixedFraction = false; // XQ
         seatCalibrated = false;
         if (animator != null) { animator.SetBool("isWindowSit", false); animator.SetBool("isTaskbarSit", false); }
         SetTopMost(SaveLoadHandler.Instance != null ? SaveLoadHandler.Instance.data.isTopmost : true);
@@ -477,6 +478,40 @@ public class AvatarWindowHandler : MonoBehaviour
             return;
         }
     }
+    // ---- XQ: P3-2b 工作台入口（[未编]，新增 3 个公开成员，不改 ME 原有逻辑）----
+    bool _xqFixedFraction;
+    /// <summary>当前坐着的窗口句柄；没坐返回 IntPtr.Zero。</summary>
+    public IntPtr XqSnappedHwnd { get { return snappedHWND; } }
+    /// <summary>不经拖拽探针，直接坐到指定窗口上沿，水平位置 = 窗口宽度 × fraction。</summary>
+    public bool XqSitOn(IntPtr hwnd, float fraction)
+    {
+        if (hwnd == IntPtr.Zero || unityHWND == IntPtr.Zero || animator == null) return false;
+        if (!GetWindowRect(hwnd, out RECT tr)) return false;
+        lastDesktopPosition = GetUnityWindowPosition();
+        snappedHWND = hwnd;
+        _guardZoneActive = false;
+        animator.SetBool("isWindowSit", true);
+        animator.SetBool("isTaskbarSit", false);
+        animator.Update(0f);
+        CalibrateSeatAnchorToDesktopY(tr.Top + seatOffsetPx);
+        snapFraction = Mathf.Clamp01(fraction);
+        _xqFixedFraction = true;
+        _postSettleFrames = 1; _postSettleRecalib = true;
+        _lastSnapTopY = tr.Top;
+        _recentUnsnap = false;
+        SetTopMost(true);
+        _guard = Mathf.Max(1, snapGuardFrames);
+        _latch = Mathf.Max(1, snapLatchFrames);
+        _snapSmoothingActive = enableSnapSmoothing;
+        _snapVelX = _snapVelY = 0f;
+        _havePrevSnapRect = false;
+        RebuildActiveOccluders(); UpdateOccluderQuadsFrameSync();
+        PinToTarget(tr);
+        return true;
+    }
+    /// <summary>下窗（等同 ME 自己放弃坐窗）。</summary>
+    public void XqSitOff() { ClearSnapAndHide(); }
+    // ---- XQ end ----
     void CancelSnapSmoothingIfTargetMoved(RECT tr)
     {
         if (!_havePrevSnapRect) { _prevSnapRect = tr; _havePrevSnapRect = true; return; }

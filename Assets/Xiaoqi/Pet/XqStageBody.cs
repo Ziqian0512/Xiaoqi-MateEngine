@@ -146,7 +146,8 @@ namespace Xiaoqi.Spike
             }
             _asleepWas = asleep;
 
-            bool on = _cfg.body.self_sleep && XiaoqiRuntime.Config != null && XiaoqiRuntime.Config.emotion_line;
+            bool on = _cfg.body.self_sleep && XiaoqiRuntime.Config != null && XiaoqiRuntime.Config.emotion_line
+                && Xiaoqi.Mode.XqMode.Current == Xiaoqi.Mode.XqView.Pet; // P2/P3：近景、工作台期间不自己睡着
             // 服务器很久没更新（断线）就别凭旧数据睡
             bool fresh = _stage != null && now - _stageAt <= 30f;
             float sleepy = _stage != null && _stage.body != null ? _stage.body.sleepy : 0f;

@@ -1,0 +1,78 @@
+using System;
+using System.IO;
+using UnityEngine;
+
+namespace Xiaoqi.Mode
+{
+    /// <summary>
+    /// P2/P3 的调参。单独放一个文件 xq_mode.json（和 xiaoqi_config.json 同目录），
+    /// 不动 XiaoqiConfig，免得和设置页那条线冲突。文件不存在就用下面的默认值，不自动创建。
+    /// 启动参数 -xq-mode close|bench 用来无人值守测试；-xq-bench 打开工作台入口。
+    /// </summary>
+    [Serializable]
+    public class XqModeConfig
+    {
+        // ---- 入口 ----
+        public bool hotkeys = false;          // Ctrl+Alt+1/2/3，默认关（设置页「快捷键切换形态」接这里）
+        public bool bench_enabled = false;    // P2 通过前，工作台入口是灰的
+
+        // ---- 近景镜头（P2-2，0 = 沿用 ME 默认）----
+        public float close_zoom = 0f;         // AvatarBigScreenHandler.TargetZoom
+        public float close_yoffset = 0.08f;   // AvatarBigScreenHandler.YOffset
+
+        // ---- 工作台窗口（P3-1/2，比例按 1920x1080 标准图：左 7.3% 上 29.6% 宽 85.4% 高 68.5%）----
+        public float bench_left_pct = 0.073f;
+        public float bench_top_pct = 0.296f;
+        public float bench_w_pct = 0.854f;
+        public float bench_h_pct = 0.685f;
+        public int bench_min_w = 900;
+        public int bench_min_h = 560;
+        public float bench_sit_pct = 0.49f;   // 她坐在窗口宽度的 49%
+        public int bench_sit_right_gap = 220; // 离窗口右边缘至少多少物理像素（右上角三个系统按钮）
+        public float bench_pet_size = 0f;     // >0 时进入工作台临时改 Size，退出恢复；0 = 不动（等实机标定）
+        public string bench_theme = "pink";
+        public string edge_path = "";         // 空 = 自动找 msedge.exe
+
+        private static XqModeConfig _i;
+
+        public static XqModeConfig I
+        {
+            get
+            {
+                if (_i == null) _i = Load();
+                return _i;
+            }
+        }
+
+        public static bool HasArg(string name)
+        {
+            var args = Environment.GetCommandLineArgs();
+            return Array.IndexOf(args, name) >= 0;
+        }
+
+        public static string ArgValue(string name)
+        {
+            var args = Environment.GetCommandLineArgs();
+            int i = Array.IndexOf(args, name);
+            return i >= 0 && i + 1 < args.Length ? args[i + 1] : null;
+        }
+
+        private static XqModeConfig Load()
+        {
+            XqModeConfig cfg = null;
+            try
+            {
+                var path = Path.Combine(Application.dataPath, "..", "xq_mode.json");
+                if (File.Exists(path)) cfg = JsonUtility.FromJson<XqModeConfig>(File.ReadAllText(path));
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("XQ_MODE config: " + e.Message);
+            }
+            if (cfg == null) cfg = new XqModeConfig();
+            if (HasArg("-xq-bench")) cfg.bench_enabled = true;
+            if (HasArg("-xq-hotkeys")) cfg.hotkeys = true;
+            return cfg;
+        }
+    }
+}

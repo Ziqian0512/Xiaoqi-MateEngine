@@ -413,6 +413,19 @@ namespace Xiaoqi.UI
                 AddSub("跳舞 ▸", outside ? why : null, outside, () => ToggleSub("dance"));
                 _sub[_sub.Count - 1].Id = "dance";
             }
+
+            // P2/P3：三种形态入口。只加项；工作台在 P2 通过前是灰的（XqMode.BenchAvailable）
+            var cur = Xiaoqi.Mode.XqMode.Current;
+            if (cur != Xiaoqi.Mode.XqView.Pet)
+                AddSub("桌宠", null, false, () => { Close("action"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet); });
+            if (cur != Xiaoqi.Mode.XqView.Close)
+                AddSub("近景", null, false, () => { Close("action"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Close); });
+            if (cur != Xiaoqi.Mode.XqView.Bench)
+            {
+                bool benchOff = !Xiaoqi.Mode.XqMode.BenchAvailable;
+                AddSub("工作台", benchOff ? "还没开放" : null, benchOff,
+                    () => { Close("action"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Bench); });
+            }
         }
 
         private void BuildIdle()
