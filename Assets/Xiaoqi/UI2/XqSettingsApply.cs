@@ -36,12 +36,15 @@ namespace Xiaoqi.UI2
             h.SaveSettings();
         }
 
-        /// <summary>看向鼠标：AvatarMouseTracking.enableMouseTracking。</summary>
+        /// <summary>看向鼠标：AvatarMouseTracking.enableMouseTracking，同时写存档 data（否则被 ApplyAll 冲回）。</summary>
         public static void SetLookAtMouse(bool on)
         {
             var t = Tracking();
             if (t == null) { Debug.Log("XQ_SET2 miss AvatarMouseTracking"); return; }
             t.enableMouseTracking = on;
+            var sl = SaveLoadHandler.Instance;
+            if (sl == null || sl.data == null) { Debug.Log("XQ_SET2 miss SaveLoadHandler"); return; }
+            sl.data.enableMouseTracking = on;
         }
 
         /// <summary>看向的力度 0-1：headBlend / spineBlend / eyeBlend 同乘一个系数。</summary>
@@ -62,13 +65,24 @@ namespace Xiaoqi.UI2
             t.headBlend = _headBase * s;
             t.spineBlend = _spineBase * s;
             t.eyeBlend = _eyeBase * s;
+
+            // 同步写存档，否则下一次 ApplyAll 会把上面三个值写回旧值
+            var sl = SaveLoadHandler.Instance;
+            if (sl == null || sl.data == null) { Debug.Log("XQ_SET2 miss SaveLoadHandler"); return; }
+            sl.data.headBlend = t.headBlend;
+            sl.data.spineBlend = t.spineBlend;
+            sl.data.eyeBlend = t.eyeBlend;
         }
 
-        /// <summary>放音乐时自己跳：SaveLoadHandler.data.enableDancing，改完整体重应用。</summary>
+        /// <summary>
+        /// 放音乐时自己跳：SaveLoadHandler.data.enableDancing。
+        /// 只在值真的变化时才调 ApplyAll —— 它会把 isDancing 置 false，会停掉正在跳的舞（见 ISSUES 第 5 行）。
+        /// </summary>
         public static void SetDancing(bool on)
         {
             var sl = SaveLoadHandler.Instance;
             if (sl == null || sl.data == null) { Debug.Log("XQ_SET2 miss SaveLoadHandler"); return; }
+            if (sl.data.enableDancing == on) return;
             sl.data.enableDancing = on;
             SaveLoadHandler.ApplyAllSettingsToAllAvatars();
         }

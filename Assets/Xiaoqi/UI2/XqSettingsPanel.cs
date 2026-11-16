@@ -263,14 +263,15 @@ namespace Xiaoqi.UI2
                 host != null ? host.Size : 1f, v => { if (PetHost.I != null) PetHost.I.Size = v; }, 1f);
             size.Format = "0.00";
             size.Refresh();
-            size.OnCommit = () => Bind<float>(null, null, "size", size.Value);
+            // 松手 / 双击回默认时才落盘，拖动过程中不写盘
+            size.OnCommit = () => { SaveHost(); Bind<float>(null, null, "size", size.Value); };
             page.Add(size.Root);
 
             // 2 画质：G59-P1 §6 只列低/中/高；ME 的 graphicsQualityLevel 允许 0-3，
             //    第 4 档（最高）不在表里，不画。超出的值只显示到「高」，不动宿主。
             int q = host != null ? Mathf.Clamp(host.Quality, 0, 2) : 1;
             page.Add(XqSettingsRows.Dropdown("画质", new[] { "低", "中", "高" }, q,
-                i => Bind<int>(v => { if (PetHost.I != null) PetHost.I.Quality = v; }, null, "quality", i)));
+                i => { Bind<int>(v => { if (PetHost.I != null) PetHost.I.Quality = v; }, null, "quality", i); SaveHost(); }));
 
             // 3 帧率：现值，选项照旧设置页（30/60/90/144）
             int[] fpsOpts = { 30, 60, 90, 144 };
@@ -279,7 +280,7 @@ namespace Xiaoqi.UI2
             for (int i = 0; i < fpsOpts.Length; i++)
                 if (Mathf.Abs(fpsOpts[i] - fps) < Mathf.Abs(fpsOpts[fpsIdx] - fps)) fpsIdx = i;
             page.Add(XqSettingsRows.Dropdown("帧率", new[] { "30", "60", "90", "144" }, fpsIdx,
-                i => Bind<int>(v => { if (PetHost.I != null) PetHost.I.Fps = v; }, null, "fps", fpsOpts[i])));
+                i => { Bind<int>(v => { if (PetHost.I != null) PetHost.I.Fps = v; }, null, "fps", fpsOpts[i]); SaveHost(); }));
 
             // 4 主题色：3 个色点，粉 / 蓝 / 紫，默认粉
             var dotColors = new[]
@@ -320,8 +321,12 @@ namespace Xiaoqi.UI2
             // 1 始终置顶：开
             page.Add(XqSettingsRows.Toggle("始终置顶",
                 host != null ? host.Topmost : (cfg == null || cfg.topmost),
-                v => Bind<bool>(x => { if (PetHost.I != null) PetHost.I.Topmost = x; },
-                    (c, x) => c.topmost = x, "topmost", v)));
+                v =>
+                {
+                    Bind<bool>(x => { if (PetHost.I != null) PetHost.I.Topmost = x; },
+                        (c, x) => c.topmost = x, "topmost", v);
+                    SaveHost();
+                }));
 
             // 2 全屏或游戏时躲开：开。XqFullscreenHide 每秒读 cfg，改了即生效
             page.Add(XqSettingsRows.Toggle("全屏或游戏时躲开",
@@ -347,6 +352,24 @@ namespace Xiaoqi.UI2
                 new[] { "照常显示", "隐藏" }, hide ? 1 : 0,
                 i => Bind<string>(null, (c, v) => c.pet_when_out = v, "pet_when_out",
                     i == 1 ? "hide" : "show")));
+        }
+
+        /// <summary>
+        /// 落盘一次宿主设置（Handler.SaveToDisk + ApplyAll）。
+        /// 只在「提交」时调：滑条拖动每帧调会频繁写盘。
+        /// </summary>
+        static void SaveHost()
+        {
+            try
+            {
+                var h = PetHost.I;
+                if (h == null) { Debug.Log("XQ_SET2 miss PetHost"); return; }
+                h.SaveSettings();
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("XQ_SET2 " + e.Message);
+            }
         }
 
         /// <summary>改一项：连宿主 → 写 cfg → 存盘 → 打一行验收日志。</summary>
