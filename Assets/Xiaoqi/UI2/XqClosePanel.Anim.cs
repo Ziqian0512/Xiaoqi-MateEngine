@@ -34,6 +34,22 @@ namespace Xiaoqi.UI2
         bool _scheduled;
         bool _benchHover;
         int _lastClickFrame = -1;
+        static CloseEscWatcher _escWatcher;
+
+        // XQ: P2 R-3 先于 XqMode.Update 捕获近景 Esc 退出并打 XQ_CLOSE exit by=esc（不改 XqMode.cs）
+        [DefaultExecutionOrder(-100)]
+        sealed class CloseEscWatcher : MonoBehaviour
+        {
+            void Update()
+            {
+                if (_inst != null && _inst._shown && !Xiaoqi.Mode.XqMode.Busy
+                    && Xiaoqi.Mode.XqMode.Current == Xiaoqi.Mode.XqView.Close
+                    && Input.GetKeyDown(KeyCode.Escape))
+                {
+                    Debug.Log("XQ_CLOSE exit by=esc");
+                }
+            }
+        }
 
         public static bool OverAny()
         {
@@ -71,9 +87,9 @@ namespace Xiaoqi.UI2
             }
             if (Input.GetMouseButtonDown(0) && _lastClickFrame != Time.frameCount)
             {
-                if (OverEl(_btnPet)) { _lastClickFrame = Time.frameCount; Debug.Log("XQ_CLOSE btn pet"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet); return; }
+                if (OverEl(_btnPet)) { _lastClickFrame = Time.frameCount; Debug.Log("XQ_CLOSE btn pet"); Debug.Log("XQ_CLOSE exit by=btn"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet); return; }
                 if (OverEl(_ringFocus)) { _lastClickFrame = Time.frameCount; Pair("ring placeholder"); return; }
-                if (OverEl(DotByWord("♥"))) { _lastClickFrame = Time.frameCount; Pair("rail pet"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet); return; }
+                if (OverEl(DotByWord("♥"))) { _lastClickFrame = Time.frameCount; Pair("rail pet"); Debug.Log("XQ_CLOSE exit by=rail"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet); return; }
                 if (OverEl(DotByWord("今"))) { _lastClickFrame = Time.frameCount; Focus(_cardNext); return; }
                 if (OverEl(DotByWord("话"))) { _lastClickFrame = Time.frameCount; Focus(_cardSay); return; }
                 if (OverEl(DotByWord("待"))) { _lastClickFrame = Time.frameCount; Pair("todo placeholder"); return; }
@@ -131,6 +147,12 @@ namespace Xiaoqi.UI2
 
         void Hook()
         {
+            if (_escWatcher == null)
+            {
+                var go = new GameObject("XqCloseEscWatcher");
+                UnityEngine.Object.DontDestroyOnLoad(go);
+                _escWatcher = go.AddComponent<CloseEscWatcher>();
+            }
             if (_scheduled || _host == null) return;
             // TODO(编译员)：VisualElement.schedule.Execute(Action).Every(ms) 是 UI Toolkit 标准
             // 调度器，但本仓库没有先例（XqSettingsPanel 同样只是写在纸上未编译）。若调度器不可用，
@@ -282,11 +304,13 @@ namespace Xiaoqi.UI2
             if (Array.IndexOf(a, "-xq-exit-heart") >= 0)
             {
                 Pair("rail pet");
+                Pair("exit by=rail");
                 Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet);
             }
             else if (Array.IndexOf(a, "-xq-exit-btn") >= 0)
             {
                 Debug.Log("XQ_CLOSE btn pet");
+                Debug.Log("XQ_CLOSE exit by=btn");
                 Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet);
             }
         }
