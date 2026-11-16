@@ -75,6 +75,8 @@ namespace Xiaoqi.UI2
             /// <summary>显示用倍数（例如 0-1 的值想显示成 0-100）。</summary>
             public float ValueScale = 1f;
             public string Suffix = "";
+            /// <summary>数字格式，默认 "0"；大小行用 "0.00" 与旧设置页一致。</summary>
+            public string Format = "0";
             /// <summary>当前值（原始范围，不是 ValueScale 之后的显示值）。</summary>
             public float Value { get { return _value; } }
 
@@ -156,7 +158,7 @@ namespace Xiaoqi.UI2
                 float t = _max > _min ? (_value - _min) / (_max - _min) : 0f;
                 // TODO(编译员)：确认 Length.Percent（UI Toolkit 标准写法，本仓库无先例）
                 _fill.style.width = Length.Percent(Mathf.Clamp01(t) * 100f);
-                _val.text = (_value * ValueScale).ToString("0") + Suffix;
+                _val.text = (_value * ValueScale).ToString(Format) + Suffix;
                 if (!notify) return;
                 try { _onChange?.Invoke(_value); }
                 catch (Exception e) { Debug.LogWarning("XQ_SET2 " + e.Message); }
@@ -240,6 +242,72 @@ namespace Xiaoqi.UI2
                 }
                 host.Add(pop);
             });
+            return row;
+        }
+
+        /// <summary>按钮行：右侧可带一段灰字，再挂一个药丸按钮。点整行不触发，只有按钮触发。</summary>
+        public static VisualElement Button(string label, string hintText, string buttonText, Action onClick)
+        {
+            var row = MakeRow(label, out var right);
+            if (!string.IsNullOrEmpty(hintText)) Hint(row, hintText);
+            var btn = new Label(buttonText);
+            btn.AddToClassList("xq-st-btn");
+            btn.pickingMode = PickingMode.Position;
+            btn.RegisterCallback<ClickEvent>(e =>
+            {
+                e.StopPropagation();
+                if (!row.enabledSelf) return;
+                try { onClick?.Invoke(); }
+                catch (Exception ex) { Debug.LogWarning("XQ_SET2 " + ex.Message); }
+            });
+            right.Add(btn);
+            return row;
+        }
+
+        /// <summary>文字行：右侧一段灰字（只读，如模型路径、版本号）。</summary>
+        public static VisualElement Text(string label, string value)
+        {
+            var row = MakeRow(label, out var right);
+            var val = new Label(value ?? "");
+            val.AddToClassList("xq-st-textval");
+            val.pickingMode = PickingMode.Ignore;
+            right.Add(val);
+            return row;
+        }
+
+        /// <summary>色点行：右侧三个（或 N 个）圆点，点一下选中。colors 与 labels 一一对应。</summary>
+        public static VisualElement Dots(string label, string[] labels, Color[] colors, int index, Action<int> onChange)
+        {
+            var row = MakeRow(label, out var right);
+            int cur = Mathf.Clamp(index, 0, Mathf.Max(0, (colors != null ? colors.Length : 0) - 1));
+            int n = colors != null ? colors.Length : 0;
+            var dots = new VisualElement[n];
+            Action refresh = () =>
+            {
+                for (int i = 0; i < dots.Length; i++)
+                    if (dots[i] != null) dots[i].EnableInClassList("xq-st-dot-on", i == cur);
+            };
+            for (int i = 0; i < n; i++)
+            {
+                int pick = i;
+                var d = new VisualElement { pickingMode = PickingMode.Position };
+                d.AddToClassList("xq-st-dot");
+                d.style.backgroundColor = colors[i];
+                // 圆点不带文字，标签只在 tooltip 里给编译员看
+                d.tooltip = labels != null && i < labels.Length ? labels[i] : "";
+                d.RegisterCallback<ClickEvent>(e =>
+                {
+                    e.StopPropagation();
+                    if (!row.enabledSelf) return;
+                    cur = pick;
+                    refresh();
+                    try { onChange?.Invoke(pick); }
+                    catch (Exception ex) { Debug.LogWarning("XQ_SET2 " + ex.Message); }
+                });
+                dots[i] = d;
+                right.Add(d);
+            }
+            refresh();
             return row;
         }
     }

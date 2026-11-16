@@ -67,9 +67,10 @@ namespace Xiaoqi.UI2
 
         bool Build()
         {
-            var doc = UnityEngine.Object.FindFirstObjectByType<UIDocument>();
+            var doc = PickDoc();
             var root = doc != null ? doc.rootVisualElement : null;
             if (root == null) { Debug.Log("XQ_SET2 no UIDocument"); return false; }
+            Debug.Log("XQ_SET2 doc=" + doc.name);
 
             if (!_ussAdded)
             {
@@ -139,19 +140,58 @@ namespace Xiaoqi.UI2
             _host.Add(_panel);
             root.Add(_host);
 
-            // D1 只做「行为」页；其余 5 页一行灰字，不报错
+            // D1 已做「行为」页；D2 做「外观」「显示」；其余 3 页一行灰字
             for (int i = 0; i < _pageViews.Length; i++)
             {
-                if (i == 1) continue;
+                if (i == 1 || i == 0 || i == 2) continue;
                 var t = new Label("下一步做");
                 t.AddToClassList("xq-st-empty");
                 t.pickingMode = PickingMode.Ignore;
                 _pageViews[i].Add(t);
             }
+            BuildLookPage(_pageViews[0]);
             BuildBehaviorPage(_pageViews[1]);
+            BuildDisplayPage(_pageViews[2]);
 
             _built = true;
             return true;
+        }
+
+        /// <summary>
+        /// 场景里可能不止一个 UIDocument。优先挑挂 XqUi2Sample 的、再挑名字含 Xq/Xiaoqi 的，
+        /// 都没有才退回第一个，避免面板挂到别的面板根上出不来。
+        /// </summary>
+        static UIDocument PickDoc()
+        {
+            var docs = UnityEngine.Object.FindObjectsByType<UIDocument>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+            if (docs == null || docs.Length == 0) return null;
+
+            // 1) 挂在 XqUi2Sample 下面的（它的 XqUi2Document 子物体）
+            var sample = UnityEngine.Object.FindFirstObjectByType<XqUi2Sample>(FindObjectsInactive.Include);
+            if (sample != null)
+            {
+                foreach (var d in docs)
+                    if (d != null && Under(d.transform, sample.transform)) return d;
+            }
+            // 2) 名字含 Xq / Xiaoqi（不分大小写）
+            foreach (var d in docs)
+            {
+                if (d == null) continue;
+                var n = d.name ?? "";
+                if (n.IndexOf("Xq", StringComparison.OrdinalIgnoreCase) >= 0) return d;
+                if (n.IndexOf("Xiaoqi", StringComparison.OrdinalIgnoreCase) >= 0) return d;
+            }
+            // 3) 退回第一个
+            return docs[0];
+        }
+
+        /// <summary>顺着 parent 往上找，判断 t 是否在 root 之下（不用 GetComponentInParent）。</summary>
+        static bool Under(Transform t, Transform root)
+        {
+            for (var p = t; p != null; p = p.parent)
+                if (p == root) return true;
+            return false;
         }
 
         /// <summary>行为页 7 行，默认值照 G59-P1 §6，一个不改。</summary>
@@ -188,7 +228,6 @@ namespace Xiaoqi.UI2
             look.OnCommit = () =>
             {
                 float f = look.Value;
-                XqSettingsApply.SetLookStrength(f / 100f);
                 Bind<float>(null, (c, v) => c.look_strength = v / 100f, "look_strength", f);
             };
             page.Add(look.Root);
@@ -211,6 +250,103 @@ namespace Xiaoqi.UI2
                 cfg == null || cfg.pat_double,
                 v => Bind(XqSettingsApply.SetPatDouble,
                     (c, x) => { c.pat_double = x; }, "pat_double", v)));
+        }
+
+        /// <summary>外观页 5 行（照 G59-P1 §6）。</summary>
+        void BuildLookPage(VisualElement page)
+        {
+            var cfg = XiaoqiRuntime.Config;
+            var host = PetHost.I;
+
+            // 1 大小：滑条，现值，双击回 1.00（ME 的 avatarSize 默认值）
+            var size = XqSettingsRows.Slider("大小", 0.5f, 2f,
+                host != null ? host.Size : 1f, v => { if (PetHost.I != null) PetHost.I.Size = v; }, 1f);
+            size.Format = "0.00";
+            size.Refresh();
+            size.OnCommit = () => Bind<float>(null, null, "size", size.Value);
+            page.Add(size.Root);
+
+            // 2 画质：G59-P1 §6 只列低/中/高；ME 的 graphicsQualityLevel 允许 0-3，
+            //    第 4 档（最高）不在表里，不画。超出的值只显示到「高」，不动宿主。
+            int q = host != null ? Mathf.Clamp(host.Quality, 0, 2) : 1;
+            page.Add(XqSettingsRows.Dropdown("画质", new[] { "低", "中", "高" }, q,
+                i => Bind<int>(v => { if (PetHost.I != null) PetHost.I.Quality = v; }, null, "quality", i)));
+
+            // 3 帧率：现值，选项照旧设置页（30/60/90/144）
+            int[] fpsOpts = { 30, 60, 90, 144 };
+            int fps = host != null ? host.Fps : 60;
+            int fpsIdx = 0;
+            for (int i = 0; i < fpsOpts.Length; i++)
+                if (Mathf.Abs(fpsOpts[i] - fps) < Mathf.Abs(fpsOpts[fpsIdx] - fps)) fpsIdx = i;
+            page.Add(XqSettingsRows.Dropdown("帧率", new[] { "30", "60", "90", "144" }, fpsIdx,
+                i => Bind<int>(v => { if (PetHost.I != null) PetHost.I.Fps = v; }, null, "fps", fpsOpts[i])));
+
+            // 4 主题色：3 个色点，粉 / 蓝 / 紫，默认粉
+            var dotColors = new[]
+            {
+                new Color(1f, 0.56f, 0.72f, 1f),  // #FF8FB8 粉
+                new Color(0.35f, 0.66f, 1f, 1f),  // #5AA8FF 蓝
+                new Color(0.69f, 0.52f, 1f, 1f),  // #B184FF 紫
+            };
+            string theme = cfg != null ? cfg.theme : "pink";
+            int themeIdx = theme == "blue" ? 1 : (theme == "violet" || theme == "purple") ? 2 : 0;
+            page.Add(XqSettingsRows.Dots("主题色", new[] { "粉", "蓝", "紫" }, dotColors, themeIdx,
+                i =>
+                {
+                    var name = i == 1 ? "blue" : i == 2 ? "violet" : "pink";
+                    XqUi2Sample.SetTheme(name);
+                    ApplyThemeClass(name);
+                    Bind<string>(null, (c, v) => c.theme = v, "theme", name);
+                }));
+
+            // 5 模型：一行内放路径灰字 + 「重新加载」按钮
+            string path = cfg != null ? cfg.model_path : "";
+            page.Add(XqSettingsRows.Button("模型", path, "重新加载", () =>
+            {
+                var p = XiaoqiRuntime.Config != null ? XiaoqiRuntime.Config.model_path : null;
+                if (string.IsNullOrEmpty(p)) { Debug.Log("XQ_SET2 miss model_path"); return; }
+                if (PetHost.I == null) { Debug.Log("XQ_SET2 miss PetHost"); return; }
+                PetHost.I.LoadModel(p);
+                Debug.Log("XQ_SET2 set model=reload");
+            }));
+        }
+
+        /// <summary>显示页 5 行（照 G59-P1 §6；「她在哪块屏」现在不做，整行不画）。</summary>
+        void BuildDisplayPage(VisualElement page)
+        {
+            var cfg = XiaoqiRuntime.Config;
+            var host = PetHost.I;
+
+            // 1 始终置顶：开
+            page.Add(XqSettingsRows.Toggle("始终置顶",
+                host != null ? host.Topmost : (cfg == null || cfg.topmost),
+                v => Bind<bool>(x => { if (PetHost.I != null) PetHost.I.Topmost = x; },
+                    (c, x) => c.topmost = x, "topmost", v)));
+
+            // 2 全屏或游戏时躲开：开。XqFullscreenHide 每秒读 cfg，改了即生效
+            page.Add(XqSettingsRows.Toggle("全屏或游戏时躲开",
+                cfg == null || cfg.hide_on_fullscreen,
+                v => Bind<bool>(null, (c, x) => c.hide_on_fullscreen = x, "hide_on_fullscreen", v)));
+
+            // 3 身边小胶囊：常驻 / 淡出 / 全关，默认淡出
+            string chips = cfg != null ? cfg.chips : "fade";
+            int chipsIdx = chips == "stay" ? 0 : chips == "off" ? 2 : 1;
+            page.Add(XqSettingsRows.Dropdown("身边小胶囊",
+                new[] { "常驻", "淡出", "全关" }, chipsIdx,
+                i => Bind<string>(null, (c, v) => c.chips = v, "chips",
+                    i == 0 ? "stay" : i == 2 ? "off" : "fade")));
+
+            // 4 她说话的气泡：开
+            page.Add(XqSettingsRows.Toggle("她说话的气泡",
+                cfg == null || cfg.bubble,
+                v => Bind<bool>(null, (c, x) => c.bubble = x, "bubble", v)));
+
+            // 5 她外出时：选项文字照 G55 原样，默认读现值不改
+            bool hide = cfg != null && cfg.pet_when_out == "hide";
+            page.Add(XqSettingsRows.Dropdown("她外出时",
+                new[] { "照常显示", "隐藏" }, hide ? 1 : 0,
+                i => Bind<string>(null, (c, v) => c.pet_when_out = v, "pet_when_out",
+                    i == 1 ? "hide" : "show")));
         }
 
         /// <summary>改一项：连宿主 → 写 cfg → 存盘 → 打一行验收日志。</summary>
@@ -289,6 +425,16 @@ namespace Xiaoqi.UI2
             if (t == "blue") return Blue;
             if (t == "violet" || t == "purple") return Violet;
             return Pink;
+        }
+
+        /// <summary>面板根跟着换主题 class（颜色变量都在根 class 上）。</summary>
+        void ApplyThemeClass(string theme)
+        {
+            if (_panel == null) return;
+            _panel.RemoveFromClassList(Pink);
+            _panel.RemoveFromClassList(Blue);
+            _panel.RemoveFromClassList(Violet);
+            _panel.AddToClassList(ThemeClass(theme));
         }
     }
 }
