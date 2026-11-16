@@ -1,0 +1,240 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace Xiaoqi.UI2
+{
+    /// <summary>
+    /// XqClosePanel 的 3b 部分：② 下一件事卡、③ 精力卡、④ 她说卡、⑤ 今日小事卡、⑥ 一起专注圆环。
+    /// 位置尺寸见 XqCloseLayout；玻璃结构沿用 xq.uss 的 xq-body / xq-glass / xq-hi。
+    ///
+    /// 本阶段（3b）只搭样子：②③④ 显示灰字「还没有」（P2-5 才接 stage / day / feed），
+    /// ⑤ 按 P2 文档 §3.3 整张标「占位」并写死示例，⑥ 灰色、点了没反应、标「占位」。
+    /// 不加 xq-shadow：§6 的顺序铁律是先确认全屏窗口里的穿透（卡片上能点、旁边透明处
+    /// 透到记事本）依然成立，再补阴影。
+    /// </summary>
+    public partial class XqClosePanel
+    {
+        VisualElement _cardNext, _cardEnergy, _cardSay, _cardTiny, _ringFocus;
+        VisualElement _bodyNext, _bodyEnergy, _bodySay, _bodyTiny;
+        Label _ringWord;
+
+        // 字号要跟着 u 走的三类文本，建的时候直接存下来，不在运行时遍历树
+        readonly List<Label> _kickers = new List<Label>();
+        readonly List<Label> _marks = new List<Label>();
+        readonly List<Label> _texts = new List<Label>();
+
+        // ⑤ 占位折线的写死示例值（0–1），P2-5 之前不接任何数据
+        static readonly float[] TinyDemo = { 0.28f, 0.46f, 0.34f, 0.62f, 0.55f, 0.78f, 0.70f };
+
+        void BuildCards()
+        {
+            // ② 下一件事
+            _cardNext = CardShell("xq-cl-card-next", false, "xq-close-card-next", out _bodyNext);
+            _bodyNext.Add(Kicker("下一件事"));
+            // 3b 没接 stage/next，先给灰字「还没有」；P2-5 接上后，有数据才显示
+            // 时间 + 事项 + 地点，「今天没有更多安排」只用于「接口通但没有后续安排」。
+            _bodyNext.Add(Empty("还没有"));
+            Add("card-next", XqCloseLayout.NextL, XqCloseLayout.NextT,
+                XqCloseLayout.NextW, XqCloseLayout.NextH);
+
+            // ③ 精力（圆环 + 一个词，P2-5 再画圆环）
+            _cardEnergy = CardShell("xq-cl-card-energy", false, "xq-close-card-energy", out _bodyEnergy);
+            _bodyEnergy.Add(Kicker("精力"));
+            _bodyEnergy.Add(Empty("还没有"));
+            Add("card-energy", XqCloseLayout.EnergyL, XqCloseLayout.EnergyT,
+                XqCloseLayout.EnergyW, XqCloseLayout.EnergyH);
+
+            // ④ 她说（强调版玻璃）
+            _cardSay = CardShell("xq-cl-card-say", true, "xq-close-card-say", out _bodySay);
+            _bodySay.Add(Kicker("她说"));
+            _bodySay.Add(Empty("还没有", "xq-cl-say-text"));
+            Add("card-say", XqCloseLayout.SayL, XqCloseLayout.SayT,
+                XqCloseLayout.SayW, XqCloseLayout.SayH);
+
+            // ⑤ 今日小事（占位：整张标「占位」，内容写死示例）
+            _cardTiny = CardShell("xq-cl-card-tiny", false, "xq-close-card-tiny", out _bodyTiny);
+            var tinyHead = new VisualElement { pickingMode = PickingMode.Ignore };
+            tinyHead.AddToClassList("xq-cl-row");
+            tinyHead.Add(Kicker("今日小事"));
+            tinyHead.Add(Mark());
+            _bodyTiny.Add(tinyHead);
+            var spark = new XqMiniLine(TinyDemo);
+            spark.AddToClassList("xq-cl-spark");
+            _bodyTiny.Add(spark);
+            _bodyTiny.Add(Text("今天聊了 14 句"));
+            Add("card-tiny", XqCloseLayout.TinyL, XqCloseLayout.TinyT,
+                XqCloseLayout.TinyW, XqCloseLayout.TinyH);
+
+            // ⑥ 一起专注圆环（占位）
+            _ringFocus = new VisualElement { name = "xq-close-ring", pickingMode = PickingMode.Position };
+            _ringFocus.AddToClassList("xq-cl-ring");
+            _ringFocus.generateVisualContent += DrawRing;
+            _ringWord = new Label("占位") { pickingMode = PickingMode.Ignore };
+            _ringWord.AddToClassList("xq-cl-ring-word");
+            _ringFocus.Add(_ringWord);
+            // 占位圆环点了不该有反应，也不该让点击漏到下面的窗口
+            _ringFocus.RegisterCallback<ClickEvent>(e =>
+            {
+                try { e.StopPropagation(); Pair("ring placeholder"); }
+                catch (Exception ex) { Debug.LogWarning("XQ_CLOSE ring: " + ex.Message); }
+            });
+            Add("ring", XqCloseLayout.RingL, XqCloseLayout.RingT,
+                XqCloseLayout.RingSize, XqCloseLayout.RingSize);
+
+            _host.Add(_cardNext);
+            _host.Add(_cardEnergy);
+            _host.Add(_cardSay);
+            _host.Add(_cardTiny);
+            _host.Add(_ringFocus);
+        }
+
+        /// <summary>玻璃卡外壳：host（可点）→ body（玻璃 + 高光），返回 host 并给出内容容器。</summary>
+        VisualElement CardShell(string cls, bool emph, string name, out VisualElement body)
+        {
+            var host = new VisualElement { name = name, pickingMode = PickingMode.Position };
+            host.AddToClassList("xq-cl-card");
+            host.AddToClassList(cls);
+
+            body = new VisualElement { pickingMode = PickingMode.Ignore };
+            body.AddToClassList("xq-body");
+
+            var glass = new VisualElement { pickingMode = PickingMode.Ignore };
+            glass.AddToClassList("xq-glass");
+            if (emph) glass.AddToClassList("xq-glass-emph");
+
+            var hi = new VisualElement { pickingMode = PickingMode.Ignore };
+            hi.AddToClassList("xq-hi");
+
+            body.Add(glass);
+            body.Add(hi);
+            host.Add(body);
+            return host;
+        }
+
+        Label Kicker(string word)
+        {
+            var l = new Label(word) { pickingMode = PickingMode.Ignore };
+            l.AddToClassList("xq-cl-kicker");
+            _kickers.Add(l);
+            return l;
+        }
+
+        Label Empty(string word)
+        {
+            return Empty(word, null);
+        }
+
+        Label Empty(string word, string extra)
+        {
+            var l = new Label(word) { pickingMode = PickingMode.Ignore };
+            l.AddToClassList("xq-cl-empty");
+            if (!string.IsNullOrEmpty(extra)) l.AddToClassList(extra);
+            _texts.Add(l);
+            return l;
+        }
+
+        Label Text(string word)
+        {
+            var l = new Label(word) { pickingMode = PickingMode.Ignore };
+            l.AddToClassList("xq-cl-text");
+            _texts.Add(l);
+            return l;
+        }
+
+        Label Mark()
+        {
+            var l = new Label("占位") { pickingMode = PickingMode.Ignore };
+            l.AddToClassList("xq-cl-mark");
+            _marks.Add(l);
+            return l;
+        }
+
+        /// <summary>占位圆环：白色底圈 + 一段灰色进度，写死 40%，不接倒计时。</summary>
+        void DrawRing(MeshGenerationContext ctx)
+        {
+            float w = _ringFocus.contentRect.width;
+            float h = _ringFocus.contentRect.height;
+            if (w < 8f || h < 8f) return;
+            var p = ctx.painter2D;
+            var c = new Vector2(w * 0.5f, h * 0.5f);
+            float stroke = Mathf.Max(3f, w * 0.085f);
+            float rad = Mathf.Min(w, h) * 0.5f - stroke;
+            p.lineWidth = stroke;
+
+            p.strokeColor = new Color(1f, 1f, 1f, 0.6f);
+            p.BeginPath();
+            p.Arc(c, rad, Angle.Degrees(0f), Angle.Degrees(359f));
+            p.Stroke();
+
+            p.strokeColor = new Color(0.62f, 0.58f, 0.70f, 0.6f);
+            p.BeginPath();
+            p.Arc(c, rad, Angle.Degrees(-90f), Angle.Degrees(-90f + 360f * 0.4f));
+            p.Stroke();
+        }
+
+        /// <summary>卡片的圆角、内边距、字号随 u 变；尺寸在 Place() 里给。</summary>
+        void PlaceCards(float u)
+        {
+            float r = XqCloseLayout.CardR * u;
+            float padX = XqCloseLayout.CardPadX * u;
+            float padY = XqCloseLayout.CardPadY * u;
+
+            PlaceBody(_bodyNext, r, padX, padY);
+            PlaceBody(_bodyEnergy, r, padX, padY);
+            PlaceBody(_bodySay, r, padX, padY);
+            PlaceBody(_bodyTiny, r, padX, padY);
+
+            float k = XqCloseLayout.CardKickerFont * u;
+            for (int i = 0; i < _kickers.Count; i++) _kickers[i].style.fontSize = k;
+            float m = XqCloseLayout.CardMarkFont * u;
+            for (int i = 0; i < _marks.Count; i++) _marks[i].style.fontSize = m;
+            float t = XqCloseLayout.CardTextFont * u;
+            for (int i = 0; i < _texts.Count; i++) _texts[i].style.fontSize = t;
+
+            if (_ringWord != null) _ringWord.style.fontSize = t;
+            if (_ringFocus != null) _ringFocus.MarkDirtyRepaint();
+        }
+
+        static void PlaceBody(VisualElement body, float r, float padX, float padY)
+        {
+            if (body == null) return;
+            SetRadius(body, r);
+            body.style.paddingTop = padY;
+            body.style.paddingBottom = padY;
+            body.style.paddingLeft = padX;
+            body.style.paddingRight = padX;
+        }
+
+        /// <summary>⑤ 的小折线。值写死在 TinyDemo，P2-5 再接真数据。</summary>
+        sealed class XqMiniLine : VisualElement
+        {
+            readonly float[] _v;
+            public XqMiniLine(float[] values)
+            {
+                _v = values;
+                pickingMode = PickingMode.Ignore;
+                generateVisualContent += Draw;
+            }
+
+            void Draw(MeshGenerationContext ctx)
+            {
+                float w = contentRect.width, h = contentRect.height;
+                if (_v == null || _v.Length < 2 || w < 8f || h < 4f) return;
+                var p = ctx.painter2D;
+                p.lineWidth = 2f;
+                p.strokeColor = new Color(1f, 0.56f, 0.72f, 0.95f);
+                p.BeginPath();
+                for (int i = 0; i < _v.Length; i++)
+                {
+                    float x = w * i / (_v.Length - 1);
+                    float y = h - Mathf.Clamp01(_v[i]) * h;
+                    if (i == 0) p.MoveTo(new Vector2(x, y));
+                    else p.LineTo(new Vector2(x, y));
+                }
+                p.Stroke();
+            }
+        }
+    }
+}

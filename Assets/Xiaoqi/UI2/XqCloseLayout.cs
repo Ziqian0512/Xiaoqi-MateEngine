@@ -47,6 +47,30 @@ namespace Xiaoqi.UI2
         public const float TipW = 96f, TipH = 30f;
         public const float TipGap = 8f;
 
+        // ② 下一件事卡 226 × 128
+        public const float NextL = 0.113f, NextT = 0.178f;
+        public const float NextW = 226f, NextH = 128f;
+        // ③ 精力卡 206 × 92
+        public const float EnergyL = 0.113f, EnergyT = 0.456f;
+        public const float EnergyW = 206f, EnergyH = 92f;
+        // ④ 她说卡 262 × 128（强调版玻璃）
+        public const float SayL = 0.696f, SayT = 0.063f;
+        public const float SayW = 262f, SayH = 128f;
+        // ⑤ 今日小事卡 230 × 128
+        public const float TinyL = 0.729f, TinyT = 0.344f;
+        public const float TinyW = 230f, TinyH = 128f;
+        // ⑥ 一起专注圆环 118 × 118（圆形）
+        public const float RingL = 0.833f, RingT = 0.652f;
+        public const float RingSize = 118f;
+
+        // 卡片内边距与字号（样式稿 px，落屏时乘 u）
+        public const float CardPadX = 16f, CardPadY = 14f;
+        public const float CardR = 22f;
+        public const float CardKickerFont = 15f;   // 小标题（「下一件事」「她说」）
+        public const float CardBigFont = 26f;      // 大字（时间 / 精力百分比）
+        public const float CardTextFont = 15f;     // 正文
+        public const float CardMarkFont = 14f;     // 「占位」角标
+
         /// <summary>样式稿 px 矩形 → 屏幕比例矩形（宽按屏宽、高按屏高换算）。</summary>
         public static Rect Norm(float left, float top, float wStage, float hStage)
         {

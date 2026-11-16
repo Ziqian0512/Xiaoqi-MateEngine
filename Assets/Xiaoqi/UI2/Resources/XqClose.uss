@@ -112,3 +112,91 @@
 .xq-cl-tip.on {
     display: flex;
 }
+
+/* ---------------- 3b：四张卡 + 圆环 ----------------
+   几何量（left/top/width/height/font-size/padding/圆角）都由
+   XqClosePanel.Place() 按 u 写进 style，这里只放颜色、对齐、结构。 */
+
+.xq-cl-card {
+    position: absolute;
+}
+
+.xq-cl-card .xq-body {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    overflow: hidden;
+}
+
+.xq-cl-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.xq-cl-kicker {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--xq-accent-ink, #D6477F);
+    -unity-text-align: upper-left;
+    white-space: nowrap;
+}
+
+.xq-cl-empty {
+    font-size: 15px;
+    color: rgba(59, 47, 85, 0.45);
+    -unity-text-align: upper-left;
+    white-space: normal;
+    margin-top: 6px;
+}
+
+.xq-cl-text {
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    -unity-text-align: upper-left;
+    white-space: normal;
+}
+
+/* ④ 她说卡正文：整句完整显示，不截断 */
+.xq-cl-say-text {
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    white-space: normal;
+    -unity-text-align: upper-left;
+    flex-grow: 1;
+}
+
+.xq-cl-mark {
+    font-size: 14px;
+    color: rgba(59, 47, 85, 0.5);
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 8px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 6px;
+    padding-right: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ⑤ 小折线：高度由布局给，宽度撑满 */
+.xq-cl-spark {
+    height: 30px;
+    margin-top: 8px;
+    margin-bottom: 6px;
+}
+
+.xq-cl-ring {
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+}
+
+.xq-cl-ring-word {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: rgba(59, 47, 85, 0.55);
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+

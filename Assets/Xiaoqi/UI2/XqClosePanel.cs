@@ -10,7 +10,7 @@ namespace Xiaoqi.UI2
     /// P2-3 近景界面（G59-P2 §3.2 / §3.3 / §5）。对外只暴露 Show() / Hide() / IsShown。
     ///
     /// 3a：左侧竖栏（药丸）+ 底部名牌 + 右下两个方钮（桌宠可点、工作台灰）。
-    /// 3b：四张卡片 + 圆环（在 XqCloseCards.cs）。
+    /// 3b：四张卡片 + 圆环（在 XqClosePanel.Cards.cs）。
     ///
     /// 几条硬约束：
     /// - 根容器 pickingMode=Ignore，只有竖栏/名牌/方钮/卡片自己 Position。
@@ -23,7 +23,8 @@ namespace Xiaoqi.UI2
     ///   所以像素量要用 RuntimePanelUtils.ScreenToPanel 换到面板坐标，不能直接写物理像素。
     ///
     /// 本文件只放骨架（显示/隐藏、构建入口、定位）；竖栏/名牌/方钮的搭法与脸区自检在
-    /// XqClosePanel.Controls.cs，同一个 partial 类，拆开只为单文件不超 300 行。
+    /// XqClosePanel.Controls.cs，四张卡与圆环在 XqClosePanel.Cards.cs，
+    /// 同一个 partial 类，拆开只为单文件不超 300 行。
     /// </summary>
     public partial class XqClosePanel
     {
@@ -38,9 +39,6 @@ namespace Xiaoqi.UI2
 
         bool _built;
         bool _shown;
-        bool _scheduled;
-        float _lastW, _lastH;
-        float _nextPlace = -1f;
 
         VisualElement _host;
         VisualElement _rail;
@@ -75,14 +73,6 @@ namespace Xiaoqi.UI2
             _shown = true;
             _host.style.display = DisplayStyle.Flex;
             Place();
-            if (!_scheduled && _host != null)
-            {
-                // TODO(编译员)：确认 IVisualElementScheduler（VisualElement.schedule.Execute(Action).Every(ms)，
-                // UI Toolkit 标准 API，本仓库 XqSettingsPanel 同写法）。用它做尺寸变化的低频重定位，
-                // 免得为了一块静态界面另建 MonoBehaviour。
-                _host.schedule.Execute(Tick).Every(200);
-                _scheduled = true;
-            }
             Pair("open");
         }
 
@@ -91,6 +81,21 @@ namespace Xiaoqi.UI2
             _shown = false;
             if (_host != null) _host.style.display = DisplayStyle.None;
             Pair("close");
+        }
+
+        /// <summary>
+        /// 根尺寸变化（换分辨率、PanelSettings.scale 随她身高变）时重排。
+        /// 用 GeometryChangedEvent 而不是定时轮询：host 铺满根节点，根一变它必然收到事件。
+        /// </summary>
+        void OnHostGeometryChanged(GeometryChangedEvent e)
+        {
+            if (!_shown) return;
+            try
+            {
+                Place();
+                AssertFaceZone();
+            }
+            catch (Exception ex) { Debug.LogWarning("XQ_CLOSE relayout: " + ex.Message); }
         }
 
         // ---------------- 构建 ----------------
@@ -118,10 +123,12 @@ namespace Xiaoqi.UI2
             _host.style.display = DisplayStyle.None;
             _host.AddToClassList("xq-root");
             _host.AddToClassList(ThemeClass(ThemeFromArgs()));
+            _host.RegisterCallback<GeometryChangedEvent>(OnHostGeometryChanged);
 
             BuildRail();
             BuildPlate();
             BuildButtons();
+            BuildCards();
 
             root.Add(_host);
             _built = true;
@@ -135,18 +142,6 @@ namespace Xiaoqi.UI2
         }
 
         // ---------------- 定位 ----------------
-
-        void Tick()
-        {
-            if (!_shown || _host == null) return;
-            if (Time.unscaledTime < _nextPlace) return;
-            _nextPlace = Time.unscaledTime + 0.2f;
-            if (!Mathf.Approximately(_lastW, Screen.width) || !Mathf.Approximately(_lastH, Screen.height))
-            {
-                Place();
-                AssertFaceZone();
-            }
-        }
 
         /// <summary>
         /// 按当前面板尺寸摆位置。left/top 用屏幕百分比，宽高用「样式稿 px × u」，
@@ -163,9 +158,6 @@ namespace Xiaoqi.UI2
             float ph = Mathf.Abs(b.y - a.y);
             if (pw < 8f || ph < 8f) return;
 
-            _lastW = Screen.width;
-            _lastH = Screen.height;
-
             float u = ph / XqCloseLayout.Stage;
             PlaceOne(_rail, XqCloseLayout.RailL, XqCloseLayout.RailT,
                 XqCloseLayout.RailW, XqCloseLayout.RailH, pw, ph, u);
@@ -175,10 +167,21 @@ namespace Xiaoqi.UI2
                 XqCloseLayout.BtnSize, XqCloseLayout.BtnSize, pw, ph, u);
             PlaceOne(_btnBench, XqCloseLayout.BtnBenchL, XqCloseLayout.BtnTop,
                 XqCloseLayout.BtnSize, XqCloseLayout.BtnSize, pw, ph, u);
+            PlaceOne(_cardNext, XqCloseLayout.NextL, XqCloseLayout.NextT,
+                XqCloseLayout.NextW, XqCloseLayout.NextH, pw, ph, u);
+            PlaceOne(_cardEnergy, XqCloseLayout.EnergyL, XqCloseLayout.EnergyT,
+                XqCloseLayout.EnergyW, XqCloseLayout.EnergyH, pw, ph, u);
+            PlaceOne(_cardSay, XqCloseLayout.SayL, XqCloseLayout.SayT,
+                XqCloseLayout.SayW, XqCloseLayout.SayH, pw, ph, u);
+            PlaceOne(_cardTiny, XqCloseLayout.TinyL, XqCloseLayout.TinyT,
+                XqCloseLayout.TinyW, XqCloseLayout.TinyH, pw, ph, u);
+            PlaceOne(_ringFocus, XqCloseLayout.RingL, XqCloseLayout.RingT,
+                XqCloseLayout.RingSize, XqCloseLayout.RingSize, pw, ph, u);
 
             PlaceRail(u);
             PlacePlate(u);
             PlaceButtons(u);
+            PlaceCards(u);
         }
 
         static void PlaceOne(VisualElement el, float left, float top,
