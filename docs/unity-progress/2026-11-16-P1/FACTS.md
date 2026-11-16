@@ -57,3 +57,18 @@
 
 - INORI02 上她的窗口 884×520。D1 的 `XqSettingsPanel.Place()` 把面板高度夹到 `Screen.height - 20`（约 500），宽按 610:492 取约 620，窗口放得下。样式稿的设计高度本来就是 492，所以**不需要为设置页临时撑大窗口**，只是比 G59 写的「屏高 70%」小。
 - 因此不写撑窗口/还原窗口的代码（撑窗口会改相机取景、她的大小，风险大于收益）。若屏幕前验收发现面板被裁或字太小，再回头定。
+
+## 10. `SaveLoadHandler.ApplyAllSettingsToAllAvatars()` 会覆盖什么（WB 11-16 读 `SaveLoadHandler.cs` 第 239–300 行）
+
+这个函数在 `MeHost` 的 `Size / Topmost / Quality / WindowSitEnabled / LocomotionEnabled` setter、`SaveSettings()`、菜单操作里都会被调，**把存档数据 `data` 重新写到各组件上**。会被覆盖的：
+
+| 组件字段 | 来自 | 我们的影响 |
+|---|---|---|
+| `AvatarAnimatorController.IDLE_SWITCH_TIME` | `data.idleSwitchTime`（默认 10） | B3 的 `1e9` 会被改回。`IdleDirector` 已经：绑定时同时写 `data.idleSwitchTime=1e9`，且每帧确认 |
+| `AvatarMouseTracking.enableMouseTracking / headBlend / spineBlend / eyeBlend` | `data.*` | **设置页只改组件会被冲掉**。必须每隔一会儿重新应用，或同时写 `data` |
+| `AvatarAnimatorController.enableDancing`、`isDancing=false`、`isDragging=false` | `data.enableDancing`；并且**停掉正在跳的舞** | 只在值真的变了才调；别每帧调 |
+| `AvatarWindowHandler.windowSitYOffset`、`AvatarLocomotionController.EnableLocomotion` 等 | `data.*` | 无 |
+
+不会被覆盖：`AvatarSleepController.enableSleep / sleepTimer`、`PetPat.Enabled`、`AudioListener.volume`、`xqHold` / `xqHoldDance`。
+
+另：`MeHost` 的 `Size / Topmost / Quality / Fps` setter **只改内存，不落盘**；落盘要调 `PetHost.I.SaveSettings()`（`Handler.SaveToDisk()` + 再 ApplyAll）。

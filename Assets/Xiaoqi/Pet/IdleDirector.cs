@@ -56,6 +56,13 @@ namespace Xiaoqi.Spike
 
         private void Update()
         {
+            // ME 的 SaveLoadHandler.ApplyAllSettingsToAllAvatars() 会把 IDLE_SWITCH_TIME 写回存档值（默认 10 秒）。
+            // 缩放、置顶、坐窗口、画质…任何设置变化都会调它，所以每帧确认一次，被改回就改回来并记一行。
+            if (_ctl != null && _ctl.IDLE_SWITCH_TIME < 1e8f)
+            {
+                _ctl.IDLE_SWITCH_TIME = 1e9f;
+                Debug.Log("XQ_IDLE reassert switch_time=1e9");
+            }
             if (Time.unscaledTime >= _nextBind)
             {
                 _nextBind = Time.unscaledTime + 1f;
@@ -82,6 +89,9 @@ namespace Xiaoqi.Spike
             _ctl = a.GetComponent<AvatarAnimatorController>();
             if (_ctl == null) { Debug.Log("XQ_IDLE_MISS AvatarAnimatorController"); return; }
             _ctl.IDLE_SWITCH_TIME = 1e9f; // 停掉 ME 的 12 秒轮换
+            // 同时改存档数据，这样 ApplyAll 重新应用时写回去的也是 1e9，不会闪一帧 10 秒。
+            var sl = SaveLoadHandler.Instance;
+            if (sl != null && sl.data != null) sl.data.idleSwitchTime = 1e9f;
             _cur = Mathf.Clamp(Mathf.RoundToInt(_anim.GetFloat(IdleIndexParam)), 0, SlotNames.Length - 1);
             _blend.Cancel();
             Debug.Log("XQ_IDLE bound anim=" + a.name + " cur=" + _cur + " pool=" + PoolMax + " switch_time=1e9");
