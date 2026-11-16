@@ -1,0 +1,229 @@
+Process is running in low integrity mode...
+Mono path[0] = 'E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/Xiaoqi_Data/Managed'
+Mono config path = 'E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/MonoBleedingEdge/etc'
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Initialize engine version: 6000.2.6f2 (4a4dcaec6541)
+[Subsystems] Discovering subsystems at path E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/Xiaoqi_Data/UnitySubsystems
+kGfxThreadingModeSplitJobs is not supported on Direct3D 11. Reverting to kGfxThreadingModeClientWorkerJobs instead.
+GfxDevice: creating device client; kGfxThreadingModeClientWorkerJobs
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 5090 D v2 (ID=0x2b8c)
+    Vendor:   NVIDIA
+    VRAM:     24035 MB
+    Driver:   32.0.16.1088
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.093 seconds
+- Finished resetting the current domain, in  0.002 seconds
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+<RI> Initializing input.
+<RI> Input initialized.
+The class named 'SteamDRM' is abstract. The script class can't be abstract!
+UnloadTime: 0.597500 ms
+[AI Prompt] Read/Create failed: System.UnauthorizedAccessException: Access to the path 'C:\Users\10943\AppData\Local\Packages\sandbox.{1627b0d1-cd7b-4525-a056-27addd6d12a4}\LocalLow\Shinymoon\MateEngineX' is denied.
+  at System.IO.FileSystem.CreateDirectory (System.String fullPath) [0x00145] in <07090a61b5a3469e999a1904d8bf682c>:0 
+  at System.IO.Directory.CreateDirectory (System.String path) [0x0002c] in <07090a61b5a3469e999a1904d8bf682c>:0 
+  at AISystemPromptBinder.Awake () [0x00050] in E:\dsh-pet-projects\Xiaoqi-ME-p2\Assets\MATE ENGINE - Scripts\AvatarHandlers\AISystemPromptBinder.cs:34 
+[AI Prompt] Read/Create failed: System.UnauthorizedAccessException: Access to the path 'C:\Users\10943\AppData\Local\Packages\sandbox.{1627b0d1-cd7b-4525-a056-27addd6d12a4}\LocalLow\Shinymoon\MateEngineX' is denied.
+  at System.IO.FileSystem.CreateDirectory (System.String fullPath) [0x00145] in <07090a61b5a3469e999a1904d8bf682c>:0 
+  at System.IO.Directory.CreateDirectory (System.String path) [0x0002c] in <07090a61b5a3469e999a1904d8bf682c>:0 
+  at AISystemPromptBinder.Awake () [0x00050] in E:\dsh-pet-projects\Xiaoqi-ME-p2\Assets\MATE ENGINE - Scripts\AvatarHandlers\AISystemPromptBinder.cs:34 
+[AI Prompt] Write failed: System.UnauthorizedAccessException: Access to the path 'C:\Users\10943\AppData\Local\Packages\sandbox.{1627b0d1-cd7b-4525-a056-27addd6d12a4}\LocalLow\Shinymoon\MateEngineX' is denied.
+  at System.IO.FileSystem.CreateDirectory (System.String fullPath) [0x00145] in <07090a61b5a3469e999a1904d8bf682c>:0 
+  at System.IO.Directory.CreateDirectory (System.String path) [0x0002c] in <07090a61b5a3469e999a1904d8bf682c>:0 
+  at AISystemPromptBinder.Save (System.String s) [0x00006] in E:\dsh-pet-projects\Xiaoqi-ME-p2\Assets\MATE ENGINE - Scripts\AvatarHandlers\AISystemPromptBinder.cs:74 
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+[Steamworks.NET] SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.
+Failed to add system tray icon. Error: 1400
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+PlayerPrefsException: Could not store preference value
+  at UnityEngine.PlayerPrefs.SetInt (System.String key, System.Int32 value) [0x0001a] in C:\build\output\unity\unity\Runtime\Export\PlayerPrefs\PlayerPrefs.bindings.cs:27 
+  at FPSLimiter.ApplyFPSLimit () [0x0001d] in E:\dsh-pet-projects\Xiaoqi-ME-p2\Assets\MATE ENGINE - Scripts\Settings\FPSLimiter.cs:48 
+  at SaveLoadHandler.Awake () [0x000fa] in E:\dsh-pet-projects\Xiaoqi-ME-p2\Assets\MATE ENGINE - Scripts\Settings\SaveLoadHandler.cs:60 
+
+(Filename: E:/dsh-pet-projects/Xiaoqi-ME-p2/Assets/MATE ENGINE - Scripts/Settings/FPSLimiter.cs Line: 48)
+
+<color=#bada55>[Receiver] Awake! Avatar: DEFAULT AVATAR</color>
+<color=#4FFFD7>[Receiver] Aktiviert: DEFAULT AVATAR (VRMModel)</color>
+[AvatarMinecraftMessages] UDP ready on 32145
+XiaoqiHide: not found = AI
+XiaoqiHide: not found = FOOD SYSTEM
+XiaoqiHide: not found = STEAM DLC
+XiaoqiHide: not found AI INPUT
+XiaoqiHide: not found AiSystemPrompt
+XiaoqiHide: not found AlarmMenuCanvas
+XiaoqiHide: not found BlendshapeMenuCanvas
+XiaoqiHide: not found DancePlayerMenuCanvas
+XiaoqiHide: not found Discord
+XiaoqiHide: not found Discord RPC
+XiaoqiHide: not found Food System
+XiaoqiHide: not found FoodMenu
+XiaoqiHide: not found LOCK_STEAM_DLC
+XiaoqiHide: not found Main Menu
+XiaoqiHide: not found MainMenuAlarm
+XiaoqiHide: not found MateEngineAPI/FoodMenu
+XiaoqiHide: not found MenuPanel
+XiaoqiHide: not found ModLoader
+XiaoqiHide: not found STEAM_DLC
+XiaoqiHide: not found STEAM_FS
+XiaoqiHide: not found STEAM_MC
+XiaoqiHide: not found SteamContent
+XiaoqiHide: not found SteamDRM
+XiaoqiHide: not found SteamSDK
+XiaoqiHide: not found SteamWorkshop
+XiaoqiHide: not found SystemStart
+XiaoqiHide: not found Tutorial
+XiaoqiHide: not found Welcome
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XQ_UI2 theme=pink class=xq-theme-pink
+XQ_SHOT_Awake args=7 index=-1
+PlayerPrefsException: Could not store preference value
+  at UnityEngine.PlayerPrefs.SetInt (System.String key, System.Int32 value) [0x0001a] in C:\build\output\unity\unity\Runtime\Export\PlayerPrefs\PlayerPrefs.bindings.cs:27 
+  at FPSLimiter.ApplyFPSLimit () [0x0001d] in E:\dsh-pet-projects\Xiaoqi-ME-p2\Assets\MATE ENGINE - Scripts\Settings\FPSLimiter.cs:48 
+  at FPSLimiter.Start () [0x00071] in E:\dsh-pet-projects\Xiaoqi-ME-p2\Assets\MATE ENGINE - Scripts\Settings\FPSLimiter.cs:30 
+
+(Filename: E:/dsh-pet-projects/Xiaoqi-ME-p2/Assets/MATE ENGINE - Scripts/Settings/FPSLimiter.cs Line: 48)
+
+[SaveLoadHandler] Saved settings to: C:\Users\10943\AppData\Local\Temp\xq-t65\settings.json
+PlayerPrefsException: Could not store preference value
+  at UnityEngine.PlayerPrefs.SetInt (System.String key, System.Int32 value) [0x0001a] in C:\build\output\unity\unity\Runtime\Export\PlayerPrefs\PlayerPrefs.bindings.cs:27 
+  at FPSLimiter.ApplyFPSLimit () [0x0001d] in E:\dsh-pet-projects\Xiaoqi-ME-p2\Assets\MATE ENGINE - Scripts\Settings\FPSLimiter.cs:48 
+  at FPSLimiter.SetFPSLimit (System.Single fps) [0x0001b] in E:\dsh-pet-projects\Xiaoqi-ME-p2\Assets\MATE ENGINE - Scripts\Settings\FPSLimiter.cs:58 
+  at SettingsHandlerSliders.ApplySettings () [0x0001b] in E:\dsh-pet-projects\Xiaoqi-ME-p2\Assets\MATE ENGINE - Scripts\Settings\SettingsMenu\SettingsHandlerSliders.cs:136 
+  at SettingsHandlerSliders.Start () [0x001c0] in E:\dsh-pet-projects\Xiaoqi-ME-p2\Assets\MATE ENGINE - Scripts\Settings\SettingsMenu\SettingsHandlerSliders.cs:105 
+
+(Filename: E:/dsh-pet-projects/Xiaoqi-ME-p2/Assets/MATE ENGINE - Scripts/Settings/FPSLimiter.cs Line: 48)
+
+[SaveLoadHandler] Saved settings to: C:\Users\10943\AppData\Local\Temp\xq-t65\settings.json
+XiaoqiRunKey migrate: Requested registry access is not allowed.
+[SaveLoadHandler] Saved settings to: C:\Users\10943\AppData\Local\Temp\xq-t65\settings.json
+[SystemStartHandler] Registry write failed: Requested registry access is not allowed.
+XiaoqiHide: not found = AI
+XiaoqiHide: not found = FOOD SYSTEM
+XiaoqiHide: not found = ME Modding
+XiaoqiHide: not found = Settings
+XiaoqiHide: not found = STEAM DLC
+XiaoqiHide: not found = Steam Exklusives
+XiaoqiHide: not found AI Alarm Speech
+XiaoqiHide: not found AI INPUT
+XiaoqiHide: not found AI Speech
+XiaoqiHide: not found AiSystemPrompt
+XiaoqiHide: not found AlarmMenuCanvas
+XiaoqiHide: not found BlendshapeMenuCanvas
+XiaoqiHide: not found Chat
+XiaoqiHide: not found ChatBot AI
+XiaoqiHide: not found DancePlayerMenuCanvas
+XiaoqiHide: not found Discord
+XiaoqiHide: not found Discord RPC
+XiaoqiHide: not found DiscordPresence
+XiaoqiHide: not found Food
+XiaoqiHide: not found Food System
+XiaoqiHide: not found FoodMenu
+XiaoqiHide: not found LOCK_STEAM_DLC
+XiaoqiHide: not found Main Menu
+XiaoqiHide: not found MainMenuAlarm
+XiaoqiHide: not found MateEngineAPI/FoodMenu
+XiaoqiHide: not found MateEngineAPI/ModLoader
+XiaoqiHide: not found MenuPanel
+XiaoqiHide: not found ModLoader
+XiaoqiHide: not found STEAM_DLC
+XiaoqiHide: not found STEAM_FS
+XiaoqiHide: not found STEAM_MC
+XiaoqiHide: not found SteamAPI
+XiaoqiHide: not found SteamContent
+XiaoqiHide: not found SteamDRM
+XiaoqiHide: not found SteamSDK
+XiaoqiHide: not found SteamWorkshop
+XiaoqiHide: not found SystemStart
+XiaoqiHide: not found Tutorial
+XiaoqiHide: not found Welcome
+XiaoqiHide: not found Welcome Window
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XIAOQI_SYSTEMS ready model=E:\dsh-pet-projects\Xiaoqi-ME-p2\Build\Xiaoqi\XiaoqiData\16.vrm host=True
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+XQ_HOST me-menu suppressed
+<color=#FFBC4F>[Receiver] Deaktiviert: DEFAULT AVATAR (VRMModel)</color>
+<color=#bada55>[Receiver] Awake! Avatar: Default</color>
+<color=#4FFFD7>[Receiver] Aktiviert: Default (CustomVRM(Clone))</color>
+<color=#93FF4F>[Receiver] SetAnimator called! Neuer Animator gesetzt f黵: MODDED AVATAR (CustomVRM(Clone))</color>
+[AvatarMinecraftMessages] UDP ready on 32145
+[AvatarLibraryMenu] VRM already exists in library, skipping: Ciel_VRC_bake_1.0
+Unloading 6 Unused Serialized files (Serialized files now loaded: 4)
+[VRMLoader] Failed to load model: Exception has been thrown by the target of an invocation.
+XQ_UI2 camera direct hdr=0 msaa=0 keepAlpha=1
+Unloading 27 unused Assets to reduce memory usage. Loaded Objects now: 14838.
+Total: 2.558200 ms (FindLiveObjects: 0.466300 ms CreateObjectMapping: 0.162600 ms MarkObjects: 1.899900 ms  DeleteObjects: 0.029200 ms)
+
+XQ_HOST avatar CustomVRM(Clone) animator=True proxy=True
+XQ_IDLE bound anim=CustomVRM(Clone) cur=0 pool=10 switch_time=1e9
+XQ_CLIPS PET_IDLE | PET_IDLE_UPDATE2_01 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_2 | PET_IDLE_14 | PET_IDLE_4 | PET_IDLE_3 | PET_IDLE_5 | PET_IDLE_15 | PET_IDLE_13 | PET_IDLE_9 | PET_IDLE_12 | PET_IDLE_6 | PET_IDLE_10 | PET_IDLE_11 | PET_IDLE_7 | PET_IDLE_8 | PET_IDLE | HUS_IDLE01 | HUS_IDLE02 | HUS_IDLE03 | HUS_IDLE04 | HUS_IDLE05 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE08 | HUS_IDLE09 | HUS_IDLE05 | HUS_IDLE03 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE02 | HUS_IDLE04 | HUS_IDLE09 | HUS_IDLE06 | HUS_IDLE08 | HUS_IDLE03 | HUS_IDLE01 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_02 | HUS_DANCE_01 | HUS_IDLE09 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_UPDATE2_01 | CUSTOM_DANCE | PET_IDLE_12 | FACE_IDLE_1 | 
+XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=0,0 0x0 scale=1.89
+XQ_UI2 on theme=pink class=xq-theme-pink scale=1.89 bodyH=688 fontPx=30.2 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+XQ_HOST dances=0
+XQ_WATCH start
+XQ_WATCH hwnd=29365686
+XQ_WATCH rect=-2560,-683,0,757
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+XQ_WATCH hwnd=29365686
+XQ_WATCH rect=-2560,-683,0,757
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+XQ_WATCH hwnd=29365686
+XQ_WATCH rect=-2560,-683,0,757
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+XQ_WATCH hwnd=29365686
+XQ_WATCH rect=-2560,-683,0,757
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+XQ_WATCH hwnd=29365686
+XQ_WATCH rect=-2560,-683,0,757
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+XQ_BRAIN 2026-11-17 02:14:43 src=random evt=skip reason=not-idle-state
+XQ_TEST nap start
+XQ_NAP start min=0.5
+XQ_SLEEP hold idle=True
+XQ_WATCH hwnd=29365686
+XQ_WATCH rect=-2560,-683,0,757
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+XQ_WATCH hwnd=29365686
+XQ_WATCH rect=-2560,-683,0,757
+XQ_TEST nap asleep=True
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+XQ_WATCH hwnd=29365686
+XQ_WATCH rect=-2560,-683,0,757
+Curl error 7: Failed to connect to 127.0.0.1 port 7897 after 0 ms: Could not connect to server
+XQ_NAP wake
+XQ_TEST nap woke asleep=False
+XQ_WATCH hwnd=29365686
+XQ_WATCH rect=-2560,-683,0,757

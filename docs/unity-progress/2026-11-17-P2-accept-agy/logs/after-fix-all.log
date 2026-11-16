@@ -1,0 +1,428 @@
+﻿=== 1. Test A (-xq-close-test) ===
+PLACED D2 rect=-2560,-683 2560x1440
+A-LOG: XQ_TEST close before win=-2560,-683 2560x1440 body=1074..1560 y=-8..880 h=888 mode=Pet
+A-LOG: XQ_MODE Pet -> Close
+A-LOG: XQ_TEST close round=1 enter accepted=True
+A-LOG: XQ_CLOSE doc=XqUi2Document
+A-LOG: XQ_CLOSE ok rail rect=0.023,0.048 0.063x0.904
+A-LOG: XQ_CLOSE ok plate rect=0.375,0.826 0.224x0.074
+A-LOG: XQ_CLOSE ok btn-pet rect=0.869,0.896 0.041x0.074
+A-LOG: XQ_CLOSE ok btn-bench rect=0.919,0.896 0.041x0.074
+A-LOG: XQ_CLOSE ok card-next rect=0.113,0.178 0.230x0.237
+A-LOG: XQ_CLOSE ok card-energy rect=0.113,0.456 0.210x0.170
+A-LOG: XQ_CLOSE ok card-say rect=0.696,0.063 0.267x0.237
+A-LOG: XQ_CLOSE ok card-tiny rect=0.729,0.344 0.235x0.237
+A-LOG: XQ_CLOSE ok ring rect=0.833,0.652 0.120x0.219
+A-LOG: XQ_CLOSE ok tip-bench rect=0.813,0.905 0.098x0.056
+A-LOG: XQ_CLOSE anim enter
+A-LOG: XQ_CLOSE open
+A-LOG: XQ_CLOSE ok rail rect=0.023,0.048 0.063x0.904
+A-LOG: XQ_CLOSE ok plate rect=0.375,0.826 0.224x0.074
+A-LOG: XQ_CLOSE ok btn-pet rect=0.869,0.896 0.041x0.074
+A-LOG: XQ_CLOSE ok btn-bench rect=0.919,0.896 0.041x0.074
+A-LOG: XQ_CLOSE ok card-next rect=0.113,0.178 0.230x0.237
+A-LOG: XQ_CLOSE ok card-energy rect=0.113,0.456 0.210x0.170
+A-LOG: XQ_CLOSE ok card-say rect=0.696,0.063 0.267x0.237
+A-LOG: XQ_CLOSE ok card-tiny rect=0.729,0.344 0.235x0.237
+A-LOG: XQ_CLOSE ok ring rect=0.833,0.652 0.120x0.219
+A-LOG: XQ_CLOSE ok tip-bench rect=0.813,0.905 0.098x0.056
+A-LOG: XQ_CLOSE day fail: 502
+A-LOG: XQ_CLOSE feed fail: 502
+A-LOG: XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+A-LOG: XQ_TEST close round=1 entered in=1.03s win=-2560,-683 2560x1440 body=-267..2457 y=-4364..-243 h=4121 mode=Close
+A-LOG: XQ_CLOSE anim settled
+A-LOG: XQ_CLOSE day fail: 502
+A-LOG: XQ_CLOSE feed fail: 502
+A-LOG: XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+A-LOG: XQ_TEST close round=1 hold4s win=-2560,-683 2560x1440 body=16..2511 y=-2576..1479 h=4055 mode=Close
+A-LOG: XQ_MODE Close -> Pet
+A-LOG: XQ_CLOSE anim exit
+A-LOG: XQ_CLOSE close
+A-LOG: XQ_CLOSE anim done
+A-LOG: XQ_TEST close round=1 exited accepted=True win=-2560,-683 2560x1440 body=1072..1560 y=-7..880 h=887 mode=Pet
+A-LOG: XQ_MODE Pet -> Close
+A-LOG: XQ_TEST close round=2 enter accepted=True
+A-LOG: XQ_CLOSE anim enter
+A-LOG: XQ_CLOSE open
+A-LOG: XQ_CLOSE ok rail rect=0.023,0.048 0.063x0.904
+A-LOG: XQ_CLOSE ok plate rect=0.375,0.826 0.224x0.074
+A-LOG: XQ_CLOSE ok btn-pet rect=0.869,0.896 0.041x0.074
+A-LOG: XQ_CLOSE ok btn-bench rect=0.919,0.896 0.041x0.074
+A-LOG: XQ_CLOSE ok card-next rect=0.113,0.178 0.230x0.237
+A-LOG: XQ_CLOSE ok card-energy rect=0.113,0.456 0.210x0.170
+A-LOG: XQ_CLOSE ok card-say rect=0.696,0.063 0.267x0.237
+A-LOG: XQ_CLOSE ok card-tiny rect=0.729,0.344 0.235x0.237
+A-LOG: XQ_CLOSE ok ring rect=0.833,0.652 0.120x0.219
+A-LOG: XQ_CLOSE ok tip-bench rect=0.813,0.905 0.098x0.056
+A-LOG: XQ_CLOSE day fail: 502
+A-LOG: XQ_CLOSE feed fail: 502
+A-LOG: XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+A-LOG: XQ_TEST close round=2 entered in=1.01s win=-2560,-683 2560x1440 body=-268..2457 y=-4488..-367 h=4121 mode=Close
+A-LOG: XQ_CLOSE anim settled
+A-LOG: XQ_CLOSE day fail: 502
+A-LOG: XQ_CLOSE feed fail: 502
+A-LOG: XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+A-LOG: XQ_TEST close round=2 hold4s win=-2560,-683 2560x1440 body=16..2511 y=-2576..1479 h=4055 mode=Close
+A-LOG: XQ_MODE Close -> Pet
+A-LOG: XQ_CLOSE anim exit
+A-LOG: XQ_CLOSE close
+A-LOG: XQ_CLOSE anim done
+A-LOG: XQ_TEST close round=2 exited accepted=True win=-2560,-683 2560x1440 body=1072..1560 y=-7..880 h=887 mode=Pet
+A-LOG: XQ_MODE Pet -> Close
+A-LOG: XQ_TEST close round=3 enter accepted=True
+A-LOG: XQ_CLOSE anim enter
+A-LOG: XQ_CLOSE open
+A-LOG: XQ_CLOSE ok rail rect=0.023,0.048 0.063x0.904
+A-LOG: XQ_CLOSE ok plate rect=0.375,0.826 0.224x0.074
+A-LOG: XQ_CLOSE ok btn-pet rect=0.869,0.896 0.041x0.074
+A-LOG: XQ_CLOSE ok btn-bench rect=0.919,0.896 0.041x0.074
+A-LOG: XQ_CLOSE ok card-next rect=0.113,0.178 0.230x0.237
+A-LOG: XQ_CLOSE ok card-energy rect=0.113,0.456 0.210x0.170
+A-LOG: XQ_CLOSE ok card-say rect=0.696,0.063 0.267x0.237
+A-LOG: XQ_CLOSE ok card-tiny rect=0.729,0.344 0.235x0.237
+A-LOG: XQ_CLOSE ok ring rect=0.833,0.652 0.120x0.219
+A-LOG: XQ_CLOSE ok tip-bench rect=0.813,0.905 0.098x0.056
+A-LOG: XQ_CLOSE day fail: 502
+A-LOG: XQ_CLOSE feed fail: 502
+A-LOG: XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+A-LOG: XQ_TEST close round=3 entered in=1.06s win=-2560,-683 2560x1440 body=-264..2457 y=-4145..-25 h=4120 mode=Close
+A-LOG: XQ_CLOSE anim settled
+A-LOG: XQ_CLOSE day fail: 502
+A-LOG: XQ_CLOSE feed fail: 502
+A-LOG: XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+A-LOG: XQ_TEST close round=3 hold4s win=-2560,-683 2560x1440 body=18..2512 y=-2576..1479 h=4054 mode=Close
+A-LOG: XQ_MODE Close -> Pet
+A-LOG: XQ_CLOSE anim exit
+A-LOG: XQ_CLOSE close
+A-LOG: XQ_CLOSE anim done
+A-LOG: XQ_TEST close round=3 exited accepted=True win=-2560,-683 2560x1440 body=1072..1560 y=-7..880 h=887 mode=Pet
+A-LOG: XQ_TEST close drift win=0,0 size=0,0 bodyCx=-1 bodyBottom=0 bodyH=-1
+=== 2. Test B + C + D(heart) + E ===
+PLACED D2 rect=-2560,-683 2560x1440
+Updated fake_day_live.json -> state 2
+Removed fake_day_live.json -> offline
+BCE-LOG: Mono path[0] = 'E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/Xiaoqi_Data/Managed'
+BCE-LOG: [Subsystems] Discovering subsystems at path E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/Xiaoqi_Data/UnitySubsystems
+BCE-LOG: XQ_HIDE comp AvatarMinecraftMessages off
+BCE-LOG: XQ_HIDE comp AvatarRandomMessages off
+BCE-LOG: XQ_HIDE comp DiscordPresence off
+BCE-LOG: XQ_HIDE comp KeyBindHandler not found
+BCE-LOG: XQ_HIDE comp LaunchMateEngineInstances not found
+BCE-LOG: XQ_HIDE comp MenuAudioHandler off
+BCE-LOG: XQ_HIDE comp PetVoiceReactionHandler off
+BCE-LOG: XQ_HIDE comp SteamWorkshopAutoLoader off
+BCE-LOG: XQ_HIDE comp SteamWorkshopHandler off
+BCE-LOG: XQ_HIDE comp SystemStartHandler off
+BCE-LOG: XQ_HIDE comp TutorialMenu off
+BCE-LOG: XQ_UI2 theme=pink class=xq-theme-pink
+BCE-LOG: XQ_SHOT_Awake args=12 index=-1
+BCE-LOG: XQ_HIDE comp AvatarMinecraftMessages off
+BCE-LOG: XQ_HIDE comp AvatarRandomMessages off
+BCE-LOG: XQ_HIDE comp DiscordPresence off
+BCE-LOG: XQ_HIDE comp KeyBindHandler not found
+BCE-LOG: XQ_HIDE comp LaunchMateEngineInstances not found
+BCE-LOG: XQ_HIDE comp MenuAudioHandler off
+BCE-LOG: XQ_HIDE comp PetVoiceReactionHandler off
+BCE-LOG: XQ_HIDE comp SteamWorkshopAutoLoader off
+BCE-LOG: XQ_HIDE comp SteamWorkshopHandler off
+BCE-LOG: XQ_HIDE comp SystemStartHandler off
+BCE-LOG: XQ_HIDE comp TutorialMenu off
+BCE-LOG: XIAOQI_SYSTEMS ready model=E:\dsh-pet-projects\Xiaoqi-ME-p2\Build\Xiaoqi\XiaoqiData\16.vrm host=True
+BCE-LOG: XQ_HOST me-menu suppressed
+BCE-LOG: XQ_UI2 camera direct hdr=0 msaa=0 keepAlpha=1
+BCE-LOG: XQ_HOST avatar CustomVRM(Clone) animator=True proxy=True
+BCE-LOG: XQ_IDLE bound anim=CustomVRM(Clone) cur=0 pool=10 switch_time=1e9
+BCE-LOG: XQ_CLIPS PET_IDLE | PET_IDLE_UPDATE2_01 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_2 | PET_IDLE_14 | PET_IDLE_4 | PET_IDLE_3 | PET_IDLE_5 | PET_IDLE_15 | PET_IDLE_13 | PET_IDLE_9 | PET_IDLE_12 | PET_IDLE_6 | PET_IDLE_10 | PET_IDLE_11 | PET_IDLE_7 | PET_IDLE_8 | PET_IDLE | HUS_IDLE01 | HUS_IDLE02 | HUS_IDLE03 | HUS_IDLE04 | HUS_IDLE05 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE08 | HUS_IDLE09 | HUS_IDLE05 | HUS_IDLE03 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE02 | HUS_IDLE04 | HUS_IDLE09 | HUS_IDLE06 | HUS_IDLE08 | HUS_IDLE03 | HUS_IDLE01 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_02 | HUS_DANCE_01 | HUS_IDLE09 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_UPDATE2_01 | CUSTOM_DANCE | PET_IDLE_12 | FACE_IDLE_1 | 
+BCE-LOG: XQ_UI2 on theme=pink class=xq-theme-pink scale=2.00 bodyH=941 fontPx=32.0 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+BCE-LOG: XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=1474,147 40x40 scale=2.00
+BCE-LOG: XQ_HOST dances=0
+BCE-LOG: XQ_WATCH start
+BCE-LOG: XQ_WATCH hwnd=30671702
+BCE-LOG: XQ_WATCH rect=-2560,-683,0,757
+BCE-LOG: XQ_MODE Pet -> Close
+BCE-LOG: XQ_EVENT view close
+BCE-LOG: XQ_HUD gate shown=False near=False menuOpen=False rect(panel)=895,96 40x40 scale=2.00
+BCE-LOG: XQ_CLOSE doc=XqUi2Document
+BCE-LOG: XQ_CLOSE ok rail rect=0.023,0.048 0.063x0.904
+BCE-LOG: XQ_CLOSE ok plate rect=0.375,0.826 0.224x0.074
+BCE-LOG: XQ_CLOSE ok btn-pet rect=0.869,0.896 0.041x0.074
+BCE-LOG: XQ_CLOSE ok btn-bench rect=0.919,0.896 0.041x0.074
+BCE-LOG: XQ_CLOSE ok card-next rect=0.113,0.178 0.230x0.237
+BCE-LOG: XQ_CLOSE ok card-energy rect=0.113,0.456 0.210x0.170
+BCE-LOG: XQ_CLOSE ok card-say rect=0.696,0.063 0.267x0.237
+BCE-LOG: XQ_CLOSE ok card-tiny rect=0.729,0.344 0.235x0.237
+BCE-LOG: XQ_CLOSE ok ring rect=0.833,0.652 0.120x0.219
+BCE-LOG: XQ_CLOSE ok tip-bench rect=0.813,0.905 0.098x0.056
+BCE-LOG: XQ_CLOSE anim enter
+BCE-LOG: XQ_CLOSE open
+BCE-LOG: XQ_CLOSE ok rail rect=0.023,0.048 0.063x0.904
+BCE-LOG: XQ_CLOSE ok plate rect=0.375,0.826 0.224x0.074
+BCE-LOG: XQ_CLOSE ok btn-pet rect=0.869,0.896 0.041x0.074
+BCE-LOG: XQ_CLOSE ok btn-bench rect=0.919,0.896 0.041x0.074
+BCE-LOG: XQ_CLOSE ok card-next rect=0.113,0.178 0.230x0.237
+BCE-LOG: XQ_CLOSE ok card-energy rect=0.113,0.456 0.210x0.170
+BCE-LOG: XQ_CLOSE ok card-say rect=0.696,0.063 0.267x0.237
+BCE-LOG: XQ_CLOSE ok card-tiny rect=0.729,0.344 0.235x0.237
+BCE-LOG: XQ_CLOSE ok ring rect=0.833,0.652 0.120x0.219
+BCE-LOG: XQ_CLOSE ok tip-bench rect=0.813,0.905 0.098x0.056
+BCE-LOG: XQ_CLOSE say updated len=29
+BCE-LOG: XQ_CLOSE data next=13:30 数据结构 · 教学楼 B 座 | energy=有点困 | say=主人今天要上课吧？中午食堂有你上次说的那个，我先帮你排队～
+BCE-LOG: XQ_WATCH hwnd=30671702
+BCE-LOG: XQ_WATCH rect=-2560,-683,0,757
+BCE-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-bc\data-1.png 2544x1401
+BCE-LOG: XQ_WATCH hwnd=30671702
+BCE-LOG: XQ_WATCH rect=-2560,-683,0,757
+BCE-LOG: XQ_CLOSE anim settled
+BCE-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-bc\settled.png 2544x1401
+BCE-LOG: XQ_CLOSE data next=13:30 数据结构 · 教学楼 B 座 | energy=有点困 | say=主人今天要上课吧？中午食堂有你上次说的那个，我先帮你排队～
+BCE-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-bc\data-2.png 2544x1401
+BCE-LOG: XQ_CLOSE bench-hover=True
+BCE-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-bc\tip-bench.png 2544x1401
+BCE-LOG: XQ_CLOSE bench-hover=False
+BCE-LOG: XQ_CLOSE focus on
+BCE-LOG: XQ_WATCH hwnd=30671702
+BCE-LOG: XQ_WATCH rect=-2560,-683,0,757
+BCE-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-bc\focus-next-on.png 2544x1401
+BCE-LOG: XQ_CLOSE focus off
+BCE-LOG: XQ_CLOSE focus on
+BCE-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-bc\focus-say-on.png 2544x1401
+BCE-LOG: XQ_CLOSE focus off
+BCE-LOG: XQ_CLOSE todo placeholder
+BCE-LOG: XQ_CLOSE settings not in this branch
+BCE-LOG: XQ_CLOSE ring placeholder
+BCE-LOG: XQ_CLOSE data next=13:30 数据结构 · 教学楼 B 座 | energy=有点困 | say=主人今天要上课吧？中午食堂有你上次说的那个，我先帮你排队～
+BCE-LOG: XQ_WATCH hwnd=30671702
+BCE-LOG: XQ_WATCH rect=-2560,-683,0,757
+BCE-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-bc\data-3.png 2544x1401
+BCE-LOG: XQ_WATCH hwnd=30671702
+BCE-LOG: XQ_WATCH rect=-2560,-683,0,757
+BCE-LOG: XQ_CLOSE say updated len=20
+BCE-LOG: XQ_CLOSE data next=16:00 组会讨论 · 理科楼 302 | energy=精神 | say=我把下午组会的提纲整理好啦，等你一起看～
+BCE-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-bc\data-4.png 2544x1401
+BCE-LOG: XQ_WATCH hwnd=30671702
+BCE-LOG: XQ_WATCH rect=-2560,-683,0,757
+BCE-LOG: XQ_EVENT drop view code=502
+BCE-LOG: XQ_CLOSE day fail: 502
+BCE-LOG: XQ_WATCH hwnd=30671702
+BCE-LOG: XQ_WATCH rect=-2560,-683,0,757
+BCE-LOG: XQ_CLOSE feed fail: 502
+BCE-LOG: XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+BCE-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-bc\data-5.png 2544x1401
+BCE-LOG: XQ_WATCH hwnd=30671702
+BCE-LOG: XQ_WATCH rect=-2560,-683,0,757
+COMPOSITED B-close-100.png (2544x1401)
+COMPOSITED B-close-tip-bench.png (2544x1401)
+COMPOSITED C-focus-next-on.png (2544x1401)
+COMPOSITED C-focus-say-on.png (2544x1401)
+COMPOSITED P2-5-data-1.png (2544x1401)
+COMPOSITED P2-5-data-2.png (2544x1401)
+COMPOSITED P2-5-offline.png (2544x1401)
+=== 3. Test G (Blue Theme) & D (exit by btn-pet) ===
+PLACED D2 rect=-2560,-683 2560x1440
+COMPOSITED G-close-blue.png (2544x1401)
+G-LOG: Mono path[0] = 'E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/Xiaoqi_Data/Managed'
+G-LOG: [Subsystems] Discovering subsystems at path E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/Xiaoqi_Data/UnitySubsystems
+G-LOG: XQ_HIDE comp AvatarMinecraftMessages off
+G-LOG: XQ_HIDE comp AvatarRandomMessages off
+G-LOG: XQ_HIDE comp DiscordPresence off
+G-LOG: XQ_HIDE comp KeyBindHandler not found
+G-LOG: XQ_HIDE comp LaunchMateEngineInstances not found
+G-LOG: XQ_HIDE comp MenuAudioHandler off
+G-LOG: XQ_HIDE comp PetVoiceReactionHandler off
+G-LOG: XQ_HIDE comp SteamWorkshopAutoLoader off
+G-LOG: XQ_HIDE comp SteamWorkshopHandler off
+G-LOG: XQ_HIDE comp SystemStartHandler off
+G-LOG: XQ_HIDE comp TutorialMenu off
+G-LOG: XQ_UI2 theme=blue class=xq-theme-blue
+G-LOG: XQ_SHOT_Awake args=13 index=-1
+G-LOG: XQ_HIDE comp AvatarMinecraftMessages off
+G-LOG: XQ_HIDE comp AvatarRandomMessages off
+G-LOG: XQ_HIDE comp DiscordPresence off
+G-LOG: XQ_HIDE comp KeyBindHandler not found
+G-LOG: XQ_HIDE comp LaunchMateEngineInstances not found
+G-LOG: XQ_HIDE comp MenuAudioHandler off
+G-LOG: XQ_HIDE comp PetVoiceReactionHandler off
+G-LOG: XQ_HIDE comp SteamWorkshopAutoLoader off
+G-LOG: XQ_HIDE comp SteamWorkshopHandler off
+G-LOG: XQ_HIDE comp SystemStartHandler off
+G-LOG: XQ_HIDE comp TutorialMenu off
+G-LOG: XIAOQI_SYSTEMS ready model=E:\dsh-pet-projects\Xiaoqi-ME-p2\Build\Xiaoqi\XiaoqiData\16.vrm host=True
+G-LOG: XQ_HOST me-menu suppressed
+G-LOG: XQ_UI2 camera direct hdr=0 msaa=0 keepAlpha=1
+G-LOG: XQ_HOST avatar CustomVRM(Clone) animator=True proxy=True
+G-LOG: XQ_IDLE bound anim=CustomVRM(Clone) cur=0 pool=10 switch_time=1e9
+G-LOG: XQ_CLIPS PET_IDLE | PET_IDLE_UPDATE2_01 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_2 | PET_IDLE_14 | PET_IDLE_4 | PET_IDLE_3 | PET_IDLE_5 | PET_IDLE_15 | PET_IDLE_13 | PET_IDLE_9 | PET_IDLE_12 | PET_IDLE_6 | PET_IDLE_10 | PET_IDLE_11 | PET_IDLE_7 | PET_IDLE_8 | PET_IDLE | HUS_IDLE01 | HUS_IDLE02 | HUS_IDLE03 | HUS_IDLE04 | HUS_IDLE05 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE08 | HUS_IDLE09 | HUS_IDLE05 | HUS_IDLE03 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE02 | HUS_IDLE04 | HUS_IDLE09 | HUS_IDLE06 | HUS_IDLE08 | HUS_IDLE03 | HUS_IDLE01 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_02 | HUS_DANCE_01 | HUS_IDLE09 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_UPDATE2_01 | CUSTOM_DANCE | PET_IDLE_12 | FACE_IDLE_1 | 
+G-LOG: XQ_UI2 on theme=blue class=xq-theme-blue scale=2.00 bodyH=941 fontPx=32.0 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+G-LOG: XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=1474,147 40x40 scale=2.00
+G-LOG: XQ_HOST dances=0
+G-LOG: XQ_WATCH start
+G-LOG: XQ_WATCH hwnd=23006350
+G-LOG: XQ_WATCH rect=-2560,-683,0,757
+G-LOG: XQ_MODE Pet -> Close
+G-LOG: XQ_EVENT view close
+G-LOG: XQ_HUD gate shown=False near=False menuOpen=False rect(panel)=897,97 40x40 scale=2.00
+G-LOG: XQ_CLOSE doc=XqUi2Document
+G-LOG: XQ_CLOSE ok rail rect=0.023,0.048 0.063x0.904
+G-LOG: XQ_CLOSE ok plate rect=0.375,0.826 0.224x0.074
+G-LOG: XQ_CLOSE ok btn-pet rect=0.869,0.896 0.041x0.074
+G-LOG: XQ_CLOSE ok btn-bench rect=0.919,0.896 0.041x0.074
+G-LOG: XQ_CLOSE ok card-next rect=0.113,0.178 0.230x0.237
+G-LOG: XQ_CLOSE ok card-energy rect=0.113,0.456 0.210x0.170
+G-LOG: XQ_CLOSE ok card-say rect=0.696,0.063 0.267x0.237
+G-LOG: XQ_CLOSE ok card-tiny rect=0.729,0.344 0.235x0.237
+G-LOG: XQ_CLOSE ok ring rect=0.833,0.652 0.120x0.219
+G-LOG: XQ_CLOSE ok tip-bench rect=0.813,0.905 0.098x0.056
+G-LOG: XQ_CLOSE anim enter
+G-LOG: XQ_CLOSE open
+G-LOG: XQ_CLOSE ok rail rect=0.023,0.048 0.063x0.904
+G-LOG: XQ_CLOSE ok plate rect=0.375,0.826 0.224x0.074
+G-LOG: XQ_CLOSE ok btn-pet rect=0.869,0.896 0.041x0.074
+G-LOG: XQ_CLOSE ok btn-bench rect=0.919,0.896 0.041x0.074
+G-LOG: XQ_CLOSE ok card-next rect=0.113,0.178 0.230x0.237
+G-LOG: XQ_CLOSE ok card-energy rect=0.113,0.456 0.210x0.170
+G-LOG: XQ_CLOSE ok card-say rect=0.696,0.063 0.267x0.237
+G-LOG: XQ_CLOSE ok card-tiny rect=0.729,0.344 0.235x0.237
+G-LOG: XQ_CLOSE ok ring rect=0.833,0.652 0.120x0.219
+G-LOG: XQ_CLOSE ok tip-bench rect=0.813,0.905 0.098x0.056
+G-LOG: XQ_CLOSE day fail: 502
+G-LOG: XQ_CLOSE feed fail: 502
+G-LOG: XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+G-LOG: XQ_WATCH hwnd=23006350
+G-LOG: XQ_WATCH rect=-2560,-683,0,757
+G-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-g\data-1.png 2544x1401
+G-LOG: XQ_WATCH hwnd=23006350
+G-LOG: XQ_WATCH rect=-2560,-683,0,757
+G-LOG: XQ_CLOSE anim settled
+G-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-g\settled.png 2544x1401
+G-LOG: XQ_CLOSE day fail: 502
+G-LOG: XQ_CLOSE feed fail: 502
+G-LOG: XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+G-LOG: XQ_CLOSE bench-hover=True
+G-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-g\tip-bench.png 2544x1401
+G-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-g\data-2.png 2544x1401
+G-LOG: XQ_CLOSE bench-hover=False
+G-LOG: XQ_CLOSE focus on
+G-LOG: XQ_WATCH hwnd=23006350
+G-LOG: XQ_WATCH rect=-2560,-683,0,757
+G-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-g\focus-next-on.png 2544x1401
+G-LOG: XQ_CLOSE focus off
+G-LOG: XQ_CLOSE focus on
+G-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-g\focus-say-on.png 2544x1401
+G-LOG: XQ_CLOSE focus off
+G-LOG: XQ_CLOSE todo placeholder
+G-LOG: XQ_CLOSE settings not in this branch
+G-LOG: XQ_CLOSE ring placeholder
+G-LOG: XQ_CLOSE btn pet
+G-LOG: XQ_MODE Close -> Pet
+G-LOG: XQ_EVENT view pet
+G-LOG: XQ_CLOSE anim exit
+G-LOG: XQ_CLOSE close
+G-LOG: XQ_WATCH hwnd=23006350
+G-LOG: XQ_WATCH rect=-2560,-683,0,757
+G-LOG: XQ_CLOSE anim done
+G-LOG: XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=1193,-3178 40x40 scale=2.00
+=== 4. Test B (175% scale) & D (exit by heart) ===
+PLACED D2 rect=-2560,-683 1463x823
+COMPOSITED B-close-175.png (1447x784)
+B175-LOG: Mono path[0] = 'E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/Xiaoqi_Data/Managed'
+B175-LOG: [Subsystems] Discovering subsystems at path E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/Xiaoqi_Data/UnitySubsystems
+B175-LOG: XQ_HIDE comp AvatarMinecraftMessages off
+B175-LOG: XQ_HIDE comp AvatarRandomMessages off
+B175-LOG: XQ_HIDE comp DiscordPresence off
+B175-LOG: XQ_HIDE comp KeyBindHandler not found
+B175-LOG: XQ_HIDE comp LaunchMateEngineInstances not found
+B175-LOG: XQ_HIDE comp MenuAudioHandler off
+B175-LOG: XQ_HIDE comp PetVoiceReactionHandler off
+B175-LOG: XQ_HIDE comp SteamWorkshopAutoLoader off
+B175-LOG: XQ_HIDE comp SteamWorkshopHandler off
+B175-LOG: XQ_HIDE comp SystemStartHandler off
+B175-LOG: XQ_HIDE comp TutorialMenu off
+B175-LOG: XQ_UI2 theme=pink class=xq-theme-pink
+B175-LOG: XQ_SHOT_Awake args=11 index=-1
+B175-LOG: XQ_HIDE comp AvatarMinecraftMessages off
+B175-LOG: XQ_HIDE comp AvatarRandomMessages off
+B175-LOG: XQ_HIDE comp DiscordPresence off
+B175-LOG: XQ_HIDE comp KeyBindHandler not found
+B175-LOG: XQ_HIDE comp LaunchMateEngineInstances not found
+B175-LOG: XQ_HIDE comp MenuAudioHandler off
+B175-LOG: XQ_HIDE comp PetVoiceReactionHandler off
+B175-LOG: XQ_HIDE comp SteamWorkshopAutoLoader off
+B175-LOG: XQ_HIDE comp SteamWorkshopHandler off
+B175-LOG: XQ_HIDE comp SystemStartHandler off
+B175-LOG: XQ_HIDE comp TutorialMenu off
+B175-LOG: XIAOQI_SYSTEMS ready model=E:\dsh-pet-projects\Xiaoqi-ME-p2\Build\Xiaoqi\XiaoqiData\16.vrm host=True
+B175-LOG: XQ_HOST me-menu suppressed
+B175-LOG: XQ_UI2 camera direct hdr=0 msaa=0 keepAlpha=1
+B175-LOG: XQ_HOST avatar CustomVRM(Clone) animator=True proxy=True
+B175-LOG: XQ_IDLE bound anim=CustomVRM(Clone) cur=0 pool=10 switch_time=1e9
+B175-LOG: XQ_CLIPS PET_IDLE | PET_IDLE_UPDATE2_01 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_2 | PET_IDLE_14 | PET_IDLE_4 | PET_IDLE_3 | PET_IDLE_5 | PET_IDLE_15 | PET_IDLE_13 | PET_IDLE_9 | PET_IDLE_12 | PET_IDLE_6 | PET_IDLE_10 | PET_IDLE_11 | PET_IDLE_7 | PET_IDLE_8 | PET_IDLE | HUS_IDLE01 | HUS_IDLE02 | HUS_IDLE03 | HUS_IDLE04 | HUS_IDLE05 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE08 | HUS_IDLE09 | HUS_IDLE05 | HUS_IDLE03 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE02 | HUS_IDLE04 | HUS_IDLE09 | HUS_IDLE06 | HUS_IDLE08 | HUS_IDLE03 | HUS_IDLE01 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_02 | HUS_DANCE_01 | HUS_IDLE09 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_UPDATE2_01 | CUSTOM_DANCE | PET_IDLE_12 | FACE_IDLE_1 | 
+B175-LOG: XQ_UI2 on theme=pink class=xq-theme-pink scale=1.45 bodyH=526 fontPx=23.1 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+B175-LOG: XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=826,97 39x40 scale=1.45
+B175-LOG: XQ_HOST dances=0
+B175-LOG: XQ_WATCH start
+B175-LOG: XQ_WATCH hwnd=20648540
+B175-LOG: XQ_WATCH rect=-2560,-683,-1097,140
+B175-LOG: XQ_MODE Pet -> Close
+B175-LOG: XQ_EVENT view close
+B175-LOG: XQ_HUD gate shown=False near=False menuOpen=False rect(panel)=789,92 40x40 scale=1.44
+B175-LOG: XQ_CLOSE doc=XqUi2Document
+B175-LOG: XQ_CLOSE ok rail rect=0.023,0.048 0.062x0.904
+B175-LOG: XQ_CLOSE ok plate rect=0.375,0.826 0.221x0.074
+B175-LOG: XQ_CLOSE ok btn-pet rect=0.869,0.896 0.040x0.074
+B175-LOG: XQ_CLOSE ok btn-bench rect=0.919,0.896 0.040x0.074
+B175-LOG: XQ_CLOSE ok card-next rect=0.113,0.178 0.227x0.237
+B175-LOG: XQ_CLOSE ok card-energy rect=0.113,0.456 0.207x0.170
+B175-LOG: XQ_CLOSE ok card-say rect=0.696,0.063 0.263x0.237
+B175-LOG: XQ_CLOSE ok card-tiny rect=0.729,0.344 0.231x0.237
+B175-LOG: XQ_CLOSE ok ring rect=0.833,0.652 0.118x0.219
+B175-LOG: XQ_CLOSE ok tip-bench rect=0.815,0.905 0.096x0.056
+B175-LOG: XQ_CLOSE anim enter
+B175-LOG: XQ_CLOSE open
+B175-LOG: XQ_CLOSE ok rail rect=0.023,0.048 0.062x0.904
+B175-LOG: XQ_CLOSE ok plate rect=0.375,0.826 0.221x0.074
+B175-LOG: XQ_CLOSE ok btn-pet rect=0.869,0.896 0.040x0.074
+B175-LOG: XQ_CLOSE ok btn-bench rect=0.919,0.896 0.040x0.074
+B175-LOG: XQ_CLOSE ok card-next rect=0.113,0.178 0.227x0.237
+B175-LOG: XQ_CLOSE ok card-energy rect=0.113,0.456 0.207x0.170
+B175-LOG: XQ_CLOSE ok card-say rect=0.696,0.063 0.263x0.237
+B175-LOG: XQ_CLOSE ok card-tiny rect=0.729,0.344 0.231x0.237
+B175-LOG: XQ_CLOSE ok ring rect=0.833,0.652 0.118x0.219
+B175-LOG: XQ_CLOSE ok tip-bench rect=0.815,0.905 0.096x0.056
+B175-LOG: XQ_CLOSE day fail: 502
+B175-LOG: XQ_CLOSE feed fail: 502
+B175-LOG: XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+B175-LOG: XQ_WATCH hwnd=20648540
+B175-LOG: XQ_WATCH rect=-2560,-683,-1097,140
+B175-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-175\data-1.png 1447x784
+B175-LOG: XQ_WATCH hwnd=20648540
+B175-LOG: XQ_WATCH rect=-2560,-683,-1097,140
+B175-LOG: XQ_CLOSE anim settled
+B175-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-175\settled.png 1447x784
+B175-LOG: XQ_CLOSE day fail: 502
+B175-LOG: XQ_CLOSE feed fail: 502
+B175-LOG: XQ_CLOSE data next=还没有 | energy=还没有 | say=还没有
+B175-LOG: XQ_CLOSE bench-hover=True
+B175-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-175\data-2.png 1447x784
+B175-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-175\tip-bench.png 1447x784
+B175-LOG: XQ_CLOSE bench-hover=False
+B175-LOG: XQ_CLOSE focus on
+B175-LOG: XQ_WATCH hwnd=20648540
+B175-LOG: XQ_WATCH rect=-2560,-683,-1097,140
+B175-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-175\focus-next-on.png 1447x784
+B175-LOG: XQ_CLOSE focus off
+B175-LOG: XQ_CLOSE focus on
+B175-LOG: XQ_CLOSE shot C:\Users\10943\AppData\Local\Temp\xq-t65\raw-175\focus-say-on.png 1447x784
+B175-LOG: XQ_CLOSE focus off
+B175-LOG: XQ_CLOSE todo placeholder
+B175-LOG: XQ_CLOSE settings not in this branch
+B175-LOG: XQ_CLOSE ring placeholder
+B175-LOG: XQ_CLOSE rail pet
+B175-LOG: XQ_MODE Close -> Pet
+B175-LOG: XQ_EVENT view pet
+B175-LOG: XQ_CLOSE anim exit
+B175-LOG: XQ_CLOSE close
+B175-LOG: XQ_WATCH hwnd=20648540
+B175-LOG: XQ_WATCH rect=-2560,-683,-1097,140
+B175-LOG: XQ_CLOSE anim done
+B175-LOG: XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=669,-1783 41x40 scale=1.43
+DONE ALL
