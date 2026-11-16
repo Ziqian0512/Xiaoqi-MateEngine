@@ -16,7 +16,7 @@
 
   Usage (from anywhere):
     powershell -ExecutionPolicy Bypass -File tools\xq-verify.ps1 -Project "D:\path\to\Xiaoqi-MateEngine" -Branch xiaoqi/p1
-  Optional: -Unity "C:\Program Files\Unity\Hub\Editor\6000.2.6f2\Editor\Unity.exe"  -NoBuild  -NoSmoke  -Force  -CopyTo <dir>
+  Optional: -NoGit (do not fetch/checkout/pull; build whatever is checked out - use when GitHub is unreachable)  -Unity "C:\Program Files\Unity\Hub\Editor\6000.2.6f2\Editor\Unity.exe"  -NoBuild  -NoSmoke  -Force  -CopyTo <dir>
 #>
 param(
   [string]$Project = (Get-Location).Path,
@@ -25,6 +25,7 @@ param(
   [switch]$NoBuild,
   [switch]$NoSmoke,
   [switch]$Force,
+  [switch]$NoGit,
   [string]$CopyTo = "",
   [int]$SmokeWaitSec = 20
 )
@@ -35,7 +36,7 @@ Set-Location $Project
 function Say($m) { Write-Host ("[xq-verify] " + $m) }
 
 # ---------- 1. git ----------
-if ($Branch -ne "") {
+if ($Branch -ne "" -and -not $NoGit) {
   git fetch origin 2>&1 | Out-Null
   git checkout $Branch 2>&1 | Out-Null
   git pull --ff-only origin $Branch 2>&1 | Out-Null
@@ -44,7 +45,12 @@ $sha = (git rev-parse --short HEAD).Trim()
 $branchNow = (git rev-parse --abbrev-ref HEAD).Trim()
 Say ("project=" + $Project + " branch=" + $branchNow + " sha=" + $sha)
 
-$dirty = (git status --porcelain) | Where-Object { $_ -notmatch '^\?\? (Build|Library|Temp|Logs)/' }
+# Files that a previous build leaves behind (XiaoqiIdentity.Apply rewrites ProjectSettings.asset on every build, etc.).
+# They are NOT source changes and are ignored by the clean check. Anything else (especially *.cs) aborts.
+$known = '(addressables_content_state\.bin|CurrentRP\.txt|ProjectSettings/ProjectSettings\.asset|presets_known_materials\.txt|EditorUserSettings\.asset|StreamingAssets/LLMManager\.json|fake_day\.meta|__VrmaBake)'
+$dirty = (git status --porcelain) | Where-Object { $_ -notmatch '^\?\? (Build|Library|Temp|Logs)/' -and $_ -notmatch $known }
+$leftover = (git status --porcelain) | Where-Object { $_ -match $known }
+if ($leftover) { Say ("ignoring " + @($leftover).Count + " known build-leftover change(s)") }
 if ($dirty -and -not $Force) {
   Say "ABORT: working tree is not clean. Commit or stash first, or pass -Force. Changed files:"
   $dirty | ForEach-Object { Say ("  " + $_) }
@@ -127,7 +133,7 @@ if (-not $NoBuild) {
     [void]$summary.Add("### last 40 lines of log")
     Get-Content $logFile -Tail 40 | ForEach-Object { [void]$summary.Add("    " + $_) }
   }
-  $gen = (git status --porcelain) | Where-Object { $_ -notmatch '^\?\? (Build|Library|Temp|Logs)/' }
+  $gen = (git status --porcelain) | Where-Object { $_ -notmatch '^\?\? (Build|Library|Temp|Logs)/' -and $_ -notmatch $known }
   [void]$summary.Add("")
   [void]$summary.Add("### files changed by the build (DO NOT commit prefab/scene/ProjectSettings; new .meta files are fine)")
   if ($gen) { $gen | ForEach-Object { [void]$summary.Add("    " + $_) } } else { [void]$summary.Add("    (none)") }
