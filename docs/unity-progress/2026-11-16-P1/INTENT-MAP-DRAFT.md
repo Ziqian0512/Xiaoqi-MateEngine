@@ -1,6 +1,6 @@
 # P1-4a 意图映射草案（B2）
 
-> 作者：WB　日期：2026-11-16　状态：**草案，等主人确认**（第 6 节有 5 个要你定的）
+> 作者：WB　日期：2026-11-16　状态：**主人已确认（11-16 13:05）**，B7 代码已写 `[未编]`。第 6 节 5 个答案：留着 / 不要 / **困了自己睡**（与我的建议相反，按主人的）/ 接受 / 要
 > 依据：主库 `relay/stage.py`（`_where` / `_pose`）、`state/cards/*.v4.json`（17 份真实日卡）、ME 动作清单（`95d973d5:app/desk/web/anim/index.tsv`，125 条）、ME 状态机参数表、本仓库 `PetPresence.cs` / `XiaoqiFace.cs` / `MeHost.cs`。
 > **我没有看过任何一条 ME 动画的画面**，下面「候选剪辑」是按名字和参数推的，置信度已标。第 5 节说怎么低成本补上这一步。
 
@@ -94,7 +94,7 @@ Animator 参数（来自 `AvatarAnimatorControllerV2_1.controller`，32 个，�
 | `sit_write` | 12 | 待机池 `calm` | `HUS_IDLE*` 里幅度小的 | 低 | **缺素材**：没有写字/打字剪辑。降级为安静站着，头顶标签显示 `seg.name`（如「写 MATH1013 习题」）|
 | `sit_eat` | 11 | 待机池 `calm`；若 `isEating` 能用则切 | `isEating`（待确认）| 低 | 参数有，驱动没有，clip 未确认 |
 | `lie_phone` | 31 | 待机池 `calm` + 表情偏「困/平常」 | — | 低 | **缺素材**：没有躺姿手机。`WINDOW_LAY_*` 是躺在窗沿，要先有窗口，不适用 |
-| `stand_tidy`（洗澡/洗漱）| 33 | 待机池 `calm` | 候选 B：`HideLeft/Right`（躲到边上） | 低/中 | 没有洗漱剪辑；躲边语义对（洗澡不想被看），但 14 s 一次会很频繁，见 6-2 |
+| `stand_tidy`（洗澡/洗漱）| 33 | 待机池 `normal`（6-2 定：不躲边）| 不用 `HideLeft/Right` | 低 | 没有洗漱剪辑；6-2 主人定「不要躲边」|
 | `stand_window` | — | 待机池 `calm` + 暂时不看鼠标 | `AvatarMouseTracking` 的 `headBlend` 调低 | 中 | 「望窗外」 = 不盯着主人；这次数据里 0 次，规则在，留着 |
 
 ### 5.3 第三层：修饰（不换 pose，叠在上面）
@@ -116,15 +116,21 @@ ME 有 10 条待机（`PET_IDLE`、`PET_IDLE_2…`、`HUS_IDLE01…09` 等）。
 
 ## 6. 要主人定的 5 件事
 
-| # | 问题 | 我的建议 | 不选建议的后果 |
-|---|---|---|---|
-| 6-1 | 外出（47% 的时间）桌宠要**消失/躲到边上**，还是**留在桌面安静待着**？ | 留着，安静待着，标签写去哪 | 选躲边：用 `HideLeft/Right`，她一天近一半时间看不见；选消失：要新写隐藏逻辑，且主人找她时可能以为坏了 |
-| 6-2 | `stand_tidy`（洗澡/洗漱，33 段）要不要用「躲到边上」？ | 不用，用普通待机 | 用的话要限制频率，否则每段洗漱都躲一次 14 秒动画 |
-| 6-3 | 困意高但没到睡觉时，她要不要**自己睡着**？ | 不要，只打哈欠、动作偏安静 | 要的话主人在工作时她会突然睡倒，要给「叫醒」入口，范围变大 |
-| 6-4 | `lie_phone / sit_write / sit_eat` 缺素材，P1 接受「降级成安静待机 + 头顶写在干嘛」吗？ | 接受，素材 P2 再补（房间里有 `WINDOW_LAY_10`、`PET_SIT_01/02`） | 不接受：要先找/做 3 条动画，P1 验收线后移 |
-| 6-5 | `phone.typing` 时头顶出「正在打字…」小气泡，要不要？ | 要 | 不要：主人看不出她在回消息，和 G52 房间里 `BedPhone/DeskType` 的作用丢了 |
+| # | 问题 | 我的建议 | 不选建议的后果 | **主人答复** |
+|---|---|---|---|---|
+| 6-1 | 外出（47% 的时间）桌宠要**消失/躲到边上**，还是**留在桌面安静待着**？ | 留着，安静待着，标签写去哪 | 选躲边：用 `HideLeft/Right`，她一天近一半时间看不见；选消失：要新写隐藏逻辑，且主人找她时可能以为坏了 | 留着 |
+| 6-2 | `stand_tidy`（洗澡/洗漱，33 段）要不要用「躲到边上」？ | 不用，用普通待机 | 用的话要限制频率，否则每段洗漱都躲一次 14 秒动画 | 不要 |
+| 6-3 | 困意高但没到睡觉时，她要不要**自己睡着**？ | 不要，只打哈欠、动作偏安静 | 要的话主人在工作时她会突然睡倒，要给「叫醒」入口，范围变大 | **困了自己睡**（≠建议） |
+| 6-4 | `lie_phone / sit_write / sit_eat` 缺素材，P1 接受「降级成安静待机 + 头顶写在干嘛」吗？ | 接受，素材 P2 再补（房间里有 `WINDOW_LAY_10`、`PET_SIT_01/02`） | 不接受：要先找/做 3 条动画，P1 验收线后移 | 接受 |
+| 6-5 | `phone.typing` 时头顶出「正在打字…」小气泡，要不要？ | 要 | 不要：主人看不出她在回消息，和 G52 房间里 `BedPhone/DeskType` 的作用丢了 | 要 |
 
-**主人说「按建议」我就在 `PROGRESS.md` 的 P1-4a「WB 意见」栏写「按此映射做」，B7 照 5.1–5.3 执行。**
+**主人答复（11-16 13:05）：留着 / 不要 / 困了自己睡 / 接受 / 要。** B7 按此执行，见第 8 节。
+
+**6-3 的落地口径**（我补的约束，防止「工作时突然睡倒」；数值都在 `emotion_line.json` 的 `body` 里可调）：
+- 总开关仍是 `emotion_line`（默认关）；`body.self_sleep` 默认开。
+- 条件同时满足才睡：`where=dorm` 且非睡姿、`body.sleepy ≥ sleepy_hi(70)` **持续 90 秒**、服务器数据 30 秒内是新的、没被碰过 20 秒（拖/按/鼠标停在她身上）、没在拖/跳舞/坐窗/菜单打开/被全屏躲开。
+- 一次最多睡 15 分钟（`self_sleep_min`），醒后 20 分钟内不再自己睡；困意回落到 `sleepy_hi-30` 以下就醒。
+- 叫醒入口已有：拖她、菜单「叫醒她」。
 
 ---
 
@@ -134,12 +140,15 @@ ME 有 10 条待机（`PET_IDLE`、`PET_IDLE_2…`、`HUS_IDLE01…09` 等）。
 
 ---
 
-## 8. B7 的实施清单（主人确认后）
+## 8. B7 实际做了什么（`[未编]`）
 
-只动这几处，每处一个提交，`[未编]`：
-
-1. 新建 `Pet/XqStageBody.cs`：订阅 `XiaoqiLink.OnStage`，按 5.1–5.3 算出「档位（calm/normal）」和「标签文字」，交给 `BodyDirector`（B3）当 `src=server`；日志 `XQ_STAGE pose=… where=… tier=…`。
-2. `BodyDirector` 的 server 层：只改待机池档位和权重，不直接播剪辑；睡姿仍走 `PetPresence`。
-3. `PetPresence`：`dorm` 时也用 `HeadAnchor.SetLabel` 显示 `sit_write/sit_eat/lie_phone` 的 `seg.name`；`phone.typing` 走 `PetBubble`。
-4. 验收：改 `-fake-stage` 文件（或服务器卡片）里的 `pose`，她在 ≤ `poll_sec`（默认 2 秒）+ 3 秒内换档位/标签；`brain.log` 里 `src=server` 对得上。
-5. **不做**：`spot`/`prop`、`WalkLeft/Right`、`isEating`（等 6-4 之后的素材）、房间。
+1. 新 `Pet/XqStageBody.cs`：订阅 `XiaoqiLink.OnStage`，算档位（`TierFor`）→ `BodyDirector.SetServerTier`；`DormLabel()` 给头顶标签；`phone.typing` 假→真时 `PetBubble.Enqueue("正在打字…")`（60 秒内不重复、睡着/安静/外出不出）；自己睡着逻辑（6-3，见第 6 节口径）。日志：stdout `XQ_STAGE …`；`brain.log` 里 `src=server` 的 `evt=stage / typing / self_sleep`。
+2. `BodyDirector` 的 server 层 `SetServerTier` 本来就有，只改档位权重，不直接播剪辑。**档位目前没有实际效果**：`IdleDirector.CalmSlots` 还是 null（等动画拼图分档），所以现在只是把意图和档位写进日志、接通管线，分档生效要等拼图。
+3. `PetPresence`：dorm 时标签用 `XqStageBody.DormLabel`；**顺手修了一个会在真服务器上暴露的问题**：`OnStage` 每 `poll_sec` 秒触发一次，原来每次都把 `IsAsleep` 改成服务器值——菜单「睡一会」、拖醒后的 30 秒宽限、自己睡着，都会在 ≤2 秒内被冲掉（假数据只推一次所以之前没暴露）。现在：本地小睡未到点保持睡着；刚被叫醒的 30 秒宽限内不再被服务器睡姿立刻压回；`SetSleeping` 只在值变化时调。
+4. `EmotionLineConfig.BodyCfg` 新增 5 项（`self_sleep`、`self_sleep_hold_sec`、`self_sleep_min`、`self_sleep_cooldown_min`、`self_sleep_idle_sec`）；`XiaoqiBuild` 预制体加 `XqStageBody`；新假数据 `fake_stage/pet_typing.json`（lie_phone + typing=true，段名「回邮件」）。
+5. 验收（`-fake-stage` 一次性推送，不是 poll）：
+   - `-emotion-line`（或 cfg `emotion_line=true`）+ `-fake-stage sit_write`：头顶标签 = 段名，`brain.log` 有 `src=server evt=stage tier=calm`。
+   - `-fake-stage pet_typing`：出一次「正在打字…」气泡。
+   - `-fake-stage pet_sleepy -xq-brain-fast`：鼠标移开 ≥3 秒，约 8–10 秒内睡着（`evt=self_sleep start`），约 25 秒后醒（`wake`）；拖她立刻醒。
+   - 真服务器：改日卡 pose，≤`poll_sec`(2 秒)+3 秒换档位/标签。
+6. **不做**：`spot`/`prop`、`WalkLeft/Right`、`isEating`、躲边、`stand_window` 时调低 `headBlend`（本批数据里 0 次，且会和设置页的「看向的力度」抢同一个值）。

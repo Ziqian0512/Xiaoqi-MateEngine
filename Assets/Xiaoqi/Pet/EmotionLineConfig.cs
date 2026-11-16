@@ -36,6 +36,12 @@ public class EmotionLineConfig
         public Dictionary<string, float> yawn = new Dictionary<string, float>();
         public float tired_lo = 30f;
         public Dictionary<string, float> tired_add = new Dictionary<string, float>();
+        // P1-7：困意高时自己睡着（主人 11-16 定「要」）。总开关仍是 emotion_line。
+        public bool self_sleep = true;
+        public float self_sleep_hold_sec = 90f;     // sleepy ≥ sleepy_hi 要持续这么久
+        public float self_sleep_min = 15f;          // 每次最多睡多久（分钟）
+        public float self_sleep_cooldown_min = 20f; // 醒后多久内不再自己睡
+        public float self_sleep_idle_sec = 20f;     // 没被碰过（拖/按/鼠标停在她身上）这么久才睡
     }
 
     [Serializable]

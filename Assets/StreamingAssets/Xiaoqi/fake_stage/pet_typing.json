@@ -1,0 +1,26 @@
+﻿{
+    "v":  1,
+    "ts":  "2026-11-14 12:00:00",
+    "where":  "dorm",
+    "seg":  {
+                "id":  "U4",
+                "name":  "回邮件",
+                "act":  "lie_phone",
+                "start":  "12:00",
+                "end":  "12:30",
+                "progress":  0.5
+            },
+    "spot":  "bed",
+    "pose":  "lie_phone",
+    "prop":  "",
+    "next":  null,
+    "event":  null,
+    "phone":  {
+                  "typing": true
+              },
+    "face":  {
+                 "top":  "平常",
+                 "level":  0.2,
+                 "rose":  false
+             }
+}

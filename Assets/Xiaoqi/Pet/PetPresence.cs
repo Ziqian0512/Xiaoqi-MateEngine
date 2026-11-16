@@ -57,12 +57,18 @@ namespace Xiaoqi.Spike
         private void OnStage(StageData s)
         {
             if (s == null || !XiaoqiRuntime.Config.emotion_line) return;
+            bool serverSleep = s.where == "dorm" && s.pose == "sleep";
+            // 服务器每 poll_sec 秒就推一次，不能每次都把本地的决定冲掉：
+            // - 本地小睡（菜单「睡一会」/ 自己睡着）还没到点 → 保持睡着；
+            // - 刚被叫醒、30 秒宽限内 → 即使服务器说睡，也先醒着（到点由 Update 再判断）。
+            bool sleep = serverSleep;
+            if (_napUntil > 0f) sleep = true;
+            else if (_wakeAt > 0f && serverSleep) sleep = false;
+            bool changed = sleep != IsAsleep || _stage == null;
             _stage = s;
             if (_head == null) _head = FindFirstObjectByType<HeadAnchor>(FindObjectsInactive.Include);
-            bool sleep = s.where == "dorm" && s.pose == "sleep";
             IsAsleep = sleep;
-            if (PetHost.I != null) PetHost.I.SetSleeping(sleep);
-            if (sleep) _wakeAt = -1f;
+            if (changed && PetHost.I != null) PetHost.I.SetSleeping(sleep);
 
             if (_head != null)
             {
@@ -76,7 +82,7 @@ namespace Xiaoqi.Spike
                         : _cfg.presence.label_out_noback.Replace("{seg}", seg));
                 }
                 else if (XiaoqiRuntime.IsQuiet()) _head.SetLabel(XiaoqiRuntime.QuietLabel());
-                else _head.SetLabel("");
+                else _head.SetLabel(XqStageBody.DormLabel(s));
             }
             Debug.Log("XQ_PRESENCE dorm=" + (s.where == "dorm") + " sleep=" + sleep
                       + " seg=" + (s.seg != null ? s.seg.name : ""));
@@ -110,7 +116,7 @@ namespace Xiaoqi.Spike
                 _quietWas = quiet;
                 if (_head == null) _head = FindFirstObjectByType<HeadAnchor>(FindObjectsInactive.Include);
                 if (_stage != null && _head != null && _stage.where == "dorm" && !IsAsleep)
-                    _head.SetLabel(quiet ? XiaoqiRuntime.QuietLabel() : "");
+                    _head.SetLabel(quiet ? XiaoqiRuntime.QuietLabel() : XqStageBody.DormLabel(_stage));
             }
 
             if (!dragging && _wakeAt > 0f && Time.unscaledTime >= _wakeAt)

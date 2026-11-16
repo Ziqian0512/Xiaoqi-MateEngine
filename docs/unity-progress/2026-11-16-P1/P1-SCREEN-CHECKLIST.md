@@ -49,6 +49,19 @@
 | D5 | 安静一会 | 头顶只有一行「安静中 · 到 HH:MM」，没有气泡没有胶囊 |
 | D6 | 她外出了 | `-fake-stage walk_in` 之类：只有一个胶囊「她出门了 · 约 HH:MM 回来」 |
 
+## D2. B7 接服务器意图（在 `xiaoqi/p1` 上，编过后）
+
+先开 `emotion_line`（`xiaoqi_config.json` 里 `"emotion_line": true`）。每项都用 `-fake-stage <名>` 起一次。
+
+| # | 看什么 | 通过标准 |
+|---|---|---|
+| D2-1 | `-fake-stage sit_write` | 头顶标签 = 这段的名字；`brain.log` 有 `src=server evt=stage ... tier=calm` |
+| D2-2 | `-fake-stage pet_typing` | 头顶出一次「正在打字…」气泡，不重复 |
+| D2-3 | `-fake-stage pet_sleepy -xq-brain-fast`，鼠标移开 | 约 8–10 秒内她睡着（标签「睡着了」，`evt=self_sleep start`），约 25 秒后自己醒 |
+| D2-4 | D2-3 睡着时拖她一下 | 立刻醒，30 秒内不会被服务器压回睡 |
+| D2-5 | D2-3 睡着时右键菜单 | 显示「叫醒她」，点了醒 |
+| D2-6 | 菜单点「睡一会」，等 5 秒（真服务器时） | 仍然睡着，不会 2 秒内被冲醒（B7 顺手修的） |
+
 ## E. 设置页（D4 接入口之后；现在还没有入口，**先跳过**）
 
 用 `-settings-v2` 或 `xiaoqi_config.json` 里 `"settings_v2": true` 打开。6 页都能切；行为页 7 行；改了立刻生效；**重启后保留**；100% 和 175% 各看一次。
