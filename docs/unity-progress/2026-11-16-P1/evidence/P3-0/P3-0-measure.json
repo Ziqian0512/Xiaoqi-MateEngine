@@ -1,0 +1,1898 @@
+{
+ "shots": {
+  "P3-0-page-pink-1640x680": {
+   "viewport": [
+    1640,
+    680
+   ],
+   "mode": "data",
+   "theme": "pink",
+   "console": [],
+   "failed": [],
+   "http_err": [],
+   "non_get": [],
+   "requests": [
+    "GET /api/body/day X-Token=set",
+    "GET /api/body/feed?since=0&limit=50 X-Token=set",
+    "GET /api/body/stage X-Token=set",
+    "GET /p/bench X-Token=none"
+   ],
+   "url": "http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink",
+   "facts": {
+    "theme": "pink",
+    "dot_bad": false,
+    "conn_shown": false,
+    "conn_text": "连接不上",
+    "day_head": "11 月 · 周一",
+    "day_num": "16日",
+    "tl": "08:00\n英语课\n09:30\n自习\n12:00\n食堂吃饭\n13:00\n数据结构 · 教学楼 B 座\n15:30\n图书馆自习\n18:00\n晚饭\n19:30\n回去写东西",
+    "tl_rows": [
+     "r past|08:00 英语课",
+     "r past|09:30 自习",
+     "r past|12:00 食堂吃饭",
+     "r past|13:00 数据结构 · 教学楼 B 座",
+     "r now|15:30 图书馆自习",
+     "r|18:00 晚饭",
+     "r|19:30 回去写东西"
+    ],
+    "foot": "下一件\n18:00 晚饭",
+    "foot_cls": "foot",
+    "mood": "心情 · 开心\n72\n精力 · 犯困\n65",
+    "say": "中午想吃你说的那家面～\n外面风有点大，你出门加一件。\n刚把那篇看完，比想的难一点。",
+    "ph": [
+     "card d:占位"
+    ],
+    "side_titles": [
+     "ic on:今日",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段"
+    ],
+    "tab_titles": [
+     "今日:on:",
+     "她:off:下一阶段",
+     "记录:off:下一阶段",
+     "设置:off:下一阶段"
+    ],
+    "dock_titles": [
+     "on:首页",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段"
+    ],
+    "min_font_px": 11,
+    "min_font_el": "SPAN.bc:工作台 / 今日",
+    "h_overflow": [],
+    "clipped": [],
+    "head_top": 12,
+    "search_top": 12,
+    "tabs_top": 13,
+    "body_has_token_text": false,
+    "localStorage_len": 0,
+    "sessionStorage_len": 0,
+    "doc_w": 1640,
+    "doc_h": 680
+   },
+   "boxes": {
+    "1": {
+     "x": 12,
+     "y": 12,
+     "w": 52,
+     "h": 656
+    },
+    "2": {
+     "x": 1415,
+     "y": 13,
+     "w": 191,
+     "h": 26
+    },
+    "3": {
+     "x": 239.171875,
+     "y": 12,
+     "w": 190,
+     "h": 28
+    },
+    "4": {
+     "x": 74,
+     "y": 50,
+     "w": 190,
+     "h": 568
+    },
+    "5": {
+     "x": 274,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "6": {
+     "x": 956,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "7": {
+     "x": 274,
+     "y": 339,
+     "w": 1354,
+     "h": 279
+    },
+    "8": {
+     "x": 718.5,
+     "y": 628,
+     "w": 265,
+     "h": 40
+    },
+    "_root": {
+     "w": 1640,
+     "h": 680,
+     "x": 0,
+     "y": 0
+    }
+   },
+   "time": "16:20:18"
+  },
+  "P3-0-page-blue-1640x680": {
+   "viewport": [
+    1640,
+    680
+   ],
+   "mode": "data",
+   "theme": "blue",
+   "console": [],
+   "failed": [],
+   "http_err": [],
+   "non_get": [],
+   "requests": [
+    "GET /api/body/day X-Token=set",
+    "GET /api/body/feed?since=0&limit=50 X-Token=set",
+    "GET /api/body/stage X-Token=set",
+    "GET /p/bench X-Token=none"
+   ],
+   "url": "http://127.0.0.1:8911/p/bench#t=<mock>&theme=blue",
+   "facts": {
+    "theme": "blue",
+    "dot_bad": false,
+    "conn_shown": false,
+    "conn_text": "连接不上",
+    "day_head": "11 月 · 周一",
+    "day_num": "16日",
+    "tl": "08:00\n英语课\n09:30\n自习\n12:00\n食堂吃饭\n13:00\n数据结构 · 教学楼 B 座\n15:30\n图书馆自习\n18:00\n晚饭\n19:30\n回去写东西",
+    "tl_rows": [
+     "r past|08:00 英语课",
+     "r past|09:30 自习",
+     "r past|12:00 食堂吃饭",
+     "r past|13:00 数据结构 · 教学楼 B 座",
+     "r now|15:30 图书馆自习",
+     "r|18:00 晚饭",
+     "r|19:30 回去写东西"
+    ],
+    "foot": "下一件\n18:00 晚饭",
+    "foot_cls": "foot",
+    "mood": "心情 · 开心\n72\n精力 · 犯困\n65",
+    "say": "中午想吃你说的那家面～\n外面风有点大，你出门加一件。\n刚把那篇看完，比想的难一点。",
+    "ph": [
+     "card d:占位"
+    ],
+    "side_titles": [
+     "ic on:今日",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段"
+    ],
+    "tab_titles": [
+     "今日:on:",
+     "她:off:下一阶段",
+     "记录:off:下一阶段",
+     "设置:off:下一阶段"
+    ],
+    "dock_titles": [
+     "on:首页",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段"
+    ],
+    "min_font_px": 11,
+    "min_font_el": "SPAN.bc:工作台 / 今日",
+    "h_overflow": [],
+    "clipped": [],
+    "head_top": 12,
+    "search_top": 12,
+    "tabs_top": 13,
+    "body_has_token_text": false,
+    "localStorage_len": 0,
+    "sessionStorage_len": 0,
+    "doc_w": 1640,
+    "doc_h": 680
+   },
+   "boxes": {
+    "1": {
+     "x": 12,
+     "y": 12,
+     "w": 52,
+     "h": 656
+    },
+    "2": {
+     "x": 1415,
+     "y": 13,
+     "w": 191,
+     "h": 26
+    },
+    "3": {
+     "x": 239.171875,
+     "y": 12,
+     "w": 190,
+     "h": 28
+    },
+    "4": {
+     "x": 74,
+     "y": 50,
+     "w": 190,
+     "h": 568
+    },
+    "5": {
+     "x": 274,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "6": {
+     "x": 956,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "7": {
+     "x": 274,
+     "y": 339,
+     "w": 1354,
+     "h": 279
+    },
+    "8": {
+     "x": 718.5,
+     "y": 628,
+     "w": 265,
+     "h": 40
+    },
+    "_root": {
+     "w": 1640,
+     "h": 680,
+     "x": 0,
+     "y": 0
+    }
+   },
+   "time": "16:20:21"
+  },
+  "P3-0-page-violet-1640x680": {
+   "viewport": [
+    1640,
+    680
+   ],
+   "mode": "data",
+   "theme": "violet",
+   "console": [],
+   "failed": [],
+   "http_err": [],
+   "non_get": [],
+   "requests": [
+    "GET /api/body/day X-Token=set",
+    "GET /api/body/feed?since=0&limit=50 X-Token=set",
+    "GET /api/body/stage X-Token=set",
+    "GET /p/bench X-Token=none"
+   ],
+   "url": "http://127.0.0.1:8911/p/bench#t=<mock>&theme=violet",
+   "facts": {
+    "theme": "violet",
+    "dot_bad": false,
+    "conn_shown": false,
+    "conn_text": "连接不上",
+    "day_head": "11 月 · 周一",
+    "day_num": "16日",
+    "tl": "08:00\n英语课\n09:30\n自习\n12:00\n食堂吃饭\n13:00\n数据结构 · 教学楼 B 座\n15:30\n图书馆自习\n18:00\n晚饭\n19:30\n回去写东西",
+    "tl_rows": [
+     "r past|08:00 英语课",
+     "r past|09:30 自习",
+     "r past|12:00 食堂吃饭",
+     "r past|13:00 数据结构 · 教学楼 B 座",
+     "r now|15:30 图书馆自习",
+     "r|18:00 晚饭",
+     "r|19:30 回去写东西"
+    ],
+    "foot": "下一件\n18:00 晚饭",
+    "foot_cls": "foot",
+    "mood": "心情 · 开心\n72\n精力 · 犯困\n65",
+    "say": "中午想吃你说的那家面～\n外面风有点大，你出门加一件。\n刚把那篇看完，比想的难一点。",
+    "ph": [
+     "card d:占位"
+    ],
+    "side_titles": [
+     "ic on:今日",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段"
+    ],
+    "tab_titles": [
+     "今日:on:",
+     "她:off:下一阶段",
+     "记录:off:下一阶段",
+     "设置:off:下一阶段"
+    ],
+    "dock_titles": [
+     "on:首页",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段"
+    ],
+    "min_font_px": 11,
+    "min_font_el": "SPAN.bc:工作台 / 今日",
+    "h_overflow": [],
+    "clipped": [],
+    "head_top": 12,
+    "search_top": 12,
+    "tabs_top": 13,
+    "body_has_token_text": false,
+    "localStorage_len": 0,
+    "sessionStorage_len": 0,
+    "doc_w": 1640,
+    "doc_h": 680
+   },
+   "boxes": {
+    "1": {
+     "x": 12,
+     "y": 12,
+     "w": 52,
+     "h": 656
+    },
+    "2": {
+     "x": 1415,
+     "y": 13,
+     "w": 191,
+     "h": 26
+    },
+    "3": {
+     "x": 239.171875,
+     "y": 12,
+     "w": 190,
+     "h": 28
+    },
+    "4": {
+     "x": 74,
+     "y": 50,
+     "w": 190,
+     "h": 568
+    },
+    "5": {
+     "x": 274,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "6": {
+     "x": 956,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "7": {
+     "x": 274,
+     "y": 339,
+     "w": 1354,
+     "h": 279
+    },
+    "8": {
+     "x": 718.5,
+     "y": 628,
+     "w": 265,
+     "h": 40
+    },
+    "_root": {
+     "w": 1640,
+     "h": 680,
+     "x": 0,
+     "y": 0
+    }
+   },
+   "time": "16:20:23"
+  },
+  "P3-0-page-pink-1640x740": {
+   "viewport": [
+    1640,
+    740
+   ],
+   "mode": "data",
+   "theme": "pink",
+   "console": [],
+   "failed": [],
+   "http_err": [],
+   "non_get": [],
+   "requests": [
+    "GET /api/body/day X-Token=set",
+    "GET /api/body/feed?since=0&limit=50 X-Token=set",
+    "GET /api/body/stage X-Token=set",
+    "GET /p/bench X-Token=none"
+   ],
+   "url": "http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink",
+   "facts": {
+    "theme": "pink",
+    "dot_bad": false,
+    "conn_shown": false,
+    "conn_text": "连接不上",
+    "day_head": "11 月 · 周一",
+    "day_num": "16日",
+    "tl": "08:00\n英语课\n09:30\n自习\n12:00\n食堂吃饭\n13:00\n数据结构 · 教学楼 B 座\n15:30\n图书馆自习\n18:00\n晚饭\n19:30\n回去写东西",
+    "tl_rows": [
+     "r past|08:00 英语课",
+     "r past|09:30 自习",
+     "r past|12:00 食堂吃饭",
+     "r past|13:00 数据结构 · 教学楼 B 座",
+     "r now|15:30 图书馆自习",
+     "r|18:00 晚饭",
+     "r|19:30 回去写东西"
+    ],
+    "foot": "下一件\n18:00 晚饭",
+    "foot_cls": "foot",
+    "mood": "心情 · 开心\n72\n精力 · 犯困\n65",
+    "say": "中午想吃你说的那家面～\n外面风有点大，你出门加一件。\n刚把那篇看完，比想的难一点。",
+    "ph": [
+     "card d:占位"
+    ],
+    "side_titles": [
+     "ic on:今日",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段"
+    ],
+    "tab_titles": [
+     "今日:on:",
+     "她:off:下一阶段",
+     "记录:off:下一阶段",
+     "设置:off:下一阶段"
+    ],
+    "dock_titles": [
+     "on:首页",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段"
+    ],
+    "min_font_px": 11,
+    "min_font_el": "SPAN.bc:工作台 / 今日",
+    "h_overflow": [],
+    "clipped": [],
+    "head_top": 12,
+    "search_top": 12,
+    "tabs_top": 13,
+    "body_has_token_text": false,
+    "localStorage_len": 0,
+    "sessionStorage_len": 0,
+    "doc_w": 1640,
+    "doc_h": 740
+   },
+   "boxes": {
+    "1": {
+     "x": 12,
+     "y": 12,
+     "w": 52,
+     "h": 716
+    },
+    "2": {
+     "x": 1415,
+     "y": 13,
+     "w": 191,
+     "h": 26
+    },
+    "3": {
+     "x": 239.171875,
+     "y": 12,
+     "w": 190,
+     "h": 28
+    },
+    "4": {
+     "x": 74,
+     "y": 50,
+     "w": 190,
+     "h": 628
+    },
+    "5": {
+     "x": 274,
+     "y": 50,
+     "w": 672,
+     "h": 309
+    },
+    "6": {
+     "x": 956,
+     "y": 50,
+     "w": 672,
+     "h": 309
+    },
+    "7": {
+     "x": 274,
+     "y": 369,
+     "w": 1354,
+     "h": 309
+    },
+    "8": {
+     "x": 718.5,
+     "y": 688,
+     "w": 265,
+     "h": 40
+    },
+    "_root": {
+     "w": 1640,
+     "h": 740,
+     "x": 0,
+     "y": 0
+    }
+   },
+   "time": "16:20:25"
+  },
+  "P3-0-small-900x560": {
+   "viewport": [
+    900,
+    560
+   ],
+   "mode": "data",
+   "theme": "pink",
+   "console": [],
+   "failed": [],
+   "http_err": [],
+   "non_get": [],
+   "requests": [
+    "GET /api/body/day X-Token=set",
+    "GET /api/body/feed?since=0&limit=50 X-Token=set",
+    "GET /api/body/stage X-Token=set",
+    "GET /p/bench X-Token=none"
+   ],
+   "url": "http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink",
+   "facts": {
+    "theme": "pink",
+    "dot_bad": false,
+    "conn_shown": false,
+    "conn_text": "连接不上",
+    "day_head": "11 月 · 周一",
+    "day_num": "16日",
+    "tl": "08:00\n英语课\n09:30\n自习\n12:00\n食堂吃饭\n13:00\n数据结构 · 教学楼 B 座\n15:30\n图书馆自习\n18:00\n晚饭\n19:30\n回去写东西",
+    "tl_rows": [
+     "r past|08:00 英语课",
+     "r past|09:30 自习",
+     "r past|12:00 食堂吃饭",
+     "r past|13:00 数据结构 · 教学楼 B 座",
+     "r now|15:30 图书馆自习",
+     "r|18:00 晚饭",
+     "r|19:30 回去写东西"
+    ],
+    "foot": "下一件\n18:00 晚饭",
+    "foot_cls": "foot",
+    "mood": "心情 · 开心\n72\n精力 · 犯困\n65",
+    "say": "中午想吃你说的那家面～\n外面风有点大，你出门加一件。\n刚把那篇看完，比想的难一点。",
+    "ph": [
+     "card d:占位"
+    ],
+    "side_titles": [
+     "ic on:今日",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段"
+    ],
+    "tab_titles": [
+     "今日:on:",
+     "她:off:下一阶段",
+     "记录:off:下一阶段",
+     "设置:off:下一阶段"
+    ],
+    "dock_titles": [
+     "on:首页",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段"
+    ],
+    "min_font_px": 11,
+    "min_font_el": "SPAN.ph:占位",
+    "h_overflow": [],
+    "clipped": [],
+    "head_top": 12,
+    "search_top": 12,
+    "tabs_top": 13,
+    "body_has_token_text": false,
+    "localStorage_len": 0,
+    "sessionStorage_len": 0,
+    "doc_w": 900,
+    "doc_h": 560
+   },
+   "boxes": {
+    "1": {
+     "x": 12,
+     "y": 12,
+     "w": 52,
+     "h": 536
+    },
+    "2": {
+     "x": 675,
+     "y": 13,
+     "w": 191,
+     "h": 26
+    },
+    "3": {
+     "x": 163,
+     "y": 12,
+     "w": 150,
+     "h": 28
+    },
+    "4": {
+     "x": 74,
+     "y": 50,
+     "w": 172,
+     "h": 448
+    },
+    "5": {
+     "x": 256,
+     "y": 50,
+     "w": 311,
+     "h": 219
+    },
+    "6": {
+     "x": 577,
+     "y": 50,
+     "w": 311,
+     "h": 219
+    },
+    "7": {
+     "x": 256,
+     "y": 279,
+     "w": 632,
+     "h": 219
+    },
+    "8": {
+     "x": 348.5,
+     "y": 508,
+     "w": 265,
+     "h": 40
+    },
+    "_root": {
+     "w": 900,
+     "h": 560,
+     "x": 0,
+     "y": 0
+    }
+   },
+   "time": "16:20:27"
+  },
+  "P3-0-small-900x500": {
+   "viewport": [
+    900,
+    500
+   ],
+   "mode": "data",
+   "theme": "pink",
+   "console": [],
+   "failed": [],
+   "http_err": [],
+   "non_get": [],
+   "requests": [
+    "GET /api/body/day X-Token=set",
+    "GET /api/body/feed?since=0&limit=50 X-Token=set",
+    "GET /api/body/stage X-Token=set",
+    "GET /p/bench X-Token=none"
+   ],
+   "url": "http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink",
+   "facts": {
+    "theme": "pink",
+    "dot_bad": false,
+    "conn_shown": false,
+    "conn_text": "连接不上",
+    "day_head": "11 月 · 周一",
+    "day_num": "16日",
+    "tl": "08:00\n英语课\n09:30\n自习\n12:00\n食堂吃饭\n13:00\n数据结构 · 教学楼 B 座\n15:30\n图书馆自习\n18:00\n晚饭\n19:30\n回去写东西",
+    "tl_rows": [
+     "r past|08:00 英语课",
+     "r past|09:30 自习",
+     "r past|12:00 食堂吃饭",
+     "r past|13:00 数据结构 · 教学楼 B 座",
+     "r now|15:30 图书馆自习",
+     "r|18:00 晚饭",
+     "r|19:30 回去写东西"
+    ],
+    "foot": "下一件\n18:00 晚饭",
+    "foot_cls": "foot",
+    "mood": "心情 · 开心\n72\n精力 · 犯困\n65",
+    "say": "中午想吃你说的那家面～\n外面风有点大，你出门加一件。\n刚把那篇看完，比想的难一点。",
+    "ph": [
+     "card d:占位"
+    ],
+    "side_titles": [
+     "ic on:今日",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段"
+    ],
+    "tab_titles": [
+     "今日:on:",
+     "她:off:下一阶段",
+     "记录:off:下一阶段",
+     "设置:off:下一阶段"
+    ],
+    "dock_titles": [
+     "on:首页",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段"
+    ],
+    "min_font_px": 11,
+    "min_font_el": "SPAN.ph:占位",
+    "h_overflow": [],
+    "clipped": [],
+    "head_top": 12,
+    "search_top": 12,
+    "tabs_top": 13,
+    "body_has_token_text": false,
+    "localStorage_len": 0,
+    "sessionStorage_len": 0,
+    "doc_w": 900,
+    "doc_h": 500
+   },
+   "boxes": {
+    "1": {
+     "x": 12,
+     "y": 12,
+     "w": 52,
+     "h": 476
+    },
+    "2": {
+     "x": 675,
+     "y": 13,
+     "w": 191,
+     "h": 26
+    },
+    "3": {
+     "x": 163,
+     "y": 12,
+     "w": 150,
+     "h": 28
+    },
+    "4": {
+     "x": 74,
+     "y": 50,
+     "w": 172,
+     "h": 388
+    },
+    "5": {
+     "x": 256,
+     "y": 50,
+     "w": 311,
+     "h": 189
+    },
+    "6": {
+     "x": 577,
+     "y": 50,
+     "w": 311,
+     "h": 189
+    },
+    "7": {
+     "x": 256,
+     "y": 249,
+     "w": 632,
+     "h": 189
+    },
+    "8": {
+     "x": 348.5,
+     "y": 448,
+     "w": 265,
+     "h": 40
+    },
+    "_root": {
+     "w": 900,
+     "h": 500,
+     "x": 0,
+     "y": 0
+    }
+   },
+   "time": "16:20:29"
+  },
+  "P3-0-empty-1640x680": {
+   "viewport": [
+    1640,
+    680
+   ],
+   "mode": "empty",
+   "theme": "pink",
+   "console": [],
+   "failed": [],
+   "http_err": [],
+   "non_get": [],
+   "requests": [
+    "GET /api/body/day X-Token=set",
+    "GET /api/body/feed?since=0&limit=50 X-Token=set",
+    "GET /api/body/stage X-Token=set",
+    "GET /p/bench X-Token=none"
+   ],
+   "url": "http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink",
+   "facts": {
+    "theme": "pink",
+    "dot_bad": false,
+    "conn_shown": false,
+    "conn_text": "连接不上",
+    "day_head": "11 月 · 周一",
+    "day_num": "16日",
+    "tl": "还没有",
+    "tl_rows": [],
+    "foot": "今天没有更多安排",
+    "foot_cls": "foot idle",
+    "mood": "还没有",
+    "say": "还没有",
+    "ph": [
+     "card d:占位"
+    ],
+    "side_titles": [
+     "ic on:今日",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段"
+    ],
+    "tab_titles": [
+     "今日:on:",
+     "她:off:下一阶段",
+     "记录:off:下一阶段",
+     "设置:off:下一阶段"
+    ],
+    "dock_titles": [
+     "on:首页",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段"
+    ],
+    "min_font_px": 11,
+    "min_font_el": "SPAN.bc:工作台 / 今日",
+    "h_overflow": [],
+    "clipped": [],
+    "head_top": 12,
+    "search_top": 12,
+    "tabs_top": 13,
+    "body_has_token_text": false,
+    "localStorage_len": 0,
+    "sessionStorage_len": 0,
+    "doc_w": 1640,
+    "doc_h": 680
+   },
+   "boxes": {
+    "1": {
+     "x": 12,
+     "y": 12,
+     "w": 52,
+     "h": 656
+    },
+    "2": {
+     "x": 1415,
+     "y": 13,
+     "w": 191,
+     "h": 26
+    },
+    "3": {
+     "x": 239.171875,
+     "y": 12,
+     "w": 190,
+     "h": 28
+    },
+    "4": {
+     "x": 74,
+     "y": 50,
+     "w": 190,
+     "h": 568
+    },
+    "5": {
+     "x": 274,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "6": {
+     "x": 956,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "7": {
+     "x": 274,
+     "y": 339,
+     "w": 1354,
+     "h": 279
+    },
+    "8": {
+     "x": 718.5,
+     "y": 628,
+     "w": 265,
+     "h": 40
+    },
+    "_root": {
+     "w": 1640,
+     "h": 680,
+     "x": 0,
+     "y": 0
+    }
+   },
+   "time": "16:20:31"
+  },
+  "P3-0-offline-1640x680": {
+   "viewport": [
+    1640,
+    680
+   ],
+   "mode": "offline",
+   "theme": "pink",
+   "console": [
+    "error: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "error: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "error: Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+   ],
+   "failed": [],
+   "http_err": [
+    "GET http://127.0.0.1:8911/api/body/stage -> 503",
+    "GET http://127.0.0.1:8911/api/body/day -> 503",
+    "GET http://127.0.0.1:8911/api/body/feed?since=0&limit=50 -> 503"
+   ],
+   "non_get": [],
+   "requests": [
+    "GET /api/body/day X-Token=set",
+    "GET /api/body/feed?since=0&limit=50 X-Token=set",
+    "GET /api/body/stage X-Token=set",
+    "GET /p/bench X-Token=none"
+   ],
+   "url": "http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink",
+   "facts": {
+    "theme": "pink",
+    "dot_bad": true,
+    "conn_shown": false,
+    "conn_text": "连接不上",
+    "day_head": "—",
+    "day_num": "—",
+    "tl": "还没有",
+    "tl_rows": [],
+    "foot": "下一件\n—",
+    "foot_cls": "foot idle",
+    "mood": "",
+    "say": "还没有",
+    "ph": [
+     "card d:占位"
+    ],
+    "side_titles": [
+     "ic on:今日",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段"
+    ],
+    "tab_titles": [
+     "今日:on:",
+     "她:off:下一阶段",
+     "记录:off:下一阶段",
+     "设置:off:下一阶段"
+    ],
+    "dock_titles": [
+     "on:首页",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段"
+    ],
+    "min_font_px": 11,
+    "min_font_el": "SPAN.bc:工作台 / 今日",
+    "h_overflow": [],
+    "clipped": [],
+    "head_top": 12,
+    "search_top": 12,
+    "tabs_top": 13,
+    "body_has_token_text": false,
+    "localStorage_len": 0,
+    "sessionStorage_len": 0,
+    "doc_w": 1640,
+    "doc_h": 680
+   },
+   "boxes": {
+    "1": {
+     "x": 12,
+     "y": 12,
+     "w": 52,
+     "h": 656
+    },
+    "2": {
+     "x": 1415,
+     "y": 13,
+     "w": 191,
+     "h": 26
+    },
+    "3": {
+     "x": 239.171875,
+     "y": 12,
+     "w": 190,
+     "h": 28
+    },
+    "4": {
+     "x": 74,
+     "y": 50,
+     "w": 190,
+     "h": 568
+    },
+    "5": {
+     "x": 274,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "6": {
+     "x": 956,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "7": {
+     "x": 274,
+     "y": 339,
+     "w": 1354,
+     "h": 279
+    },
+    "8": {
+     "x": 718.5,
+     "y": 628,
+     "w": 265,
+     "h": 40
+    },
+    "_root": {
+     "w": 1640,
+     "h": 680,
+     "x": 0,
+     "y": 0
+    }
+   },
+   "time": "16:20:33"
+  },
+  "P3-0-data-then-offline-1640x680": {
+   "viewport": [
+    1640,
+    680
+   ],
+   "mode": "data",
+   "theme": "pink",
+   "console": [
+    "error: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "error: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "error: Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+   ],
+   "failed": [],
+   "http_err": [
+    "GET http://127.0.0.1:8911/api/body/stage -> 503",
+    "GET http://127.0.0.1:8911/api/body/day -> 503",
+    "GET http://127.0.0.1:8911/api/body/feed?since=0&limit=50 -> 503"
+   ],
+   "non_get": [],
+   "requests": [
+    "GET /api/body/day X-Token=set",
+    "GET /api/body/feed?since=0&limit=50 X-Token=set",
+    "GET /api/body/stage X-Token=set",
+    "GET /p/bench X-Token=none"
+   ],
+   "url": "http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink",
+   "facts": {
+    "theme": "pink",
+    "dot_bad": true,
+    "conn_shown": false,
+    "conn_text": "连接不上",
+    "day_head": "11 月 · 周一",
+    "day_num": "16日",
+    "tl": "08:00\n英语课\n09:30\n自习\n12:00\n食堂吃饭\n13:00\n数据结构 · 教学楼 B 座\n15:30\n图书馆自习\n18:00\n晚饭\n19:30\n回去写东西",
+    "tl_rows": [
+     "r past|08:00 英语课",
+     "r past|09:30 自习",
+     "r past|12:00 食堂吃饭",
+     "r past|13:00 数据结构 · 教学楼 B 座",
+     "r now|15:30 图书馆自习",
+     "r|18:00 晚饭",
+     "r|19:30 回去写东西"
+    ],
+    "foot": "下一件\n18:00 晚饭",
+    "foot_cls": "foot",
+    "mood": "心情 · 开心\n72\n精力 · 犯困\n65",
+    "say": "中午想吃你说的那家面～\n外面风有点大，你出门加一件。\n刚把那篇看完，比想的难一点。",
+    "ph": [
+     "card d:占位"
+    ],
+    "side_titles": [
+     "ic on:今日",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段"
+    ],
+    "tab_titles": [
+     "今日:on:",
+     "她:off:下一阶段",
+     "记录:off:下一阶段",
+     "设置:off:下一阶段"
+    ],
+    "dock_titles": [
+     "on:首页",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段"
+    ],
+    "min_font_px": 11,
+    "min_font_el": "SPAN.bc:工作台 / 今日",
+    "h_overflow": [],
+    "clipped": [],
+    "head_top": 12,
+    "search_top": 12,
+    "tabs_top": 13,
+    "body_has_token_text": false,
+    "localStorage_len": 0,
+    "sessionStorage_len": 0,
+    "doc_w": 1640,
+    "doc_h": 680
+   },
+   "boxes": {
+    "1": {
+     "x": 12,
+     "y": 12,
+     "w": 52,
+     "h": 656
+    },
+    "2": {
+     "x": 1415,
+     "y": 13,
+     "w": 191,
+     "h": 26
+    },
+    "3": {
+     "x": 239.171875,
+     "y": 12,
+     "w": 190,
+     "h": 28
+    },
+    "4": {
+     "x": 74,
+     "y": 50,
+     "w": 190,
+     "h": 568
+    },
+    "5": {
+     "x": 274,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "6": {
+     "x": 956,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "7": {
+     "x": 274,
+     "y": 339,
+     "w": 1354,
+     "h": 279
+    },
+    "8": {
+     "x": 718.5,
+     "y": 628,
+     "w": 265,
+     "h": 40
+    },
+    "_root": {
+     "w": 1640,
+     "h": 680,
+     "x": 0,
+     "y": 0
+    }
+   },
+   "time": "16:20:41"
+  },
+  "P3-0-401-1640x680": {
+   "viewport": [
+    1640,
+    680
+   ],
+   "mode": "data",
+   "theme": "pink",
+   "console": [
+    "error: Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "error: Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "error: Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+   ],
+   "failed": [],
+   "http_err": [
+    "GET http://127.0.0.1:8911/api/body/stage -> 401",
+    "GET http://127.0.0.1:8911/api/body/feed?since=0&limit=50 -> 401",
+    "GET http://127.0.0.1:8911/api/body/day -> 401"
+   ],
+   "non_get": [],
+   "requests": [
+    "GET /api/body/day X-Token=set",
+    "GET /api/body/feed?since=0&limit=50 X-Token=set",
+    "GET /api/body/stage X-Token=set",
+    "GET /p/bench X-Token=none"
+   ],
+   "url": "http://127.0.0.1:8911/p/bench#t=<wrong>&theme=pink",
+   "facts": {
+    "theme": "pink",
+    "dot_bad": true,
+    "conn_shown": true,
+    "conn_text": "连接不上",
+    "day_head": "—",
+    "day_num": "—",
+    "tl": "还没有",
+    "tl_rows": [],
+    "foot": "下一件\n—",
+    "foot_cls": "foot idle",
+    "mood": "",
+    "say": "还没有",
+    "ph": [
+     "card d:占位"
+    ],
+    "side_titles": [
+     "ic on:今日",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段"
+    ],
+    "tab_titles": [
+     "今日:on:",
+     "她:off:下一阶段",
+     "记录:off:下一阶段",
+     "设置:off:下一阶段"
+    ],
+    "dock_titles": [
+     "on:首页",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段"
+    ],
+    "min_font_px": 11,
+    "min_font_el": "SPAN.bc:工作台 / 今日",
+    "h_overflow": [],
+    "clipped": [],
+    "head_top": 12,
+    "search_top": 12,
+    "tabs_top": 13,
+    "body_has_token_text": false,
+    "localStorage_len": 0,
+    "sessionStorage_len": 0,
+    "doc_w": 1640,
+    "doc_h": 680
+   },
+   "boxes": {
+    "1": {
+     "x": 12,
+     "y": 12,
+     "w": 52,
+     "h": 656
+    },
+    "2": {
+     "x": 1359,
+     "y": 13,
+     "w": 191,
+     "h": 26
+    },
+    "3": {
+     "x": 239.171875,
+     "y": 12,
+     "w": 190,
+     "h": 28
+    },
+    "4": {
+     "x": 74,
+     "y": 50,
+     "w": 190,
+     "h": 568
+    },
+    "5": {
+     "x": 274,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "6": {
+     "x": 956,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "7": {
+     "x": 274,
+     "y": 339,
+     "w": 1354,
+     "h": 279
+    },
+    "8": {
+     "x": 718.5,
+     "y": 628,
+     "w": 265,
+     "h": 40
+    },
+    "_root": {
+     "w": 1640,
+     "h": 680,
+     "x": 0,
+     "y": 0
+    }
+   },
+   "time": "16:20:43"
+  },
+  "P3-0-data-then-netdown-1640x680": {
+   "viewport": [
+    1640,
+    680
+   ],
+   "mode": "data",
+   "theme": "pink",
+   "console": [
+    "error: Failed to load resource: net::ERR_FAILED",
+    "error: Failed to load resource: net::ERR_FAILED",
+    "error: Failed to load resource: net::ERR_FAILED"
+   ],
+   "failed": [
+    "GET http://127.0.0.1:8911/api/body/stage net::ERR_FAILED",
+    "GET http://127.0.0.1:8911/api/body/day net::ERR_FAILED",
+    "GET http://127.0.0.1:8911/api/body/feed?since=0&limit=50 net::ERR_FAILED"
+   ],
+   "http_err": [],
+   "non_get": [],
+   "requests": [
+    "GET /api/body/day X-Token=set",
+    "GET /api/body/feed?since=0&limit=50 X-Token=set",
+    "GET /api/body/stage X-Token=set",
+    "GET /p/bench X-Token=none"
+   ],
+   "url": "http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink",
+   "facts": {
+    "theme": "pink",
+    "dot_bad": true,
+    "conn_shown": false,
+    "conn_text": "连接不上",
+    "day_head": "11 月 · 周一",
+    "day_num": "16日",
+    "tl": "08:00\n英语课\n09:30\n自习\n12:00\n食堂吃饭\n13:00\n数据结构 · 教学楼 B 座\n15:30\n图书馆自习\n18:00\n晚饭\n19:30\n回去写东西",
+    "tl_rows": [
+     "r past|08:00 英语课",
+     "r past|09:30 自习",
+     "r past|12:00 食堂吃饭",
+     "r past|13:00 数据结构 · 教学楼 B 座",
+     "r now|15:30 图书馆自习",
+     "r|18:00 晚饭",
+     "r|19:30 回去写东西"
+    ],
+    "foot": "下一件\n18:00 晚饭",
+    "foot_cls": "foot",
+    "mood": "心情 · 开心\n72\n精力 · 犯困\n65",
+    "say": "中午想吃你说的那家面～\n外面风有点大，你出门加一件。\n刚把那篇看完，比想的难一点。",
+    "ph": [
+     "card d:占位"
+    ],
+    "side_titles": [
+     "ic on:今日",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段"
+    ],
+    "tab_titles": [
+     "今日:on:",
+     "她:off:下一阶段",
+     "记录:off:下一阶段",
+     "设置:off:下一阶段"
+    ],
+    "dock_titles": [
+     "on:首页",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段"
+    ],
+    "min_font_px": 11,
+    "min_font_el": "SPAN.bc:工作台 / 今日",
+    "h_overflow": [],
+    "clipped": [],
+    "head_top": 12,
+    "search_top": 12,
+    "tabs_top": 13,
+    "body_has_token_text": false,
+    "localStorage_len": 0,
+    "sessionStorage_len": 0,
+    "doc_w": 1640,
+    "doc_h": 680
+   },
+   "boxes": {
+    "1": {
+     "x": 12,
+     "y": 12,
+     "w": 52,
+     "h": 656
+    },
+    "2": {
+     "x": 1415,
+     "y": 13,
+     "w": 191,
+     "h": 26
+    },
+    "3": {
+     "x": 239.171875,
+     "y": 12,
+     "w": 190,
+     "h": 28
+    },
+    "4": {
+     "x": 74,
+     "y": 50,
+     "w": 190,
+     "h": 568
+    },
+    "5": {
+     "x": 274,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "6": {
+     "x": 956,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "7": {
+     "x": 274,
+     "y": 339,
+     "w": 1354,
+     "h": 279
+    },
+    "8": {
+     "x": 718.5,
+     "y": 628,
+     "w": 265,
+     "h": 40
+    },
+    "_root": {
+     "w": 1640,
+     "h": 680,
+     "x": 0,
+     "y": 0
+    }
+   },
+   "time": "16:20:51"
+  },
+  "P3-0-search-nohit-1640x680": {
+   "viewport": [
+    1640,
+    680
+   ],
+   "mode": "data",
+   "theme": "pink",
+   "console": [],
+   "failed": [],
+   "http_err": [],
+   "non_get": [],
+   "requests": [
+    "GET /api/body/day X-Token=set",
+    "GET /api/body/feed?since=0&limit=50 X-Token=set",
+    "GET /api/body/stage X-Token=set",
+    "GET /p/bench X-Token=none"
+   ],
+   "url": "http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink",
+   "search_none": "还没有",
+   "search_hit": "中午想吃你说的那家面～\n外面风有点大，你出门加一件。",
+   "facts": {
+    "theme": "pink",
+    "dot_bad": false,
+    "conn_shown": false,
+    "conn_text": "连接不上",
+    "day_head": "11 月 · 周一",
+    "day_num": "16日",
+    "tl": "08:00\n英语课\n09:30\n自习\n12:00\n食堂吃饭\n13:00\n数据结构 · 教学楼 B 座\n15:30\n图书馆自习\n18:00\n晚饭\n19:30\n回去写东西",
+    "tl_rows": [
+     "r past|08:00 英语课",
+     "r past|09:30 自习",
+     "r past|12:00 食堂吃饭",
+     "r past|13:00 数据结构 · 教学楼 B 座",
+     "r now|15:30 图书馆自习",
+     "r|18:00 晚饭",
+     "r|19:30 回去写东西"
+    ],
+    "foot": "下一件\n18:00 晚饭",
+    "foot_cls": "foot",
+    "mood": "心情 · 开心\n72\n精力 · 犯困\n65",
+    "say": "还没有",
+    "ph": [
+     "card d:占位"
+    ],
+    "side_titles": [
+     "ic on:今日",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段",
+     "ic off:下一阶段"
+    ],
+    "tab_titles": [
+     "今日:on:",
+     "她:off:下一阶段",
+     "记录:off:下一阶段",
+     "设置:off:下一阶段"
+    ],
+    "dock_titles": [
+     "on:首页",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段",
+     "off:下一阶段"
+    ],
+    "min_font_px": 11,
+    "min_font_el": "SPAN.bc:工作台 / 今日",
+    "h_overflow": [],
+    "clipped": [],
+    "head_top": 12,
+    "search_top": 12,
+    "tabs_top": 13,
+    "body_has_token_text": false,
+    "localStorage_len": 0,
+    "sessionStorage_len": 0,
+    "doc_w": 1640,
+    "doc_h": 680
+   },
+   "boxes": {
+    "1": {
+     "x": 12,
+     "y": 12,
+     "w": 52,
+     "h": 656
+    },
+    "2": {
+     "x": 1415,
+     "y": 13,
+     "w": 191,
+     "h": 26
+    },
+    "3": {
+     "x": 239.171875,
+     "y": 12,
+     "w": 190,
+     "h": 28
+    },
+    "4": {
+     "x": 74,
+     "y": 50,
+     "w": 190,
+     "h": 568
+    },
+    "5": {
+     "x": 274,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "6": {
+     "x": 956,
+     "y": 50,
+     "w": 672,
+     "h": 279
+    },
+    "7": {
+     "x": 274,
+     "y": 339,
+     "w": 1354,
+     "h": 279
+    },
+    "8": {
+     "x": 718.5,
+     "y": 628,
+     "w": 265,
+     "h": 40
+    },
+    "_root": {
+     "w": 1640,
+     "h": 680,
+     "x": 0,
+     "y": 0
+    }
+   },
+   "time": "16:20:55"
+  },
+  "_ref": {
+   "boxes": {
+    "1": {
+     "x": 20,
+     "y": 20,
+     "w": 104,
+     "h": 640
+    },
+    "2": {
+     "x": 1238,
+     "y": 28,
+     "w": 382,
+     "h": 52
+    },
+    "3": {
+     "x": 482.34375,
+     "y": 26,
+     "w": 300,
+     "h": 56
+    },
+    "4": {
+     "x": 148,
+     "y": 108,
+     "w": 392,
+     "h": 460
+    },
+    "5": {
+     "x": 560,
+     "y": 108,
+     "w": 520,
+     "h": 220
+    },
+    "6": {
+     "x": 1100,
+     "y": 108,
+     "w": 520,
+     "h": 220
+    },
+    "7": {
+     "x": 560,
+     "y": 348,
+     "w": 1060,
+     "h": 220
+    },
+    "8": {
+     "x": 460,
+     "y": 584,
+     "w": 640,
+     "h": 76
+    },
+    "_root": {
+     "w": 1640,
+     "h": 680,
+     "x": 140,
+     "y": 380
+    }
+   },
+   "frame": {
+    "win": [
+     140,
+     320,
+     1640,
+     740
+    ],
+    "her": [
+     828,
+     2,
+     224,
+     404
+    ]
+   },
+   "console": []
+  }
+ },
+ "extra": {
+  "poll": [
+   [
+    0.0,
+    "stage"
+   ],
+   [
+    5.0,
+    "stage"
+   ],
+   [
+    10.0,
+    "stage"
+   ],
+   [
+    15.0,
+    "stage"
+   ]
+  ],
+  "hover_title": "下一阶段",
+  "url_after_clicks": "http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink",
+  "dom_changed_after_clicks": false,
+  "styles": {
+   "card": {
+    "bg": "rgba(255, 255, 255, 0.62)",
+    "border": "1px solid rgb(255, 255, 255)",
+    "shadow": "rgba(88, 56, 140, 0.12) 0px 8px 24px 0px",
+    "backdrop": "none",
+    "radius": "22px"
+   },
+   "side": {
+    "bg": "rgba(255, 255, 255, 0.5)",
+    "border": "1px solid rgba(255, 255, 255, 0.62)",
+    "shadow": "none",
+    "backdrop": "blur(18px) saturate(1.5)",
+    "radius": "26px"
+   },
+   "dock": {
+    "bg": "rgba(255, 255, 255, 0.42)",
+    "border": "1px solid rgba(255, 255, 255, 0.62)",
+    "shadow": "none",
+    "backdrop": "blur(18px) saturate(1.5)",
+    "radius": "19px"
+   }
+  },
+  "boxes_820": {
+   "1": [
+    24,
+    24,
+    104,
+    632
+   ],
+   "2": [
+    1190,
+    26,
+    382,
+    52
+   ],
+   "3": [
+    326,
+    24,
+    300,
+    56
+   ],
+   "4": [
+    148,
+    100,
+    344,
+    456
+   ],
+   "5": [
+    512,
+    100,
+    542,
+    218
+   ],
+   "6": [
+    1074,
+    100,
+    542,
+    218
+   ],
+   "7": [
+    512,
+    338,
+    1104,
+    218
+   ],
+   "8": [
+    617,
+    576,
+    530,
+    80
+   ]
+  },
+  "clipped_820": [
+   "刚把那篇看完，比想的难一"
+  ]
+ },
+ "visibility": {
+  "1640x680": {
+   "tl": [
+    "全:08:00 英语课",
+    "全:09:30 自习",
+    "全:12:00 食堂吃饭",
+    "全:13:00 数据结构 · 教",
+    "全:15:30 图书馆自习",
+    "全:18:00 晚饭",
+    "全:19:30 回去写东西"
+   ],
+   "say": [
+    "全:中午想吃你说的那家面～",
+    "全:外面风有点大，你出门加一件。",
+    "全:刚把那篇看完，比想的难一点。"
+   ],
+   "foot_bottom": 605,
+   "cardA_bottom": 618
+  },
+  "1640x740": {
+   "tl": [
+    "全:08:00 英语课",
+    "全:09:30 自习",
+    "全:12:00 食堂吃饭",
+    "全:13:00 数据结构 · 教",
+    "全:15:30 图书馆自习",
+    "全:18:00 晚饭",
+    "全:19:30 回去写东西"
+   ],
+   "say": [
+    "全:中午想吃你说的那家面～",
+    "全:外面风有点大，你出门加一件。",
+    "全:刚把那篇看完，比想的难一点。"
+   ],
+   "foot_bottom": 665,
+   "cardA_bottom": 678
+  },
+  "900x560": {
+   "tl": [
+    "全:08:00 英语课",
+    "全:09:30 自习",
+    "全:12:00 食堂吃饭",
+    "全:13:00 数据结构 · 教",
+    "全:15:30 图书馆自习",
+    "全:18:00 晚饭",
+    "全:19:30 回去写东西"
+   ],
+   "say": [
+    "全:中午想吃你说的那家面～",
+    "全:外面风有点大，你出门加一件。",
+    "全:刚把那篇看完，比想的难一点。"
+   ],
+   "foot_bottom": 487,
+   "cardA_bottom": 498
+  },
+  "900x500": {
+   "tl": [
+    "全:08:00 英语课",
+    "全:09:30 自习",
+    "全:12:00 食堂吃饭",
+    "全:13:00 数据结构 · 教",
+    "全:15:30 图书馆自习",
+    "全:18:00 晚饭",
+    "全:19:30 回去写东西"
+   ],
+   "say": [
+    "全:中午想吃你说的那家面～",
+    "全:外面风有点大，你出门加一件。",
+    "全:刚把那篇看完，比想的难一点。"
+   ],
+   "foot_bottom": 427,
+   "cardA_bottom": 438
+  },
+  "820x340": {
+   "tl": [
+    "全:08:00 英语课",
+    "全:09:30 自习",
+    "全:12:00 食堂吃饭",
+    "全:13:00 数据结构 · 教",
+    "全:15:30 图书馆自习",
+    "全:18:00 晚饭",
+    "不可见:19:30 回去写东西"
+   ],
+   "say": [
+    "全:中午想吃你说的那家面～",
+    "全:外面风有点大，你出门加一件。",
+    "不可见:刚把那篇看完，比想的难一点。"
+   ],
+   "foot_bottom": 267,
+   "cardA_bottom": 278
+  }
+ }
+}
