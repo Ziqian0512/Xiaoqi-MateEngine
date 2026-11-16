@@ -22,6 +22,19 @@ namespace Xiaoqi.UI2
         const float L2W = 224f;
 
         public static bool IsOpen { get; private set; }
+
+        // 关菜单（点了某一行）的那一帧，ME 的「任意左键即拖动」还会看到同一次按下：
+        // 菜单一关挡板就撤了，她被当成被拖，睡着立刻 wake_drag。关菜单后继续挡到鼠标抬起再多 3 帧。
+        static bool _hold;
+        static int _holdFrame;
+        public static bool Holding
+        {
+            get
+            {
+                if (_hold && !Input.GetMouseButton(0) && Time.frameCount > _holdFrame + 3) _hold = false;
+                return _hold;
+            }
+        }
         public VisualElement Root { get; private set; }
 
         readonly Action _openToday;
@@ -184,6 +197,8 @@ namespace Xiaoqi.UI2
             _danceOpen = false;
             Root.style.display = DisplayStyle.None;
             Xiaoqi.UI.XqMenu.LastCloseFrame = Time.frameCount;
+            _hold = true;
+            _holdFrame = Time.frameCount;
             Debug.Log("XQ_MENU2 close by=" + by);
         }
 
@@ -263,7 +278,7 @@ namespace Xiaoqi.UI2
             {
                 _blockerSet = true;
                 PetHost.I.SuppressHostMenu();
-                PetHost.I.RegisterMenuBlocker(() => Xiaoqi.UI.XqMenu.IsOpen);
+                PetHost.I.RegisterMenuBlocker(() => Xiaoqi.UI.XqMenu.IsOpen || Holding);
             }
             _panelRef = panel;
             _scaleRef = scale;

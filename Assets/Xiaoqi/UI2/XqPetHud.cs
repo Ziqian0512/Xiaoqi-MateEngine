@@ -194,6 +194,16 @@ namespace Xiaoqi.UI2
                 if (_glass.HandlePointer(Root.panel, _lastScale, picked, OnBody(), overChrome)) return;
             }
             if (_today.IsOpen && Input.GetKeyDown(KeyCode.Escape)) _today.Close();
+            bool gh = Over(_gate);
+            if (gh != _gateHover) { _gateHover = gh; Debug.Log("XQ_HUD gate-hover=" + gh); }
+            if (Input.GetMouseButtonDown(0))
+            {
+                var gr = _gate != null ? _gate.worldBound : default(Rect);
+                Debug.Log("XQ_HUD down m=" + Input.mousePosition.x.ToString("0") + "," + Input.mousePosition.y.ToString("0")
+                    + " p0=" + _pts[0].x.ToString("0") + "," + _pts[0].y.ToString("0") + " p1=" + _pts[1].x.ToString("0") + "," + _pts[1].y.ToString("0")
+                    + " gate=" + gr.x.ToString("0") + "," + gr.y.ToString("0") + " " + gr.width.ToString("0") + "x" + gr.height.ToString("0")
+                    + " gateOn=" + (_gate != null && _gate.resolvedStyle.display != DisplayStyle.None) + " menu=" + _menu.ToString("0.00") + " H=" + Screen.height + " W=" + Screen.width);
+            }
             if (Input.GetMouseButtonDown(0) && TryChromeClick()) return;
             if (Input.GetMouseButtonDown(0))
             {
@@ -445,6 +455,16 @@ namespace Xiaoqi.UI2
             if (float.IsNaN(r.x) || r.width < 1f || r.height < 1f) return false;
             return r.Contains(_pts[0]) || r.Contains(_pts[1]);
         }
+
+        /// <summary>鼠标现在是否压在 HUD 的任何一块上（几何判断，不依赖 Pick）。XqUi2Sample 用它挡「任意左键即拖动」。</summary>
+        public bool OverChromeNow()
+        {
+            if (Root == null || Root.panel == null) return false;
+            UpdatePts(Root.panel);
+            return BlocksChrome(null);
+        }
+
+        bool _gateHover;
 
         bool TryChromeClick()
         {

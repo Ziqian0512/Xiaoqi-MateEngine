@@ -157,7 +157,7 @@ namespace Xiaoqi.UI2
                 PetHost.I?.SetUiBlocksMovement(false);
                 return;
             }
-            bool over = Hit(_sample);
+            bool over = Hit(_sample) || (_hud != null && _hud.OverChromeNow());
             PetHost.I?.SetUiBlocksMovement(over);
             GuardWindowDrag(over);
             _hud?.HandlePointer(this);

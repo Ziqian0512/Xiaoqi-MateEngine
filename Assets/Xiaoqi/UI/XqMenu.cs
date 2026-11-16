@@ -99,7 +99,7 @@ namespace Xiaoqi.UI
         private void Start()
         {
             PetHost.I?.SuppressHostMenu();
-            PetHost.I?.RegisterMenuBlocker(() => IsOpen);
+            PetHost.I?.RegisterMenuBlocker(() => IsOpen || Xiaoqi.UI2.XqGlassMenu.Holding);
             _demo = Array.IndexOf(Environment.GetCommandLineArgs(), "-menu-demo") >= 0;
             _shot = Array.IndexOf(Environment.GetCommandLineArgs(), "-menu-shot") >= 0;
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-demo-doing") >= 0) _demoSub = "doing";

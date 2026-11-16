@@ -24,6 +24,11 @@ namespace Xiaoqi.Mode
         [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr h, StringBuilder sb, int n);
         [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
         [StructLayout(LayoutKind.Sequential)] struct R { public int l, t, r, b; }
+        [StructLayout(LayoutKind.Sequential)] struct MI { public int cb; public R mon; public R work; public uint flags; }
+        [DllImport("user32.dll", CharSet = CharSet.Unicode, EntryPoint = "FindWindowW")] static extern IntPtr FindWindowW(string cls, string title);
+        [DllImport("user32.dll")] static extern IntPtr MonitorFromWindow(IntPtr h, uint flags);
+        [DllImport("user32.dll")] static extern bool GetMonitorInfo(IntPtr m, ref MI mi);
+        [DllImport("user32.dll")] static extern bool SetWindowPos(IntPtr h, IntPtr after, int x, int y, int w, int hh, uint flags);
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Boot()
@@ -60,15 +65,56 @@ namespace Xiaoqi.Mode
                 var h = FindTarget(sit);
                 var sitter = FindFirstObjectByType<AvatarWindowHandler>(FindObjectsInactive.Include);
                 if (h == IntPtr.Zero || sitter == null) { Debug.Log("XQ_TEST sit no-target hwnd=" + h + " handler=" + (sitter != null)); yield break; }
+                var uh = FindWindowW("UnityWndClass", "小祈");
+                MoveTargetLow(h, uh);
+                yield return new WaitForSecondsRealtime(0.5f);
                 bool ok = sitter.XqSitOn(h, 0.5f);
                 Debug.Log("XQ_TEST sit ok=" + ok + (ok ? "" : " why=" + sitter.XqLastFail) + " sitting=" + (PetHost.I != null && PetHost.I.IsWindowSitting));
-                yield return new WaitForSecondsRealtime(5f);
+                for (int i = 1; i <= 5; i++)
+                {
+                    yield return new WaitForSecondsRealtime(1f);
+                    if (i == 1 || i == 3 || i == 5) Geo(h, uh, "t=" + i);
+                }
                 Debug.Log("XQ_TEST sit after5s snapped=" + (sitter.XqSnappedHwnd == h) + " sitting=" + (PetHost.I != null && PetHost.I.IsWindowSitting));
                 if (nap) yield break;
                 PetHost.I?.ExitWindowSit();
                 yield return new WaitForSecondsRealtime(1f);
                 Debug.Log("XQ_TEST sit exit sitting=" + (PetHost.I != null && PetHost.I.IsWindowSitting));
             }
+        }
+
+        /// <summary>把目标窗口挪到她所在显示器的下 40% 处：窗口太靠上时她的身体会伸出屏幕上沿，截图看不全也点不到。</summary>
+        static void MoveTargetLow(IntPtr h, IntPtr uh)
+        {
+            try
+            {
+                if (uh == IntPtr.Zero) return;
+                var mon = MonitorFromWindow(uh, 2);
+                var mi = new MI { cb = Marshal.SizeOf(typeof(MI)) };
+                if (!GetMonitorInfo(mon, ref mi)) return;
+                R r; if (!GetWindowRect(h, out r)) return;
+                int w = r.r - r.l;
+                int nx = mi.work.l + Mathf.Max(0, ((mi.work.r - mi.work.l) - w) / 2);
+                int ny = mi.work.t + Mathf.RoundToInt((mi.work.b - mi.work.t) * 0.6f);
+                SetWindowPos(h, IntPtr.Zero, nx, ny, 0, 0, 0x1 | 0x4 | 0x10);
+                Debug.Log("XQ_TEST sit move-target to " + nx + "," + ny + " monitor work=" + mi.work.l + "," + mi.work.t + ".." + mi.work.r + "," + mi.work.b);
+            }
+            catch (Exception e) { Debug.Log("XQ_TEST sit move-target failed " + e.Message); }
+        }
+
+        static void Geo(IntPtr h, IntPtr uh, string tag)
+        {
+            try
+            {
+                R tr, ur; GetWindowRect(h, out tr); GetWindowRect(uh, out ur);
+                var b = PetHost.I != null ? PetHost.I.ScreenRect() : default(Rect);
+                float top = ur.t + (Screen.height - b.yMax), bot = ur.t + (Screen.height - b.yMin), cx = ur.l + b.center.x;
+                Debug.Log("XQ_TEST sit geo " + tag + " unity=" + ur.l + "," + ur.t + " " + (ur.r - ur.l) + "x" + (ur.b - ur.t)
+                    + " target=" + tr.l + "," + tr.t + " " + (tr.r - tr.l) + "x" + (tr.b - tr.t)
+                    + " bodyDesk y=" + top.ToString("0") + ".." + bot.ToString("0") + " cx=" + cx.ToString("0")
+                    + " feetMinusTargetTop=" + (bot - tr.t).ToString("0"));
+            }
+            catch (Exception e) { Debug.Log("XQ_TEST sit geo failed " + e.Message); }
         }
 
         static IntPtr FindTarget(string frag)
