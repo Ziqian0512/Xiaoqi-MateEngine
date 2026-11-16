@@ -569,3 +569,241 @@
     flex-grow: 1;
     white-space: normal;
 }
+
+/* ===== 玻璃右键菜单（XqGlassMenu） ===== */
+.xq-menu2 {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.xq-mcard {
+    position: absolute;
+    width: 244px;
+}
+
+.xq-mcard2 {
+    width: 224px;
+}
+
+.xq-mcard .xq-body {
+    border-radius: 22px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.xq-mbox {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.xq-mstat {
+    flex-direction: row;
+    align-items: center;
+    height: 30px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-bottom: 6px;
+    border-radius: 12px;
+    picking-mode: position;
+}
+
+.xq-mstat:hover {
+    background-color: rgba(255, 255, 255, 0.45);
+}
+
+.xq-mdot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: var(--xq-accent, #FF8FB8);
+    margin-right: 8px;
+}
+
+.xq-mstat-text {
+    font-size: 15px;
+    color: var(--xq-ink-soft, rgba(59, 47, 85, 0.62));
+    -unity-text-align: middle-left;
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.xq-mstat-energy {
+    font-size: 15px;
+    color: var(--xq-accent-ink, #D6477F);
+    -unity-text-align: middle-right;
+    white-space: nowrap;
+}
+
+.xq-mseg {
+    flex-direction: row;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 3px;
+    padding-right: 3px;
+    margin-bottom: 8px;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+.xq-mseg-btn {
+    flex-grow: 1;
+    flex-basis: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    border-radius: 999px;
+    picking-mode: position;
+}
+
+.xq-mseg-btn:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.xq-mseg-on,
+.xq-mseg-on:hover {
+    background-color: var(--xq-accent, #FF8FB8);
+}
+
+.xq-mseg-off {
+    opacity: 0.45;
+}
+
+.xq-mseg-glyph {
+    width: 14px;
+    height: 14px;
+    margin-right: 3px;
+}
+
+.xq-mseg-text {
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    white-space: nowrap;
+}
+
+.xq-mseg-text-on {
+    color: rgb(255, 255, 255);
+}
+
+.xq-mrow {
+    flex-direction: row;
+    align-items: center;
+    height: 38px;
+    padding-left: 8px;
+    padding-right: 10px;
+    border-radius: 14px;
+    picking-mode: position;
+}
+
+.xq-mrow:hover,
+.xq-mrow-open {
+    background-color: rgba(255, 255, 255, 0.55);
+}
+
+.xq-mic {
+    width: 26px;
+    height: 26px;
+    border-radius: 13px;
+    background-color: var(--xq-accent, #FF8FB8);
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+.xq-mglyph {
+    width: 16px;
+    height: 16px;
+}
+
+.xq-mtext {
+    font-size: 16px;
+    color: var(--xq-ink, #3B2F55);
+    -unity-text-align: middle-left;
+    flex-grow: 1;
+    white-space: nowrap;
+}
+
+.xq-mchev {
+    width: 14px;
+    height: 14px;
+}
+
+.xq-mrow-gray .xq-mic {
+    background-color: rgba(59, 47, 85, 0.14);
+}
+
+.xq-mrow-gray .xq-mtext {
+    color: rgba(59, 47, 85, 0.4);
+}
+
+.xq-mrow-gray:hover {
+    background-color: rgba(255, 255, 255, 0);
+}
+
+.xq-mtag {
+    font-size: 15px;
+    color: rgba(59, 47, 85, 0.45);
+    white-space: nowrap;
+    -unity-text-align: middle-right;
+}
+
+.xq-msep {
+    height: 1px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    margin-left: 8px;
+    margin-right: 8px;
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.xq-mrow-set {
+    height: 32px;
+}
+
+.xq-mrow-set .xq-mic {
+    background-color: rgba(255, 255, 255, 0);
+}
+
+.xq-mrow-set .xq-mtext {
+    font-size: 15px;
+    color: var(--xq-ink-soft, rgba(59, 47, 85, 0.62));
+}
+
+.xq-mchips {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-left: 36px;
+    padding-right: 6px;
+    padding-bottom: 6px;
+}
+
+.xq-mchip {
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 999px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 11px;
+    padding-right: 11px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    picking-mode: position;
+}
+
+.xq-mchip:hover {
+    background-color: var(--xq-accent, #FF8FB8);
+    color: rgb(255, 255, 255);
+}
+
+.xq-mchip-stop {
+    color: var(--xq-accent-ink, #D6477F);
+}

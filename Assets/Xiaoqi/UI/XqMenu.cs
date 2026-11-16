@@ -77,9 +77,11 @@ namespace Xiaoqi.UI
         private static XqMenu _instance;
 
         /// <summary>半弧菜单开着（含关闭动画那 0.12 秒）。桌宠界面那一层据此让开。</summary>
-        public static bool IsOpen { get { return _instance != null && _instance._open; } }
+        public static bool IsOpen { get { return (_instance != null && _instance._open) || Xiaoqi.UI2.XqGlassMenu.IsOpen; } }
         /// <summary>最近一次真正关掉的帧号，用来挡「同一下点击既关菜单又出今天卡」。</summary>
         public static int LastCloseFrame = -100;
+        /// <summary>玻璃版右键菜单（XqGlassMenu）接管后，旧菜单不再响应右键。</summary>
+        public static bool Replaced;
 
         /// <summary>今天卡走新的玻璃版；找不到桌宠界面才退回旧卡。</summary>
         private static void OpenToday()
@@ -97,7 +99,7 @@ namespace Xiaoqi.UI
         private void Start()
         {
             PetHost.I?.SuppressHostMenu();
-            PetHost.I?.RegisterMenuBlocker(() => _open);
+            PetHost.I?.RegisterMenuBlocker(() => IsOpen);
             _demo = Array.IndexOf(Environment.GetCommandLineArgs(), "-menu-demo") >= 0;
             _shot = Array.IndexOf(Environment.GetCommandLineArgs(), "-menu-shot") >= 0;
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-demo-doing") >= 0) _demoSub = "doing";
@@ -626,7 +628,7 @@ namespace Xiaoqi.UI
             if (!_open)
             {
                 if (_demo && Time.unscaledTime >= _demoAt) { _demo = false; Open(); return; }
-                if (Input.GetMouseButtonDown(1) && HitPet()) Open();
+                if (Input.GetMouseButtonDown(1) && HitPet() && !Replaced) Open();
                 return;
             }
 

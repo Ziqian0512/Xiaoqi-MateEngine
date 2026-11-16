@@ -45,6 +45,7 @@ namespace Xiaoqi.UI2
         float _chipT0;
         bool _chipReady;
         XqTodayCard _today;
+        XqGlassMenu _glass;
         bool _armPet;
         Vector3 _armPos;
         float _armAt;
@@ -55,6 +56,8 @@ namespace Xiaoqi.UI2
         float _chipVel;
         float _lastOp;
         bool _wasNear;
+        MonoBehaviour _hostForToday;
+        float _lastScale = 1f;
 
         public void Attach(VisualElement parent, Font font)
         {
@@ -131,6 +134,20 @@ namespace Xiaoqi.UI2
             Root.Add(_gate);
             _today = new XqTodayCard();
             _today.Build(Root);
+            if (XqGlassMenu.Enabled)
+            {
+                try
+                {
+                    _glass = new XqGlassMenu(() => OpenToday(_hostForToday));
+                    _glass.Build(Root);
+                }
+                catch (Exception e)
+                {
+                    Debug.Log("XQ_MENU2 build failed, fallback to old menu: " + e.Message);
+                    _glass = null;
+                    Xiaoqi.UI.XqMenu.Replaced = false;
+                }
+            }
             parent.Add(Root);
 
             XiaoqiLink.OnStage += _ => Refresh();
@@ -143,10 +160,12 @@ namespace Xiaoqi.UI2
         public void Tick(IPanel panel, float scale)
         {
             if (Root == null || panel == null) return;
+            _lastScale = scale;
             Refresh();
             NoteActivity();
             Animate(scale);
             Place(panel, scale);
+            if (_glass != null) _glass.Tick(panel, scale);
             if (_tail != null) _tail.SetColor(new Color(1f, 1f, 1f, 0.9f));
         }
 
@@ -166,6 +185,12 @@ namespace Xiaoqi.UI2
         {
             if (Root == null || Root.panel == null || _today == null) return;
             var picked = Root.panel.Pick(RuntimePanelUtils.ScreenToPanel(Root.panel, Input.mousePosition));
+            _hostForToday = host;
+            if (_glass != null)
+            {
+                bool overChrome = BlocksChrome(picked);
+                if (_glass.HandlePointer(Root.panel, _lastScale, picked, OnBody(), overChrome)) return;
+            }
             if (_today.IsOpen && Input.GetKeyDown(KeyCode.Escape)) _today.Close();
             if (Input.GetMouseButtonDown(0))
             {
@@ -197,6 +222,7 @@ namespace Xiaoqi.UI2
             return Inside(Bubble, picked) || Inside(_next, picked) || Inside(_here, picked)
                 || Inside(_ringHost, picked) || Inside(_ringDetail, picked) || Inside(_gate, picked)
                 || Inside(_entries, picked) || Inside(_quiet, picked)
+                || (_glass != null && _glass.Hit(picked))
                 || (_today != null && _today.Hit(picked));
         }
 
@@ -675,10 +701,10 @@ namespace Xiaoqi.UI2
             return false;
         }
 
-        static VisualElement Glass(string cls, bool emph)
+        internal static VisualElement Glass(string cls, bool emph)
         {
             var host = new VisualElement { pickingMode = PickingMode.Ignore };
-            host.AddToClassList(cls);
+            foreach (var c in cls.Split(' ')) if (c.Length > 0) host.AddToClassList(c);
             var shadow = new VisualElement();
             shadow.AddToClassList("xq-shadow");
             var body = new VisualElement { name = "xq-body" };
@@ -772,7 +798,7 @@ namespace Xiaoqi.UI2
                 p.Stroke();
                 if (Amount > 0.01f)
                 {
-                    p.strokeColor = new Color(1f, 0.56f, 0.72f, 1f);
+                    p.strokeColor = XqTheme.Accent;
                     p.BeginPath();
                     p.Arc(c, rad, Angle.Degrees(-90f), Angle.Degrees(-90f + 360f * Mathf.Clamp01(Amount)));
                     p.Stroke();
@@ -795,7 +821,7 @@ namespace Xiaoqi.UI2
                 if (w < 4f) return;
                 var p = ctx.painter2D;
                 var c = new Vector2(w * 0.5f, h * 0.5f);
-                p.strokeColor = new Color(0.84f, 0.28f, 0.5f, 1f);
+                p.strokeColor = XqTheme.AccentInk;
                 p.lineWidth = 1.6f;
                 if (_kind == "clock")
                 {
@@ -829,7 +855,7 @@ namespace Xiaoqi.UI2
         sealed class XqExpand : VisualElement
         {
             static readonly CustomStyleProperty<Color> Ink = new CustomStyleProperty<Color>("--xq-accent-ink");
-            Color _c = new Color(0.84f, 0.28f, 0.5f, 1f);
+            Color _c = XqTheme.AccentInk;
 
             public XqExpand()
             {

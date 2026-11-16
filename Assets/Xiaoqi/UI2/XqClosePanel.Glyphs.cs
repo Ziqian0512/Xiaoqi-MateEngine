@@ -65,7 +65,7 @@ namespace Xiaoqi.UI2
                 if (_v == null || _v.Length < 2 || w < 8f || h < 4f) return;
                 var p = ctx.painter2D;
                 p.lineWidth = 2f;
-                p.strokeColor = new Color(1f, 0.56f, 0.72f, 0.95f);
+                p.strokeColor = new Color(XqTheme.Accent.r, XqTheme.Accent.g, XqTheme.Accent.b, 0.95f);
                 p.BeginPath();
                 for (int i = 0; i < _v.Length; i++)
                 {
@@ -113,7 +113,7 @@ namespace Xiaoqi.UI2
                     return;
                 }
                 if (Amount <= 0.01f) return;
-                p.strokeColor = new Color(1f, 0.56f, 0.72f, 1f);
+                p.strokeColor = XqTheme.Accent;
                 p.BeginPath();
                 p.Arc(c, rad, Angle.Degrees(-90f), Angle.Degrees(-90f + 360f * Mathf.Clamp01(Amount)));
                 p.Stroke();
