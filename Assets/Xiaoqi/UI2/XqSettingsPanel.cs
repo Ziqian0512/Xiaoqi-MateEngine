@@ -33,6 +33,8 @@ namespace Xiaoqi.UI2
         bool _placed;
         bool _scheduled;
         bool _applied;
+        bool _needRelease;
+        int _openFrame = -10;
 
         // 连接页：订阅 XiaoqiLink.OnStage 记最近一次收到的时间，用来判断「已连接」
         XqSettingsRows.StatusRow _status;
@@ -51,6 +53,8 @@ namespace Xiaoqi.UI2
         {
             if (!_built && !Build()) return;
             IsOpen = true;
+            _needRelease = true; // XQ: B1 #9 打开它的那一下点击（菜单「设置」/近景 ⚙）还按着，等抬起之后才认「点页外关闭」
+            _openFrame = Time.frameCount;
             _host.style.display = DisplayStyle.Flex;
             Place();
             ShowPage(_page);
@@ -609,6 +613,11 @@ namespace Xiaoqi.UI2
                 XqPanelXf.FromScreen(_panel.panel, Input.mousePosition)); // XQ: B1 #7 Pick 要用翻过 Y 的面板坐标，否则点设置页里面被当成点外面→关掉并穿到今天卡
             bool over = Inside(_panel, picked);
             PetHost.I?.SetUiBlocksMovement(over);
+            if (_needRelease)
+            {
+                if (Time.frameCount > _openFrame && !Input.GetMouseButton(0) && !Input.GetMouseButtonDown(0)) _needRelease = false;
+                return;
+            }
             if (!over && Input.GetMouseButtonDown(0)) Close();
         }
 

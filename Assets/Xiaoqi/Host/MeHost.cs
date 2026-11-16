@@ -333,8 +333,14 @@ namespace Xiaoqi.Host
             // Any connected monitor counts as on-screen (not just the primary work area).
             int cx = (wr.left + wr.right) / 2;
             int cy = (wr.top + wr.bottom) / 2;
+            // XQ: B1 #10 原来拿「窗口中心」判断在不在屏内：窗口比一块屏还大(2558x1440)，她被拖到屏幕中线以上时窗口中心先出了屏，
+            // 窗口保护就把整个窗口拉回底部中间，拖动时每 2 秒闪回一次。改成看「她的身体中心」：她还在某块屏里就不动。
             var pt = new POINT { x = cx, y = cy };
+            var bodyR = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, 0, 0);
+            if (bodyR.width > 2f && bodyR.height > 8f)
+                pt = new POINT { x = wr.left + Mathf.RoundToInt(bodyR.center.x), y = wr.top + Mathf.RoundToInt(Screen.height - bodyR.center.y) };
             bool inside = MonitorFromPoint(pt, MONITOR_DEFAULTTONULL) != IntPtr.Zero;
+            if (!inside && bodyR.width > 2f) Debug.Log("XQ_WATCH body outside pt=" + pt.x + "," + pt.y);
             bool tiny = (wr.right - wr.left) < 700 || (wr.bottom - wr.top) < 420;
             if (!inside || tiny)
             {

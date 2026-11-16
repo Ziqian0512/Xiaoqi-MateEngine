@@ -126,10 +126,19 @@ namespace Xiaoqi.UI2
             }
             _sample.style.display = DisplayStyle.Flex;
 
+            // XQ: B1 #10 面板缩放原来每帧跟「蒙皮包围盒高度」走，待机抬手歪头就在 1.24~1.32 间抖，菜单/方钮跟着抽。
+            // 改成用稳定外框（死区+平滑）的高度；变化小于 4% 不动；菜单开着只在她真的变了 15% 以上才动。
             float bodyH = 0f;
-            if (PetHost.I != null) bodyH = PetHost.I.ScreenRect().height;
+            if (PetHost.I != null)
+            {
+                var sb = XqBodyAnchor.Stable();
+                bodyH = sb.height >= 8f ? sb.height : PetHost.I.ScreenRect().height;
+            }
             float scale = bodyH >= 8f ? Mathf.Clamp(bodyH / RefHeight, 0.8f, 2f) : 1f;
-            if (Mathf.Abs(_runtimePanel.scale - scale) > 0.01f)
+            float curScale = _runtimePanel.scale;
+            float rel = curScale > 0.01f ? Mathf.Abs(scale - curScale) / curScale : 1f;
+            float need = XqGlassMenu.IsOpen ? 0.15f : 0.04f;
+            if (rel > need || (curScale < 0.7f))
                 _runtimePanel.scale = scale;
             _hud?.Tick(_root.panel, _runtimePanel.scale);
 

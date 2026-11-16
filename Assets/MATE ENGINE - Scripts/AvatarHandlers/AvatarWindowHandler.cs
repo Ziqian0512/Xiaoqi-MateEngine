@@ -854,6 +854,7 @@ public class AvatarWindowHandler : MonoBehaviour
     {
         for (int i = 0; i < otherQuadGOs.Count; i++)
         {
+            if (otherQuadGOs[i] == null) continue; // XQ: B1 #10 退出时 NullReferenceException(AvatarWindowHandler.cs:858)
             bool on = i < activeCount;
             if (otherQuadGOs[i].activeSelf != on) otherQuadGOs[i].SetActive(on);
         }
