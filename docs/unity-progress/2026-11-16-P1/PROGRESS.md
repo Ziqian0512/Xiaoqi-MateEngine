@@ -19,8 +19,8 @@
 | P1-3b | 入口方钮、三个入口 | **待验收** | `ed7e9887` | 近景 / 工作台灰掉（B1 核对） | 无 | |
 | P1-3c | 玻璃今天卡 | **待验收** | `ad51f40c` | `UI2/XqTodayCard.cs`；旧 uGUI 卡保留（B1 核对未删） | 无 | |
 | P1-4a | 映射草案 | 草案已出，等主人确认 | — | 批次 B2，见 INTENT-MAP-DRAFT.md；第 6 节 5 个问题待定 | — | |
-| P1-4b | 停轮换 + IdleDirector | 未开始 | — | 批次 B3 | — | |
-| P1-4c | BodyDirector + brain.log + 悬停 | 未开始 | — | 批次 B3 | — | |
+| P1-4b | 停轮换 + IdleDirector | 已写，未编 | 见下（B3） | `IdleDirector` + `XqPoseBlend`（骨骼姿势淡入，不滑过中间编号）；`IDLE_SWITCH_TIME=1e9`；池默认前 10 槽 | 无 | |
+| P1-4c | BodyDirector + brain.log + 悬停 | 已写，未编 | 见下（B3） | `BodyDirector` / `BrainLog` / `XqHoverReact`；验收用 `-xq-brain-fast` | 无 | |
 | P1-4d | 接服务器意图 | 未开始 | — | 批次 B7，等 4a 经 WB 确认 | — | |
 | P1-5a | 设置页壳 + 行为页 | 未开始 | — | 批次 B4 | — | |
 | P1-5b | 其余 5 页 | 未开始 | — | 批次 B5 | — | |
@@ -34,7 +34,7 @@
 | B0 | 补账 | WB | 完成 |
 | B1 | 编译验收 | 编译员（Grok 远程 Inori02）| **进行中**：编译 + 冒烟已过（`a73dd06`，见 evidence/a73dd06-inori02/）；截图全黑无效；人工验收 8 项未做 |
 | B2 | P1-4a 映射草案 | WB | 草案已出，等主人确认 |
-| B3 | P1-4b/c | WB 或代码 Agent | 等 B1 |
+| B3 | P1-4b/c | WB | 代码已写 `[未编]`，等编译（`xiaoqi/int-d1`）|
 | B4 | P1-5a | 同上 | 等 B1 |
 | B5 | P1-5b | 同上 | 等 B4 |
 | B6 | P1-6 | 同上 | 等 B4 |

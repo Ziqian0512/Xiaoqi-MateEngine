@@ -29,6 +29,9 @@ public static class XiaoqiBuild
         temp.AddComponent<Xiaoqi.Spike.PetPresence>();
         temp.AddComponent<Xiaoqi.Spike.PetBubble>();
         temp.AddComponent<Xiaoqi.Spike.PetPat>();
+        temp.AddComponent<Xiaoqi.Spike.IdleDirector>();
+        temp.AddComponent<Xiaoqi.Spike.BodyDirector>();
+        temp.AddComponent<Xiaoqi.Spike.XqHoverReact>();
         temp.AddComponent<Xiaoqi.Spike.TodayCard>();
         temp.AddComponent<Xiaoqi.Spike.EmotionLineTuner>();
         temp.AddComponent<Xiaoqi.Spike.XiaoqiShotRunner>();
