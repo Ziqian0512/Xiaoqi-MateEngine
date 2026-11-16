@@ -1,0 +1,205 @@
+2026-11-16 19:22:30 src=server evt=stage where=dorm pose=sit_idle tier=calm label=- sleepy=80
+2026-11-16 19:22:30 src=server evt=tier tier=calm why=stage dorm/sit_idle
+2026-11-16 19:22:34 src=random evt=skip reason=not-idle-state
+2026-11-16 19:22:39 src=server evt=self_sleep start sleepy=80 hold=8 min=0.4
+2026-11-16 19:22:40 src=random evt=skip reason=asleep
+2026-11-16 19:23:03 src=server evt=self_sleep wake cooldown_min=0.5
+2026-11-16 19:23:04 src=random evt=idle from=0 pick=9:PET_IDLE_5 fade=0.56 tier=calm cand=1:PET_IDLE_UPDATE2_01(1.2)|2:PET_IDLE_UPDATE2_02(1.2)|3:PET_IDLE_UPDATE2_03(1.1)|4:PET_IDLE_UPDATE2_04(1.2)|5:PET_IDLE_2(1.5)|6:PET_IDLE_14(1.5)|7:PET_IDLE_4(1.4)|8:PET_IDLE_3(1.0)|9:PET_IDLE_5(1.9) why=timer
+2026-11-16 19:23:08 src=random evt=idle from=9 pick=8:PET_IDLE_3 fade=0.74 tier=calm cand=0:PET_IDLE(1.6)|1:PET_IDLE_UPDATE2_01(1.5)|2:PET_IDLE_UPDATE2_02(1.3)|3:PET_IDLE_UPDATE2_03(1.9)|4:PET_IDLE_UPDATE2_04(1.6)|5:PET_IDLE_2(1.8)|6:PET_IDLE_14(1.3)|7:PET_IDLE_4(1.4)|8:PET_IDLE_3(1.9) why=timer
+2026-11-16 19:23:13 src=random evt=idle from=8 pick=0:PET_IDLE fade=0.75 tier=calm cand=0:PET_IDLE(2.0)|1:PET_IDLE_UPDATE2_01(1.9)|2:PET_IDLE_UPDATE2_02(1.1)|3:PET_IDLE_UPDATE2_03(1.1)|4:PET_IDLE_UPDATE2_04(1.7)|5:PET_IDLE_2(1.8)|6:PET_IDLE_14(1.9)|7:PET_IDLE_4(1.8) why=timer
+2026-11-16 19:23:41 src=random evt=skip reason=not-idle-state
+2026-11-16 20:17:21 src=random evt=skip reason=not-idle-state
+2026-11-16 20:17:41 src=random evt=idle from=0 pick=9:PET_IDLE_5 fade=0.56 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.9)|2:PET_IDLE_UPDATE2_02(1.7)|3:PET_IDLE_UPDATE2_03(1.9)|4:PET_IDLE_UPDATE2_04(1.9)|5:PET_IDLE_2(1.1)|6:PET_IDLE_14(1.2)|7:PET_IDLE_4(1.8)|8:PET_IDLE_3(1.5)|9:PET_IDLE_5(2.0) why=timer
+2026-11-16 20:18:17 src=random evt=idle from=9 pick=5:PET_IDLE_2 fade=0.63 tier=normal cand=0:PET_IDLE(1.2)|1:PET_IDLE_UPDATE2_01(1.0)|2:PET_IDLE_UPDATE2_02(1.3)|3:PET_IDLE_UPDATE2_03(1.4)|4:PET_IDLE_UPDATE2_04(1.1)|5:PET_IDLE_2(1.8)|6:PET_IDLE_14(1.5)|7:PET_IDLE_4(1.0)|8:PET_IDLE_3(1.4) why=timer
+2026-11-16 20:18:42 src=random evt=idle from=5 pick=8:PET_IDLE_3 fade=0.42 tier=normal cand=0:PET_IDLE(1.3)|1:PET_IDLE_UPDATE2_01(1.1)|2:PET_IDLE_UPDATE2_02(1.5)|3:PET_IDLE_UPDATE2_03(1.5)|4:PET_IDLE_UPDATE2_04(1.3)|6:PET_IDLE_14(1.4)|7:PET_IDLE_4(1.3)|8:PET_IDLE_3(1.8) why=timer
+2026-11-16 20:19:08 src=random evt=idle from=8 pick=0:PET_IDLE fade=0.58 tier=normal cand=0:PET_IDLE(2.0)|1:PET_IDLE_UPDATE2_01(1.0)|2:PET_IDLE_UPDATE2_02(1.3)|3:PET_IDLE_UPDATE2_03(1.0)|4:PET_IDLE_UPDATE2_04(1.7)|6:PET_IDLE_14(1.2)|7:PET_IDLE_4(1.5) why=timer
+2026-11-16 20:19:45 src=random evt=idle from=0 pick=9:PET_IDLE_5 fade=0.54 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.3)|2:PET_IDLE_UPDATE2_02(1.8)|3:PET_IDLE_UPDATE2_03(1.6)|4:PET_IDLE_UPDATE2_04(1.7)|6:PET_IDLE_14(1.5)|7:PET_IDLE_4(1.0)|9:PET_IDLE_5(1.9) why=timer
+2026-11-16 20:20:00 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 20:20:39 src=random evt=idle from=0 pick=5:PET_IDLE_2 fade=0.45 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.4)|2:PET_IDLE_UPDATE2_02(1.1)|3:PET_IDLE_UPDATE2_03(1.4)|4:PET_IDLE_UPDATE2_04(1.9)|5:PET_IDLE_2(2.0)|6:PET_IDLE_14(1.3)|7:PET_IDLE_4(1.1)|8:PET_IDLE_3(1.8)|9:PET_IDLE_5(1.7) why=timer
+2026-11-16 20:21:02 src=local evt=drag_end next_random_in=8
+2026-11-16 20:21:03 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 20:21:05 src=local evt=drag_end next_random_in=8
+2026-11-16 20:21:09 src=local evt=drag_end next_random_in=8
+2026-11-16 20:21:11 src=local evt=drag_end next_random_in=8
+2026-11-16 20:21:19 src=random evt=skip reason=sit-or-hidden
+2026-11-16 21:39:34 src=random evt=idle from=0 pick=7:PET_IDLE_4 fade=0.55 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.3)|2:PET_IDLE_UPDATE2_02(1.8)|3:PET_IDLE_UPDATE2_03(1.4)|4:PET_IDLE_UPDATE2_04(1.4)|5:PET_IDLE_2(1.0)|6:PET_IDLE_14(1.0)|7:PET_IDLE_4(1.8)|8:PET_IDLE_3(1.3)|9:PET_IDLE_5(1.3) why=timer
+2026-11-16 21:40:06 src=random evt=idle from=7 pick=2:PET_IDLE_UPDATE2_02 fade=0.64 tier=normal cand=0:PET_IDLE(1.4)|1:PET_IDLE_UPDATE2_01(1.6)|2:PET_IDLE_UPDATE2_02(1.8)|3:PET_IDLE_UPDATE2_03(1.8)|4:PET_IDLE_UPDATE2_04(1.3)|5:PET_IDLE_2(1.3)|6:PET_IDLE_14(1.2)|8:PET_IDLE_3(1.1)|9:PET_IDLE_5(1.5) why=timer
+2026-11-16 21:40:37 src=random evt=idle from=2 pick=0:PET_IDLE fade=0.68 tier=normal cand=0:PET_IDLE(2.0)|1:PET_IDLE_UPDATE2_01(1.2)|3:PET_IDLE_UPDATE2_03(1.3)|4:PET_IDLE_UPDATE2_04(1.1)|5:PET_IDLE_2(1.1)|6:PET_IDLE_14(1.7)|8:PET_IDLE_3(1.4)|9:PET_IDLE_5(1.2) why=timer
+2026-11-16 21:40:46 src=random evt=idle from=0 pick=9:PET_IDLE_5 fade=0.48 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.1)|3:PET_IDLE_UPDATE2_03(1.0)|4:PET_IDLE_UPDATE2_04(1.0)|5:PET_IDLE_2(1.7)|6:PET_IDLE_14(1.6)|8:PET_IDLE_3(1.1)|9:PET_IDLE_5(2.0) why=timer
+2026-11-16 21:41:05 src=random evt=idle from=9 pick=4:PET_IDLE_UPDATE2_04 fade=0.63 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.7)|3:PET_IDLE_UPDATE2_03(1.6)|4:PET_IDLE_UPDATE2_04(1.8)|5:PET_IDLE_2(1.2)|6:PET_IDLE_14(1.4)|7:PET_IDLE_4(1.7)|8:PET_IDLE_3(1.7) why=timer
+2026-11-16 21:41:31 src=random evt=skip reason=menu
+2026-11-16 21:43:16 src=local evt=drag_end next_random_in=8
+2026-11-16 21:43:22 src=local evt=drag_end next_random_in=8
+2026-11-16 21:43:22 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 21:43:25 src=local evt=drag_end next_random_in=8
+2026-11-16 21:43:56 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 22:15:28 src=random evt=skip reason=menu
+2026-11-16 22:16:55 src=random evt=idle from=0 pick=8:PET_IDLE_3 fade=0.60 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.5)|2:PET_IDLE_UPDATE2_02(1.6)|3:PET_IDLE_UPDATE2_03(1.8)|4:PET_IDLE_UPDATE2_04(1.1)|5:PET_IDLE_2(1.8)|6:PET_IDLE_14(1.6)|7:PET_IDLE_4(1.1)|8:PET_IDLE_3(1.9)|9:PET_IDLE_5(1.3) why=timer
+2026-11-16 22:16:56 src=local evt=drag_end next_random_in=8
+2026-11-16 22:16:56 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 22:17:03 src=local evt=drag_end next_random_in=8
+2026-11-16 22:40:21 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 22:42:16 src=local evt=drag_end next_random_in=8
+2026-11-16 22:42:16 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 22:45:46 src=random evt=idle from=0 pick=2:PET_IDLE_UPDATE2_02 fade=0.56 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.3)|2:PET_IDLE_UPDATE2_02(1.6)|3:PET_IDLE_UPDATE2_03(1.0)|4:PET_IDLE_UPDATE2_04(1.6)|5:PET_IDLE_2(1.4)|6:PET_IDLE_14(1.4)|7:PET_IDLE_4(1.3)|8:PET_IDLE_3(1.4)|9:PET_IDLE_5(1.4) why=timer
+2026-11-16 22:46:13 src=random evt=idle from=2 pick=7:PET_IDLE_4 fade=0.50 tier=normal cand=0:PET_IDLE(1.1)|1:PET_IDLE_UPDATE2_01(1.3)|3:PET_IDLE_UPDATE2_03(1.4)|4:PET_IDLE_UPDATE2_04(1.6)|5:PET_IDLE_2(1.6)|6:PET_IDLE_14(1.7)|7:PET_IDLE_4(2.0)|8:PET_IDLE_3(1.7)|9:PET_IDLE_5(1.0) why=timer
+2026-11-16 22:49:16 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 22:49:24 src=random evt=skip reason=menu
+2026-11-16 22:49:25 src=local evt=drag_end next_random_in=8
+2026-11-16 22:49:31 src=local evt=drag_end next_random_in=8
+2026-11-16 23:15:01 src=random evt=idle from=0 pick=4:PET_IDLE_UPDATE2_04 fade=0.53 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.7)|2:PET_IDLE_UPDATE2_02(1.4)|3:PET_IDLE_UPDATE2_03(1.3)|4:PET_IDLE_UPDATE2_04(1.8)|5:PET_IDLE_2(1.4)|6:PET_IDLE_14(1.2)|7:PET_IDLE_4(1.4)|8:PET_IDLE_3(1.1)|9:PET_IDLE_5(1.4) why=timer
+2026-11-16 23:15:26 src=random evt=idle from=4 pick=1:PET_IDLE_UPDATE2_01 fade=0.46 tier=normal cand=0:PET_IDLE(1.2)|1:PET_IDLE_UPDATE2_01(1.9)|2:PET_IDLE_UPDATE2_02(1.3)|3:PET_IDLE_UPDATE2_03(1.1)|5:PET_IDLE_2(1.1)|6:PET_IDLE_14(1.3)|7:PET_IDLE_4(1.1)|8:PET_IDLE_3(1.3)|9:PET_IDLE_5(1.7) why=timer
+2026-11-16 23:15:32 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 23:18:35 src=random evt=idle from=0 pick=5:PET_IDLE_2 fade=0.73 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.3)|2:PET_IDLE_UPDATE2_02(1.5)|3:PET_IDLE_UPDATE2_03(1.4)|4:PET_IDLE_UPDATE2_04(1.7)|5:PET_IDLE_2(2.0)|6:PET_IDLE_14(1.5)|7:PET_IDLE_4(1.3)|8:PET_IDLE_3(1.4)|9:PET_IDLE_5(1.6) why=timer
+2026-11-16 23:18:54 src=random evt=idle from=5 pick=9:PET_IDLE_5 fade=0.66 tier=normal cand=0:PET_IDLE(1.6)|1:PET_IDLE_UPDATE2_01(1.4)|2:PET_IDLE_UPDATE2_02(1.3)|3:PET_IDLE_UPDATE2_03(1.0)|4:PET_IDLE_UPDATE2_04(1.6)|6:PET_IDLE_14(1.4)|7:PET_IDLE_4(1.3)|8:PET_IDLE_3(1.0)|9:PET_IDLE_5(1.7) why=timer
+2026-11-16 23:18:59 src=local evt=drag_end next_random_in=8
+2026-11-16 23:19:09 src=local evt=drag_end next_random_in=8
+2026-11-16 23:21:16 src=local evt=drag_end next_random_in=8
+2026-11-16 23:21:24 src=random evt=skip reason=menu
+2026-11-17 00:28:16 src=local evt=drag_end next_random_in=8
+2026-11-17 00:29:07 src=random evt=idle from=0 pick=9:PET_IDLE_5 fade=0.68 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.4)|2:PET_IDLE_UPDATE2_02(1.8)|3:PET_IDLE_UPDATE2_03(1.1)|4:PET_IDLE_UPDATE2_04(1.1)|5:PET_IDLE_2(1.1)|6:PET_IDLE_14(1.8)|7:PET_IDLE_4(1.6)|8:PET_IDLE_3(1.2)|9:PET_IDLE_5(2.0) why=timer
+2026-11-17 00:29:52 src=random evt=skip reason=asleep
+2026-11-17 00:30:37 src=random evt=skip reason=menu
+2026-11-17 00:32:47 src=local evt=drag_end next_random_in=8
+2026-11-17 00:34:16 src=local evt=drag_end next_random_in=8
+2026-11-17 00:35:36 src=random evt=skip reason=sit-or-hidden
+2026-11-17 01:48:41 src=random evt=skip reason=not-idle-state
+2026-11-17 02:00:10 src=random evt=skip reason=not-idle-state
+2026-11-17 02:30:19 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-17 02:30:23 src=random evt=idle from=0 pick=9:PET_IDLE_5 fade=0.59 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.3)|2:PET_IDLE_UPDATE2_02(1.1)|3:PET_IDLE_UPDATE2_03(1.3)|4:PET_IDLE_UPDATE2_04(1.8)|5:PET_IDLE_2(1.7)|6:PET_IDLE_14(1.7)|7:PET_IDLE_4(1.4)|8:PET_IDLE_3(1.4)|9:PET_IDLE_5(1.9) why=timer
+2026-11-17 02:39:08 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-17 02:39:13 src=random evt=idle from=0 pick=9:PET_IDLE_5 fade=0.74 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.1)|2:PET_IDLE_UPDATE2_02(1.3)|3:PET_IDLE_UPDATE2_03(1.8)|4:PET_IDLE_UPDATE2_04(1.1)|5:PET_IDLE_2(1.9)|6:PET_IDLE_14(1.2)|7:PET_IDLE_4(1.2)|8:PET_IDLE_3(1.9)|9:PET_IDLE_5(2.0) why=timer
+2026-11-17 02:39:44 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-17 03:50:25 src=random evt=idle from=0 pick=8:PET_IDLE_3 fade=0.67 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.4)|2:PET_IDLE_UPDATE2_02(1.2)|3:PET_IDLE_UPDATE2_03(1.8)|4:PET_IDLE_UPDATE2_04(1.8)|5:PET_IDLE_2(1.2)|6:PET_IDLE_14(1.5)|7:PET_IDLE_4(1.2)|8:PET_IDLE_3(1.9)|9:PET_IDLE_5(1.3) why=timer
+2026-11-16 11:58:01 src=random evt=idle from=0 pick=5:PET_IDLE_2 fade=0.41 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.7)|2:PET_IDLE_UPDATE2_02(1.2)|3:PET_IDLE_UPDATE2_03(1.2)|4:PET_IDLE_UPDATE2_04(1.8)|5:PET_IDLE_2(1.9)|6:PET_IDLE_14(1.0)|7:PET_IDLE_4(1.6)|8:PET_IDLE_3(1.7)|9:PET_IDLE_5(1.5) why=timer
+2026-11-16 12:35:34 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:35:47 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:42:00 src=random evt=skip reason=not-idle-state
+2026-11-16 12:42:17 src=random evt=skip reason=not-idle-state
+2026-11-16 12:42:43 src=local evt=drag_end next_random_in=8
+2026-11-16 12:42:44 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:42:47 src=local evt=drag_end next_random_in=8
+2026-11-16 12:42:50 src=local evt=drag_end next_random_in=8
+2026-11-16 12:42:51 src=local evt=drag_end next_random_in=8
+2026-11-16 12:42:52 src=local evt=drag_end next_random_in=8
+2026-11-16 12:42:53 src=local evt=drag_end next_random_in=8
+2026-11-16 12:42:54 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:02 src=random evt=idle from=0 pick=6:PET_IDLE_14 fade=0.51 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.2)|2:PET_IDLE_UPDATE2_02(1.4)|3:PET_IDLE_UPDATE2_03(1.7)|4:PET_IDLE_UPDATE2_04(1.7)|5:PET_IDLE_2(1.5)|6:PET_IDLE_14(1.8)|7:PET_IDLE_4(1.5)|8:PET_IDLE_3(1.0)|9:PET_IDLE_5(1.3) why=timer
+2026-11-16 12:43:06 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:43:07 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:08 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:10 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:18 src=random evt=idle from=6 pick=4:PET_IDLE_UPDATE2_04 fade=0.67 tier=normal cand=0:PET_IDLE(1.7)|1:PET_IDLE_UPDATE2_01(1.7)|2:PET_IDLE_UPDATE2_02(1.2)|3:PET_IDLE_UPDATE2_03(1.1)|4:PET_IDLE_UPDATE2_04(1.8)|5:PET_IDLE_2(1.6)|7:PET_IDLE_4(1.4)|8:PET_IDLE_3(1.6)|9:PET_IDLE_5(1.8) why=timer
+2026-11-16 12:43:29 src=random evt=idle from=4 pick=0:PET_IDLE fade=0.78 tier=normal cand=0:PET_IDLE(2.0)|1:PET_IDLE_UPDATE2_01(1.1)|2:PET_IDLE_UPDATE2_02(1.0)|3:PET_IDLE_UPDATE2_03(1.7)|5:PET_IDLE_2(1.3)|7:PET_IDLE_4(1.8)|8:PET_IDLE_3(1.4)|9:PET_IDLE_5(1.0) why=timer
+2026-11-16 12:43:34 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:43:36 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:40 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:47 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:49 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:51 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:52 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:54 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:55 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:55 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:58 src=local evt=drag_end next_random_in=8
+2026-11-16 12:43:58 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:44:02 src=local evt=drag_end next_random_in=8
+2026-11-16 12:44:10 src=random evt=idle from=0 pick=7:PET_IDLE_4 fade=0.46 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.4)|2:PET_IDLE_UPDATE2_02(1.0)|3:PET_IDLE_UPDATE2_03(1.8)|5:PET_IDLE_2(1.3)|7:PET_IDLE_4(1.9)|8:PET_IDLE_3(1.6)|9:PET_IDLE_5(1.4) why=timer
+2026-11-16 12:44:12 src=local evt=drag_end next_random_in=8
+2026-11-16 12:44:12 src=local evt=drag_end next_random_in=8
+2026-11-16 12:44:14 src=local evt=drag_end next_random_in=8
+2026-11-16 12:44:25 src=random evt=skip reason=menu
+2026-11-16 12:44:28 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:44:55 src=random evt=idle from=7 pick=5:PET_IDLE_2 fade=0.45 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.1)|2:PET_IDLE_UPDATE2_02(1.5)|3:PET_IDLE_UPDATE2_03(1.2)|5:PET_IDLE_2(1.7)|6:PET_IDLE_14(1.1)|8:PET_IDLE_3(1.2)|9:PET_IDLE_5(1.1) why=timer
+2026-11-16 12:45:17 src=random evt=idle from=5 pick=8:PET_IDLE_3 fade=0.43 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.7)|2:PET_IDLE_UPDATE2_02(1.9)|3:PET_IDLE_UPDATE2_03(1.7)|4:PET_IDLE_UPDATE2_04(1.8)|6:PET_IDLE_14(1.2)|8:PET_IDLE_3(2.0)|9:PET_IDLE_5(1.9) why=timer
+2026-11-16 12:45:23 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:45:24 src=local evt=drag_end next_random_in=8
+2026-11-16 12:45:34 src=local evt=drag_end next_random_in=8
+2026-11-16 12:45:39 src=local evt=drag_end next_random_in=8
+2026-11-16 12:45:43 src=local evt=drag_end next_random_in=8
+2026-11-16 12:45:47 src=local evt=drag_end next_random_in=8
+2026-11-16 12:45:50 src=local evt=drag_end next_random_in=8
+2026-11-16 12:45:58 src=random evt=skip reason=dancing
+2026-11-16 12:46:15 src=local evt=drag_end next_random_in=8
+2026-11-16 12:46:34 src=random evt=skip reason=menu
+2026-11-16 12:46:35 src=local evt=drag_end next_random_in=8
+2026-11-16 12:46:44 src=local evt=drag_end next_random_in=8
+2026-11-16 12:46:45 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:46:55 src=local evt=drag_end next_random_in=8
+2026-11-16 12:46:55 src=local evt=drag_end next_random_in=8
+2026-11-16 12:46:56 src=local evt=drag_end next_random_in=8
+2026-11-16 12:46:57 src=local evt=drag_end next_random_in=8
+2026-11-16 12:46:58 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:06 src=random evt=skip reason=sit-or-hidden
+2026-11-16 12:47:32 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:33 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:47:39 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:41 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:42 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:49 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:50 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:51 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:52 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:53 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:54 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:54 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:55 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:56 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:57 src=local evt=drag_end next_random_in=8
+2026-11-16 12:47:57 src=local evt=drag_end next_random_in=8
+2026-11-16 12:48:00 src=local evt=drag_end next_random_in=8
+2026-11-16 12:48:00 src=local evt=drag_end next_random_in=8
+2026-11-16 12:48:01 src=local evt=drag_end next_random_in=8
+2026-11-16 12:48:01 src=local evt=drag_end next_random_in=8
+2026-11-16 12:48:02 src=local evt=drag_end next_random_in=8
+2026-11-16 12:48:03 src=local evt=drag_end next_random_in=8
+2026-11-16 12:48:03 src=local evt=drag_end next_random_in=8
+2026-11-16 12:48:04 src=local evt=drag_end next_random_in=8
+2026-11-16 12:48:06 src=local evt=drag_end next_random_in=8
+2026-11-16 12:48:44 src=local evt=drag_end next_random_in=8
+2026-11-16 12:48:45 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:05 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:06 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:49:07 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:09 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:11 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:19 src=random evt=idle from=8 pick=4:PET_IDLE_UPDATE2_04 fade=0.62 tier=normal cand=0:PET_IDLE(1.2)|1:PET_IDLE_UPDATE2_01(1.2)|2:PET_IDLE_UPDATE2_02(1.4)|3:PET_IDLE_UPDATE2_03(1.3)|4:PET_IDLE_UPDATE2_04(1.5)|6:PET_IDLE_14(1.4)|9:PET_IDLE_5(1.4) why=timer
+2026-11-16 12:49:19 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:22 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:23 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:25 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:31 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:32 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:49:37 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:39 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:39 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:41 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:47 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:53 src=local evt=drag_end next_random_in=8
+2026-11-16 12:49:54 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:49:55 src=local evt=drag_end next_random_in=8
+2026-11-16 12:50:03 src=random evt=idle from=4 pick=9:PET_IDLE_5 fade=0.67 tier=normal cand=0:PET_IDLE(1.6)|1:PET_IDLE_UPDATE2_01(1.5)|2:PET_IDLE_UPDATE2_02(1.0)|3:PET_IDLE_UPDATE2_03(1.6)|6:PET_IDLE_14(1.4)|7:PET_IDLE_4(1.5)|9:PET_IDLE_5(1.9) why=timer
+2026-11-16 12:50:11 src=local evt=drag_end next_random_in=8
+2026-11-16 12:50:16 src=local evt=drag_end next_random_in=8
+2026-11-16 12:50:19 src=local evt=drag_end next_random_in=8
+2026-11-16 12:50:21 src=local evt=drag_end next_random_in=8
+2026-11-16 12:50:29 src=random evt=idle from=9 pick=3:PET_IDLE_UPDATE2_03 fade=0.76 tier=normal cand=0:PET_IDLE(1.3)|1:PET_IDLE_UPDATE2_01(1.0)|2:PET_IDLE_UPDATE2_02(1.0)|3:PET_IDLE_UPDATE2_03(1.6)|5:PET_IDLE_2(1.1)|6:PET_IDLE_14(1.2)|7:PET_IDLE_4(1.2) why=timer
+2026-11-16 12:50:46 src=random evt=idle from=3 pick=5:PET_IDLE_2 fade=0.71 tier=normal cand=0:PET_IDLE(1.7)|1:PET_IDLE_UPDATE2_01(1.4)|2:PET_IDLE_UPDATE2_02(1.9)|5:PET_IDLE_2(2.0)|6:PET_IDLE_14(1.7)|7:PET_IDLE_4(1.4)|8:PET_IDLE_3(1.4) why=timer
+2026-11-16 12:51:23 src=random evt=idle from=5 pick=4:PET_IDLE_UPDATE2_04 fade=0.52 tier=normal cand=0:PET_IDLE(1.6)|1:PET_IDLE_UPDATE2_01(1.4)|2:PET_IDLE_UPDATE2_02(1.8)|4:PET_IDLE_UPDATE2_04(1.9)|6:PET_IDLE_14(1.3)|7:PET_IDLE_4(1.7)|8:PET_IDLE_3(1.5) why=timer
+2026-11-16 12:51:32 src=random evt=idle from=4 pick=8:PET_IDLE_3 fade=0.42 tier=normal cand=0:PET_IDLE(1.6)|1:PET_IDLE_UPDATE2_01(1.5)|2:PET_IDLE_UPDATE2_02(1.1)|6:PET_IDLE_14(1.5)|7:PET_IDLE_4(1.2)|8:PET_IDLE_3(1.9) why=timer
+2026-11-16 12:51:42 src=random evt=idle from=8 pick=0:PET_IDLE fade=0.77 tier=normal cand=0:PET_IDLE(1.9)|1:PET_IDLE_UPDATE2_01(1.7)|2:PET_IDLE_UPDATE2_02(1.4)|6:PET_IDLE_14(1.4)|7:PET_IDLE_4(1.6)|9:PET_IDLE_5(1.1) why=timer
+2026-11-16 12:51:46 src=local evt=hover hold=0.5 face=开心 voice=none
+2026-11-16 12:51:56 src=local evt=drag_end next_random_in=8
+2026-11-16 12:51:57 src=local evt=drag_end next_random_in=8
+2026-11-16 12:52:05 src=random evt=idle from=0 pick=7:PET_IDLE_4 fade=0.72 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.3)|2:PET_IDLE_UPDATE2_02(1.4)|3:PET_IDLE_UPDATE2_03(1.3)|6:PET_IDLE_14(1.1)|7:PET_IDLE_4(2.0)|9:PET_IDLE_5(1.4) why=timer
+2026-11-16 12:52:19 src=random evt=idle from=7 pick=5:PET_IDLE_2 fade=0.57 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.4)|2:PET_IDLE_UPDATE2_02(1.3)|3:PET_IDLE_UPDATE2_03(1.6)|5:PET_IDLE_2(1.6)|6:PET_IDLE_14(1.2)|9:PET_IDLE_5(1.5) why=timer
+2026-11-16 12:52:31 src=random evt=idle from=5 pick=6:PET_IDLE_14 fade=0.75 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.0)|2:PET_IDLE_UPDATE2_02(1.3)|3:PET_IDLE_UPDATE2_03(1.2)|6:PET_IDLE_14(1.7)|9:PET_IDLE_5(1.1) why=timer
+2026-11-16 12:52:52 src=random evt=idle from=6 pick=9:PET_IDLE_5 fade=0.62 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.8)|2:PET_IDLE_UPDATE2_02(1.5)|3:PET_IDLE_UPDATE2_03(1.7)|9:PET_IDLE_5(1.9) why=timer
+2026-11-16 12:53:04 src=random evt=idle from=9 pick=8:PET_IDLE_3 fade=0.48 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.4)|2:PET_IDLE_UPDATE2_02(1.4)|3:PET_IDLE_UPDATE2_03(1.1)|4:PET_IDLE_UPDATE2_04(1.1)|8:PET_IDLE_3(1.7) why=timer
+2026-11-16 12:53:22 src=random evt=idle from=8 pick=2:PET_IDLE_UPDATE2_02 fade=0.71 tier=normal cand=0:PET_IDLE(1.3)|1:PET_IDLE_UPDATE2_01(1.1)|2:PET_IDLE_UPDATE2_02(1.6)|3:PET_IDLE_UPDATE2_03(1.4)|4:PET_IDLE_UPDATE2_04(1.3) why=timer
+2026-11-16 12:53:40 src=random evt=idle from=2 pick=1:PET_IDLE_UPDATE2_01 fade=0.43 tier=normal cand=0:PET_IDLE(1.6)|1:PET_IDLE_UPDATE2_01(2.0)|3:PET_IDLE_UPDATE2_03(1.3)|4:PET_IDLE_UPDATE2_04(1.8)|7:PET_IDLE_4(1.7) why=timer
+2026-11-16 12:54:18 src=random evt=idle from=1 pick=4:PET_IDLE_UPDATE2_04 fade=0.79 tier=normal cand=0:PET_IDLE(1.4)|3:PET_IDLE_UPDATE2_03(1.7)|4:PET_IDLE_UPDATE2_04(1.7)|5:PET_IDLE_2(1.1)|6:PET_IDLE_14(1.6)|7:PET_IDLE_4(1.1) why=timer
+2026-11-16 12:54:35 src=random evt=idle from=4 pick=9:PET_IDLE_5 fade=0.68 tier=normal cand=0:PET_IDLE(1.8)|3:PET_IDLE_UPDATE2_03(1.3)|5:PET_IDLE_2(1.8)|6:PET_IDLE_14(1.6)|7:PET_IDLE_4(2.0)|8:PET_IDLE_3(1.0)|9:PET_IDLE_5(2.0) why=timer
+2026-11-16 12:54:51 src=random evt=idle from=9 pick=8:PET_IDLE_3 fade=0.76 tier=normal cand=0:PET_IDLE(1.1)|3:PET_IDLE_UPDATE2_03(1.5)|5:PET_IDLE_2(1.6)|6:PET_IDLE_14(1.0)|7:PET_IDLE_4(1.2)|8:PET_IDLE_3(1.9) why=timer
+2026-11-16 12:55:25 src=random evt=idle from=8 pick=3:PET_IDLE_UPDATE2_03 fade=0.75 tier=normal cand=0:PET_IDLE(1.0)|1:PET_IDLE_UPDATE2_01(1.8)|2:PET_IDLE_UPDATE2_02(1.1)|3:PET_IDLE_UPDATE2_03(1.9)|5:PET_IDLE_2(1.8)|6:PET_IDLE_14(1.4)|7:PET_IDLE_4(1.2) why=timer
+2026-11-16 12:55:49 src=random evt=idle from=3 pick=2:PET_IDLE_UPDATE2_02 fade=0.52 tier=normal cand=0:PET_IDLE(1.4)|1:PET_IDLE_UPDATE2_01(1.5)|2:PET_IDLE_UPDATE2_02(1.6)|4:PET_IDLE_UPDATE2_04(1.5)|5:PET_IDLE_2(1.3)|6:PET_IDLE_14(1.4)|7:PET_IDLE_4(1.2) why=timer
