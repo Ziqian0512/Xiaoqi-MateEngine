@@ -33,6 +33,13 @@ namespace Xiaoqi.UI2
         bool _placed;
         bool _scheduled;
 
+        // 连接页：订阅 XiaoqiLink.OnStage 记最近一次收到的时间，用来判断「已连接」
+        XqSettingsRows.StatusRow _status;
+        bool _stageHooked;
+        bool _gotStage;
+        float _lastStageAt;
+        float _statusAt;
+
         public static void Open()
         {
             if (_inst == null) _inst = new XqSettingsPanel();
@@ -140,18 +147,13 @@ namespace Xiaoqi.UI2
             _host.Add(_panel);
             root.Add(_host);
 
-            // D1 已做「行为」页；D2 做「外观」「显示」；其余 3 页一行灰字
-            for (int i = 0; i < _pageViews.Length; i++)
-            {
-                if (i == 1 || i == 0 || i == 2) continue;
-                var t = new Label("下一步做");
-                t.AddToClassList("xq-st-empty");
-                t.pickingMode = PickingMode.Ignore;
-                _pageViews[i].Add(t);
-            }
+            // D1 做「行为」页；D2 做「外观」「显示」；D3 做「声音」「连接」「关于」。全部有页，不再有空页。
             BuildLookPage(_pageViews[0]);
             BuildBehaviorPage(_pageViews[1]);
             BuildDisplayPage(_pageViews[2]);
+            BuildSoundPage(_pageViews[3]);
+            BuildConnectPage(_pageViews[4]);
+            BuildAboutPage(_pageViews[5]);
 
             _built = true;
             return true;
@@ -354,6 +356,166 @@ namespace Xiaoqi.UI2
                     i == 1 ? "hide" : "show")));
         }
 
+        /// <summary>声音页 2 行：静音、总音量。默认关 / 100%。</summary>
+        void BuildSoundPage(VisualElement page)
+        {
+            var cfg = XiaoqiRuntime.Config;
+
+            // 1 静音：关
+            page.Add(XqSettingsRows.Toggle("静音",
+                cfg != null && cfg.muted,
+                v => Bind<bool>(XqSettingsApply.SetMuted, (c, x) => c.muted = x, "muted", v)));
+
+            // 2 总音量：0-100%，拖动即时应用，松手落盘
+            var vol = XqSettingsRows.Slider("总音量", 0f, 100f,
+                (cfg != null ? cfg.volume : 1f) * 100f,
+                v => XqSettingsApply.SetVolume(v / 100f), 100f);
+            vol.Suffix = "%";
+            vol.Refresh();
+            vol.OnCommit = () => Bind<float>(null, (c, v) => c.volume = v / 100f, "volume", vol.Value / 100f);
+            page.Add(vol.Root);
+
+            // 打开面板时按 cfg 应用一次，避免别人改过 AudioListener 后这里显示与听感不一致
+            XqSettingsApply.ApplyVolume();
+        }
+
+        /// <summary>
+        /// 连接页 5 行（照 G59-P1 §6）。不改 XiaoqiLink，只订阅它的 OnStage 记最近一次收到的时间。
+        /// 判定：Time.unscaledTime - _lastStageAt &lt; 3 × poll_sec + 5 算已连接。
+        /// </summary>
+        void BuildConnectPage(VisualElement page)
+        {
+            var cfg = XiaoqiRuntime.Config;
+
+            // 1 连接状态：灯 + 文字 + 「测试」按钮（只打日志 + 刷新判断，不发请求）
+            _status = XqSettingsRows.Status("连接状态", "测试", () =>
+            {
+                Debug.Log("XQ_SET2 test");
+                RefreshStatus();
+            });
+            page.Add(_status.Root);
+            if (!_stageHooked)
+            {
+                XiaoqiLink.OnStage += OnStageTick;
+                _stageHooked = true;
+            }
+            RefreshStatus();
+
+            // 2 服务器地址：日志里只打长度，不打地址（任务书 §5.10）
+            page.Add(XqSettingsRows.Input("服务器地址",
+                cfg != null ? cfg.server : "",
+                false,
+                v =>
+                {
+                    try
+                    {
+                        var cur = XiaoqiRuntime.Config;
+                        if (cur == null) { Debug.Log("XQ_SET2 miss cfg"); return; }
+                        cur.server = v ?? "";
+                        XiaoqiConfig.Save(cur);
+                        Debug.Log("XQ_SET2 set server len=" + cur.server.Length);
+                    }
+                    catch (Exception e) { Debug.LogWarning("XQ_SET2 " + e.Message); }
+                }).Root);
+
+            // 3 令牌：密码框 + 「粘贴」。日志里永远不打印令牌，只打长度
+            page.Add(XqSettingsRows.Input("令牌",
+                cfg != null ? cfg.token : "",
+                true,
+                v =>
+                {
+                    try
+                    {
+                        var cur = XiaoqiRuntime.Config;
+                        if (cur == null) { Debug.Log("XQ_SET2 miss cfg"); return; }
+                        cur.token = v ?? "";
+                        XiaoqiConfig.Save(cur);
+                        Debug.Log("XQ_SET2 set token len=" + cur.token.Length);
+                    }
+                    catch (Exception e) { Debug.LogWarning("XQ_SET2 " + e.Message); }
+                },
+                "粘贴", row =>
+                {
+                    // TODO(编译员)：确认 GUIUtility.systemCopyBuffer（Unity 标准 API，本仓库无先例）
+                    var s = GUIUtility.systemCopyBuffer;
+                    if (string.IsNullOrEmpty(s)) { Debug.Log("XQ_SET2 paste empty"); return; }
+                    row.SetText(s);
+                    var cur = XiaoqiRuntime.Config;
+                    if (cur == null) { Debug.Log("XQ_SET2 miss cfg"); return; }
+                    cur.token = row.Value;
+                    XiaoqiConfig.Save(cur);
+                    Debug.Log("XQ_SET2 set token len=" + row.Value.Length);
+                }).Root);
+
+            // 4 情感线：关
+            page.Add(XqSettingsRows.Toggle("情感线",
+                cfg != null && cfg.emotion_line,
+                v => Bind<bool>(null, (c, x) => c.emotion_line = x, "emotion_line", v)));
+
+            // 5 开机自启：关（现值由宿主注册表决定）
+            page.Add(XqSettingsRows.Toggle("开机自启",
+                PetHost.I != null && PetHost.I.StartWithWindows,
+                v => Bind<bool>(x => { if (PetHost.I != null) PetHost.I.StartWithWindows = x; },
+                    null, "start_with_windows", v)));
+        }
+
+        /// <summary>关于页 4 行：版本、ME 署名、模型授权、打开日志目录。</summary>
+        void BuildAboutPage(VisualElement page)
+        {
+            // 1 版本 / 提交号：读不到就写「开发版」
+            string ver = Application.version;
+            if (string.IsNullOrEmpty(ver)) ver = "开发版";
+            page.Add(XqSettingsRows.Text("版本 / 提交号", ver));
+
+            // 2 ME 署名与许可：「查看」调现有 XiaoqiAbout.Show()，不重写内容
+            page.Add(XqSettingsRows.Button("ME 署名与许可", "", "查看", () =>
+            {
+                XiaoqiAbout.Show();
+                Debug.Log("XQ_SET2 about");
+            }));
+
+            // 3 模型授权：一两行文字
+            page.Add(XqSettingsRows.Note("16.vrm：主人购买，授权说明见 docs/ASSETS.md"));
+
+            // 4 打开日志目录
+            page.Add(XqSettingsRows.Button("打开日志目录", "", "打开", OpenLogDir));
+        }
+
+        static void OpenLogDir()
+        {
+            try
+            {
+                var dir = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Xiaoqi");
+                if (!System.IO.Directory.Exists(dir)) System.IO.Directory.CreateDirectory(dir);
+                System.Diagnostics.Process.Start(dir);
+                Debug.Log("XQ_SET2 logdir=" + dir);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("XQ_SET2 logdir " + e.Message);
+            }
+        }
+
+        /// <summary>收到一次 stage 就记下时间，用来判断「已连接」。</summary>
+        void OnStageTick(StageData s)
+        {
+            _lastStageAt = Time.unscaledTime;
+            _gotStage = true;
+            if (IsOpen) RefreshStatus();
+        }
+
+        /// <summary>3 × poll_sec + 5 秒内收到过算已连接；从没收到过是未知。</summary>
+        void RefreshStatus()
+        {
+            if (_status == null) return;
+            if (!_gotStage) { _status.Set("未知", 0); return; }
+            var cfg = XiaoqiRuntime.Config;
+            int poll = cfg != null ? Mathf.Max(1, cfg.poll_sec) : 2;
+            bool ok = Time.unscaledTime - _lastStageAt < 3f * poll + 5f;
+            _status.Set(ok ? "已连接" : "连不上", ok ? 1 : 2);
+        }
+
         /// <summary>
         /// 落盘一次宿主设置（Handler.SaveToDisk + ApplyAll）。
         /// 只在「提交」时调：滑条拖动每帧调会频繁写盘。
@@ -434,6 +596,8 @@ namespace Xiaoqi.UI2
             if (!IsOpen || _panel == null || _panel.panel == null) return;
             if (!_placed) Place();
             if (Input.GetKeyDown(KeyCode.Escape)) { Close(); return; }
+            // 连接状态每半秒刷一次（跟 Tick 的 16ms 节流分开，别每帧改文字）
+            if (Time.unscaledTime - _statusAt > 0.5f) { _statusAt = Time.unscaledTime; RefreshStatus(); }
             var picked = _panel.panel.Pick(
                 RuntimePanelUtils.ScreenToPanel(_panel.panel, Input.mousePosition));
             bool over = Inside(_panel, picked);
