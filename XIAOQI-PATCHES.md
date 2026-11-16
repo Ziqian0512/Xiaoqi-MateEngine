@@ -19,3 +19,6 @@ Branch: `xiaoqi/main`
 | 0 | `Assets/Xiaoqi/Editor/XiaoqiBuild.cs` | 新增构建入口 | U0 |
 | 1 | `Assets/Xiaoqi/Editor/XiaoqiIdentity.cs` | 关闭 Unity 启动画面 / Shinymoon 启动 logo | E0 |
 | 2 | `Assets/MATE ENGINE - System Tray/SystemTray.cs` | 托盘 tooltip 从 iconName 改为「小祈」 | E0；主人 11-14 明确批准这次改 ME 原文件 |
+| 3 | `Assets/MATE ENGINE - Scripts/AvatarHandlers/AvatarAnimatorController.cs` | G55：一处；P1-2a：`xqHoldDance`，`CheckForSound` 开头 return，`StartDancing` / `SetDancing` 改 public，加 `XqSetDanceIndex`，拖拽清除 | 菜单跳舞被 2 秒音检打断 |
+| 4 | `Assets/MATE ENGINE - Scripts/AvatarHandlers/AvatarSleepController.cs` | P1-2b：`xqHold`、`XqSetSleeping`，`Update` 开头处理 | `enableSleep=false` 时每帧把睡姿写回 |
+| 5 | `ProjectSettings/ProjectSettings.asset` | companyName / productName 改为 Xiaoqi，清空 Standalone 图标（G55 已改，B0 补登） | 去 ME 品牌 |
