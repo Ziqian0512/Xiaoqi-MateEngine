@@ -27,6 +27,9 @@ namespace Xiaoqi.Mode
         public static event Action OnCloseReady;
         public static event Action OnCloseLeaving;
 
+        /// <summary>她开始放大后多久触发 OnCloseReady（卡片开始飞出）。</summary>
+        public const float CardsDelaySec = 0.45f;
+
         private static XqMode _i;
         private bool _autoDone;
         private readonly bool[] _keyDown = new bool[3];
@@ -42,6 +45,9 @@ namespace Xiaoqi.Mode
             DontDestroyOnLoad(go);
             _i = go.AddComponent<XqMode>();
             go.AddComponent<XqBenchWindow>();
+            // 近景界面（DeepSeek 的 XqClosePanel）：镜头开始放大 0.45 秒后出现，开始退出时收起
+            OnCloseReady += Xiaoqi.UI2.XqClosePanel.Show;
+            OnCloseLeaving += Xiaoqi.UI2.XqClosePanel.Hide;
         }
 
         /// <summary>工作台入口是否可用（P2 通过前默认灰）。</summary>
@@ -76,7 +82,8 @@ namespace Xiaoqi.Mode
             // 离开 from
             if (from == XqView.Close)
             {
-                if (OnCloseLeaving != null) OnCloseLeaving();
+                try { if (OnCloseLeaving != null) OnCloseLeaving(); }
+                catch (Exception e) { Debug.LogWarning("XQ_MODE leaving listener: " + e.Message); }
                 XqCloseCamera.BeginExit();
                 yield return XqCloseCamera.Settle();
             }
@@ -98,8 +105,11 @@ namespace Xiaoqi.Mode
                 }
                 else
                 {
-                    yield return XqCloseCamera.Settle();
-                    if (OnCloseReady != null) OnCloseReady();
+                    // G59-P2 §4：她开始放大约 0.45 秒后卡片开始飞出；镜头走完 SettleSec 才算切换结束
+                    yield return new WaitForSecondsRealtime(CardsDelaySec);
+                    try { if (OnCloseReady != null) OnCloseReady(); }
+                    catch (Exception e) { Debug.LogWarning("XQ_MODE ready listener: " + e.Message); }
+                    yield return new WaitForSecondsRealtime(Mathf.Max(0f, XqCloseCamera.SettleSec - CardsDelaySec));
                 }
             }
             else if (to == XqView.Bench)
