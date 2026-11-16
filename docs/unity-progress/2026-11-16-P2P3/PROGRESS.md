@@ -7,7 +7,7 @@
 
 | 步 | 内容 | 谁 | 状态 | 文件 |
 |---|---|---|---|---|
-| P2-0 | 服务器 `POST /api/body/event` | WB | **测过**（19 项函数测试 + 真 HTTP 5 项），未部署 | 主库 `server/E1c-body-event` `fa70cb2b` |
+| P2-0 | 服务器 `POST /api/body/event` | WB | **双端已测**（WB 本机 19 项 + 真 HTTP 5 项；Grok 另机 19 项全过 EXIT=0），未部署 | 主库 `server/E1c-body-event` `fa70cb2b` |
 | P2-1 | `XqMode` 三态 + `XqEventSink` + 入口 | WB | 写完[未编] | `Assets/Xiaoqi/Mode/XqMode.cs`、`XqEventSink.cs`、`XqModeConfig.cs`；入口：右键「让她…」子菜单末尾 3 项（`XqMenu.cs`），热键 Ctrl+Alt+1/2/3（默认关，`-xq-hotkeys` 或 `xq_mode.json`），`Esc` |
 | P2-2 | 近景镜头 | WB | 写完[未编] | `XqCloseCamera.cs`（包 ME `AvatarBigScreenHandler`，不改它）|
 | P2-3 | 近景界面 | DeepSeek | 未开始 | 分支 `xiaoqi/p2-deepseek`；订阅 `XqMode.OnCloseReady / OnCloseLeaving` 出现和收起 |
