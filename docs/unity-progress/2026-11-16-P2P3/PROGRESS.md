@@ -17,7 +17,7 @@
 
 | 步 | 内容 | 谁 | 状态 | 文件 |
 |---|---|---|---|---|
-| P3-0 | 网页 `bench.html` | DeepSeek | 未开始 | 主库 `server/E3-bench-page` |
+| P3-0 | 网页 `bench.html` | DeepSeek | **浏览器已验证**（Grok 重截 `8d6afa74`：feed 取最新一窗、断线显示连接不上、首次失败空态均过）；未部署；待改小瑕疵：「连接不上」出现时页签左移 56px，改 `visibility:hidden` 预留位置 | 主库 `server/E3-bench-page` `8d6afa74` |
 | P3-1 | Edge 窗口打开/摆放/关闭 | WB | 写完[未编] | `XqBenchWindow.cs` |
 | P3-2a | 摸底 | WB | **完成**（纸面）| `FACTS-P3-2a.md` |
 | P3-2b | 她坐上去并跟随 | WB | 写完[未编] | `XqBenchWindow.cs` + ME 的 `AvatarWindowHandler.cs`（`XqSitOn` 等，`// XQ:`）|
