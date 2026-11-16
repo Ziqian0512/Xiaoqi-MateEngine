@@ -1,0 +1,73 @@
+== P3-0-page-pink-1640x680  时间 16:20:18 (UTC+8)  viewport 1640x680  mock 模式 data  url http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink
+  请求: GET /api/body/day X-Token=set; GET /api/body/feed?since=0&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console: 无
+  requestfailed: 无
+  HTTP>=400（去重）: 无
+  非 GET 请求: 无
+== P3-0-page-blue-1640x680  时间 16:20:21 (UTC+8)  viewport 1640x680  mock 模式 data  url http://127.0.0.1:8911/p/bench#t=<mock>&theme=blue
+  请求: GET /api/body/day X-Token=set; GET /api/body/feed?since=0&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console: 无
+  requestfailed: 无
+  HTTP>=400（去重）: 无
+  非 GET 请求: 无
+== P3-0-page-violet-1640x680  时间 16:20:23 (UTC+8)  viewport 1640x680  mock 模式 data  url http://127.0.0.1:8911/p/bench#t=<mock>&theme=violet
+  请求: GET /api/body/day X-Token=set; GET /api/body/feed?since=0&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console: 无
+  requestfailed: 无
+  HTTP>=400（去重）: 无
+  非 GET 请求: 无
+== P3-0-page-pink-1640x740  时间 16:20:25 (UTC+8)  viewport 1640x740  mock 模式 data  url http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink
+  请求: GET /api/body/day X-Token=set; GET /api/body/feed?since=0&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console: 无
+  requestfailed: 无
+  HTTP>=400（去重）: 无
+  非 GET 请求: 无
+== P3-0-small-900x560  时间 16:20:27 (UTC+8)  viewport 900x560  mock 模式 data  url http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink
+  请求: GET /api/body/day X-Token=set; GET /api/body/feed?since=0&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console: 无
+  requestfailed: 无
+  HTTP>=400（去重）: 无
+  非 GET 请求: 无
+== P3-0-small-900x500  时间 16:20:29 (UTC+8)  viewport 900x500  mock 模式 data  url http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink
+  请求: GET /api/body/day X-Token=set; GET /api/body/feed?since=0&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console: 无
+  requestfailed: 无
+  HTTP>=400（去重）: 无
+  非 GET 请求: 无
+== P3-0-empty-1640x680  时间 16:20:31 (UTC+8)  viewport 1640x680  mock 模式 empty  url http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink
+  请求: GET /api/body/day X-Token=set; GET /api/body/feed?since=0&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console: 无
+  requestfailed: 无
+  HTTP>=400（去重）: 无
+  非 GET 请求: 无
+== P3-0-offline-1640x680  时间 16:20:33 (UTC+8)  viewport 1640x680  mock 模式 offline  url http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink
+  请求: GET /api/body/day X-Token=set; GET /api/body/feed?since=0&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console: error: Failed to load resource: the server responded with a status of 503 (Service Unavailable) | error: Failed to load resource: the server responded with a status of 503 (Service Unavailable) | error: Failed to load resource: the server responded with a status of 503 (Service Unavailable)
+  requestfailed: 无
+  HTTP>=400（去重）: GET http://127.0.0.1:8911/api/body/day -> 503 | GET http://127.0.0.1:8911/api/body/feed?since=0&limit=50 -> 503 | GET http://127.0.0.1:8911/api/body/stage -> 503
+  非 GET 请求: 无
+== P3-0-data-then-offline-1640x680  时间 16:20:41 (UTC+8)  viewport 1640x680  mock 模式 data  url http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink
+  请求: GET /api/body/day X-Token=set; GET /api/body/feed?since=0&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console: error: Failed to load resource: the server responded with a status of 503 (Service Unavailable) | error: Failed to load resource: the server responded with a status of 503 (Service Unavailable) | error: Failed to load resource: the server responded with a status of 503 (Service Unavailable)
+  requestfailed: 无
+  HTTP>=400（去重）: GET http://127.0.0.1:8911/api/body/day -> 503 | GET http://127.0.0.1:8911/api/body/feed?since=0&limit=50 -> 503 | GET http://127.0.0.1:8911/api/body/stage -> 503
+  非 GET 请求: 无
+== P3-0-401-1640x680  时间 16:20:43 (UTC+8)  viewport 1640x680  mock 模式 data  url http://127.0.0.1:8911/p/bench#t=<wrong>&theme=pink
+  请求: GET /api/body/day X-Token=set; GET /api/body/feed?since=0&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console: error: Failed to load resource: the server responded with a status of 401 (Unauthorized) | error: Failed to load resource: the server responded with a status of 401 (Unauthorized) | error: Failed to load resource: the server responded with a status of 401 (Unauthorized)
+  requestfailed: 无
+  HTTP>=400（去重）: GET http://127.0.0.1:8911/api/body/day -> 401 | GET http://127.0.0.1:8911/api/body/feed?since=0&limit=50 -> 401 | GET http://127.0.0.1:8911/api/body/stage -> 401
+  非 GET 请求: 无
+== P3-0-data-then-netdown-1640x680  时间 16:20:51 (UTC+8)  viewport 1640x680  mock 模式 data  url http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink
+  请求: GET /api/body/day X-Token=set; GET /api/body/feed?since=0&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console: error: Failed to load resource: net::ERR_FAILED | error: Failed to load resource: net::ERR_FAILED | error: Failed to load resource: net::ERR_FAILED
+  requestfailed: GET http://127.0.0.1:8911/api/body/stage net::ERR_FAILED | GET http://127.0.0.1:8911/api/body/day net::ERR_FAILED | GET http://127.0.0.1:8911/api/body/feed?since=0&limit=50 net::ERR_FAILED
+  HTTP>=400（去重）: 无
+  非 GET 请求: 无
+== P3-0-search-nohit-1640x680  时间 16:20:55 (UTC+8)  viewport 1640x680  mock 模式 data  url http://127.0.0.1:8911/p/bench#t=<mock>&theme=pink
+  请求: GET /api/body/day X-Token=set; GET /api/body/feed?since=0&limit=50 X-Token=set; GET /api/body/stage X-Token=set; GET /p/bench X-Token=none
+  console: 无
+  requestfailed: 无
+  HTTP>=400（去重）: 无
+  非 GET 请求: 无
+== 参照页（样式稿 ?only=p3&nomk=1, 1920x1080）console: 无
