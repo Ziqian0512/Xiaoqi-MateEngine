@@ -25,7 +25,8 @@ namespace Xiaoqi.Spike
 
         public static void Nap(float minutes)
         {
-            if (_inst == null) return;
+            if (_inst == null) _inst = FindFirstObjectByType<PetPresence>(FindObjectsInactive.Include);
+            if (_inst == null) { Debug.Log("XQ_NAP no-instance min=" + minutes); return; }
             IsAsleep = true;
             if (PetHost.I != null) PetHost.I.SetSleeping(true);
             _inst._napUntil = Time.unscaledTime + Mathf.Max(0.1f, minutes) * 60f;

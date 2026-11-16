@@ -207,6 +207,12 @@ namespace Xiaoqi.UI2
             return false;
         }
 
+        static string LabelOf(VisualElement el)
+        {
+            var l = el as Label ?? el.Q<Label>();
+            return l != null ? l.text : "?";
+        }
+
         static bool Contains(VisualElement el, Vector2 p)
         {
             if (el == null) return false;
@@ -237,11 +243,11 @@ namespace Xiaoqi.UI2
                 if (!string.IsNullOrEmpty(_sub))
                 {
                     foreach (var kv in _c2)
-                        if (Contains(kv.Key, p)) { act = kv.Value; how = "l2/p" + i; return true; }
+                        if (Contains(kv.Key, p)) { act = kv.Value; how = "l2/p" + i + " row='" + LabelOf(kv.Key) + "'"; return true; }
                     if (Contains(_l2, p)) { how = "l2-card/p" + i; return true; }
                 }
                 foreach (var kv in _c1)
-                    if (Contains(kv.Key, p)) { act = kv.Value; how = "l1/p" + i; return true; }
+                    if (Contains(kv.Key, p)) { act = kv.Value; how = "l1/p" + i + " row='" + LabelOf(kv.Key) + "'"; return true; }
                 if (Contains(_l1, p)) { how = "l1-card/p" + i; return true; }
             }
             how = "none p0=" + pts[0].x.ToString("0") + "," + pts[0].y.ToString("0") + " p1=" + pts[1].x.ToString("0") + "," + pts[1].y.ToString("0") + " H=" + Screen.height;

@@ -39,6 +39,8 @@ namespace Xiaoqi.UI2
         float _menuT0;
         bool _menuOpen;
         bool _near;
+        bool _gateLogged;
+        static readonly bool GateAlways = Array.IndexOf(Environment.GetCommandLineArgs(), "-xq-gate-always") >= 0;
         bool _ringOpen;
         float _chipFrom;
         float _chipTarget = 1f;
@@ -96,7 +98,7 @@ namespace Xiaoqi.UI2
             mark.AddToClassList("xq-gate-mark");
             mark.pickingMode = PickingMode.Ignore;
             _gate.Q(className: "xq-body").Add(mark);
-            _gate.Q(className: "xq-body").RegisterCallback<ClickEvent>(_ => ToggleEntries());
+            // 点击改由 HandlePointer 按几何命中处理（实机上 ClickEvent / panel.Pick 不可靠）
 
             _entries = new VisualElement { pickingMode = PickingMode.Ignore };
             _entries.AddToClassList("xq-entries");
@@ -122,7 +124,6 @@ namespace Xiaoqi.UI2
             _ringDetail = new Label("");
             _ringDetail.AddToClassList("xq-ring-detail");
             _ringDetail.style.display = DisplayStyle.None;
-            ringBody.RegisterCallback<ClickEvent>(_ => ToggleRing());
 
             Root.Add(Bubble);
             Root.Add(_quiet);
@@ -171,7 +172,7 @@ namespace Xiaoqi.UI2
 
         public bool HitBubble(VisualElement picked)
         {
-            return Inside(Bubble, picked);
+            return Inside(Bubble, picked) || Over(Bubble);
         }
 
         public void ToggleSay()
@@ -185,6 +186,7 @@ namespace Xiaoqi.UI2
         {
             if (Root == null || Root.panel == null || _today == null) return;
             var picked = Root.panel.Pick(RuntimePanelUtils.ScreenToPanel(Root.panel, Input.mousePosition));
+            UpdatePts(Root.panel);
             _hostForToday = host;
             if (_glass != null)
             {
@@ -192,6 +194,7 @@ namespace Xiaoqi.UI2
                 if (_glass.HandlePointer(Root.panel, _lastScale, picked, OnBody(), overChrome)) return;
             }
             if (_today.IsOpen && Input.GetKeyDown(KeyCode.Escape)) _today.Close();
+            if (Input.GetMouseButtonDown(0) && TryChromeClick()) return;
             if (Input.GetMouseButtonDown(0))
             {
                 if (HitBubble(picked)) ToggleSay();
@@ -222,8 +225,10 @@ namespace Xiaoqi.UI2
             return Inside(Bubble, picked) || Inside(_next, picked) || Inside(_here, picked)
                 || Inside(_ringHost, picked) || Inside(_ringDetail, picked) || Inside(_gate, picked)
                 || Inside(_entries, picked) || Inside(_quiet, picked)
+                || Over(Bubble) || Over(_next) || Over(_here) || Over(_ringHost) || Over(_gate)
+                || (_entries != null && _menu > 0.02f && (Over(_modeEntries[0]) || Over(_modeEntries[1]) || Over(_modeEntries[2])))
                 || (_glass != null && _glass.Hit(picked))
-                || (_today != null && _today.Hit(picked));
+                || (_today != null && (_today.Hit(picked) || (_today.IsOpen && Over(_today.Root))));
         }
 
         static bool OnBody()
@@ -408,18 +413,49 @@ namespace Xiaoqi.UI2
             tip.pickingMode = PickingMode.Ignore;
             host.Add(text);
             host.Add(tip);
-            host.RegisterCallback<ClickEvent>(e =>
-            {
-                e.StopPropagation();
-                if (view == Xiaoqi.Mode.XqView.Bench && !Xiaoqi.Mode.XqMode.BenchAvailable) return;
-                if (Xiaoqi.Mode.XqMode.Current == view || Xiaoqi.Mode.XqMode.Busy) return;
-                SetView(view.ToString().ToLowerInvariant());
-                Xiaoqi.Mode.XqMode.Set(view);
-                SetMenu(false);
-            });
             host.RegisterCallback<MouseEnterEvent>(_ => { if (!Xiaoqi.Mode.XqMode.BenchAvailable && view == Xiaoqi.Mode.XqView.Bench) tip.EnableInClassList("xq-tip-on", true); });
             host.RegisterCallback<MouseLeaveEvent>(_ => tip.EnableInClassList("xq-tip-on", false));
             return host;
+        }
+
+        void ActivateView(Xiaoqi.Mode.XqView view)
+        {
+            if (view == Xiaoqi.Mode.XqView.Bench && !Xiaoqi.Mode.XqMode.BenchAvailable) { Debug.Log("XQ_HUD entry bench not available"); return; }
+            if (Xiaoqi.Mode.XqMode.Current == view || Xiaoqi.Mode.XqMode.Busy) { Debug.Log("XQ_HUD entry ignored view=" + view + " busy=" + Xiaoqi.Mode.XqMode.Busy); return; }
+            SetView(view.ToString().ToLowerInvariant());
+            Xiaoqi.Mode.XqMode.Set(view);
+            SetMenu(false);
+        }
+
+        // ---- 几何命中：不依赖 panel.Pick / ClickEvent ----
+        Vector2[] _pts = new Vector2[2];
+
+        void UpdatePts(IPanel panel)
+        {
+            var m = Input.mousePosition;
+            float sc = Mathf.Max(0.1f, _lastScale);
+            _pts[0] = RuntimePanelUtils.ScreenToPanel(panel, m);
+            _pts[1] = new Vector2(m.x / sc, (Screen.height - m.y) / sc);
+        }
+
+        bool Over(VisualElement el)
+        {
+            if (el == null || el.resolvedStyle.display == DisplayStyle.None || !el.visible) return false;
+            var r = el.worldBound;
+            if (float.IsNaN(r.x) || r.width < 1f || r.height < 1f) return false;
+            return r.Contains(_pts[0]) || r.Contains(_pts[1]);
+        }
+
+        bool TryChromeClick()
+        {
+            if (_entries != null && _menu > 0.02f)
+            {
+                for (int i = 0; i < 3; i++)
+                    if (Over(_modeEntries[i])) { Debug.Log("XQ_HUD entry-click view=" + _modeViews[i]); ActivateView(_modeViews[i]); NoteOperation(); return true; }
+            }
+            if (Over(_gate)) { Debug.Log("XQ_HUD gate-click open=" + (!_menuOpen)); ToggleEntries(); return true; }
+            if (Over(_ringHost)) { ToggleRing(); NoteOperation(); return true; }
+            return false;
         }
 
         void RefreshEntries()
@@ -563,7 +599,13 @@ namespace Xiaoqi.UI2
                 _ringDetail.style.left = dp.x;
                 _ringDetail.style.top = dp.y;
             }
-            bool showGate = (_near || _menuOpen) && !Xiaoqi.UI.XqMenu.IsOpen;
+            bool showGate = (_near || _menuOpen || GateAlways) && !Xiaoqi.UI.XqMenu.IsOpen;
+            if (showGate != _gateLogged)
+            {
+                _gateLogged = showGate;
+                var gr = _gate != null ? _gate.worldBound : default(Rect);
+                Debug.Log("XQ_HUD gate shown=" + showGate + " near=" + _near + " menuOpen=" + _menuOpen + " rect(panel)=" + gr.x.ToString("0") + "," + gr.y.ToString("0") + " " + gr.width.ToString("0") + "x" + gr.height.ToString("0") + " scale=" + scale.ToString("0.00"));
+            }
             if (_gate != null)
             {
                 _gate.style.opacity = showGate ? 1f : 0f;
