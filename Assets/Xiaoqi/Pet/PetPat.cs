@@ -6,6 +6,9 @@ namespace Xiaoqi.Spike
     /// <summary>双击头顶 = 摸头：表情害羞 + 气泡一句。单击今天卡逻辑不受影响。</summary>
     public class PetPat : MonoBehaviour
     {
+        // XQ: P1-5 设置页「双击摸头」总开关。
+        public static bool Enabled = true;
+
         private float _lastTap = -1f;
         private float _downAt;
         private Vector2 _downPos;
@@ -13,6 +16,7 @@ namespace Xiaoqi.Spike
 
         private void Update()
         {
+            if (!Enabled) return; // XQ: P1-5 设置页关掉摸头
             if (Input.GetMouseButtonDown(0))
             {
                 _downAt = Time.unscaledTime;
