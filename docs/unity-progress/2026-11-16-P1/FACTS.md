@@ -42,3 +42,13 @@
 - **`XQ_HOST dances=0`**：正常。这是 ME 自定义舞蹈文件夹（`Xiaoqi/Dances`）的列表，空的；菜单「舞 1–5」走内置 `dance_0…4`（`BuildActions`）。
 - `KeyBindHandler`、`LaunchMateEngineInstances` 在场景里找不到（`not found`）；`SteamAPI_Init failed` 是预期（不用 Steam）。
 - 这台机器连不上服务器（Curl 28），所以冒烟只用假数据（`-fake-stage` / `-fake-day`）。
+
+## 8. 待机混合树的离线解析（WB 11-16，读 `AvatarAnimatorControllerV2 1.controller`，场景 `Mate Engine Main.unity` 用的是这一份）
+
+- 待机 = 状态 `Idle`（层 0）→ 直接混合树（`isMale` / `isFemale`）→ 子树 **Female**（女声）和 **Male**，各是一棵按 `IdleIndex`（float）的一维混合树。
+- **Female 子树有 20 个槽（阈值 0–19），不是 10 个**：`0 PET_IDLE`、`1–4 PET_IDLE_UPDATE2_01…04`、`5 PET_IDLE_2`、`6 PET_IDLE_14`、`7 PET_IDLE_4`、`8 PET_IDLE_3`、`9 PET_IDLE_5`、`10 PET_IDLE_15`、`11 PET_IDLE_13`、`12 PET_IDLE_9`、`13 PET_IDLE_12`、`14 PET_IDLE_6`、`15 PET_IDLE_10`、`16 PET_IDLE_11`、`17 PET_IDLE_7`、`18 PET_IDLE_8`、`19 PET_IDLE`（和 0 重复）。
+- ME 的 `AvatarAnimatorController.totalIdleAnimations = 10`，所以**一直只播前 10 个槽**，10–18 这 9 条从来没出现过。`IdleDirector.PoolMax` 默认 10，看过动画拼图再决定放不放开。
+- 一维混合树的性质：`IdleIndex` 从 2 变到 7，会依次混过 3、4、5、6。这是「滑过中间姿势」的根因，**调时间调不掉**。`IdleDirector` 改用骨骼姿势淡入（`XqPoseBlend`）：切换前记旧姿势，参数立刻跳，`LateUpdate` 把旧姿势淡成新姿势。
+- **不能用 `AnimatorOverrideController` 偷换剪辑**：`AvatarDancePlayer`（第 690–697 行）自己会把 Animator 的控制器换成 override，两边打架。
+- **`XQ_CLIPS` 日志只打印名字含 `dance` / `idle` 的剪辑**（`MeHost.InitDances`），它不是完整清单。完整清单看 `95d973d5:app/desk/web/anim/index.tsv`（125 条）或 `XqClipSheet` 的 `clips.csv`。
+- 另外 `Assets/MATE ENGINE - Scripts/CustomVRM.prefab` 引用的是旧的 `AvatarAnimatorController.controller`；运行时加载的 VRM 具体用哪份，B3 编译后看 `XQ_IDLE bound` 日志与 `XQ_CLIPS` 对照（旧版没有 `isEating`/`WalkLeft` 等参数）。

@@ -62,7 +62,7 @@ Animator 参数（来自 `AvatarAnimatorControllerV2_1.controller`，32 个，�
 | `HideLeft` / `HideRight` | 躲到屏幕边（`PET_HIDE`，14 s） | ME（原本给全屏躲避用） | 候选，见 6-1 |
 | `isEating` / `isDrinking` | 吃/喝 | **没有任何代码在写它们** | 要先确认当前场景用的控制器里状态有没有非空 clip |
 
-动作剪辑里**没有**「写字/打字」「躺着玩手机」「洗漱」。G52 房间方案里用过的 `PET_SIT_01/02`、`WINDOW_LAY_10` 在工程里有 `.anim`，但那是房间用的独立控制器，P1 桌宠用的是 ME 自带的那套，不直接通用。
+动作剪辑里**没有**「写字/打字」「躺着玩手机」「洗漱」（依据：125 条完整清单 `index.tsv`；注意 `XQ_CLIPS` 日志只打印名字含 dance/idle 的，不是完整清单）。清单里有 `sit_smoothie_01`（喝饮料）和 `kawaiimacaronmotion01/02`（吃马卡龙一类），可能是 `isDrinking` / `isEating` 的素材，待动画拼图确认。G52 房间方案里用过的 `PET_SIT_01/02`、`WINDOW_LAY_10` 在工程里有 `.anim`，但那是房间用的独立控制器，P1 桌宠用的是 ME 自带的那套，不直接通用。
 
 ---
 
