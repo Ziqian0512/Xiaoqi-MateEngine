@@ -189,7 +189,7 @@ namespace Xiaoqi.UI2
             DotClick("今", () => Focus(_cardNext));
             DotClick("话", () => Focus(_cardSay));
             DotClick("待", () => Pair("todo placeholder"));
-            DotClick("设", () => Pair("settings not in this branch"));
+            DotClick("设", () => { Pair("settings open"); XiaoqiSettings.Open(); });
         }
 
         void DotClick(string word, Action act)

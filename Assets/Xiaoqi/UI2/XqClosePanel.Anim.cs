@@ -77,7 +77,7 @@ namespace Xiaoqi.UI2
                 if (OverEl(DotByWord("今"))) { _lastClickFrame = Time.frameCount; Focus(_cardNext); return; }
                 if (OverEl(DotByWord("话"))) { _lastClickFrame = Time.frameCount; Focus(_cardSay); return; }
                 if (OverEl(DotByWord("待"))) { _lastClickFrame = Time.frameCount; Pair("todo placeholder"); return; }
-                if (OverEl(DotByWord("设"))) { _lastClickFrame = Time.frameCount; Pair("settings not in this branch"); return; }
+                if (OverEl(DotByWord("设"))) { _lastClickFrame = Time.frameCount; Pair("settings open"); XiaoqiSettings.Open(); return; }
             }
         }
 
