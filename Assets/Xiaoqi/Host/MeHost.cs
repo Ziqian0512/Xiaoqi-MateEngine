@@ -24,6 +24,10 @@ namespace Xiaoqi.Host
         [DllImport("user32.dll")] private static extern bool MoveWindow(IntPtr hWnd, int x, int y, int w, int h, bool repaint);
         [DllImport("user32.dll")] private static extern bool SystemParametersInfo(uint action, uint param, ref RECT r, uint winIni);
         [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern IntPtr FindWindow(string cls, string title);
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT { public int x, y; }
+        [DllImport("user32.dll")] private static extern IntPtr MonitorFromPoint(POINT pt, uint flags);
+        private const uint MONITOR_DEFAULTTONULL = 0;
 
         private const uint SPI_GETWORKAREA = 0x0030;
         private const BindingFlags AnyInstance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
@@ -326,11 +330,11 @@ namespace Xiaoqi.Host
             if (hwnd == IntPtr.Zero) return;
             if (!GetWindowRect(hwnd, out var wr)) return;
             Debug.Log("XQ_WATCH rect=" + wr.left + "," + wr.top + "," + wr.right + "," + wr.bottom);
-            var work = new RECT();
-            if (!SystemParametersInfo(SPI_GETWORKAREA, 0, ref work, 0)) return;
+            // Any connected monitor counts as on-screen (not just the primary work area).
             int cx = (wr.left + wr.right) / 2;
             int cy = (wr.top + wr.bottom) / 2;
-            bool inside = cx >= work.left && cx <= work.right && cy >= work.top && cy <= work.bottom;
+            var pt = new POINT { x = cx, y = cy };
+            bool inside = MonitorFromPoint(pt, MONITOR_DEFAULTTONULL) != IntPtr.Zero;
             bool tiny = (wr.right - wr.left) < 700 || (wr.bottom - wr.top) < 420;
             if (!inside || tiny)
             {
