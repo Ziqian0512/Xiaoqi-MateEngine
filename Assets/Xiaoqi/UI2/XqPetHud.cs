@@ -169,7 +169,7 @@ namespace Xiaoqi.UI2
             {
                 if (HitBubble(picked)) ToggleSay();
                 bool chrome = BlocksChrome(picked);
-                bool onHer = OnBody() && !chrome;
+                bool onHer = OnBody() && !chrome && !MenuBusy();
                 if (_today.IsOpen)
                 {
                     if (_today.Hit(picked)) _today.Close();
@@ -200,7 +200,7 @@ namespace Xiaoqi.UI2
 
         static bool OnBody()
         {
-            var r = Body();
+            var r = RawBody();
             return r.width > 2f && r.height > 2f && r.Contains((Vector2)Input.mousePosition);
         }
 
@@ -327,6 +327,13 @@ namespace Xiaoqi.UI2
             if (mode == "off") target = 0f;
             else if (mode == "stay") target = 1f;
             else target = Time.unscaledTime - _lastOp > IdleSec ? 0f : 1f;
+            // 右键半弧菜单开着时，这一层整体让开，两套不叠在一起
+            if (Xiaoqi.UI.XqMenu.IsOpen)
+            {
+                target = 0f;
+                _menuOpen = false;
+                if (_today != null && _today.IsOpen) _today.Close();
+            }
 
             if (!_chipReady)
             {
@@ -423,6 +430,8 @@ namespace Xiaoqi.UI2
         void ApplyChip(VisualElement el, float phase, float scale)
         {
             if (el == null || el.resolvedStyle.display == DisplayStyle.None) return;
+            // 淡到看不见就别再接收指针：UI Toolkit 里 opacity=0 的元素照样会被拾取，会挡住拖她、点她
+            el.visible = _chip > 0.02f;
             float bob = Mathf.Sin((Time.unscaledTime + phase) * (Mathf.PI * 2f / 7f)) * 5f * scale;
             el.style.opacity = _chip;
             el.style.scale = new Scale(Vector3.one * Mathf.Lerp(0.96f, 1f, _chip));
@@ -481,7 +490,7 @@ namespace Xiaoqi.UI2
                 _ringDetail.style.left = dp.x;
                 _ringDetail.style.top = dp.y;
             }
-            bool showGate = _near || _menuOpen;
+            bool showGate = (_near || _menuOpen) && !Xiaoqi.UI.XqMenu.IsOpen;
             if (_gate != null)
             {
                 _gate.style.opacity = showGate ? 1f : 0f;
@@ -559,10 +568,28 @@ namespace Xiaoqi.UI2
             return float.IsNaN(h) || h < 2f ? fallback : h;
         }
 
+        // 摆东西用稳定外框（死区加平滑），不用逐帧抖的蒙皮包围盒
         static Rect Body()
+        {
+            return XqBodyAnchor.Stable();
+        }
+
+        static Rect RawBody()
         {
             if (PetHost.I == null) return new Rect(0, 0, 0, 0);
             return PetHost.I.ScreenRect();
+        }
+
+        /// <summary>右键半弧菜单开着，或刚在这一两帧内关掉。</summary>
+        static bool MenuBusy()
+        {
+            return Xiaoqi.UI.XqMenu.IsOpen || Time.frameCount - Xiaoqi.UI.XqMenu.LastCloseFrame <= 1;
+        }
+
+        public void OpenToday(MonoBehaviour host)
+        {
+            if (_today != null && !_today.IsOpen) _today.Open(host);
+            NoteOperation();
         }
 
         static bool HasNext(StageData.StageNext n)

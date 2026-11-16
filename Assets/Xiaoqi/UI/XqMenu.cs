@@ -76,6 +76,17 @@ namespace Xiaoqi.UI
 
         private static XqMenu _instance;
 
+        /// <summary>半弧菜单开着（含关闭动画那 0.12 秒）。桌宠界面那一层据此让开。</summary>
+        public static bool IsOpen { get { return _instance != null && _instance._open; } }
+        /// <summary>最近一次真正关掉的帧号，用来挡「同一下点击既关菜单又出今天卡」。</summary>
+        public static int LastCloseFrame = -100;
+
+        /// <summary>今天卡走新的玻璃版；找不到桌宠界面才退回旧卡。</summary>
+        private static void OpenToday()
+        {
+            if (!Xiaoqi.UI2.XqUi2Sample.OpenToday()) Xiaoqi.Spike.TodayCard.DebugOpen();
+        }
+
         private void Awake()
         {
             _instance = this;
@@ -177,9 +188,9 @@ namespace Xiaoqi.UI
             _status.Text.color = XqStyle.InkSoft;
             _status.Text.fontSize = XqStyle.Px(XqStyle.FontStatus);
             _status.Bg.raycastTarget = true;
-            _status.Hover.OnClick = () => { Close("action"); Xiaoqi.Spike.TodayCard.DebugOpen(); };
+            _status.Hover.OnClick = () => { Close("action"); OpenToday(); };
 
-            AddSlot("today", "今天", false, null, () => { Close("action"); Xiaoqi.Spike.TodayCard.DebugOpen(); });
+            AddSlot("today", "今天", false, null, () => { Close("action"); OpenToday(); });
             AddSlot("say", "说句话", true, "还没开通", null);
             AddSlot("doing", "让她…", false, null, () => ToggleSub("doing"));
             AddSlot("quiet", "安静一会", false, null, () => ToggleSub("quiet"));
@@ -717,10 +728,9 @@ namespace Xiaoqi.UI
             }
             else
             {
-                var head = FindFirstObjectByType<Xiaoqi.Spike.HeadAnchor>(FindObjectsInactive.Include);
-                var openRect = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, Screen.width, Screen.height * 0.45f);
+                var openRect = StableRect();
                 float openBody = openRect.height > 10f ? openRect.height : Screen.height * 0.45f;
-                if (head != null && head.ScreenPoint != Vector2.zero) _center = MenuCenter(head.ScreenPoint, openBody);
+                if (openRect.height > 10f) _center = StableCenter(openRect);
                 else
                 {
                     _center = Input.mousePosition;
@@ -766,7 +776,7 @@ namespace Xiaoqi.UI
 
         private void FollowHead()
         {
-            var br = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, Screen.width, Screen.height * 0.45f);
+            var br = StableRect();
             float bodyH = br.height > 10f ? br.height : Screen.height * 0.45f;
 
             float target = Mathf.Clamp(bodyH / XqStyle.Fr(380f), 0.7f, 1.15f);
@@ -776,10 +786,9 @@ namespace Xiaoqi.UI
                 _root.localScale = Vector3.one * _menuScale;
             }
 
-            var head = FindFirstObjectByType<Xiaoqi.Spike.HeadAnchor>(FindObjectsInactive.Include);
-            Vector2 c = head != null && head.ScreenPoint != Vector2.zero ? head.ScreenPoint : _center;
+            // 中心取稳定外框（死区加平滑），不再逐帧跟头骨——待机一抬手菜单就跟着晃，点不上
+            Vector2 c = br.height > 10f ? StableCenter(br) : _center;
             if (float.IsNaN(c.x) || float.IsNaN(c.y)) return;
-            c = MenuCenter(c, bodyH);
             c.x = Mathf.Clamp(c.x, XqStyle.Fr(40f), Screen.width - XqStyle.Fr(40f));
             c.y = Mathf.Clamp(c.y, XqStyle.Fr(20f), Screen.height - XqStyle.Fr(20f));
 
@@ -800,7 +809,7 @@ namespace Xiaoqi.UI
         }
         private float BaseRadius()
         {
-            var r = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, Screen.width, Screen.height * 0.45f);
+            var r = StableRect();
             float bodyH = r.height > 10f ? r.height : Screen.height * 0.45f;
             float screenR = Mathf.Clamp(bodyH * 0.34f, XqStyle.Fr(70f), XqStyle.Fr(200f));
             return screenR / Mathf.Max(0.1f, _menuScale);
@@ -809,6 +818,19 @@ namespace Xiaoqi.UI
         private static Vector2 MenuCenter(Vector2 head, float bodyH)
         {
             return new Vector2(head.x, head.y - bodyH * 0.30f);
+        }
+
+        private static Rect StableRect()
+        {
+            var r = Xiaoqi.UI2.XqBodyAnchor.Stable();
+            if (r.height > 10f) return r;
+            return PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, Screen.width, Screen.height * 0.45f);
+        }
+
+        // 原来是「头骨 +0.28m 的屏幕点」再下移 0.30 身高；头顶大约就是外框上沿，等价写成这样
+        private static Vector2 StableCenter(Rect body)
+        {
+            return MenuCenter(new Vector2(body.center.x, body.yMax), body.height);
         }
 
         private void ApplyVisible()
@@ -1075,6 +1097,7 @@ namespace Xiaoqi.UI
             _go.SetActive(false);
             _open = false;
             _closing = false;
+            LastCloseFrame = Time.frameCount;
         }
     }
 }
