@@ -24,7 +24,7 @@
 | P1-4d | 接服务器意图 | 代码已写 `[未编]` | `xiaoqi/p1` | 批次 B7：`XqStageBody` + PetPresence 不再被每次 poll 冲掉；见 INTENT-MAP-DRAFT §8 | — | |
 | P1-5a | 设置页壳 + 行为页 | 已写，未编（DeepSeek 分支 `xiaoqi/b4-deepseek`）| D1/D2 | 6 页框架 + 行为/外观/显示；WB 审查通过 | 7 处 `TODO(编译员)` 见 B4-REPORT | |
 | P1-5b | 其余 3 页 + 入口 | 已写，未编（同上，D3/D4 `863d577d`）| D3/D4 | 声音/连接/关于 + `XiaoqiSettings.Open()` 入口（默认关，`settings_v2` 或 `-settings-v2`）+ `ApplyOnStart`；启动接线在 `xiaoqi/int-d1`（`XiaoqiSystems.ApplySettingsOnStart`，仅新页启用时），随 b4 合并进 p1 一起带 | 无 | |
-| P1-6 | 托盘与三个状态变体 | 未开始 | — | 批次 B6 | — | |
+| P1-6 | 托盘与三个状态变体 | 已写，未编（分支 `xiaoqi/wb-b6`）| 见分支 | 托盘 6 条（隐藏/静音/安静/设置/退出）；手动隐藏 `XqFullscreenHide.ManualHidden`；外出文案「她出门了 · 约 HH:MM 回来」且「路上」也算外出。睡着/安静两种在 P1-3a 已有 | 无 | |
 | P1-7 | 验收包与回归 | 未开始 | — | 批次 B8 | — | |
 
 ## 批次状态（G60）

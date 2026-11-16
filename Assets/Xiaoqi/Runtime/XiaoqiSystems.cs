@@ -30,6 +30,29 @@ public class XiaoqiSystems : MonoBehaviour
 
         StartCoroutine(DemoSteps());
         StartCoroutine(WatchWindow());
+        StartCoroutine(ApplySettingsOnStart());
+    }
+
+    /// <summary>
+    /// XQ: P1-5 启动时把存盘的设置重新应用一次（XqSettingsApply.ApplyOnStart，B4-REPORT 第五节）。
+    /// 只在新设置页启用时才做（settings_v2 或 -settings-v2）：它会把 cfg 里的默认值写回宿主
+    /// （例如 idle_sleep_min=0 会关掉 ME 的睡觉计时），新页没开时不该改动旧行为。
+    /// 等模型就绪（最多 30 秒）再多等 1 秒，让 AvatarMouseTracking / SaveLoadHandler 等组件都出来。
+    /// </summary>
+    private IEnumerator ApplySettingsOnStart()
+    {
+        var cfg = XiaoqiRuntime.Config;
+        bool v2 = (cfg != null && cfg.settings_v2)
+                  || Array.IndexOf(Environment.GetCommandLineArgs(), "-settings-v2") >= 0;
+        if (!v2) yield break;
+        float t = 0f;
+        while ((PetHost.I == null || !PetHost.I.Ready) && t < 30f)
+        {
+            t += 0.5f;
+            yield return new WaitForSecondsRealtime(0.5f);
+        }
+        yield return new WaitForSecondsRealtime(1f);
+        Xiaoqi.UI2.XqSettingsApply.ApplyOnStart();
     }
 
     private IEnumerator WatchWindow()

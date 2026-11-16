@@ -36,6 +36,18 @@ public class XqFullscreenHide : MonoBehaviour
         public uint dwFlags;
     }
 
+    // XQ: P1-6 托盘「隐藏小祈」。和「全屏躲开」共用同一套隐藏/恢复，但手动隐藏优先，且不因退出全屏而自动恢复。
+    // 不持久化：重启后她一定是显示的（启动就看不见会让人以为坏了）。
+    public static bool ManualHidden { get; private set; }
+
+    public static void SetManualHidden(bool on)
+    {
+        ManualHidden = on;
+        UnityEngine.Debug.Log("XQ_TRAY manual_hidden=" + on);
+        var h = UnityEngine.Object.FindFirstObjectByType<XqFullscreenHide>();
+        if (h != null) h._nextCheck = 0f; // 下一帧就处理，不等 1 秒
+    }
+
     bool _hidden;
     float _nextCheck;
     uint _selfPid;
@@ -49,6 +61,11 @@ public class XqFullscreenHide : MonoBehaviour
     {
         if (Time.unscaledTime < _nextCheck) return;
         _nextCheck = Time.unscaledTime + (_hidden ? 0.25f : 1f);
+        if (ManualHidden)
+        {
+            if (!_hidden) HideSelf();
+            return;
+        }
         var cfg = XiaoqiRuntime.Config;
         if (cfg != null && !cfg.hide_on_fullscreen)
         {

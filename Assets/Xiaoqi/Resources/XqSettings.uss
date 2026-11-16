@@ -1,0 +1,300 @@
+/* P1-5 设置页专用样式。类名统一 xq-st- 前缀。
+   颜色变量来自 xq.uss 的三个主题 class（.xq-theme-pink/blue/violet），
+   面板根加上主题 class 后子元素即可 var()。玻璃配方照 G59-P1 §4.2：
+   白 78%、描边 1px 白 80%、顶部 1px 内高光（复用 .xq-hi）、阴影复用 .xq-shadow。 */
+
+.xq-st-panel {
+    position: absolute;
+    flex-direction: column;
+}
+
+.xq-st-glass {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.78);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.8);
+    border-radius: var(--xq-r-panel, 32px);
+}
+
+.xq-st-frame {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    flex-direction: column;
+    padding-left: 26px;
+    padding-right: 20px;
+    padding-top: 20px;
+    padding-bottom: 18px;
+}
+
+.xq-st-title {
+    font-size: 17px;
+    -unity-font-style: bold;
+    color: var(--xq-ink, #3B2F55);
+    margin-bottom: 12px;
+}
+
+.xq-st-body {
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.xq-st-tabs {
+    width: 118px;
+    flex-direction: column;
+    margin-right: 14px;
+}
+
+.xq-st-tab {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--xq-ink-soft, rgba(59, 47, 85, 0.62));
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 14px;
+    padding-right: 14px;
+    margin-bottom: 6px;
+    border-radius: var(--xq-r-pill, 999px);
+    -unity-text-align: middle-left;
+}
+
+.xq-st-tab-on {
+    color: var(--xq-accent-ink, #D6477F);
+    background-color: rgba(255, 255, 255, 0.75);
+}
+
+.xq-st-pages {
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.xq-st-page {
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.xq-st-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 44px;
+    padding-left: 14px;
+    padding-right: 14px;
+    margin-bottom: 7px;
+    border-radius: 14px;
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.62);
+}
+
+.xq-st-row-off {
+    opacity: 0.55;
+}
+
+.xq-st-row-label {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--xq-ink, #3B2F55);
+}
+
+.xq-st-right {
+    flex-direction: row;
+    align-items: center;
+}
+
+.xq-st-hint {
+    font-size: 13px;
+    color: var(--xq-ink-soft, rgba(59, 47, 85, 0.62));
+    margin-left: 8px;
+    margin-right: 4px;
+}
+
+.xq-st-tg {
+    width: 38px;
+    height: 22px;
+    border-radius: var(--xq-r-pill, 999px);
+    background-color: rgba(80, 50, 130, 0.2);
+}
+
+.xq-st-tg-on {
+    background-color: var(--xq-accent, #FF8FB8);
+}
+
+.xq-st-tg-knob {
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: var(--xq-r-pill, 999px);
+    background-color: rgba(255, 255, 255, 0.96);
+}
+
+.xq-st-tg-on .xq-st-tg-knob {
+    left: 18px;
+}
+
+.xq-st-track {
+    width: 128px;
+    height: 6px;
+    border-radius: var(--xq-r-pill, 999px);
+    background-color: rgba(80, 50, 130, 0.15);
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.xq-st-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 6px;
+    border-radius: var(--xq-r-pill, 999px);
+    background-color: var(--xq-accent, #FF8FB8);
+}
+
+.xq-st-val {
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    min-width: 46px;
+    -unity-text-align: middle-right;
+}
+
+.xq-st-sel {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--xq-ink, #3B2F55);
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: var(--xq-r-pill, 999px);
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.xq-st-pop {
+    position: absolute;
+    top: 42px;
+    right: 8px;
+    min-width: 132px;
+    flex-direction: column;
+    background-color: rgba(255, 255, 255, 0.94);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.xq-st-opt {
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.xq-st-opt-on {
+    color: var(--xq-accent-ink, #D6477F);
+    -unity-font-style: bold;
+}
+
+.xq-st-empty {
+    font-size: 15px;
+    color: var(--xq-ink-soft, rgba(59, 47, 85, 0.62));
+    margin-top: 10px;
+}
+
+.xq-st-btn {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: var(--xq-accent-ink, #D6477F);
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: var(--xq-r-pill, 999px);
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.xq-st-textval {
+    font-size: 15px;
+    color: var(--xq-ink-soft, rgba(59, 47, 85, 0.62));
+    max-width: 240px;
+}
+
+.xq-st-note {
+    font-size: 13px;
+    color: var(--xq-ink-soft, rgba(59, 47, 85, 0.62));
+    margin-top: 4px;
+    margin-left: 14px;
+    margin-right: 14px;
+    margin-bottom: 10px;
+}
+
+.xq-st-input {
+    width: 200px;
+    height: 30px;
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    background-color: rgba(255, 255, 255, 0.9);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.xq-st-btn-gap {
+    margin-left: 8px;
+}
+
+.xq-st-led {
+    width: 9px;
+    height: 9px;
+    border-radius: var(--xq-r-pill, 999px);
+    background-color: rgba(80, 50, 130, 0.25);
+    margin-right: 7px;
+}
+
+.xq-st-led-on {
+    background-color: #4CC27A;
+}
+
+.xq-st-led-off {
+    background-color: #E4697B;
+}
+
+.xq-st-statustext {
+    font-size: 15px;
+    color: var(--xq-ink, #3B2F55);
+    margin-right: 4px;
+}
+
+.xq-st-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--xq-r-pill, 999px);
+    margin-left: 8px;
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.9);
+}
+
+.xq-st-dot-on {
+    border-width: 3px;
+    border-color: var(--xq-accent-ink, #D6477F);
+}
+
+.xq-st-row-sub {
+    height: 26px;
+    background-color: transparent;
+    border-width: 0;
+    margin-top: -4px;
+    padding-left: 14px;
+}
