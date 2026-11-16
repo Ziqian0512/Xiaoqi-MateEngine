@@ -97,9 +97,11 @@ namespace Xiaoqi.UI2
 
             _entries = new VisualElement { pickingMode = PickingMode.Ignore };
             _entries.AddToClassList("xq-entries");
-            _entries.Add(Entry("桌宠", true, () => { SetView("pet"); SetMenu(false); }));
-            _entries.Add(Soon("近景"));
-            _entries.Add(Soon("工作台"));
+            // P2/P3：三个入口接 XqMode。当前形态实心，其余描边；工作台没开放时灰掉
+            _modeEntries[0] = ModeEntry("桌宠", Xiaoqi.Mode.XqView.Pet);
+            _modeEntries[1] = ModeEntry("近景", Xiaoqi.Mode.XqView.Close);
+            _modeEntries[2] = ModeEntry("工作台", Xiaoqi.Mode.XqView.Bench);
+            for (int i = 0; i < 3; i++) _entries.Add(_modeEntries[i]);
             _entries.style.display = DisplayStyle.None;
 
             _quiet = new VisualElement { pickingMode = PickingMode.Ignore };
@@ -353,6 +355,7 @@ namespace Xiaoqi.UI2
             ApplyChip(_here, -1.7f, scale);
             ApplyChip(_ringHost, -3.4f, scale);
 
+            RefreshEntries();
             float want = _menuOpen ? 1f : 0f;
             if (!Mathf.Approximately(want, _menuTarget))
             {
@@ -362,6 +365,50 @@ namespace Xiaoqi.UI2
             }
             float mu = Mathf.Clamp01((Time.unscaledTime - _menuT0) / 0.25f);
             _menu = Mathf.Lerp(_menuFrom, _menuTarget, Ease(mu));
+        }
+
+        readonly VisualElement[] _modeEntries = new VisualElement[3];
+        static readonly Xiaoqi.Mode.XqView[] _modeViews =
+            { Xiaoqi.Mode.XqView.Pet, Xiaoqi.Mode.XqView.Close, Xiaoqi.Mode.XqView.Bench };
+
+        VisualElement ModeEntry(string label, Xiaoqi.Mode.XqView view)
+        {
+            var host = new VisualElement();
+            host.AddToClassList("xq-entry");
+            var text = new Label(label);
+            text.pickingMode = PickingMode.Ignore;
+            var tip = new Label("还没开放");
+            tip.AddToClassList("xq-soon-tip");
+            tip.pickingMode = PickingMode.Ignore;
+            host.Add(text);
+            host.Add(tip);
+            host.RegisterCallback<ClickEvent>(e =>
+            {
+                e.StopPropagation();
+                if (view == Xiaoqi.Mode.XqView.Bench && !Xiaoqi.Mode.XqMode.BenchAvailable) return;
+                if (Xiaoqi.Mode.XqMode.Current == view || Xiaoqi.Mode.XqMode.Busy) return;
+                SetView(view.ToString().ToLowerInvariant());
+                Xiaoqi.Mode.XqMode.Set(view);
+                SetMenu(false);
+            });
+            host.RegisterCallback<MouseEnterEvent>(_ => { if (!Xiaoqi.Mode.XqMode.BenchAvailable && view == Xiaoqi.Mode.XqView.Bench) tip.EnableInClassList("xq-tip-on", true); });
+            host.RegisterCallback<MouseLeaveEvent>(_ => tip.EnableInClassList("xq-tip-on", false));
+            return host;
+        }
+
+        void RefreshEntries()
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                var el = _modeEntries[i];
+                if (el == null) continue;
+                var v = _modeViews[i];
+                bool on = Xiaoqi.Mode.XqMode.Current == v;
+                bool avail = v != Xiaoqi.Mode.XqView.Bench || Xiaoqi.Mode.XqMode.BenchAvailable;
+                el.EnableInClassList("xq-entry-on", on);
+                el.EnableInClassList("xq-entry-off", !on && avail);
+                el.EnableInClassList("xq-entry-soon", !on && !avail);
+            }
         }
 
         void ToggleEntries()

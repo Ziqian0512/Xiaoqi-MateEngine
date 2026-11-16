@@ -416,6 +416,13 @@
     border-color: rgba(255, 255, 255, 0.9);
 }
 
+.xq-entry-off {
+    background-color: rgba(255, 255, 255, 0.5);
+    color: var(--xq-ink, #3B2F55);
+    border-color: rgba(255, 255, 255, 0.8);
+    picking-mode: position;
+}
+
 .xq-entry-soon {
     background-color: rgba(255, 255, 255, 0.35);
     color: rgba(59, 47, 85, 0.45);
