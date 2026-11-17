@@ -18,6 +18,7 @@ namespace Xiaoqi.UI2
         static Rect _shown;
         static bool _has;
         static int _frame = -1;
+        static float _outSince = -1f;
 
         public static Rect Stable()
         {
@@ -28,12 +29,19 @@ namespace Xiaoqi.UI2
             if (raw.height < 8f || raw.width < 2f) { _has = false; _shown = raw; return _shown; }
             if (!_has) { _has = true; _target = _shown = raw; return _shown; }
 
-            float band = Mathf.Max(6f, _target.height * Band);
+            // XQ(WB): 死区上限按屏高封顶。近景镜头放大后外框高 4000+px，8% 就是 340px，会迟钝到几乎不跟。
+            float band = Mathf.Clamp(_target.height * Band, 6f, Mathf.Max(24f, Screen.height * 0.04f));
             bool out_ = Mathf.Abs(raw.xMin - _target.xMin) > band
                      || Mathf.Abs(raw.xMax - _target.xMax) > band
                      || Mathf.Abs(raw.yMin - _target.yMin) > band
                      || Mathf.Abs(raw.yMax - _target.yMax) > band;
-            if (out_) _target = raw;
+            // XQ(WB): 抖动衰减——超出死区必须持续 0.25 秒才换目标，抬一下手、歪一下头这种一闪而过的不算。
+            if (!out_) _outSince = -1f;
+            else
+            {
+                if (_outSince < 0f) _outSince = Time.unscaledTime;
+                if (Time.unscaledTime - _outSince >= 0.25f) { _target = raw; _outSince = -1f; }
+            }
 
             float k = 1f - Mathf.Exp(-FollowRate * Mathf.Max(0.001f, Time.unscaledDeltaTime));
             _shown = Rect.MinMaxRect(

@@ -342,7 +342,7 @@ namespace Xiaoqi.UI2
             }
             else
             {
-                float tol = Mathf.Max(40f, _anch.height * 0.25f);
+                float tol = Mathf.Clamp(_anch.height * 0.25f, 40f, Mathf.Max(60f, Screen.height * 0.10f)); // XQ: 近景外框很大，容差按屏高封顶
                 if (Vector2.Distance(live.center, _anch.center) > tol || Mathf.Abs(live.height - _anch.height) > _anch.height * 0.2f)
                 {
                     _anch = live;

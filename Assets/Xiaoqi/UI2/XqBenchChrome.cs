@@ -22,6 +22,7 @@ namespace Xiaoqi.UI2
         [StructLayout(LayoutKind.Sequential)] struct MONINFO { public int cbSize; public RECT rcMonitor, rcWork; public uint dwFlags; }
         [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr h, out RECT r);
         [DllImport("user32.dll")] static extern uint GetDpiForWindow(IntPtr h);
+        [DllImport("shcore.dll")] static extern int GetDpiForMonitor(IntPtr hmon, int type, out uint dpiX, out uint dpiY);
         [DllImport("user32.dll")] static extern IntPtr MonitorFromWindow(IntPtr h, uint f);
         [DllImport("user32.dll")] static extern bool GetMonitorInfo(IntPtr m, ref MONINFO mi);
         [DllImport("user32.dll", CharSet = CharSet.Unicode, EntryPoint = "FindWindowW")] static extern IntPtr FindWindowW(string cls, string title);
@@ -113,7 +114,21 @@ namespace Xiaoqi.UI2
         static bool MonitorRect(ref MONINFO mi)
         { var hm = MonitorFromWindow(ProbeHwnd(), Nearest); return hm != IntPtr.Zero && GetMonitorInfo(hm, ref mi); }
 
-        static float DpiScale() { uint d = GetDpiForWindow(ProbeHwnd()); return d > 0 ? d / 96f : 1f; }
+        // XQ(WB): 主屏 100% / 副屏 175% 时，Unity 进程若不是逐显示器 DPI 感知，GetDpiForWindow 在副屏上会返回 96（AGY G70 实测）。
+        // 方钮要的是「所在那块显示器的真实缩放」，所以优先问显示器，取不到再退回窗口 DPI，两者取大。
+        static float DpiScale()
+        {
+            var h = ProbeHwnd();
+            uint dw = GetDpiForWindow(h), dm = 0, dy;
+            try
+            {
+                var hm = MonitorFromWindow(h, Nearest);
+                if (hm != IntPtr.Zero) GetDpiForMonitor(hm, 0, out dm, out dy); // 0 = MDT_EFFECTIVE_DPI
+            }
+            catch (Exception) { dm = 0; }
+            uint d = dw > dm ? dw : dm;
+            return d > 0 ? d / 96f : 1f;
+        }
 
         /// <summary>窗口右边距够不够放方钮；取不到显示器就当够。</summary>
         static bool RightSide(RECT win, float k)
