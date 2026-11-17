@@ -246,3 +246,45 @@ XQ_UI2 on theme=pink class=xq-theme-pink scale=1.33 bodyH=484 fontPx=21.3 scaleM
 - **固定可运行路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\Xiaoqi\Xiaoqi.exe`（已覆盖为 `0102fd20` 编译产物）
 - **操作清单与脚本**：`E:\dsh-pet-projects\Xiaoqi-Tonight\ACCEPT-TONIGHT.md`（已补全第 7、8 项；`1-启动验收(pink).cmd` 已带上 `-settings-v2 -xq-hotkeys` 便于 `Ctrl+Alt+3`；副本同步存于 `evidence/2026-11-17-B1-r5/ACCEPT-TONIGHT.md`）。
 
+---
+
+## 第六次（自动化）（`int-all @ 98d0bb3b`，近景菜单取证与全冒烟回归）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `98d0bb3b`（含 `8aa152f4` DPI/稳定外框、`6f758018` docs、`98d0bb3b` 近景菜单按脸区摆位）；`xiaoqi/p2-agy4` @ `98d0bb3`（0 新增 `.meta` 需补，未改任何源码逻辑）。
+- **编译**：**过**（0 个错误，49 条警告，耗时 62s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r6/build-summary-98d0bb3.md`）。
+- **证据文件**：`evidence/2026-11-17-B1-r6/`（`build-summary-98d0bb3.md`、`close-test-98d0bb3-Player.log`、`smoke30s-98d0bb3-Player.log`、`nap-test-98d0bb3-Player.log`、`sit-test-98d0bb3-Player.log`、`theme-blue-98d0bb3-Player.log`、`theme-violet-98d0bb3-Player.log`、`theme-pink-98d0bb3-Player.log`、`close-face-menu-98d0bb3-Player.log`、`bench-chrome-98d0bb3-Player.log`、`ACCEPT-TONIGHT.md`）。
+
+### 1. `-xq-close-test` 回归（对照 G68 基线）：**通过**
+
+- `XQ_PANEL ScreenToPanel flipsY=False origin=0.0,0.0 H=1041`（仅出现 1 次）。
+- 3 轮切入耗时：`1.02s`、`1.01s`、`1.01s`（全部 ≤ 1.3s）。
+- `XQ_CLOSE eyes`：3 轮稳定 `(0.50,0.57)` / `(0.50,0.55)` / `(0.50,0.57)`，退出前均 `(0.50,0.57)`（目标 `(0.50,0.57)`）。
+- 最终漂移：`XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`（全 0）。
+- 整段日志 **0** 条 `XQ_WATCH body outside`、**0** 条 `XQ_HOST fix window`、**0** 条 `XQ_HOST center`。
+
+### 2. 全套自动冒烟：**通过**
+
+| 用例 | 结果 | 关键日志（`evidence/2026-11-17-B1-r6/`） |
+|---|---|---|
+| 启动 30 秒无 Exception | **通过** | `smoke30s-98d0bb3-Player.log`（198 行）：仅 `OperationException : Failed to initialize localization, could not preload string tables.`，0 业务异常；`XQ_PANEL flipsY=False` 出现 1 次。 |
+| `-xq-nap-test` | **通过** | `nap-test-98d0bb3-Player.log`：`XQ_TEST nap start` → `XQ_TEST nap asleep=True` → `XQ_TEST nap woke asleep=False`（0 异常）。 |
+| `-xq-sit-test`（目标窗 `Untitled - Notepad`） | **通过** | `sit-test-98d0bb3-Player.log`：`XQ_TEST sit ok=True sitting=True` → 1/3/5s `snapped=True sitting=True` → `XQ_TEST sit exit sitting=False`（0 异常）。 |
+| `-xq-theme blue \| violet \| pink` | **通过** | 分别打印 `XQ_UI2 theme=blue class=xq-theme-blue`、`XQ_UI2 theme=violet class=xq-theme-violet`、`XQ_UI2 theme=pink class=xq-theme-pink`（`scale=1.00 bodyH=350 fontPx=16.0`），各含 1 次 `XQ_PANEL`（0 异常）。 |
+| `-xq-bench-chrome-always`（`8aa152f`） | 已录日志 | 本次窗口落于主屏 `H=1080`（100% DPI）：`XQ_BENCH chrome shown side=R rect=1794,326 40x88`；副屏 175% 下尺寸**待晚上主人验收**。 |
+
+### 3. 近景菜单取证（`-xq-close-test -xq-menu-debug`）：**未触发（记入 `ISSUES.md` #12）**
+
+- **`XQ_MENU2 place close-face side=R|L l1=…` 日志**：**无（未产生）**（见 `close-face-menu-98d0bb3-Player.log`）。
+- **近景菜单打开截图**：**无法取得**。
+- **原因与定位（按要求不改 `XqGlassMenu.cs` / `XqTestHooks.cs`）**：
+  1. `98d0bb3b` 仅修改了 `XqGlassMenu.cs`，未在 `XqTestHooks.cs` 中添加 `-xq-close-test`（或 `-xq-menu-debug`）自动打开右键菜单的钩子；
+  2. `XqGlassMenu` 仍只在检测到真实鼠标右键 `Input.GetMouseButtonDown(1) && onHer` 时打开；在 AGY 隔离桌面下 `SendInput` 与 `PostMessage(WM_RBUTTONDOWN/UP)` 无法驱动物理桌面鼠标点击与 `GetOnOpaquePixel` 命中，且隔离桌面无法截得透明 D3D11 UI 画面。该项与菜单是否压住脸区（屏宽 38–62%、屏高 18–65%）均标为「**待晚上主人验收**」。
+
+### 4. 物理桌面验收项与晚上验收包（均**待晚上主人验收**）
+
+- **覆盖路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（主程序 `E:\dsh-pet-projects\Xiaoqi-Tonight\Xiaoqi\Xiaoqi.exe`、清单 `E:\dsh-pet-projects\Xiaoqi-Tonight\ACCEPT-TONIGHT.md`）。
+- **清单新增两条观察项（均标「待晚上主人验收」）**：
+  - **a)** 副屏 175% 时，工作台方钮大小是否正常（上一版是 `40×88` 偏小）——**待晚上主人验收**。
+  - **b)** 近景右键菜单的位置：是否在脸区右侧、不压脸、打开后不跟镜头晃——**待晚上主人验收**。
+- 原八项（设置页 / 拖她 / 菜单抖 / 坐窗睡 / 主题 / 坐窗后退出 / 工作台 / 工作台全屏联动）均保持「**待晚上主人验收**」。
+
