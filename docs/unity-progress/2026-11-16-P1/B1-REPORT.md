@@ -105,3 +105,52 @@ NullReferenceException: Object reference not set to an instance of an object.
   at AvatarWindowHandler.SetOtherQuadsActive (System.Int32 activeCount) ... AvatarWindowHandler.cs:858
 ```
 
+---
+
+## 第三次实测（`int-all @ a5fe7f0c`，WB-G68 复测）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `a5fe7f0c`（含 `c222ee9`）；`xiaoqi/p2-agy4` @ `c6938c3`（仅补生成 `Assets/StreamingAssets/Xiaoqi/fake_day.meta`，未改任何代码）。
+- **编译**：**过**（0 个错误，0 条警告，耗时 41s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r3/build-summary-a5fe7f0.md`）。
+- **验证边界说明**：主人在公司无法操作家里物理桌面（`WinSta0\Default`）；AGY 终端运行在 Antigravity 隔离桌面中，实测 `CopyFromScreen` 报错 `The handle is invalid`，且 `SendInput` 无法驱动物理桌面窗口。经主人确认先推进项目（方案 1）：已完成**编译**、**`-xq-close-test` 自动化回归**、`Xiaoqi.exe` 隔离启停日志检查；需物理桌面键鼠交互与视觉观感确认的项按实标为「**无法验证**」。
+- **证据文件**：`evidence/2026-11-17-B1-r3/build-summary-a5fe7f0.md`、`evidence/2026-11-17-B1-r3/R1-regression-close-test-Player.log`、`evidence/2026-11-17-B1-r3/B1-r3-quit-Player.log`。
+
+### G68 §3 六项与 R-5 复测结果表
+
+| 项 | 结果 | 实测依据与原因 |
+|---|---|---|
+| 设置页（主菜单点设置停住、点内外关闭） | **无法验证** | 隔离桌面无法向物理桌面注入 `SendInput` 且 `CopyFromScreen` 报 `The handle is invalid`，待物理桌面实测。 |
+| 拖动（屏幕边缘 / 跨双屏不闪回） | **无法验证**（另发现回归） | 物理桌面拖动无法模拟；但 `-xq-close-test` 自动化回归已实锤 `MeHost.EnsureOnScreen` 在 `Close` 态下把副屏窗口强拉回主屏（见下方日志与 `ISSUES.md` #11）。 |
+| 菜单抖（开菜单待机 10s + 放大缩小） | **无法验证** | 需物理桌面交互与肉眼观察待机微抖/缩放观感。 |
+| 坐窗睡（坐窗口右键 + 睡一会联动） | **无法验证** | 需物理桌面其他窗口配合与交互点击。 |
+| 主题（`-xq-theme blue` / `violet`） | **无法验证** | 需物理桌面肉眼确认配色观感；默认 `pink` 启动日志为 `XQ_UI2 on theme=pink class=xq-theme-pink scale=1.33 bodyH=484 fontPx=21.3`。 |
+| 退出空指针（`SetOtherQuadsActive`） | **无法验证** | 隔离桌面报 `Failed to add system tray icon`，`CloseMainWindow` 未触发托盘退出且未在物理桌面坐窗后退出；但 `-xq-close-test` 通过 `Application.Quit()` 正常退出（ExitCode 0）日志中**未再出现** `NullReferenceException` / `SetOtherQuadsActive` 异常，只读源码见 `AvatarWindowHandler.cs:857` 已补 `if (otherQuadGOs[i] == null) continue;`。 |
+| R-5（近景 `⚙` 开设置页脚本） | **无法验证** | 依赖物理桌面 `SendInput` 与 `CopyFromScreen` 全屏截图，隔离桌面下 `CopyFromScreen` 报 `The handle is invalid`。 |
+
+### `-xq-close-test` 发现的新阻断回归（交 WB 修 `MeHost.cs`）
+
+`MeHost.EnsureOnScreen()` 改为检查身体中心点 `pt = (wr.left + bodyR.center.x, wr.top + Screen.height - bodyR.center.y)` 是否命中 `MonitorFromPoint(pt)`。在进入 `Close` 态放大人物或退出过渡帧时，`bodyR` 会大幅超出屏幕矩形，导致 `pt` 落到显示器外（`pt=-1325,5792`、`1055,1452`、`1082,12658`、`767,7184`），`MonitorFromPoint(pt)` 返回 `Zero`，反复触发 `XQ_WATCH body outside` → `XQ_HOST fix window` → `MoveToCenter()`（`XQ_HOST center -327,-447 2574x1479`），直接把窗口从副屏（`-2567,-683`）强行拽回主屏（`-327,-447`），造成 `XQ_TEST close drift win=2240,236`。
+
+关键日志摘录（`evidence/2026-11-17-B1-r3/R1-regression-close-test-Player.log`）：
+```text
+XQ_PANEL ScreenToPanel flipsY=False origin=0.0,0.0 H=1440
+XQ_UI2 on theme=pink class=xq-theme-pink scale=1.33 bodyH=484 fontPx=21.3 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+XQ_TEST close before win=-2567,-683 2574x1479 body=1172..1427 y=6..462 h=455 mode=Pet
+XQ_MODE Pet -> Close
+XQ_TEST close round=1 enter accepted=True
+XQ_WATCH body outside pt=-1325,5792
+XQ_HOST fix window inside=False tiny=False rect=-2567,-683
+XQ_HOST resize 2574x1479
+XQ_HOST center -327,-447 2574x1479
+XQ_TEST close round=1 entered in=1.03s win=-327,-447 2574x1479 body=-82..2722 y=-6047..-1809 h=4238 mode=Close
+XQ_CLOSE eyes view=(0.50,0.57) target=(0.50,0.57)
+XQ_WATCH body outside pt=1055,1452
+XQ_HOST fix window inside=False tiny=False rect=-327,-447
+XQ_HOST center -327,-447 2574x1479
+...
+XQ_WATCH body outside pt=1082,12658
+XQ_HOST fix window inside=False tiny=False rect=-327,-447
+XQ_HOST center -327,-447 2574x1479
+XQ_TEST close round=3 exited accepted=True win=-327,-447 2574x1479 body=1171..1427 y=7..461 h=455 mode=Pet
+XQ_TEST close drift win=2240,236 size=0,0 bodyCx=0 bodyBottom=0 bodyH=-1
+```
+
