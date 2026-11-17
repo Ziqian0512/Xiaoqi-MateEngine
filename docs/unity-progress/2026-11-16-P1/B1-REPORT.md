@@ -317,3 +317,25 @@ XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0
 - `ISSUES.md` `#12` 已标记为 **已关闭**（已取到 `-xq-menu-test` 近景菜单摆位日志）。
 - **晚上验收包路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（已用 `707e68e9` 覆盖更新 `Xiaoqi\Xiaoqi.exe`，[ACCEPT-TONIGHT.md] 观察项 b 已补充 `XQ_MENU2 test-open mode=Close` 与 `XQ_MENU2 place close-face side=R l1=607,97 limit=960x540`，所有物理桌面项均保持「**待晚上主人验收**」）。
 
+---
+
+## 第八次（自动化）（`int-all @ bdb993c1`，近景二级卡位置回归与晚上包重打）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `bdb993c1`（修改 `XqGlassMenu.cs` 近景二级卡摆到脸区另一侧）；`xiaoqi/p2-agy4` @ `bdb993c`（0 新增 `.meta`，未改任何代码）。
+- **编译**：**过**（0 个错误，49 条警告，耗时 62s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r8/build-summary-bdb993c.md`）。
+- **证据文件**：`evidence/2026-11-17-B1-r8/`（`build-summary-bdb993c.md`、`close-test-bdb993c-Player.log`、`smoke30s-bdb993c-Player.log`、`ACCEPT-TONIGHT.md`）。
+
+### 1. `-xq-close-test` 回归 + 30s 冒烟：**均通过**
+
+- `-xq-close-test`（`close-test-bdb993c-Player.log`）：
+  - `XQ_PANEL ScreenToPanel flipsY=False origin=0.0,0.0 H=1080`（仅出现 1 次）。
+  - 3 轮切入 `1.03s / 1.01s / 1.02s`，眼位 `(0.50,0.57)/(0.50,0.55)/(0.50,0.57)`（退出前均 `(0.50,0.57)`）。
+  - 最终漂移：`XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`。
+  - 整段日志 **0** 条 `XQ_WATCH body outside`、**0** 条 `XQ_HOST fix window`、**0** 条 `XQ_HOST center`。
+- 30s 冒烟（`smoke30s-bdb993c-Player.log`，198 行）：仅 Localization 预加载常规日志，0 业务异常；`XQ_PANEL flipsY=False` 出现 1 次。
+
+### 2. 晚上验收包更新
+
+- **固定路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（主程序 `E:\dsh-pet-projects\Xiaoqi-Tonight\Xiaoqi\Xiaoqi.exe` 已覆盖为 `bdb993c1` 构建）。
+- `E:\dsh-pet-projects\Xiaoqi-Tonight\ACCEPT-TONIGHT.md` 观察项 b 已补一句：「点开二级菜单时，二级卡应出现在脸的另一侧，不压一级卡也不压脸」，所有物理项均标「**待晚上主人验收**」。
+
