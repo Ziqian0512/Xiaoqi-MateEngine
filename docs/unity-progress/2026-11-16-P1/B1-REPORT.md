@@ -686,3 +686,52 @@ XQ_BENCH diag host.disp=Flex vis=True parent=XqUi2Document-container stage=76,13
 ### 3. 晚上验收包更新
 
 - `E:\dsh-pet-projects\Xiaoqi-Tonight\`（纯净 `10530de` 构建，三 `.cmd` 均带 `-xq-bench`，[ACCEPT-TONIGHT.md] 已更新为 W3 清单并附对比包路径 `xq-builds\w3-agy-alt\Xiaoqi.exe`）。
+
+---
+
+## 第十五次（自动化 + 内嵌截帧）（`int-all @ 2ac1238b`，G74 W4：#22 修复 + 胸像/全身构图 + 反向平移视差）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `2ac1238b`（已 cherry-pick `149170a2` + `590e5e44`，`XqShotProbe` 仅在临时分支 `xiaoqi/agy-w4-probe`，未进 `int-all`；禁止 World Space，`p3-ws-probe` 未合入）。`xiaoqi/p2-agy4` 同步停在 `2ac1238`（0 修改）。
+- **编译**：**过**（0 compile errors，76 warnings，耗时 68s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r15/build-summary-2ac1238.md`）。
+- **证据目录**：`evidence/2026-11-17-B1-r15/`（`w4-shot-pink/blue/violet/mode1-Player.log`、`w4-close-test/close-menu-test/smoke30s-2ac1238-Player.log`、`w4-pink-02/06_parL/06b_parC/07_parR/08_drag.png`、`w4-blue-02.png`、`w4-violet-02.png`、`w4-mode1-02.png`、`build-summary-2ac1238.md`、`ACCEPT-TONIGHT.md`）。
+
+### 1. 渲染（`#22` 回归 + 三主题）与多屏尺寸
+
+- **多屏复现（`w4-shot-pink-Player.log`，2560x1440 → 1919x1080）**：
+```text
+XQ_BENCH built(rebuild=n) k=1.776 panelPx=1066 monitor=2560x1440
+XQ_MODE Pet -> Bench
+XQ_MODE bench path=pet-direct ok=True screen=1919x1080 target frac=1.50 eye=(0.37,0.72)
+XQ_BENCH built(rebuild=y) k=1.332 panelPx=799 monitor=1919x1080
+XQ_BENCH open k=1.332 glass=True edge=0 pose=1
+XQ_MODE bench shown=True path=pet-direct
+XQ_BENCH parallax src=mouse
+XQ_CLOSE eyes view=(0.37,0.72) target=(0.37,0.72) bench frac=1.53/1.50
+XQ_BENCH diag host.disp=Flex vis=True parent=XqUi2Document-container stage=92,129,1177x801 op=1.00 panelSize=1919x1080 screen=1919x1080 pxS=-0.97 pet=(x:163.56, y:-547.94, width:1099.26, height:1648.05) builtPx=799 k=1.332
+```
+- **截帧核对**（`w4-pink-02.png`、`w4-blue-02.png`、`w4-violet-02.png`）：
+  - 右板不再是纯白不透明（`w4-mode1-02.png` 非人物中心像素 `midRGBA=0.79,0.76,0.77,a=0.64`，`A < 255`），标题、6 行、主题滑条、开关与背后小祈均清晰透出；
+  - `pink`/`blue`/`violet` 三主题左栏与右板同色系联动；`topGlow` 顶部圆角贴合面板、无直角或扫光溢出圆角外。
+
+### 2. 构图（默认胸像 + `bench_stage_mode=1` 全身）与固定站姿
+
+- **默认胸像（`bench_stage_mode=0`）**：`XQ_CLOSE eyes view=(0.37,0.72) target=(0.37,0.72) bench frac=1.53/1.50`（准确收敛到 `1.50` 目标），`w4-pink-02.png` 实见头+肩+胸铺在半透工作台后方、头顶略低于板上沿、身体下沿延伸出板框外。
+- **全身缩进（`bench_stage_mode=1`，`w4-shot-mode1-Player.log` + `w4-mode1-02.png`）**：`XQ_CLOSE eyes view=(0.37,0.78) target=(0.37,0.78) bench frac=0.69/0.68`，完整全身缩进板高内（约板高 92%，不越板框）。
+- **固定站姿**：间隔 5s（`still0` → `still5` → `still10`）日志恒定 `idle=0.00 speed=0.05 state=2081823275`。
+
+### 3. 拖板与视差
+
+- **拖板**：`w4-pink-08_drag.png` 实见板和她同步平移、`09_drag_edge` 边缘钳位 `rect=975,-569` 不出屏（物理 `SendInput` 拖左栏空白/顶部 98px 留待「**待晚上主人验收**」）。
+- **视差（`w4-pink-06_parL.png` / `06b_parC.png` / `07_parR.png`）**：
+  - `parL`：`stRot=0.00 stScale=1.000 stTx=16.0`，她 `rot=(0.0, 189.0, 0.0)`；
+  - `parC`：`stRot=0.00 stScale=1.000 stTx=0.0`，她 `rot=(0.0, 180.5, 0.0)`；
+  - `parR`：`stRot=0.00 stScale=1.000 stTx=-16.0`，她 `rot=(0.0, 172.0, 0.0)`；
+  - 前景左栏+右板只同步反向平移（不旋转不缩放），她绕竖轴真 3D 转身约 `±9°`，且 `XQ_CLOSE eyes` 未在视差期间每帧刷屏。
+
+### 4. 三路入口、回归与晚上包
+
+- **三路入口**：状态机双路径 `pet-direct` 与 `from-close` 均实跑通过（`ok=True shown=True`）；隔离桌面无法用 `SendInput` 点击桌宠右键「工作台」/ 右下方钮 / 近景「工作台」按钮，三路物理按钮实操标「**待晚上主人验收**」。
+- **5 轮切出恢复**（`w4-shot-pink-Player.log` `round1-pet` ~ `round5-pet` + `final`）：每轮退出回 `Pet` 均复位 `idle=0.00 speed=1.00 rot=(0.0, 180.0, 0.0)`，0 业务 `Exception`。
+- **纯净回归（0 业务 `Exception`）**：`-xq-close-test`（`drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`）、`-xq-close-test -xq-menu-test -xq-menu-debug`（`XQ_MENU2 place close-face side=R l1=1202,194 limit=1919x1080`、drift 全 0）、`30s` 冒烟全过。
+- **晚上包**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（已覆写为纯净 `2ac1238` 构建，三个 `.cmd` 均带 `-xq-bench`，[ACCEPT-TONIGHT.md] 已更新；物理手感/质感/动效均标「**待晚上主人验收**」）。
+- **ISSUES**：本轮 `2ac1238b` 0 编译 error，未修改正式代码，无新增 ISSUES（`#22` 已于 `2ac1238b` 回归通过，待 WB 正式闭单）。
