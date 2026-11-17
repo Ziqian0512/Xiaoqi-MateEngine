@@ -533,3 +533,69 @@ XQ_CLOSE anim done
 
 - **路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（`Xiaoqi\Xiaoqi.exe` 已覆盖为 `bd024f74` 构建，`1-启动验收(pink).cmd`、`2-主题blue.cmd`、`3-主题violet.cmd` **三个全部带 `-xq-bench`**，[ACCEPT-TONIGHT.md] 已更新为 `bd024f74` 清单，物理项均标「**待晚上主人验收**」）。
 
+
+---
+
+## 第十二次（自动化 + World Space 探针）（`int-all @ 82367953`，G74 W1c；另开探针分支 `xiaoqi/p3-ws-probe @ cd2bd26`）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `82367953`（G74 W1c：`XqBenchPanel` 屏高 80% / 侧栏空白与顶部 98px 整板拖动、`XqCloseCamera.SetTilt` / `ResetTilt`、`XqMode` 接入 `ApplyTilt`）；`xiaoqi/p2-agy4` 同步停在 `8236795`（0 修改）。
+- **编译**：**过**（0 compile errors，59 warnings，耗时 69s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r12/build-summary-8236795.md`）。`Screen.mainWindowDisplayInfo` 在 Unity `6000.2.6f2` 下直接编译通过；`XqCloseCamera.TickTilt` 在 `LateUpdate` `[DefaultExecutionOrder(200)]` 写 `a.transform.rotation` 无编译冲突（实机动作下是否与动画机打架留待物理桌面验收）。
+- **证据目录**：`evidence/2026-11-17-B1-r12/`（`build-summary-8236795.md`、`bench-mode-8236795-Player.log`、`bench-r2-8236795-Player.log`、`close-test-8236795-Player.log`、`close-menu-test-8236795-Player.log`、`smoke30s-8236795-Player.log`、`ws-probe-Player.log`、`ACCEPT-TONIGHT.md`）。
+
+### 1. `-xq-bench -xq-mode bench` 1080p 与 `Esc` 切换
+
+- **关键日志（`bench-mode-8236795-Player.log`，0 条业务 `Exception`）**：
+```text
+XQ_UI2 on theme=pink class=xq-theme-pink scale=1.00 bodyH=363 fontPx=16.0 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+XQ_BENCH built k=1.440 panelPx=864 monitor=1920x1080
+XQ_MODE Pet -> Bench
+XQ_BENCH zoom cur=0.32 new=0.34 z=2.06 ortho
+XQ_BENCH open k=1.440 glass=False edge=0 pose=1
+XQ_CLOSE eyes view=(0.74,0.79) target=(0.74,0.96) bench frac=0.34/0.34
+XQ_CLOSE day fail: 502
+XQ_MODE Bench -> Close
+XQ_BENCH close
+XQ_CLOSE eyes view=(0.50,0.57) target=(0.50,0.57)
+XQ_CLOSE exit by=esc
+XQ_MODE Close -> Pet
+XQ_CLOSE anim exit
+XQ_CLOSE close
+XQ_CLOSE eyes view=(0.51,0.57) target=(0.50,0.57)
+XQ_CLOSE anim done
+```
+- **核对结论**：
+  - `panelPx=864 monitor=1920x1080`（精确等于屏高 `80%`）；
+  - `XQ_BENCH zoom cur=0.32 new=0.34 z=2.06 ortho` 与 `XQ_CLOSE eyes ... bench frac=0.34/0.34`（身高比例收敛到目标 `0.34`）；
+  - `Esc` 驱动 `Bench -> Close -> Pet` 正常退出、0 业务 `Exception`。
+- **1080p 截图**：**无法取得**（隔离桌面 `CopyFromScreen` 报 `The handle is invalid`，`PrintWindow(..., 2)` 仅输出空白白板帧，已读图确认；板高 80%、贴左/右沿歪头转身、贴上沿只露头视觉观感均标「**待晚上主人验收**」）。
+
+### 2. 自动化拖动 / 控件点击 / 5 轮切换 / 回归
+
+- **`SendInput` 拖动与 5 轮热键切换**：隔离桌面 `SendInput` 返回 `0`（`bench-r2-8236795` 实测鼠拖与 `Ctrl+Alt+1/2/3` 均被桌面隔离拦截），故整板拖动（侧栏空白 / 顶部 98px）、`XQ_BENCH board drag start/end`、边缘不出屏、点 `×`/玻璃开关/重试/侧栏 2 号、右键她无 `XQ_MENU2 open`、近景↔工作台↔桌宠 5 轮连切及退出工作台朝向/旋转还原，全部实机物理交互项一律标「**待晚上主人验收**」。
+- **`-xq-close-test`**（`close-test-8236795-Player.log`）：3 轮 `1.04s` 级切入，`XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`，无 `body outside / fix window / center`，0 业务 `Exception`。
+- **`-xq-close-test -xq-menu-test -xq-menu-debug`**（`close-menu-test-8236795-Player.log`）：`XQ_MENU2 test-open mode=Close`、`XQ_MENU2 place close-face side=R l1=1202,194 limit=1920x1080`、drift 全 0，无退化。
+- **`30s` 冒烟**（`smoke30s-8236795-Player.log`）：0 业务 `Exception`。
+
+### 3. 晚上验收包更新
+
+- **路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（已由 `8236795` 构建覆盖 `Xiaoqi\Xiaoqi.exe`，`1-启动验收(pink).cmd`、`2-主题blue.cmd`、`3-主题violet.cmd` **三个均带 `-xq-bench`**，[ACCEPT-TONIGHT.md] 已更新为 `82367953` 清单，物理项均标「**待晚上主人验收**」；经校验 `Xiaoqi-Tonight` 不含任何 `p3-ws-probe` 代码）。
+
+### 4. World Space `PanelSettings` 探针（独立分支 `xiaoqi/p3-ws-probe @ cd2bd26`，未合入 `int-all`）
+
+- **改动范围**：仅新增 `Assets/Xiaoqi/WsProbe/XqWsProbeRunner.cs` 与 `Assets/Xiaoqi/WsProbe/Resources/XqWsPanelSettings.asset`（`-xq-ws-probe` 启动参数触发），未改正式逻辑，编译 0 error（58s）。
+- **(a) ME 透明窗口下显示**：**可行（PASS）**。`UIDocument` + `UIRenderer`（`m_RenderMode: 1`，`m_RuntimeWorldShader: 9102`）在 ME 的 `Alpha/Opacity` + `SolidColor(0,0,0,0)` 透明窗口下正常绘制实色像素（`btnA=(754,326) rgba=(1.00,0.20,0.55,a=1.00)`），面板外背景保持完全透明（`outside=(40,540) rgba=(0.00,0.00,0.00,a=0.00)`）。（注：Unity `6000.2.6f2` 中 `PanelSettings.renderMode`、`colliderUpdateMode`、`pixelsPerUnit` 与 `UIDocument.isWorldSpace` 为 `internal` 属性，需在 `.asset` 中序列化配置；`UIDocument.worldSpaceSizeMode / worldSpaceSize` 为公开属性。）
+- **(b) 3D 人物在板前/板后深度遮挡**：**可行（PASS）**。先采样基准人物像素 `(970,173)` 为 `rgba=(0.86,0.89,0.97,a=1.00)`；板摆在人物前（`z=2.75 < depth=3.146`）同像素变成亮橙板色 `rgba=(0.96,0.42,0.08,a=1.00)`（板遮挡人物）；板摆在人物后（`z=3.55 > depth=3.146`）同像素恢复人物色 `rgba=(0.87,0.89,0.98,a=1.00)` 且身旁粉钮 `btnA=(754,326)` 仍正常显示（`a=1.00`）。Z-buffer 原生前后遮挡成立。
+- **(c) 鼠标命中（3 个点击点前后日志）**：**可行（PASS，须走 `EventSystem` + `PanelInputConfiguration` + `WorldDocumentRaycaster` 管线）**；`BaseRuntimePanel.Pick()` 在 World Space 下返回 `null`、`visualTree.worldBound` 为 `(0,0,0,0)`，旧版 `worldBound + Pick` 手动命中路线不适用：
+```text
+XQ_WSPROBE click#1 BEFORE tag=BtnA screenPt=(754,693) cntA=0 cntB=0 cntBoard=0
+XQ_WSPROBE cb PointerDown target=ws-btnA local=(99.76, 70.29, 0.00)
+XQ_WSPROBE cb Click target=ws-btnA cntA=1
+XQ_WSPROBE click#1 AFTER tag=BtnA phys=[XqWsBoard dist=2.736] es=[XqWsPanelSettings@WorldDocumentRaycaster:d=2.74:wp=(-0.42, -0.17, -0.52); ...] picked=null cntA=1 cntB=0 cntBoard=1
+XQ_WSPROBE click#2 BEFORE tag=BtnB screenPt=(1132,83) cntA=1 cntB=0 cntBoard=1
+XQ_WSPROBE cb PointerDown target=ws-btnB local=(119.76, 80.29, 0.00)
+XQ_WSPROBE cb Click target=ws-btnB cntB=1
+XQ_WSPROBE click#2 AFTER tag=BtnB phys=[XqWsBoard dist=2.736] es=[XqWsPanelSettings@WorldDocumentRaycaster:d=2.74:wp=(0.35, -0.66, -0.52); ...] picked=null cntA=1 cntB=1 cntBoard=2
+XQ_WSPROBE click#3 BEFORE tag=Outside screenPt=(40,540) cntA=1 cntB=1 cntBoard=2
+XQ_WSPROBE click#3 AFTER tag=Outside phys=[Shadow dist=5.280] es=[EventSystem@WorldDocumentRaycaster:d=5.28:wp=(-1.87, 0.27, 2.02); ...] picked=null cntA=1 cntB=1 cntBoard=2
+```
+- **ISSUES**：本轮 `82367953` 0 编译错误，未改代码，无新增编译 ISSUES（前序仅 `#21`）。
