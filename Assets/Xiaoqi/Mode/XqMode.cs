@@ -157,6 +157,7 @@ namespace Xiaoqi.Mode
                     }
                     else
                     {
+                        Xiaoqi.UI2.XqBenchPanel.ApplyTilt();
                         // 从桌宠来：等 ME 的窗口铺满 + 镜头淡入（约 0.9 秒）再出面板；从近景来：窗口早就铺满了
                         float showAt = from == XqView.Close ? 0.5f : 0.9f;
                         yield return new WaitForSecondsRealtime(showAt);

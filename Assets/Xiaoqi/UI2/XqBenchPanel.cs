@@ -87,10 +87,10 @@ namespace Xiaoqi.UI2
 
         static float PanelPx(float W, float H)
         {
-            float ph = 0.70f * H;
+            float ph = 0.80f * H;
             float stageW = ph * StageW / PanH;
-            if (stageW > 0.72f * W) ph = 0.72f * W * PanH / StageW;
-            return Mathf.Clamp(ph, 420f, 900f);
+            if (stageW > 0.76f * W) ph = 0.76f * W * PanH / StageW;
+            return Mathf.Clamp(ph, 420f, 1100f);
         }
 
         static Geo GeoOf(float W, float H)
@@ -100,14 +100,18 @@ namespace Xiaoqi.UI2
             g.ph = PanelPx(W, H) / H;
             g.k = g.ph / PanH;
             g.stageW = StageW * g.k;
-            g.stageL = Mathf.Clamp(0.27f * g.a, 0f, Mathf.Max(0f, g.a - g.stageW - 0.03f));
-            g.stageT = (1f - g.ph) * 0.5f + 0.02f;
+            // 位置：默认靠左偏下留出头顶给她；拖过就用拖到的（夹在显示器内）
+            float l0 = _sx >= 0f ? _sx : 0.27f * g.a;
+            float t0 = _sy >= 0f ? _sy : (1f - g.ph) * 0.5f + 0.03f;
+            g.stageL = Mathf.Clamp(l0, 0.02f, Mathf.Max(0.02f, g.a - g.stageW - 0.02f));
+            g.stageT = Mathf.Clamp(t0, 0.07f, Mathf.Max(0.07f, 1f - g.ph - 0.02f));
             g.boardL = g.stageL + (RailW + Gap) * g.k;
             g.boardR = g.stageL + g.stageW;
             return g;
         }
 
         // ---------------- 她贴在哪（静态，XqMode 进入前就要用）----------------
+        static float _sx = -1f, _sy = -1f;   // 工作台被拖过之后的位置（屏高=1 单位；<0 = 用默认）
         static int _edge = 0;        // 0 上沿  1 左沿  2 右沿（没有「下沿」）
         static float _pos = 0.72f;   // 沿这条边的位置 0~1
         static int _pose = 1;        // 0 探头  1 探出上半身 / 靠边站
@@ -133,7 +137,30 @@ namespace Xiaoqi.UI2
                 ex = _edge == 1 ? g.stageL - off : g.boardR + off;
                 ey = g.stageT + (0.14f + _pos * 0.55f) * g.ph;
             }
+            ex = Mathf.Clamp(ex, 0.04f, g.a - 0.04f);
             vx = ex / g.a; vy = 1f - ey;
+        }
+
+        /// <summary>贴边时的歪头 / 转身（度）。左沿：头往左探、脸朝板；右沿反过来；上沿不歪。</summary>
+        public static void PetTilt(out float roll, out float yaw)
+        {
+            roll = 0f; yaw = 0f;
+            if (_edge == 1) { roll = _pose == 0 ? -22f : -10f; yaw = _pose == 0 ? -28f : -35f; }
+            else if (_edge == 2) { roll = _pose == 0 ? 22f : 10f; yaw = _pose == 0 ? 28f : 35f; }
+        }
+
+        /// <summary>XqMode 进入工作台后调：把贴边的歪头/转身角度交给镜头那边。</summary>
+        public static void ApplyTilt()
+        {
+            float r, y; PetTilt(out r, out y);
+            XqCloseCamera.SetTilt(r, y);
+        }
+
+        static void ApplyPet()
+        {
+            float f, vx, vy; PetTarget(out f, out vx, out vy);
+            ApplyTilt();
+            XqCloseCamera.NudgeEyes(vx, vy);
         }
 
         /// <summary>鼠标（屏高=1 单位，y 向下）→ 三条边里最近的一条与位置。下沿不在候选里。</summary>
@@ -168,6 +195,10 @@ namespace Xiaoqi.UI2
         string _say;
         float _glassAnim;
         int _drag;                // 1 = 正在按住她
+        int _bdrag;               // 1 = 正在拖整个工作台
+        Vector2 _bdragMouse, _bdragStage;
+        bool _bdragMoved;
+        VisualElement _header;
         Vector2 _dragFrom;
         bool _dragMoved;
         float _toastT = -1f;
@@ -194,7 +225,8 @@ namespace Xiaoqi.UI2
             if (_host == null) return;
             _glass = PlayerPrefs.GetInt("xq_bench_glass", 0) == 1;
             _glassAnim = _glass ? 1f : 0f;
-            _shown = true; _exitT = -1f; _t = 0f; _drag = 0; _toastT = -1f;
+            _shown = true; _exitT = -1f; _t = 0f; _drag = 0; _bdrag = 0; _toastT = -1f;
+            ApplyStagePos();
             _host.style.display = DisplayStyle.Flex;
             _data = XqCloseData.Ensure();
             _data.Changed -= OnData; _data.Changed += OnData;
@@ -209,7 +241,7 @@ namespace Xiaoqi.UI2
         void HideSelf()
         {
             if (!_shown) return;
-            _shown = false; _drag = 0;
+            _shown = false; _drag = 0; _bdrag = 0;
             if (_data != null) { _data.Changed -= OnData; _data.End(); }
             _exitT = 0f;
             PetHost.I?.SetUiBlocksMovement(false);
@@ -249,12 +281,19 @@ namespace Xiaoqi.UI2
             BuildRail();
             BuildPanel();
             root.Add(_host);
-            var g = GeoOf(W, H);
-            _stage.style.left = g.stageL * H * upp;
-            _stage.style.top = g.stageT * H * upp;
+            ApplyStagePos();
             if (!_scheduled) { _host.schedule.Execute(Tick).Every(16); _scheduled = true; }
             _built = true;
             Debug.Log("XQ_BENCH built k=" + _k.ToString("0.000") + " panelPx=" + px.ToString("0") + " monitor=" + W.ToString("0") + "x" + H.ToString("0"));
+        }
+
+        void ApplyStagePos()
+        {
+            if (_stage == null) return;
+            float W, H; MonitorDims(out W, out H);
+            var g = GeoOf(W, H);
+            _stage.style.left = g.stageL * H * _builtUpp;
+            _stage.style.top = g.stageT * H * _builtUpp;
         }
 
         void BuildRail()
@@ -306,6 +345,9 @@ namespace Xiaoqi.UI2
             _glassLayer.style.opacity = 0f;
             _panel.Add(_glassLayer);
 
+            _header = new VisualElement { pickingMode = PickingMode.Ignore };
+            Abs(_header, 0, 0, PanW * _k, 98f * _k);
+            _panel.Add(_header);
             var title = L("XIAOQI WORKBENCH", 25f, Ink, true);
             Abs(title, 40f * _k, 28f * _k, -1, -1);
             _metaLabel = L("主人 · --:-- · 今日", 11.5f, Ink2, false);
@@ -644,7 +686,7 @@ namespace Xiaoqi.UI2
             _tgHover = Mathf.MoveTowards(_tgHover, (OverEl(_tg) || OverEl(_row[5])) ? 1f : 0f, dt * 8f);
             _retryHover = Mathf.MoveTowards(_retryHover, (_offline && OverEl(_offRetry)) ? 1f : 0f, dt * 8f);
 
-            if (XqMode.Busy) { _drag = 0; return; }
+            if (XqMode.Busy) { _drag = 0; _bdrag = 0; return; }
 
             bool down = Input.GetMouseButtonDown(0), held = Input.GetMouseButton(0);
             if (down && _lastClickFrame != Time.frameCount)
@@ -670,11 +712,47 @@ namespace Xiaoqi.UI2
                         if (n > 0) { Debug.Log("XQ_BENCH nav " + n + " (W2)"); Toast("这一页下一期开放"); }
                         return;
                     }
+                if (OverEl(_rail) || OverEl(_header))
+                {
+                    // 侧栏空白处 / 板顶部：按住拖整个工作台
+                    _lastClickFrame = Time.frameCount; _bdrag = 1; _bdragMoved = false;
+                    float Hn = Mathf.Max(1f, Screen.height);
+                    _bdragMouse = new Vector2(Input.mousePosition.x / Hn, 1f - Input.mousePosition.y / Hn);
+                    float W0, H0; MonitorDims(out W0, out H0);
+                    var g0 = GeoOf(W0, H0);
+                    _bdragStage = new Vector2(g0.stageL, g0.stageT);
+                    return;
+                }
                 if (!OverAnySelf() && OnHer())
                 {
                     _lastClickFrame = Time.frameCount; _drag = 1; _dragFrom = Input.mousePosition; _dragMoved = false;
                     return;
                 }
+            }
+            if (_bdrag == 1)
+            {
+                if (held)
+                {
+                    float Hn = Mathf.Max(1f, Screen.height);
+                    var mn = new Vector2(Input.mousePosition.x / Hn, 1f - Input.mousePosition.y / Hn);
+                    if (!_bdragMoved && (mn - _bdragMouse).magnitude * Hn > 4f) { _bdragMoved = true; Debug.Log("XQ_BENCH board drag start"); }
+                    if (_bdragMoved)
+                    {
+                        _sx = _bdragStage.x + (mn.x - _bdragMouse.x);
+                        _sy = _bdragStage.y + (mn.y - _bdragMouse.y);
+                        float W1, H1; MonitorDims(out W1, out H1);
+                        var g1 = GeoOf(W1, H1);          // 取夹过的值写回，避免拖出屏后累积
+                        _sx = g1.stageL; _sy = g1.stageT;
+                        ApplyStagePos();
+                        ApplyPet();                      // 她贴着板，一起动
+                    }
+                }
+                else
+                {
+                    if (_bdragMoved) Debug.Log("XQ_BENCH board drag end x=" + _sx.ToString("0.000") + " y=" + _sy.ToString("0.000"));
+                    _bdrag = 0;
+                }
+                return;
             }
             if (_drag == 1)
             {
@@ -686,8 +764,7 @@ namespace Xiaoqi.UI2
                     {
                         float H = Mathf.Max(1f, Screen.height);
                         SnapTo(m.x / H, 1f - m.y / H);
-                        float f, vx, vy; PetTarget(out f, out vx, out vy);
-                        XqCloseCamera.NudgeEyes(vx, vy);
+                        ApplyPet();
                     }
                 }
                 else
@@ -698,8 +775,7 @@ namespace Xiaoqi.UI2
                     {
                         _pose = 1 - _pose;
                         Debug.Log("XQ_BENCH pose=" + _pose);
-                        float f, vx, vy; PetTarget(out f, out vx, out vy);
-                        XqCloseCamera.NudgeEyes(vx, vy);
+                        ApplyPet();
                     }
                 }
             }

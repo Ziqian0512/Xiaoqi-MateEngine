@@ -31,6 +31,10 @@ namespace Xiaoqi.Mode
         private static float TargetVy = CloseVy;
         private static float _benchFrac = 0f;   // >0 = 工作台：每帧把她的身高收敛到屏高的这个比例
         private static float _win = 1.6f;       // 对眼/缩放的收敛窗口（秒，从进入起算）
+        // XQ(WB): G74 W1c 工作台里她贴边时的歪头/转身（绕脚下原点：roll 绕镜头前向，yaw 绕竖轴），退出时还原
+        private static Quaternion _baseRot = Quaternion.identity;
+        private static bool _hasBaseRot, _tiltApplied;
+        private static float _tRoll, _tYaw, _tRollT, _tYawT;
         private static float _enterAt;
         private static bool _loggedSettledEyes;
         private static float _xShift;
@@ -41,6 +45,7 @@ namespace Xiaoqi.Mode
         {
             void LateUpdate()
             {
+                TickTilt();
                 TickEyeAlign();
             }
         }
@@ -141,6 +146,36 @@ namespace Xiaoqi.Mode
                 _loggedSettledEyes = true;
                 LogEyes(h);
             }
+        }
+
+        private static void TickTilt()
+        {
+            if (!_active || !_hasBaseRot) return;
+            var h = Handler();
+            var a = h != null ? h.avatarAnimator : null;
+            if (a == null) return;
+            float dt = Time.unscaledDeltaTime;
+            _tRoll = Mathf.MoveTowards(_tRoll, _tRollT, 150f * dt);
+            _tYaw = Mathf.MoveTowards(_tYaw, _tYawT, 150f * dt);
+            bool moving = !Mathf.Approximately(_tRoll, _tRollT) || !Mathf.Approximately(_tYaw, _tYawT);
+            if (moving) _enterAt = Time.unscaledTime - (_win - 0.6f); // 转的时候让对眼继续跑
+            if (_tRoll == 0f && _tYaw == 0f && !_tiltApplied) return;
+            a.transform.rotation = Quaternion.AngleAxis(_tRoll, Vector3.forward) * Quaternion.AngleAxis(_tYaw, Vector3.up) * _baseRot;
+            _tiltApplied = (_tRoll != 0f || _tYaw != 0f);
+        }
+
+        /// <summary>工作台：设置她歪头 / 转身的目标角度（度）。roll 正=顺时针（头往屏幕右），yaw 正=脸转向屏幕左。</summary>
+        public static void SetTilt(float roll, float yaw)
+        {
+            if (!_active || !_hasBaseRot) return;
+            _tRollT = roll; _tYawT = yaw;
+        }
+
+        private static void ResetTilt(Animator a)
+        {
+            _tRoll = _tYaw = _tRollT = _tYawT = 0f;
+            if (a != null && _hasBaseRot && _tiltApplied) a.transform.rotation = _baseRot;
+            _tiltApplied = false;
         }
 
         private static float CurFrac()
@@ -250,6 +285,7 @@ namespace Xiaoqi.Mode
                 h.YOffset = c.close_yoffset;
                 TargetVx = CloseVx; TargetVy = CloseVy;
                 _benchFrac = 0f; _win = 1.6f;
+                ResetTilt(h.avatarAnimator);
                 _enterAt = Time.unscaledTime;
             }
             _loggedSettledEyes = false;
@@ -287,6 +323,8 @@ namespace Xiaoqi.Mode
                     }
                     _savedAvatarPos = a.transform.position;
                     _hasSavedPos = true;
+                    _baseRot = a.transform.rotation; _hasBaseRot = true;
+                    _tRoll = _tYaw = _tRollT = _tYawT = 0f; _tiltApplied = false;
                     a.SetBool("isBigScreen", false);
                     a.SetFloat("IdleIndex", 0f);
                     a.Play("Idle", 0, 0.55f);
@@ -313,6 +351,7 @@ namespace Xiaoqi.Mode
             if (h == null) { _active = false; return false; }
             if (_active)
             {
+                ResetTilt(h.avatarAnimator);
                 if (h.avatarAnimator != null && _hasSavedPos)
                     h.avatarAnimator.transform.position = _savedAvatarPos + new Vector3(_xShift, 0f, 0f);
                 LogEyes(h);
