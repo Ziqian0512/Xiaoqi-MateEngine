@@ -349,7 +349,9 @@ namespace Xiaoqi.UI2
                     if (Debug2) Debug.Log("XQ_MENU2 anchor-moved body=" + live.xMin.ToString("0") + ".." + live.xMax.ToString("0") + " y=" + live.yMin.ToString("0") + ".." + live.yMax.ToString("0"));
                 }
             }
-            var body = _anch;
+            // XQ: 近景态：位置完全由屏幕脸区决定（不看外框，镜头/待机怎么变都不动）；桌宠态保持原逻辑
+            bool closeMode = Xiaoqi.Mode.XqMode.Current == Xiaoqi.Mode.XqView.Close;
+            var body = closeMode ? live : _anch;
 
             var tl = XqPanelXf.FromScreen(panel, new Vector2(body.xMin, body.yMax)); // XQ: B1 #5 屏幕左下→面板左上（ScreenToPanel 不翻 Y）
             var br = XqPanelXf.FromScreen(panel, new Vector2(body.xMax, body.yMin));
@@ -373,11 +375,25 @@ namespace Xiaoqi.UI2
 
             float x1 = _sideRight ? br.x + Gap : tl.x - Gap - w1;
             float y1 = tl.y + (br.y - tl.y) * 0.04f;
+            if (closeMode)
+            {
+                // 脸区（屏宽 38–62%、屏高 18–65%）之外：优先脸区右侧，右边放不下一二级两张卡才换左侧；竖向从脸区上沿起
+                float monL = minX - 8f;
+                float monR = Mathf.Max(monL + 200f, limitW);
+                float monW = monR - monL;
+                float faceR = monL + (XqCloseLayout.FaceL + XqCloseLayout.FaceW) * monW;
+                float faceL = monL + XqCloseLayout.FaceL * monW;
+                float needP = w1 + Wid(_l2, L2W) + Gap * 3f;
+                float roomR = monR - faceR, roomL = faceL - monL;
+                _sideRight = roomR >= needP || roomR >= roomL;
+                x1 = _sideRight ? faceR + Gap : faceL - Gap - w1;
+                y1 = XqCloseLayout.FaceT * limitH;
+            }
             x1 = Mathf.Clamp(x1, minX, Mathf.Max(minX, limitW - w1 - 8f));
             y1 = Mathf.Clamp(y1, 8f, Mathf.Max(8f, limitH - h1 - 56f));
             _l1.style.left = x1;
             _l1.style.top = y1;
-            if (!_placeLogged) { _placeLogged = true; Debug.Log("XQ_MENU2 place body(screen)=" + body.xMin.ToString("0") + ".." + body.xMax.ToString("0") + " y=" + body.yMin.ToString("0") + ".." + body.yMax.ToString("0") + " H=" + Screen.height + " tl(panel)=" + tl.x.ToString("0") + "," + tl.y.ToString("0") + " l1=" + x1.ToString("0") + "," + y1.ToString("0") + " scale=" + scale.ToString("0.00")); }
+            if (!_placeLogged) { _placeLogged = true; if (closeMode) Debug.Log("XQ_MENU2 place close-face side=" + (_sideRight ? "R" : "L") + " l1=" + x1.ToString("0") + "," + y1.ToString("0") + " limit=" + limitW.ToString("0") + "x" + limitH.ToString("0")); Debug.Log("XQ_MENU2 place body(screen)=" + body.xMin.ToString("0") + ".." + body.xMax.ToString("0") + " y=" + body.yMin.ToString("0") + ".." + body.yMax.ToString("0") + " H=" + Screen.height + " tl(panel)=" + tl.x.ToString("0") + "," + tl.y.ToString("0") + " l1=" + x1.ToString("0") + "," + y1.ToString("0") + " scale=" + scale.ToString("0.00")); }
             if (k < 0.999f) _l1.style.opacity = k; else _l1.style.opacity = StyleKeyword.Null;
             _l1.style.translate = new Translate((1f - k) * 10f * -dir, 0f, 0f);
 
