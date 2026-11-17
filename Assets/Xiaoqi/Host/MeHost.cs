@@ -336,11 +336,24 @@ namespace Xiaoqi.Host
             // XQ: B1 #10 原来拿「窗口中心」判断在不在屏内：窗口比一块屏还大(2558x1440)，她被拖到屏幕中线以上时窗口中心先出了屏，
             // 窗口保护就把整个窗口拉回底部中间，拖动时每 2 秒闪回一次。改成看「她的身体中心」：她还在某块屏里就不动。
             var pt = new POINT { x = cx, y = cy };
-            var bodyR = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, 0, 0);
-            if (bodyR.width > 2f && bodyR.height > 8f)
-                pt = new POINT { x = wr.left + Mathf.RoundToInt(bodyR.center.x), y = wr.top + Mathf.RoundToInt(Screen.height - bodyR.center.y) };
             bool inside = MonitorFromPoint(pt, MONITOR_DEFAULTTONULL) != IntPtr.Zero;
-            if (!inside && bodyR.width > 2f) Debug.Log("XQ_WATCH body outside pt=" + pt.x + "," + pt.y);
+            if (!inside)
+            {
+                // 窗口中心不在任何屏里：只有「桌宠态、不在切换中、她的外框大小正常」才改看身体中心。
+                // 近景/工作台镜头放大后外框远超屏幕（实测 h=4238），不能拿它判断（G68 回归：副屏窗口被拉回主屏）。
+                var bodyR = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(0, 0, 0, 0);
+                bool petNormal = Xiaoqi.Mode.XqMode.Current == Xiaoqi.Mode.XqView.Pet && !Xiaoqi.Mode.XqMode.Busy
+                    && bodyR.width > 2f && bodyR.height > 8f && bodyR.height < Screen.height * 1.2f;
+                if (petNormal)
+                {
+                    var bp = new POINT { x = wr.left + Mathf.RoundToInt(bodyR.center.x), y = wr.top + Mathf.RoundToInt(Screen.height - bodyR.center.y) };
+                    inside = MonitorFromPoint(bp, MONITOR_DEFAULTTONULL) != IntPtr.Zero;
+                }
+                else if (Xiaoqi.Mode.XqMode.Current != Xiaoqi.Mode.XqView.Pet || Xiaoqi.Mode.XqMode.Busy)
+                {
+                    inside = true; // 非桌宠态/切换中：不动窗口
+                }
+            }
             bool tiny = (wr.right - wr.left) < 700 || (wr.bottom - wr.top) < 420;
             if (!inside || tiny)
             {
