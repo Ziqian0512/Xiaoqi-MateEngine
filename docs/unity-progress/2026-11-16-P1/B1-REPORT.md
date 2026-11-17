@@ -196,3 +196,53 @@ XQ_TEST close drift win=2240,236 size=0,0 bodyCx=0 bodyBottom=0 bodyH=-1
 - **固定可运行路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\Xiaoqi\Xiaoqi.exe`
 - **操作清单与一键脚本**：`E:\dsh-pet-projects\Xiaoqi-Tonight\ACCEPT-TONIGHT.md`（配套 `1-启动验收(pink).cmd`、`2-主题blue.cmd`、`3-主题violet.cmd`），清单副本同步存于 `evidence/2026-11-17-B1-r4/ACCEPT-TONIGHT.md`。
 
+---
+
+## 第五次（自动化）（`int-all @ 0102fd20`，WB-G70）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `0102fd20`（含 `3d53968` P3-3 工作台方钮、`70c5a6a`、`0102fd2` WB 复核修复）；`xiaoqi/p2-agy4` @ `c04093d`（仅补生成 `XqBenchChrome.cs.meta`、`XqBenchChrome.uss.meta`，未改任何代码逻辑）。
+- **编译**：**过**（0 个错误，76 条警告，耗时 63s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r5/build-summary-0102fd2.md`）。
+- **证据文件**：`evidence/2026-11-17-B1-r5/`（`build-summary-0102fd2.md`、`close-test-0102fd2-Player.log`、`bench-chrome-0102fd2-Player.log`、`ACCEPT-TONIGHT.md`）。
+
+### 1. `-xq-close-test` 回归：**通过**
+
+- `XQ_PANEL ScreenToPanel flipsY=False origin=0.0,0.0 H=1440`（仅出现 1 次）。
+- 3 轮切入耗时：`1.03s`、`1.01s`、`1.01s`（全部 ≤ 1.3s）。
+- `XQ_CLOSE eyes`：3 轮稳定 `(0.50,0.57)` / `(0.50,0.55)` / `(0.50,0.55)`，退出前均 `(0.50,0.57)`（目标 `(0.50,0.57)`）。
+- 最终漂移：`XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=-1`。
+- 整段日志 **0** 条 `XQ_WATCH body outside`、**0** 条 `XQ_HOST fix window`、**0** 条 `XQ_HOST center`；仅 Unity Localization 预加载常规日志，0 业务异常。
+
+### 2. `-xq-bench-chrome-always` 方钮日志与截图说明
+
+- **方钮日志**：**有**（`evidence/2026-11-17-B1-r5/bench-chrome-0102fd2-Player.log`，0 运行时异常）：
+```text
+XQ_UI2 theme=pink class=xq-theme-pink
+XQ_PANEL ScreenToPanel flipsY=False origin=0.0,0.0 H=1440
+XQ_BENCH chrome doc=XqUi2Document
+XQ_BENCH chrome boot always=True
+XQ_BENCH chrome shown side=R rect=-173,-251 40x88
+XQ_UI2 on theme=pink class=xq-theme-pink scale=1.33 bodyH=484 fontPx=21.3 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+```
+- **日志观察供 WB 参考（按 G70 未改 `XqBenchChrome.cs`）**：
+  - 进程窗口位于副屏 `DISPLAY2`（2560×1440，175% 缩放），但 `XQ_BENCH chrome shown side=R rect=-173,-251 40x88` 打印的按钮宽高为 **`40x88`**（`BtnDip=40`, `40+8+40=88`），即 `GetDpiForWindow(UnityHwnd())` 在该环境下返回 96 DPI（`k=1.0`），未按 175% 放大到 `70x154`（`ProbeHwnd()` 在真打开 `XqBenchWindow` 时取 Edge HWND 或仍取 `UnityHwnd` 需晚上在实机核对）。
+  - 随后将窗口 `SetWindowPos` 迁至主屏 `1920x1080` 后，因两侧均为 `side=R` 满足 `if (side == _side) return;` 未再次打印第二条 `shown` 日志。
+- **方钮截图（100%/175%）**：**无**（隔离桌面 `CopyFromScreen` 报 `The handle is invalid`；尝试 `PrintWindow(..., 2)` 对 D3D11 透明窗仅导出空黑/空白色板，不含 UI 画面，故不以无效黑/白图冒充截图）。
+
+### 3. 物理桌面八项（均**待晚上主人验收**）
+
+| 序号 | 项 | 状态 | 晚上验收方式 |
+|---|---|---|---|
+| 1 | 设置页（主菜单/托盘/近景 `⚙`、点内外关、无今天卡） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #1 |
+| 2 | 拖她（上沿/左右边缘不闪回、跨双屏、无 `fix window`） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #2 |
+| 3 | 菜单抖（开菜单待机 10s 不抖、放大/缩小各开一次） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #3 |
+| 4 | 坐窗睡（坐窗顶边、右键、先下窗再睡、叫醒/拖醒） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #4 |
+| 5 | 主题（`-xq-theme blue \| violet` 各元素观感） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #5 |
+| 6 | 坐窗口后托盘退出（无 `SetOtherQuadsActive` 空指针） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #6 |
+| 7 | 工作台（右键/热键打开、右外侧双方钮、拖动跟随、点「近景」返回） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #7 |
+| 8 | 工作台全屏联动（他程序全屏时人与网页同藏同回、`XQ_FS hide/show`） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #8 |
+
+### 4. 重打晚上验收包（已覆盖更新）
+
+- **固定可运行路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\Xiaoqi\Xiaoqi.exe`（已覆盖为 `0102fd20` 编译产物）
+- **操作清单与脚本**：`E:\dsh-pet-projects\Xiaoqi-Tonight\ACCEPT-TONIGHT.md`（已补全第 7、8 项；`1-启动验收(pink).cmd` 已带上 `-settings-v2 -xq-hotkeys` 便于 `Ctrl+Alt+3`；副本同步存于 `evidence/2026-11-17-B1-r5/ACCEPT-TONIGHT.md`）。
+
