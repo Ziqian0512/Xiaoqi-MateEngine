@@ -265,7 +265,7 @@ namespace Xiaoqi.UI2
             _sweep = new VisualElement { pickingMode = PickingMode.Ignore };
             Abs(_sweep, -200f * _k, -120f * _k, 150f * _k, 900f * _k);
             _sweep.style.backgroundColor = new Color(1, 1, 1, 0.30f);
-            _sweep.style.rotate = new Rotate(new Angle(18f, AngleUnit.Degree));
+            _sweep.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(18f, AngleUnit.Degree));
             _panel.Add(_sweep);
 
             // 离线条
