@@ -34,6 +34,12 @@ namespace Xiaoqi.Mode
         // ---- G74 W1 原生工作台（默认走 Unity 原生；-xq-bench-web 或 bench_web=true 才开旧 Edge 网页版）----
         public bool bench_web = false;
         public float bench_pet_frac = 0.34f;  // 她在工作台里的身高占屏高比例（夹在 0.28~0.42，和桌宠差不多大）
+        // ---- G74 W2：她当「背景立绘」固定在右侧（置底不动），板在左边半透明；陀螺仪视差 ----
+        public float bench_stage_frac = 0.78f;   // 她身高占屏高（0.5~0.95）
+        public float bench_stage_vx = 0.76f;     // 眼睛落点（视口 0~1，左下原点）
+        public float bench_stage_vy = 0.56f;
+        public bool bench_parallax = true;       // 陀螺仪 / 光标视差（她轻转 + 板分层错位）
+        public float bench_parallax_deg = 7f;    // 她最多转多少度
         public float bench_eye_vx = 0.11f;    // 眼睛落点（视口 0~1，左下原点）
         public float bench_eye_vy = 0.80f;
         public string edge_path = "";         // 空 = 自动找 msedge.exe

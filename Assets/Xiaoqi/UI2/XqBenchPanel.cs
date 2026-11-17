@@ -87,9 +87,9 @@ namespace Xiaoqi.UI2
 
         static float PanelPx(float W, float H)
         {
-            float ph = 0.80f * H;
+            float ph = 0.74f * H;                       // W2：板退到左边 ~62% 宽，右边留给她
             float stageW = ph * StageW / PanH;
-            if (stageW > 0.76f * W) ph = 0.76f * W * PanH / StageW;
+            if (stageW > 0.62f * W) ph = 0.62f * W * PanH / StageW;
             return Mathf.Clamp(ph, 420f, 1100f);
         }
 
@@ -101,10 +101,10 @@ namespace Xiaoqi.UI2
             g.k = g.ph / PanH;
             g.stageW = StageW * g.k;
             // 位置：默认靠左偏下留出头顶给她；拖过就用拖到的（夹在显示器内）
-            float l0 = _sx >= 0f ? _sx : 0.27f * g.a;
-            float t0 = _sy >= 0f ? _sy : (1f - g.ph) * 0.5f + 0.03f;
+            float l0 = _sx >= 0f ? _sx : 0.04f * g.a;
+            float t0 = _sy >= 0f ? _sy : (1f - g.ph) * 0.5f;
             g.stageL = Mathf.Clamp(l0, 0.02f, Mathf.Max(0.02f, g.a - g.stageW - 0.02f));
-            g.stageT = Mathf.Clamp(t0, 0.07f, Mathf.Max(0.07f, 1f - g.ph - 0.02f));
+            g.stageT = Mathf.Clamp(t0, 0.03f, Mathf.Max(0.03f, 1f - g.ph - 0.07f));   // 底下留给叠层卡片
             g.boardL = g.stageL + (RailW + Gap) * g.k;
             g.boardR = g.stageL + g.stageW;
             return g;
@@ -119,35 +119,24 @@ namespace Xiaoqi.UI2
         /// <summary>她的目标：身高占屏高的比例，眼睛落在镜头视口的 (vx,vy)（左下原点）。</summary>
         public static void PetTarget(out float frac, out float vx, out float vy)
         {
-            float W, H; MonitorDims(out W, out H);
-            var g = GeoOf(W, H);
-            frac = Mathf.Clamp(XqModeConfig.I.bench_pet_frac, 0.28f, 0.42f);
-            float ex, ey;
-            if (_edge == 0)
-            {
-                float m = 0.12f * g.ph;
-                ex = Mathf.Lerp(g.boardL + m, g.boardR - m, _pos);
-                float vis = (_pose == 0 ? 0.20f : 0.42f) * frac;      // 板上沿以上露出多高
-                ey = g.stageT - vis + 0.07f * frac;                   // 眼睛在头顶下 7% 身高
-                ey = Mathf.Max(ey, 0.012f + 0.07f * frac);            // 头顶别出屏
-            }
-            else
-            {
-                float off = (_pose == 0 ? 0.05f : 0.14f) * frac;      // 身体中线离板边多远
-                ex = _edge == 1 ? g.stageL - off : g.boardR + off;
-                ey = g.stageT + (0.14f + _pos * 0.55f) * g.ph;
-            }
-            ex = Mathf.Clamp(ex, 0.04f, g.a - 0.04f);
-            vx = ex / g.a; vy = 1f - ey;
+            // W2：她是「背景立绘」——固定在屏幕右侧、脚在屏幕下沿以外（置底不动），板子半透明盖在她前面时不影响她。
+            var c = XqModeConfig.I;
+            frac = Mathf.Clamp(c.bench_stage_frac, 0.5f, 0.95f);
+            vx = Mathf.Clamp(c.bench_stage_vx, 0.55f, 0.9f);
+            vy = Mathf.Clamp(c.bench_stage_vy, 0.3f, 0.8f);
         }
 
         /// <summary>贴边时的歪头 / 转身（度）。左沿：头往左探、脸朝板；右沿反过来；上沿不歪。</summary>
         public static void PetTilt(out float roll, out float yaw)
         {
-            roll = 0f; yaw = 0f;
-            if (_edge == 1) { roll = _pose == 0 ? -22f : -10f; yaw = _pose == 0 ? -28f : -35f; }
-            else if (_edge == 2) { roll = _pose == 0 ? 22f : 10f; yaw = _pose == 0 ? 28f : 35f; }
+            // W2「陀螺仪」：她朝光标（或真陀螺仪）的方向轻轻转身 + 歪头；正 yaw = 脸朝屏幕左
+            float deg = Mathf.Clamp(XqModeConfig.I.bench_parallax_deg, 0f, 14f);
+            yaw = -_pxS * deg;
+            roll = yaw * 0.25f;
         }
+        static float _pxS, _pyS;           // 平滑后的视差输入 -1~1（右/上为正）
+        static float _lastTy = 999f;
+        static bool _gyroTried, _gyroOk;
 
         /// <summary>XqMode 进入工作台后调：把贴边的歪头/转身角度交给镜头那边。</summary>
         public static void ApplyTilt()
@@ -184,7 +173,9 @@ namespace Xiaoqi.UI2
         }
 
         // ---------------- 状态 ----------------
-        bool _built, _shown, _glass;
+        bool _built, _shown, _glass, _diag;
+        readonly List<VisualElement> _cards = new List<VisualElement>();
+        VisualElement _shadow;
         float _k = 1f;            // 设计 px → 面板单位
         float _builtPx, _builtUpp;
         float _t;                 // 进入后的秒数
@@ -228,6 +219,9 @@ namespace Xiaoqi.UI2
             _shown = true; _exitT = -1f; _t = 0f; _drag = 0; _bdrag = 0; _toastT = -1f;
             ApplyStagePos();
             _host.style.display = DisplayStyle.Flex;
+            _host.visible = true;
+            _host.BringToFront();
+            _diag = false; _lastTy = 999f;
             _data = XqCloseData.Ensure();
             _data.Changed -= OnData; _data.Changed += OnData;
             _data.Begin();
@@ -257,7 +251,7 @@ namespace Xiaoqi.UI2
             var root = doc != null ? doc.rootVisualElement : null;
             if (root == null) { Debug.Log("XQ_BENCH no UIDocument"); return; }
             float upp = root.panel != null ? XqPanelXf.UnitsPerPx(root.panel) : 1f;
-            if (_built && Mathf.Abs(px - _builtPx) / _builtPx < 0.03f && Mathf.Abs(upp - _builtUpp) / _builtUpp < 0.03f) return;
+            if (_built && _host != null && _host.parent != null && Mathf.Abs(px - _builtPx) / _builtPx < 0.03f && Mathf.Abs(upp - _builtUpp) / _builtUpp < 0.03f) return;
 
             var uss = Resources.Load<StyleSheet>("XqClose");
             if (uss != null && !root.styleSheets.Contains(uss)) root.styleSheets.Add(uss);
@@ -265,7 +259,7 @@ namespace Xiaoqi.UI2
             if (_host != null && _host.parent != null) _host.parent.Remove(_host);
             _built = false;
             _builtPx = px; _builtUpp = upp;
-            _nav.Clear(); _navHover.Clear(); _fills.Clear(); _knobs.Clear(); _fillPct.Clear();
+            _cards.Clear(); _nav.Clear(); _navHover.Clear(); _fills.Clear(); _knobs.Clear(); _fillPct.Clear();
             _k = (px / PanH) * upp;
 
             _host = new VisualElement { name = "xq-bench-host", pickingMode = PickingMode.Ignore };
@@ -326,11 +320,19 @@ namespace Xiaoqi.UI2
         void BuildPanel()
         {
             // 阴影三层（UI Toolkit 没有 box-shadow，用放大、偏移、低透明度的圆角矩形叠）
+            // W2：叠层卡片（参考图 1）——白板后面再叠 3 张越来越窄、越来越浅的卡，露出下沿；进入时从板后依次滑出，随「陀螺仪」反向错位
+            _shadow = Box((PanW + 24f) * _k, (PanH + 24f) * _k, 44f * _k, new Color(0.06f, 0.03f, 0.16f, 0.08f));
+            Abs(_shadow, (RailW + Gap - 12f) * _k, 4f * _k, (PanW + 24f) * _k, (PanH + 24f) * _k);
+            _stage.Add(_shadow);
+            Color[] cc = { Rgb(214, 208, 236, 0.92f), Rgb(228, 224, 244, 0.88f), Rgb(240, 238, 251, 0.84f) };
             for (int s = 3; s >= 1; s--)
             {
-                var sh = Box((PanW + s * 14f) * _k, (PanH + s * 14f) * _k, (38f + s * 7f) * _k, new Color(0.06f, 0.03f, 0.16f, 0.07f));
-                Abs(sh, (RailW + Gap - s * 7f) * _k, (s * 10f - 7f) * _k, (PanW + s * 14f) * _k, (PanH + s * 14f) * _k);
-                _stage.Add(sh);
+                float inset = s * 26f;
+                var card = Box((PanW - inset * 2f) * _k, PanH * _k, 38f * _k, cc[s - 1]);
+                Abs(card, (RailW + Gap + inset) * _k, 0f, (PanW - inset * 2f) * _k, PanH * _k);
+                Border(card, 1f, Rgb(255, 255, 255, 0.5f));
+                _cards.Insert(0, card);   // 下标 0 = 最靠近白板的那张（s=1）
+                _stage.Add(card);
             }
 
             _panel = new VisualElement { name = "xq-bench-panel", pickingMode = PickingMode.Ignore };
@@ -584,6 +586,21 @@ namespace Xiaoqi.UI2
             }
             else return;
             TickVisuals();
+            if (_shown && !_diag && _t > 0.7f)
+            {
+                _diag = true;
+                try
+                {
+                    var wb = _stage != null ? _stage.worldBound : new Rect();
+                    Debug.Log("XQ_BENCH diag host.disp=" + _host.resolvedStyle.display + " vis=" + _host.visible
+                        + " parent=" + (_host.parent != null ? _host.parent.name : "null")
+                        + " stage=" + wb.x.ToString("0") + "," + wb.y.ToString("0") + "," + wb.width.ToString("0") + "x" + wb.height.ToString("0")
+                        + " op=" + (_stage != null ? _stage.resolvedStyle.opacity.ToString("0.00") : "-")
+                        + " panelSize=" + (_host.panel != null ? _host.panel.visualTree.layout.width.ToString("0") + "x" + _host.panel.visualTree.layout.height.ToString("0") : "nopanel")
+                        + " screen=" + Screen.width + "x" + Screen.height + " pxS=" + _pxS.ToString("0.00"));
+                }
+                catch (Exception e) { Debug.Log("XQ_BENCH diag err " + e.Message); }
+            }
         }
 
         void TickVisuals()
@@ -600,6 +617,19 @@ namespace Xiaoqi.UI2
                 float p = EaseBack(_t / 0.8f);
                 op = Mathf.Clamp01(_t / 0.35f); sc = 0.93f + 0.07f * p; ty = (1f - p) * 26f * k;
             }
+            // W2 视差：板的各层按深度错位（近大远小），叠层卡片反向
+            float dx = _pxS, dy = -_pyS;     // UI 的 y 向下
+            if (_panel != null) _panel.style.translate = new Translate(dx * 3f * k, dy * 2f * k, 0f);
+            if (_rail != null) _rail.style.translate = new Translate(dx * 11f * k, dy * 6f * k, 0f);
+            if (_shadow != null) _shadow.style.translate = new Translate(-dx * 4f * k, -dy * 3f * k, 0f);
+            for (int s = 0; s < _cards.Count; s++)
+            {
+                float d = s + 1;
+                float pc = EaseOut((_t - 0.12f - s * 0.07f) / 0.55f);
+                if (_exitT >= 0f) pc = 0f;
+                _cards[s].style.translate = new Translate(-dx * 7f * d * k, (d * 13f * pc - dy * 4f * d) * k, 0f);
+                _cards[s].style.opacity = pc * (1f - 0.75f * _glassAnim);
+            }
             _stage.style.opacity = op;
             _stage.style.scale = new Scale(new Vector3(sc, sc, 1f));
             _stage.style.translate = new Translate(0f, ty, 0f);
@@ -615,7 +645,7 @@ namespace Xiaoqi.UI2
             {
                 float p = EaseOut((_t - 0.20f - r * 0.08f) / 0.60f);
                 _row[r].style.opacity = p;
-                _row[r].style.translate = new Translate(_rowHover[r] * 4f * k, (1f - p) * 14f * k, 0f);
+                _row[r].style.translate = new Translate((_rowHover[r] * 4f + _pxS * 5f) * k, ((1f - p) * 14f + (-_pyS) * 3f) * k, 0f);
             }
             for (int s = 0; s < _fills.Count; s++)
             {
@@ -673,6 +703,37 @@ namespace Xiaoqi.UI2
             return r.width > 2f && r.height > 2f && r.Contains((Vector2)Input.mousePosition);
         }
 
+        /// <summary>陀螺仪视差输入：有真陀螺仪（平板）就用它，否则用光标相对屏幕中心的位置。她随之轻转。</summary>
+        void UpdateParallax(float dt)
+        {
+            var c = XqModeConfig.I;
+            if (!c.bench_parallax) { _pxS = Mathf.MoveTowards(_pxS, 0f, dt * 3f); _pyS = Mathf.MoveTowards(_pyS, 0f, dt * 3f); }
+            else
+            {
+                float nx, ny;
+                if (!_gyroTried)
+                {
+                    _gyroTried = true;
+                    try { if (SystemInfo.supportsGyroscope) { Input.gyro.enabled = true; _gyroOk = true; } } catch (Exception) { _gyroOk = false; }
+                    Debug.Log("XQ_BENCH parallax src=" + (_gyroOk ? "gyro" : "mouse"));
+                }
+                if (_gyroOk)
+                {
+                    var gv = Input.gyro.gravity;                 // 竖直拿着时 x 左右、y 上下
+                    nx = Mathf.Clamp(gv.x * 3f, -1f, 1f); ny = Mathf.Clamp((gv.y + 0.6f) * 2.5f, -1f, 1f);
+                }
+                else
+                {
+                    nx = Mathf.Clamp((Input.mousePosition.x / Mathf.Max(1f, Screen.width) - 0.5f) * 2f, -1f, 1f);
+                    ny = Mathf.Clamp((Input.mousePosition.y / Mathf.Max(1f, Screen.height) - 0.5f) * 2f, -1f, 1f);
+                }
+                float a = 1f - Mathf.Exp(-5f * dt);
+                _pxS = Mathf.Lerp(_pxS, nx, a); _pyS = Mathf.Lerp(_pyS, ny, a);
+            }
+            float roll, yaw; PetTilt(out roll, out yaw);
+            if (Mathf.Abs(yaw - _lastTy) > 0.15f) { _lastTy = yaw; XqCloseCamera.SetTilt(roll, yaw); }
+        }
+
         void Toast(string s) { _toast.text = s; _toastT = 0f; }
 
         void PollSelf()
@@ -686,6 +747,7 @@ namespace Xiaoqi.UI2
             _tgHover = Mathf.MoveTowards(_tgHover, (OverEl(_tg) || OverEl(_row[5])) ? 1f : 0f, dt * 8f);
             _retryHover = Mathf.MoveTowards(_retryHover, (_offline && OverEl(_offRetry)) ? 1f : 0f, dt * 8f);
 
+            UpdateParallax(dt);
             if (XqMode.Busy) { _drag = 0; _bdrag = 0; return; }
 
             bool down = Input.GetMouseButtonDown(0), held = Input.GetMouseButton(0);
@@ -723,11 +785,6 @@ namespace Xiaoqi.UI2
                     _bdragStage = new Vector2(g0.stageL, g0.stageT);
                     return;
                 }
-                if (!OverAnySelf() && OnHer())
-                {
-                    _lastClickFrame = Time.frameCount; _drag = 1; _dragFrom = Input.mousePosition; _dragMoved = false;
-                    return;
-                }
             }
             if (_bdrag == 1)
             {
@@ -743,8 +800,7 @@ namespace Xiaoqi.UI2
                         float W1, H1; MonitorDims(out W1, out H1);
                         var g1 = GeoOf(W1, H1);          // 取夹过的值写回，避免拖出屏后累积
                         _sx = g1.stageL; _sy = g1.stageT;
-                        ApplyStagePos();
-                        ApplyPet();                      // 她贴着板，一起动
+                        ApplyStagePos();                 // W2：她固定在背景，不跟着动
                     }
                 }
                 else

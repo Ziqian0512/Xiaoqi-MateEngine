@@ -147,9 +147,18 @@ namespace Xiaoqi.Mode
                 {
                     float pf, pvx, pvy;
                     Xiaoqi.UI2.XqBenchPanel.PetTarget(out pf, out pvx, out pvy);
-                    bool ok = from == XqView.Close
-                        ? XqCloseCamera.Retarget(true, pf, pvx, pvy)
-                        : XqCloseCamera.BeginEnterBench(pf, pvx, pvy);
+                    bool ok;
+                    if (from == XqView.Close) ok = XqCloseCamera.Retarget(true, pf, pvx, pvy);
+                    else
+                    {
+                        // W2：桌宠直接进工作台 = 先走「进近景」那条已验证的路（只换镜头不出卡片），再换成工作台落点
+                        ok = XqCloseCamera.BeginEnter();
+                        if (ok)
+                        {
+                            yield return new WaitForSecondsRealtime(XqCloseCamera.SettleSec);
+                            ok = XqCloseCamera.Retarget(true, pf, pvx, pvy);
+                        }
+                    }
                     if (!ok)
                     {
                         Debug.Log("XQ_MODE bench(native) failed, back to Pet");
@@ -159,7 +168,7 @@ namespace Xiaoqi.Mode
                     {
                         Xiaoqi.UI2.XqBenchPanel.ApplyTilt();
                         // 从桌宠来：等 ME 的窗口铺满 + 镜头淡入（约 0.9 秒）再出面板；从近景来：窗口早就铺满了
-                        float showAt = from == XqView.Close ? 0.5f : 0.9f;
+                        float showAt = 0.5f;
                         yield return new WaitForSecondsRealtime(showAt);
                         Xiaoqi.UI2.XqBenchPanel.Show();
                         yield return new WaitForSecondsRealtime(Mathf.Max(0f, XqCloseCamera.SettleSec - showAt) + 0.1f);
