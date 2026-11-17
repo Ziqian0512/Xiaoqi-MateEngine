@@ -447,7 +447,8 @@ namespace Xiaoqi.UI2
             if (view == Xiaoqi.Mode.XqView.Bench && !Xiaoqi.Mode.XqMode.BenchAvailable) { Debug.Log("XQ_HUD entry bench not available"); return; }
             if (Xiaoqi.Mode.XqMode.Current == view || Xiaoqi.Mode.XqMode.Busy) { Debug.Log("XQ_HUD entry ignored view=" + view + " busy=" + Xiaoqi.Mode.XqMode.Busy); return; }
             SetView(view.ToString().ToLowerInvariant());
-            Xiaoqi.Mode.XqMode.Set(view);
+            bool setOk = Xiaoqi.Mode.XqMode.Set(view);
+            Debug.Log("XQ_HUD entry-activate view=" + view + " set=" + setOk + " cur=" + Xiaoqi.Mode.XqMode.Current);
             SetMenu(false);
         }
 

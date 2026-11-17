@@ -145,20 +145,29 @@ namespace Xiaoqi.Mode
             {
                 if (BenchNative)
                 {
-                    float pf, pvx, pvy;
-                    Xiaoqi.UI2.XqBenchPanel.PetTarget(out pf, out pvx, out pvy);
+                    float pf = 0f, pvx = 0f, pvy = 0f;
                     bool ok;
-                    if (from == XqView.Close) ok = XqCloseCamera.Retarget(true, pf, pvx, pvy);
+                    string path;
+                    if (from == XqView.Close)
+                    {
+                        path = "from-close";
+                        Xiaoqi.UI2.XqBenchPanel.PetTarget(out pf, out pvx, out pvy);
+                        ok = XqCloseCamera.Retarget(true, pf, pvx, pvy);
+                    }
                     else
                     {
-                        // W2：桌宠直接进工作台 = 先走「进近景」那条已验证的路（只换镜头不出卡片），再换成工作台落点
+                        // 桌宠直接进工作台 = 先走「进近景」那条已验证的路（只换镜头不出卡片），窗口铺满后再按真实屏幕尺寸算落点
+                        path = "pet-direct";
                         ok = XqCloseCamera.BeginEnter();
                         if (ok)
                         {
                             yield return new WaitForSecondsRealtime(XqCloseCamera.SettleSec);
+                            Xiaoqi.UI2.XqBenchPanel.PetTarget(out pf, out pvx, out pvy);
                             ok = XqCloseCamera.Retarget(true, pf, pvx, pvy);
                         }
                     }
+                    Debug.Log("XQ_MODE bench path=" + path + " ok=" + ok + " screen=" + Screen.width + "x" + Screen.height
+                        + " target frac=" + pf.ToString("0.00") + " eye=(" + pvx.ToString("0.00") + "," + pvy.ToString("0.00") + ")");
                     if (!ok)
                     {
                         Debug.Log("XQ_MODE bench(native) failed, back to Pet");
@@ -171,6 +180,7 @@ namespace Xiaoqi.Mode
                         float showAt = 0.5f;
                         yield return new WaitForSecondsRealtime(showAt);
                         Xiaoqi.UI2.XqBenchPanel.Show();
+                        Debug.Log("XQ_MODE bench shown=" + Xiaoqi.UI2.XqBenchPanel.IsShown + " path=" + path);
                         yield return new WaitForSecondsRealtime(Mathf.Max(0f, XqCloseCamera.SettleSec - showAt) + 0.1f);
                     }
                 }

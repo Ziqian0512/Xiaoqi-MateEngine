@@ -159,6 +159,7 @@ namespace Xiaoqi.Mode
             _tYaw = Mathf.MoveTowards(_tYaw, _tYawT, 150f * dt);
             bool moving = !Mathf.Approximately(_tRoll, _tRollT) || !Mathf.Approximately(_tYaw, _tYawT);
             if (moving) _enterAt = Time.unscaledTime - (_win - 0.6f); // 转的时候让对眼继续跑
+            if (_benchFrac > 0f && Mathf.Abs(a.GetFloat("IdleIndex")) > 0.01f) a.SetFloat("IdleIndex", 0f);   // W3：工作台里不换待机
             if (_tRoll == 0f && _tYaw == 0f && !_tiltApplied) return;
             a.transform.rotation = Quaternion.AngleAxis(_tRoll, Vector3.forward) * Quaternion.AngleAxis(_tYaw, Vector3.up) * _baseRot;
             _tiltApplied = (_tRoll != 0f || _tYaw != 0f);
@@ -215,8 +216,7 @@ namespace Xiaoqi.Mode
         {
             if (!_active || Handler() == null) return;
             TargetVx = vx; TargetVy = vy;
-            _enterAt = Time.unscaledTime - (_win - 0.6f);
-            _loggedSettledEyes = false;
+            _enterAt = Time.unscaledTime - (_win - 0.6f);   // 拖动时每帧调：不重置「已记日志」标记，免得每帧刷 XQ_CLOSE eyes
         }
 
         private static AvatarBigScreenHandler Handler()
@@ -278,6 +278,11 @@ namespace Xiaoqi.Mode
                 TargetVx = vx; TargetVy = vy;
                 _benchFrac = bodyFrac; _win = 2.6f;
                 _enterAt = Time.unscaledTime - 0.6f; // 已经在大屏里，不用等淡入
+                if (h.avatarAnimator != null)   // W3：工作台里她固定一个乖巧站姿，不做随机待机
+                {
+                    h.avatarAnimator.SetFloat("IdleIndex", 0f);
+                    h.avatarAnimator.speed = 0.05f;
+                }
             }
             else
             {
@@ -285,6 +290,7 @@ namespace Xiaoqi.Mode
                 h.YOffset = c.close_yoffset;
                 TargetVx = CloseVx; TargetVy = CloseVy;
                 _benchFrac = 0f; _win = 1.6f;
+                if (h.avatarAnimator != null) h.avatarAnimator.speed = 0.15f;
                 ResetTilt(h.avatarAnimator);
                 _enterAt = Time.unscaledTime;
             }

@@ -463,6 +463,16 @@ namespace Xiaoqi.UI2
             // 形态切换（桌宠/近景/工作台）只放右下方钮，菜单里不再放（主人 11-16 定）
 
             _l1Box.Add(Row("sun", "今天", () => { Close("action"); _openToday?.Invoke(); }));
+            // W3：桌宠态要有可靠的工作台入口（右下方钮要先点开再点，闲置还会淡隐）
+            if (Xiaoqi.Mode.XqMode.BenchAvailable)
+                _l1Box.Add(Row("win", "工作台", () =>
+                {
+                    Close("action");
+                    bool ok = Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Bench);
+                    Debug.Log("XQ_MENU2 bench-click set=" + ok + " cur=" + Xiaoqi.Mode.XqMode.Current + " busy=" + Xiaoqi.Mode.XqMode.Busy);
+                }));
+            else
+                _l1Box.Add(Gray("win", "工作台", "还没开放"));
             _l1Box.Add(Gray("chat", "说句话", "还没开通"));
             _l1Box.Add(SubRow("spark", "让她…", "doing"));
             string quietWord = XiaoqiRuntime.Dnd ? "安静一会 · 安静中" : "安静一会";
