@@ -22,7 +22,7 @@ namespace Xiaoqi.UI2
     /// - 命中一律轮询 worldBound + XqPanelXf.FromScreen（#18 的教训：只用翻 Y 的那个点）。
     /// - 数据沿用 XqCloseData（/api/body/day|feed）。连不上就用上次缓存（xq_bench_cache.json）并亮「本地服务没开 · 重试」。
     /// </summary>
-    public class XqBenchPanel
+    public partial class XqBenchPanel
     {
         static XqBenchPanel _i;
         public static bool IsShown { get { return _i != null && _i._shown; } }
@@ -275,6 +275,7 @@ namespace Xiaoqi.UI2
             _data.Begin();
             LoadCacheIfEmpty();
             Refill();
+            PageShow();      // W6
             TickVisuals();
             PetHost.I?.SetUiBlocksMovement(true);
             Debug.Log("XQ_BENCH open k=" + _k.ToString("0.000") + " glass=" + _glass + " edge=" + _edge + " pose=" + _pose);
@@ -285,6 +286,7 @@ namespace Xiaoqi.UI2
             if (!_shown) return;
             _shown = false; _drag = 0; _bdrag = 0;
             if (_data != null) { _data.Changed -= OnData; _data.End(); }
+            PageHide();      // W6
             _exitT = 0f;
             PetHost.I?.SetUiBlocksMovement(false);
             Debug.Log("XQ_BENCH close");
@@ -307,7 +309,7 @@ namespace Xiaoqi.UI2
             if (_host != null && _host.parent != null) _host.parent.Remove(_host);
             _built = false;
             _builtPx = px; _builtUpp = upp;
-            _nav.Clear(); _navHover.Clear(); _fills.Clear(); _knobs.Clear(); _fillPct.Clear();
+            _nav.Clear(); _navHover.Clear(); _navGlyph.Clear(); _fills.Clear(); _knobs.Clear(); _fillPct.Clear();
             _k = (px / PanH) * upp;
 
             _host = new VisualElement { name = "xq-bench-host", pickingMode = PickingMode.Ignore };
@@ -352,18 +354,20 @@ namespace Xiaoqi.UI2
             var dot = Box(8f * _k, 8f * _k, 4f * _k, acc);
             dot.style.marginBottom = 12f * _k;
             _rail.Add(dot);
-            string[] icons = { "home", "heart", "chat", "spark", "gear" };
+            // W6：0 今天 / 1 她（此刻） / 2 生活 / 3 记忆 / 4 成长 / 5 设置（沉底，只提示）
+            string[] icons = { "home", "heart", "cal", "chat", "spark", "gear" };
+            _navGlyph.Clear();
             for (int n = 0; n < icons.Length; n++)
             {
-                var b = Box(46f * _k, 46f * _k, 16f * _k, n == 0 ? Color.white : new Color(1, 1, 1, 0));
-                if (n == 0) Border(b, 1f, new Color(acc.r, acc.g, acc.b, 0.35f));
+                var b = Box(46f * _k, 46f * _k, 16f * _k, n == _page ? Color.white : new Color(1, 1, 1, 0));
+                Border(b, 1f, new Color(acc.r, acc.g, acc.b, n == _page ? 0.35f : 0f));
                 b.style.marginBottom = 6f * _k;
                 b.style.alignItems = Align.Center; b.style.justifyContent = Justify.Center;
-                var g = new XqGlyph(icons[n], n == 0 ? accDeep : new Color(Ink.r, Ink.g, Ink.b, n >= 3 ? 0.45f : 0.78f));
+                var g = new XqGlyph(icons[n], n == _page ? accDeep : new Color(Ink.r, Ink.g, Ink.b, n == icons.Length - 1 ? 0.45f : 0.78f));
                 g.style.width = 22f * _k; g.style.height = 22f * _k;
                 b.Add(g);
-                if (n == 4) b.style.marginTop = new StyleLength(StyleKeyword.Auto); // 设置键沉到底
-                _nav.Add(b); _navHover.Add(0f); _rail.Add(b);
+                if (n == icons.Length - 1) b.style.marginTop = new StyleLength(StyleKeyword.Auto); // 设置键沉到底
+                _nav.Add(b); _navHover.Add(0f); _navGlyph.Add(g); _rail.Add(b);
             }
             _stage.Add(_rail);
         }
@@ -450,6 +454,7 @@ namespace Xiaoqi.UI2
             Abs(_knob, 29f * _k, 3f * _k, 24f * _k, 24f * _k);
             _tg.Add(_knob); c.Add(_tg);
 
+            CapturePage0();   // W6：第 0 页的 6 行内容摘下来存好，切页时清空重填
             _sweep = new VisualElement { pickingMode = PickingMode.Ignore };
             Abs(_sweep, -200f * _k, -120f * _k, 150f * _k, 900f * _k);
             _sweep.style.backgroundColor = new Color(1, 1, 1, 0.30f);
@@ -562,7 +567,7 @@ namespace Xiaoqi.UI2
             var now = DateTime.Now;
             int nowMin = (!_offline && _day != null && _day.now_min > 0) ? _day.now_min : now.Hour * 60 + now.Minute;
             string stamp = (!_offline && _day != null && !string.IsNullOrEmpty(_day.now)) ? _day.now : now.ToString("HH:mm");
-            _metaLabel.text = "主人 · " + stamp + " · 今日";
+            if (_page == 0) _metaLabel.text = "主人 · " + stamp + " · 今日";
 
             _timelineHost.Clear();
             var segs = _day != null && _day.segs != null ? _day.segs : new XqCloseDay.Seg[0];
@@ -668,6 +673,7 @@ namespace Xiaoqi.UI2
 
         void TickVisuals()
         {
+            PageTick(Time.unscaledDeltaTime);   // W6 切页淡入
             float k = _k;
             float op, sc, ty;
             if (_exitT >= 0f)
@@ -703,12 +709,12 @@ namespace Xiaoqi.UI2
                 float p = EaseOut((_t - 0.10f - n * 0.05f) / 0.45f);
                 _nav[n].style.opacity = p;
                 _nav[n].style.translate = new Translate(-10f * k * (1f - p) + _navHover[n] * 3f * k, 0f, 0f);
-                if (n > 0) _nav[n].style.backgroundColor = new Color(1f, 1f, 1f, 0.34f * _navHover[n]);
+                _nav[n].style.backgroundColor = new Color(1f, 1f, 1f, n == _page ? 1f : 0.34f * _navHover[n]);
             }
             for (int r = 0; r < RowN; r++)
             {
                 float p = EaseOut((_t - 0.20f - r * 0.08f) / 0.60f);
-                _row[r].style.opacity = p;
+                _row[r].style.opacity = p * _pgFade;
                 _row[r].style.translate = new Translate((_rowHover[r] * 4f + _pxS * 1.6f) * k, ((1f - p) * 14f + (-_pyS) * 1.0f) * k, 0f);
                 _row[r].style.backgroundColor = new Color(1f, 1f, 1f, 0.32f * _rowHover[r]);
             }
@@ -741,7 +747,7 @@ namespace Xiaoqi.UI2
             _knob.style.left = Mathf.Lerp(3f, 29f, _glassAnim) * k;
             _tg.style.scale = new Scale(Vector3.one * (1f + 0.06f * _tgHover));
             _close.style.backgroundColor = new Color(0f, 0f, 0f, 0.07f * _closeHover);
-            float ot = Mathf.MoveTowards(_offBar.style.opacity.value, _offline ? 1f : 0f, Time.unscaledDeltaTime * 3f);
+            float ot = Mathf.MoveTowards(_offBar.style.opacity.value, OfflineNow ? 1f : 0f, Time.unscaledDeltaTime * 3f);
             _offBar.style.opacity = ot;
             _offRetry.style.scale = new Scale(Vector3.one * (1f + 0.08f * _retryHover));
             if (_toastT >= 0f)
@@ -817,23 +823,25 @@ namespace Xiaoqi.UI2
             for (int r = 0; r < RowN; r++) _rowHover[r] = Mathf.MoveTowards(_rowHover[r], OverEl(_row[r]) ? 1f : 0f, dt * 6f);
             for (int n = 0; n < _nav.Count; n++) _navHover[n] = Mathf.MoveTowards(_navHover[n], OverEl(_nav[n]) ? 1f : 0f, dt * 8f);
             _closeHover = Mathf.MoveTowards(_closeHover, OverEl(_close) ? 1f : 0f, dt * 8f);
-            _tgHover = Mathf.MoveTowards(_tgHover, (OverEl(_tg) || OverEl(_row[5])) ? 1f : 0f, dt * 8f);
-            _retryHover = Mathf.MoveTowards(_retryHover, (_offline && OverEl(_offRetry)) ? 1f : 0f, dt * 8f);
+            _tgHover = Mathf.MoveTowards(_tgHover, (_page == 0 && (OverEl(_tg) || OverEl(_row[5]))) ? 1f : 0f, dt * 8f);
+            _retryHover = Mathf.MoveTowards(_retryHover, (OfflineNow && OverEl(_offRetry)) ? 1f : 0f, dt * 8f);
 
             UpdateParallax(dt);
             if (XqMode.Busy) { _drag = 0; _bdrag = 0; return; }
 
             bool down = Input.GetMouseButtonDown(0), held = Input.GetMouseButton(0);
+            if (PagePoll(down && _lastClickFrame != Time.frameCount)) { _lastClickFrame = Time.frameCount; return; }   // W6：滚轮翻看 / 页内按钮
             if (down && _lastClickFrame != Time.frameCount)
             {
                 if (OverEl(_close)) { _lastClickFrame = Time.frameCount; Debug.Log("XQ_BENCH btn close"); XqMode.Set(XqView.Close); return; }
-                if (_offline && OverEl(_offRetry))
+                if (OfflineNow && OverEl(_offRetry))
                 {
-                    _lastClickFrame = Time.frameCount; Debug.Log("XQ_BENCH retry");
-                    if (_data != null) { _data.End(); _data.Begin(); }
+                    _lastClickFrame = Time.frameCount; Debug.Log("XQ_BENCH retry page=" + _page);
+                    if (_page == 0) { if (_data != null) { _data.End(); _data.Begin(); } }
+                    else if (_bd != null) _bd.Refresh();
                     return;
                 }
-                if (OverEl(_tg) || OverEl(_row[5]))
+                if (_page == 0 && (OverEl(_tg) || OverEl(_row[5])))
                 {
                     _lastClickFrame = Time.frameCount;
                     _glass = !_glass; PlayerPrefs.SetInt("xq_bench_glass2", _glass ? 1 : 0); PlayerPrefs.Save();
@@ -844,7 +852,8 @@ namespace Xiaoqi.UI2
                     if (OverEl(_nav[n]))
                     {
                         _lastClickFrame = Time.frameCount;
-                        if (n > 0) { Debug.Log("XQ_BENCH nav " + n + " (W2)"); Toast("这一页下一期开放"); }
+                        if (n <= 4) SelectPage(n);                       // W6：0 今天 1 她 2 生活 3 记忆 4 成长
+                        else { Debug.Log("XQ_BENCH nav gear"); Toast("设置在桌宠右键菜单里"); }
                         return;
                     }
                 if (OverEl(_rail) || OverEl(_header))

@@ -1,0 +1,39 @@
+{
+ "ok": true,
+ "day": "2026-11-18",
+ "has_v4": true,
+ "diary": {
+  "day": "2026-11-18",
+  "generated_at": "2026-11-18 00:20:08",
+  "status": "fallback",
+  "attempts": 3,
+  "model": "",
+  "error": "HTTPError: HTTP Error 402: Payment Required",
+  "items": [
+   {
+    "ref": "S1",
+    "kind": "段",
+    "start": "00:43",
+    "end": "06:30",
+    "name": "睡了",
+    "place": "宿舍",
+    "cid": "D01",
+    "pick": [],
+    "share": false,
+    "io": "室内",
+    "skind": "睡觉",
+    "i": 0,
+    "text": "睡了"
+   }
+  ]
+ },
+ "pool_opts": {
+  "上课坐哪": [
+   "中间那排",
+   "后排靠插座",
+   "前排，来晚了只剩这里",
+   "和饭搭子坐一起"
+  ]
+ },
+ "auto_opts": {}
+}

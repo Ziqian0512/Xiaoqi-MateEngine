@@ -1,0 +1,57 @@
+{
+ "cards": [
+  {
+   "id": "B001",
+   "name": "闹钟响了三遍才起来",
+   "layer": "分支",
+   "keys": "闹钟",
+   "place": "宿舍",
+   "cond": [
+    "need.困意>=60"
+   ],
+   "hang": [
+    "起床"
+   ],
+   "share": false
+  }
+ ],
+ "activities": {
+  "睡觉": {
+   "met": 0.9,
+   "body": 8,
+   "hunger_x": 0.35,
+   "brain": 8,
+   "social": 1,
+   "fun": 0,
+   "sleep": true,
+   "use": "夜里主睡眠"
+  }
+ },
+ "supplies": {
+  "正餐": {
+   "dim": "饥饿",
+   "mode": "set",
+   "val": 5
+  }
+ },
+ "places": {
+  "dorm": {
+   "id": "dorm",
+   "name": "宿舍",
+   "full": "薄扶林 · 宿舍",
+   "alias": [
+    "宿舍（薄扶林）"
+   ],
+   "indoor": true,
+   "lnglat": [
+    114.134,
+    22.2795
+   ]
+  }
+ },
+ "tags": [
+  "开心"
+ ],
+ "errors": [],
+ "saved_at": null
+}

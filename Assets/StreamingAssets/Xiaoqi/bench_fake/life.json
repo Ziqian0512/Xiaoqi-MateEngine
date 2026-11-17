@@ -1,0 +1,69 @@
+{
+ "date": "2026-11-18",
+ "note": "",
+ "place": {
+  "where": "薄扶林 · 宿舍",
+  "doing": "睡前刷手机",
+  "since": "00:08"
+ },
+ "weather": {
+  "temp": 21.2,
+  "humidity": 96,
+  "rain": 0.0,
+  "code": 0,
+  "desc": "晴",
+  "ts_text": "2026-11-18T04:45"
+ },
+ "cards": [
+  {
+   "at": "00:43",
+   "end": "06:30",
+   "layer": "主",
+   "text": "睡了",
+   "kind": "睡觉",
+   "place": "宿舍",
+   "micro": null,
+   "share": false,
+   "cid": "D01",
+   "pick": [],
+   "rule": "g41"
+  }
+ ],
+ "segments": [
+  {
+   "id": "D01",
+   "name": "睡了",
+   "pick": [],
+   "share": false,
+   "layer": "main",
+   "kind": "睡觉",
+   "place": "宿舍",
+   "pid": "dorm",
+   "act": "睡觉",
+   "start": "00:43",
+   "end": "06:30",
+   "until": "06:30",
+   "kids": [
+    {
+     "at": "03:00",
+     "kind": "分支",
+     "text": "还在睡",
+     "plan": false,
+     "cid": "",
+     "pick": [],
+     "share": false
+    }
+   ],
+   "io": "室内",
+   "a": 43,
+   "b": 390
+  }
+ ],
+ "checks": [
+  {
+   "id": "C1",
+   "ok": true,
+   "msg": "时间不重叠"
+  }
+ ]
+}

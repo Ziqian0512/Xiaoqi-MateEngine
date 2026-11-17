@@ -1,0 +1,62 @@
+{
+ "now": "2026-11-18 04:48:49",
+ "counts": {
+  "experiences": 3464,
+  "reactions": 64,
+  "reflections": 1007,
+  "examples": 1113,
+  "facts": 541,
+  "curiosity": 264
+ },
+ "thoughts": [
+  {
+   "ts": "2026-11-17 14:25:28",
+   "thought": "今天要还不启动那个唯一的非群聊载体，我会把“选错项目”落到预设验收点..."
+  }
+ ],
+ "examples": [
+  {
+   "her_line": "那更得现在闭眼，明天脑子糊着干活，最烦。晚安。",
+   "reaction": "你也别说话了快去睡觉吧",
+   "label": "teach"
+  },
+  {
+   "her_line": "行，不吭声了。手放下了。",
+   "reaction": "手放下了还能打字啊",
+   "label": "good"
+  },
+  {
+   "her_line": "没赶上现场，只知道那场红馆里坐了好几百个艺人。回头我找录音补上。",
+   "reaction": "",
+   "label": "bad"
+  }
+ ],
+ "curiosity": [
+  {
+   "topic": "别人怎么改宿舍",
+   "channel": "qzone"
+  },
+  {
+   "topic": "直播尝试",
+   "channel": "bili"
+  },
+  {
+   "topic": "《异界锁链》移植PC",
+   "channel": "anime"
+  }
+ ],
+ "knobs": {
+  "len_x": 1.0,
+  "kao_x": 0.94,
+  "talk_x": {
+   "<group_id>": 0.653
+  },
+  "reach_hours": [],
+  "sticker_pref": {
+   "斗图": 15,
+   "卖萌": 12
+  }
+ },
+ "self_now": "BV正片、直播、三楼汤...",
+ "weekly": "主人，我最近迷上拆歌插件了..."
+}
