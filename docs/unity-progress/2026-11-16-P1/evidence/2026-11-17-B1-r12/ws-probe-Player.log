@@ -1,0 +1,187 @@
+Mono path[0] = 'E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/Xiaoqi_Data/Managed'
+Mono config path = 'E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/MonoBleedingEdge/etc'
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Initialize engine version: 6000.2.6f2 (4a4dcaec6541)
+[Subsystems] Discovering subsystems at path E:/dsh-pet-projects/Xiaoqi-ME-p2/Build/Xiaoqi/Xiaoqi_Data/UnitySubsystems
+kGfxThreadingModeSplitJobs is not supported on Direct3D 11. Reverting to kGfxThreadingModeClientWorkerJobs instead.
+GfxDevice: creating device client; kGfxThreadingModeClientWorkerJobs
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 5090 D v2 (ID=0x2b8c)
+    Vendor:   NVIDIA
+    VRAM:     24035 MB
+    Driver:   32.0.16.1088
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.075 seconds
+- Finished resetting the current domain, in  0.001 seconds
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+<RI> Initializing input.
+<RI> Input initialized.
+The class named 'SteamDRM' is abstract. The script class can't be abstract!
+UnloadTime: 0.350200 ms
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+[Steamworks.NET] SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.
+Failed to add system tray icon. Error: -2147467259
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+FPS set to: 90
+<color=#bada55>[Receiver] Awake! Avatar: DEFAULT AVATAR</color>
+<color=#4FFFD7>[Receiver] Aktiviert: DEFAULT AVATAR (VRMModel)</color>
+[AvatarMinecraftMessages] UDP ready on 32145
+XiaoqiHide: not found = AI
+XiaoqiHide: not found = FOOD SYSTEM
+XiaoqiHide: not found = STEAM DLC
+XiaoqiHide: not found AI INPUT
+XiaoqiHide: not found AiSystemPrompt
+XiaoqiHide: not found AlarmMenuCanvas
+XiaoqiHide: not found BlendshapeMenuCanvas
+XiaoqiHide: not found DancePlayerMenuCanvas
+XiaoqiHide: not found Discord
+XiaoqiHide: not found Discord RPC
+XiaoqiHide: not found Food System
+XiaoqiHide: not found FoodMenu
+XiaoqiHide: not found LOCK_STEAM_DLC
+XiaoqiHide: not found Main Menu
+XiaoqiHide: not found MainMenuAlarm
+XiaoqiHide: not found MateEngineAPI/FoodMenu
+XiaoqiHide: not found MenuPanel
+XiaoqiHide: not found ModLoader
+XiaoqiHide: not found STEAM_DLC
+XiaoqiHide: not found STEAM_FS
+XiaoqiHide: not found STEAM_MC
+XiaoqiHide: not found SteamContent
+XiaoqiHide: not found SteamDRM
+XiaoqiHide: not found SteamSDK
+XiaoqiHide: not found SteamWorkshop
+XiaoqiHide: not found SystemStart
+XiaoqiHide: not found Tutorial
+XiaoqiHide: not found Welcome
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XQ_UI2 theme=pink class=xq-theme-pink
+XQ_SHOT_Awake args=2 index=-1
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+[SystemStartHandler] Enabled autostart (HKCU) as 'Xiaoqi' → "E:\dsh-pet-projects\Xiaoqi-ME-p2\Build\Xiaoqi\Xiaoqi.exe"
+XiaoqiHide: not found = AI
+XiaoqiHide: not found = FOOD SYSTEM
+XiaoqiHide: not found = ME Modding
+XiaoqiHide: not found = Settings
+XiaoqiHide: not found = STEAM DLC
+XiaoqiHide: not found = Steam Exklusives
+XiaoqiHide: not found AI Alarm Speech
+XiaoqiHide: not found AI INPUT
+XiaoqiHide: not found AI Speech
+XiaoqiHide: not found AiSystemPrompt
+XiaoqiHide: not found AlarmMenuCanvas
+XiaoqiHide: not found BlendshapeMenuCanvas
+XiaoqiHide: not found Chat
+XiaoqiHide: not found ChatBot AI
+XiaoqiHide: not found DancePlayerMenuCanvas
+XiaoqiHide: not found Discord
+XiaoqiHide: not found Discord RPC
+XiaoqiHide: not found DiscordPresence
+XiaoqiHide: not found Food
+XiaoqiHide: not found Food System
+XiaoqiHide: not found FoodMenu
+XiaoqiHide: not found LOCK_STEAM_DLC
+XiaoqiHide: not found Main Menu
+XiaoqiHide: not found MainMenuAlarm
+XiaoqiHide: not found MateEngineAPI/FoodMenu
+XiaoqiHide: not found MateEngineAPI/ModLoader
+XiaoqiHide: not found MenuPanel
+XiaoqiHide: not found ModLoader
+XiaoqiHide: not found STEAM_DLC
+XiaoqiHide: not found STEAM_FS
+XiaoqiHide: not found STEAM_MC
+XiaoqiHide: not found SteamAPI
+XiaoqiHide: not found SteamContent
+XiaoqiHide: not found SteamDRM
+XiaoqiHide: not found SteamSDK
+XiaoqiHide: not found SteamWorkshop
+XiaoqiHide: not found SystemStart
+XiaoqiHide: not found Tutorial
+XiaoqiHide: not found Welcome
+XiaoqiHide: not found Welcome Window
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XIAOQI_SYSTEMS ready model=E:\dsh-pet-projects\Xiaoqi-ME-p2\Build\Xiaoqi\XiaoqiData\16.vrm host=True
+XQ_HOST me-menu suppressed
+XQ_WSPROBE start
+XQ_PANEL ScreenToPanel flipsY=False origin=0.0,0.0 H=1080
+<color=#FFBC4F>[Receiver] Deaktiviert: DEFAULT AVATAR (VRMModel)</color>
+<color=#bada55>[Receiver] Awake! Avatar: Default</color>
+<color=#4FFFD7>[Receiver] Aktiviert: Default (CustomVRM(Clone))</color>
+<color=#93FF4F>[Receiver] SetAnimator called! Neuer Animator gesetzt f黵: MODDED AVATAR (CustomVRM(Clone))</color>
+[AvatarMinecraftMessages] UDP ready on 32145
+[AvatarLibraryMenu] VRM already exists in library, skipping: Ciel_VRC_bake_1.0
+Unloading 5 Unused Serialized files (Serialized files now loaded: 5)
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+XQ_UI2 camera direct hdr=0 msaa=0 keepAlpha=1
+Unloading 27 unused Assets to reduce memory usage. Loaded Objects now: 15193.
+Total: 2.488900 ms (FindLiveObjects: 0.473000 ms CreateObjectMapping: 0.168700 ms MarkObjects: 1.813800 ms  DeleteObjects: 0.033200 ms)
+
+XQ_HOST avatar CustomVRM(Clone) animator=True proxy=True
+XQ_IDLE bound anim=CustomVRM(Clone) cur=0 pool=10 switch_time=1e9
+XQ_CLIPS PET_IDLE | PET_IDLE_UPDATE2_01 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_2 | PET_IDLE_14 | PET_IDLE_4 | PET_IDLE_3 | PET_IDLE_5 | PET_IDLE_15 | PET_IDLE_13 | PET_IDLE_9 | PET_IDLE_12 | PET_IDLE_6 | PET_IDLE_10 | PET_IDLE_11 | PET_IDLE_7 | PET_IDLE_8 | PET_IDLE | HUS_IDLE01 | HUS_IDLE02 | HUS_IDLE03 | HUS_IDLE04 | HUS_IDLE05 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE08 | HUS_IDLE09 | HUS_IDLE05 | HUS_IDLE03 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE02 | HUS_IDLE04 | HUS_IDLE09 | HUS_IDLE06 | HUS_IDLE08 | HUS_IDLE03 | HUS_IDLE01 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_02 | HUS_DANCE_01 | HUS_IDLE09 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_UPDATE2_01 | CUSTOM_DANCE | PET_IDLE_12 | FACE_IDLE_1 | 
+XQ_UI2 on theme=pink class=xq-theme-pink scale=1.00 bodyH=363 fontPx=16.0 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+OperationException : Failed to initialize localization, could not preload string tables.
+
+XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=1030,991 40x40 scale=1.00
+XQ_HOST dances=0
+XQ_BENCH built k=1.833 panelPx=1100 monitor=2560x1440
+XQ_WSPROBE env screen=1920x1080 cam=Main Camera ortho=True clear=SolidColor bg=RGBA(0.000, 0.000, 0.000, 0.000) win=Alpha/Opacity es=EventSystem queriesHitTriggers=True
+XQ_WSPROBE added WorldDocumentRaycaster to EventSystem cam=null
+XQ_WSPROBE ps name=XqWsPanelSettings renderMode=WorldSpace ppu=100 colliderMode=MatchBoundingBox trigger=False
+XQ_WSPROBE avatar bounds center=(0.02, -0.48, -0.12) size=(0.37, 0.73, 0.45) depth=3.146 screenRect=(x:880.29, y:-5.07, width:179.85, height:356.66)
+XQ_WSPROBE baseline avatarPx=(970,173) rgba=(0.86,0.89,0.97,a=1.00) | emptyPx=(40,540) rgba=(0.00,0.00,0.00,a=0.00)
+XQ_WSPROBE board comps=[Transform,UIDocument,UIRenderer,BoxCollider] isWorldSpace=True scale=0.1833 boardWB=(x:-3.80, y:-2.80, width:7.60, height:5.60) btnAWB=(x:-3.40, y:0.60, width:2.40, height:1.80) btnBWB=(x:0.60, y:-2.20, width:2.80, height:2.00)
+XQ_WSPROBE [A+B1 FRONT z=2.75] collider=BoxCollider bounds=Center: (0.02, -0.48, -0.52), Extents: (0.73, 0.55, 0.00) | btnA=(754,326) rgba=(1.00,0.20,0.55,a=1.00) | centerOverlap=(970,173) rgba=(0.96,0.42,0.08,a=1.00) | outside=(40,540) rgba=(0.00,0.00,0.00,a=0.00)
+XQ_WSPROBE [B2 BEHIND z=3.55] | btnA=(754,326) rgba=(1.00,0.20,0.55,a=1.00) | centerOverlap=(970,173) rgba=(0.87,0.89,0.98,a=1.00) | outside=(40,540) rgba=(0.00,0.00,0.00,a=0.00)
+XQ_WATCH start
+XQ_WATCH hwnd=2756620
+XQ_WATCH rect=-1929,-403,7,716
+XQ_WSPROBE click#1 BEFORE tag=BtnA screenPt=(754,326) cntA=0 cntB=0 cntBoard=0
+XQ_WSPROBE cb PointerDown target=ws-btnA local=(99.76, 70.29, 0.00)
+XQ_WSPROBE cb PointerDown target=ws-board local=(139.76, 110.29, 0.00)
+XQ_WSPROBE cb Click target=ws-btnA cntA=1
+XQ_WSPROBE cb Click target=ws-board cntBoard=1
+XQ_WSPROBE click#1 AFTER tag=BtnA phys=[XqWsBoard dist=2.736] es=[XqWsPanelSettings@WorldDocumentRaycaster:d=2.74:wp=(-0.42, -0.17, -0.52); XqWsPanelSettings@WorldDocumentRaycaster:d=2.74:wp=(-0.42, -0.17, -0.52)] pt=(160.0,130.0) picked=null vtRect=(x:0.00, y:0.00, width:0.00, height:0.00) cntA=1 cntB=0 cntBoard=1
+XQ_WSPROBE click#2 BEFORE tag=BtnB screenPt=(1132,83) cntA=1 cntB=0 cntBoard=1
+XQ_WSPROBE cb PointerDown target=ws-btnB local=(119.76, 80.29, 0.00)
+XQ_WSPROBE cb PointerDown target=ws-board local=(559.76, 380.29, 0.00)
+XQ_WSPROBE cb Click target=ws-btnB cntB=1
+XQ_WSPROBE cb Click target=ws-board cntBoard=2
+XQ_WSPROBE click#2 AFTER tag=BtnB phys=[XqWsBoard dist=2.736] es=[XqWsPanelSettings@WorldDocumentRaycaster:d=2.74:wp=(0.35, -0.66, -0.52); XqWsPanelSettings@WorldDocumentRaycaster:d=2.74:wp=(0.35, -0.66, -0.52)] pt=(580.0,400.0) picked=null vtRect=(x:0.00, y:0.00, width:0.00, height:0.00) cntA=1 cntB=1 cntBoard=2
+XQ_WSPROBE click#3 BEFORE tag=Outside screenPt=(40,540) cntA=1 cntB=1 cntBoard=2
+XQ_WSPROBE click#3 AFTER tag=Outside phys=[Shadow dist=5.280] es=[EventSystem@WorldDocumentRaycaster:d=5.28:wp=(-1.87, 0.27, 2.02); WorldDocumentRaycaster@WorldDocumentRaycaster:d=5.28:wp=(-1.87, 0.27, 2.02)] pt=(-633.6,-107.5) picked=null vtRect=(x:0.00, y:0.00, width:0.00, height:0.00) cntA=1 cntB=1 cntBoard=2
+XQ_WSPROBE DONE summary cntA=1 cntB=1 cntBoard=2
