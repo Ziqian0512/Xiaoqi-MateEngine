@@ -365,7 +365,7 @@ namespace Xiaoqi.UI2
             Abs(_panel, (RailW + Gap) * _k, 0, PanW * _k, PanH * _k);
             Round(_panel, 38f * _k);
             _panel.style.backgroundColor = glassBg;
-            _panel.style.overflow = Overflow.Hidden;
+            // 不设 Overflow.Hidden：避免 XqPanelSettings(clearDepthStencil=false) 下模板缓冲裁剪导致内容全白/alpha=255 遮挡
             _glassLayer = new VisualElement { pickingMode = PickingMode.Ignore };
             Abs(_glassLayer, 0, 0, PanW * _k, PanH * _k);
             Round(_glassLayer, 38f * _k);
@@ -709,9 +709,12 @@ namespace Xiaoqi.UI2
                 nd.style.scale = new Scale(new Vector3(1f + 0.25f * pulse, 1f + 0.25f * pulse, 1f));
             }
             float ph = (_t % 6f) / 6f;
-            float sx = ph < 0.4f ? Mathf.Lerp(-200f, PanW + 80f, ph / 0.4f) : -400f;
+            float sx = ph < 0.35f ? Mathf.Lerp(24f, PanW - 174f, ph / 0.35f) : 24f;
+            float sweepEnv = ph < 0.35f ? Mathf.Sin((ph / 0.35f) * Mathf.PI) : 0f;
             _sweep.style.left = sx * k;
-            _sweep.style.opacity = _t > 1.2f ? 1f : 0f;
+            _sweep.style.height = (PanH - 40f) * k;
+            _sweep.style.top = 20f * k;
+            _sweep.style.opacity = (_t > 1.2f ? sweepEnv * 0.65f : 0f);
             float gt = _glass ? 1f : 0f;
             _glassAnim = Mathf.MoveTowards(_glassAnim, gt, dt * 4f);
             _panel.style.backgroundColor = new Color(glassBg.r, glassBg.g, glassBg.b, Mathf.Lerp(0.88f, 0.58f, _glassAnim));
