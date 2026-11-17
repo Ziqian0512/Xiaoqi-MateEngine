@@ -318,7 +318,7 @@ namespace Xiaoqi.UI2
                 return false;
             }
             // XQ: B1 第二轮 #16 近景态不开桌宠右键菜单（近景自己有左栏）；测试钩子 TestOpenRequest 不受影响
-            if (Input.GetMouseButtonDown(1) && onHer && !overChrome && !XqMode.Busy && XqMode.Current != XqView.Close)
+            if (Input.GetMouseButtonDown(1) && onHer && !overChrome && !XqMode.Busy && XqMode.Current != XqView.Close && XqMode.Current != XqView.Bench)  // XQ: G74 工作台里也不开桌宠右键菜单
             {
                 Open(panel, scale);
                 return true;

@@ -145,10 +145,11 @@ namespace Xiaoqi.Mode
             {
                 if (BenchNative)
                 {
-                    var bc = XqModeConfig.I;
+                    float pf, pvx, pvy;
+                    Xiaoqi.UI2.XqBenchPanel.PetTarget(out pf, out pvx, out pvy);
                     bool ok = from == XqView.Close
-                        ? XqCloseCamera.Retarget(true, bc.bench_pet_frac, bc.bench_eye_vx, bc.bench_eye_vy)
-                        : XqCloseCamera.BeginEnterBench(bc.bench_pet_frac, bc.bench_eye_vx, bc.bench_eye_vy);
+                        ? XqCloseCamera.Retarget(true, pf, pvx, pvy)
+                        : XqCloseCamera.BeginEnterBench(pf, pvx, pvy);
                     if (!ok)
                     {
                         Debug.Log("XQ_MODE bench(native) failed, back to Pet");
@@ -156,9 +157,11 @@ namespace Xiaoqi.Mode
                     }
                     else
                     {
-                        yield return new WaitForSecondsRealtime(CardsDelaySec);
+                        // 从桌宠来：等 ME 的窗口铺满 + 镜头淡入（约 0.9 秒）再出面板；从近景来：窗口早就铺满了
+                        float showAt = from == XqView.Close ? 0.5f : 0.9f;
+                        yield return new WaitForSecondsRealtime(showAt);
                         Xiaoqi.UI2.XqBenchPanel.Show();
-                        yield return new WaitForSecondsRealtime(Mathf.Max(0f, XqCloseCamera.SettleSec - CardsDelaySec));
+                        yield return new WaitForSecondsRealtime(Mathf.Max(0f, XqCloseCamera.SettleSec - showAt) + 0.1f);
                     }
                 }
                 else if (!XqBenchWindow.Open())

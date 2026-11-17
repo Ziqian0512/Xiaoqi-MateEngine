@@ -12,13 +12,15 @@ namespace Xiaoqi.UI2
     /// G74 W1 工作台（Unity 原生版）。和近景同一个窗口、同一套 UI Toolkit，不开 Edge、不起服务器页。
     /// 版式取 Fantasy World：纯白超大圆角 4:3 板 + 分离的悬浮药丸侧栏，内容是「左粗标题灰说明 / 右控件」的一行一行。
     ///
-    /// - 只在 Show/Hide 里切显示；Build 在 Warm()（启动后预建，隐藏）或第一次 Show 时做一次，
-    ///   屏幕大小变了（&gt;3%）才重建，所以点「工作台」时没有构建卡顿。
-    /// - 动画一律手写 Tick（和近景同一做法），不依赖 USS transition。
-    /// - 点击一律轮询 worldBound + XqPanelXf.FromScreen（#18 的教训：只用翻 Y 的那个点）。
+    /// 她：缩回桌宠大小（屏高的 28%~42%，默认 34%），只贴在板的上沿 / 左沿 / 右沿——
+    ///   上沿：探头 / 探出上半身；左右沿：探头 / 靠边站。板盖在她前面，被盖住的部分就是「躲在板后面」。
+    ///   下面不会有她。拖她：只会吸附到这三条边（拖到板下方会被推回最近的边）；点她换姿势。
+    ///   （坐 / 躺 / 抱需要新动画，不在这一版。）
+    ///
+    /// - Build 在 Warm()（启动后预建，隐藏）或第一次 Show 时做，按「显示器」尺寸而不是当前小窗口算，点工作台时不再现场构建。
+    /// - 动画靠 UI 调度器的 Tick（只管画面）；指针一律由 XqUi2Sample.Update 每帧调 Poll()（不再挂调度器，高刷新率下会漏按下那一帧）。
+    /// - 命中一律轮询 worldBound + XqPanelXf.FromScreen（#18 的教训：只用翻 Y 的那个点）。
     /// - 数据沿用 XqCloseData（/api/body/day|feed）。连不上就用上次缓存（xq_bench_cache.json）并亮「本地服务没开 · 重试」。
-    /// - 今日页的行只放有数据来源的：日程（day.segs）、精力/困倦/社交（stage.body）、最近说的（feed）。
-    ///   预览里的「今日小事」没有接口，不放。
     /// </summary>
     public class XqBenchPanel
     {
@@ -47,6 +49,14 @@ namespace Xiaoqi.UI2
             catch (Exception e) { Debug.LogWarning("XQ_BENCH hide: " + e.Message); }
         }
 
+        /// <summary>XqUi2Sample.Update 每帧调。</summary>
+        public static void Poll()
+        {
+            if (_i == null || !_i._shown) return;
+            try { _i.PollSelf(); }
+            catch (Exception e) { Debug.LogWarning("XQ_BENCH poll: " + e.Message); }
+        }
+
         // ---------------- 色 ----------------
         static Color Rgb(int r, int g, int b, float a = 1f) { return new Color(r / 255f, g / 255f, b / 255f, a); }
         static readonly Color Ink = Rgb(23, 21, 31);
@@ -60,10 +70,96 @@ namespace Xiaoqi.UI2
         const float RailW = 66f, Gap = 16f, PanW = 800f, PanH = 600f, StageW = RailW + Gap + PanW;
         const int RowN = 6;
 
+        // ---------------- 几何（以「屏高 = 1」为单位，和她的镜头落点同一套）----------------
+        struct Geo { public float a, ph, k, stageL, stageT, stageW, boardL, boardR; }
+
+        static void MonitorDims(out float w, out float h)
+        {
+            w = Screen.width; h = Screen.height;
+            try
+            {
+                var di = Screen.mainWindowDisplayInfo;
+                if (di.width > 0 && di.height > 0) { w = di.width; h = di.height; }
+            }
+            catch (Exception) { }
+            if (w < 100f || h < 100f) { w = 1920f; h = 1080f; }
+        }
+
+        static float PanelPx(float W, float H)
+        {
+            float ph = 0.70f * H;
+            float stageW = ph * StageW / PanH;
+            if (stageW > 0.72f * W) ph = 0.72f * W * PanH / StageW;
+            return Mathf.Clamp(ph, 420f, 900f);
+        }
+
+        static Geo GeoOf(float W, float H)
+        {
+            var g = new Geo();
+            g.a = W / H;
+            g.ph = PanelPx(W, H) / H;
+            g.k = g.ph / PanH;
+            g.stageW = StageW * g.k;
+            g.stageL = Mathf.Clamp(0.27f * g.a, 0f, Mathf.Max(0f, g.a - g.stageW - 0.03f));
+            g.stageT = (1f - g.ph) * 0.5f + 0.02f;
+            g.boardL = g.stageL + (RailW + Gap) * g.k;
+            g.boardR = g.stageL + g.stageW;
+            return g;
+        }
+
+        // ---------------- 她贴在哪（静态，XqMode 进入前就要用）----------------
+        static int _edge = 0;        // 0 上沿  1 左沿  2 右沿（没有「下沿」）
+        static float _pos = 0.72f;   // 沿这条边的位置 0~1
+        static int _pose = 1;        // 0 探头  1 探出上半身 / 靠边站
+
+        /// <summary>她的目标：身高占屏高的比例，眼睛落在镜头视口的 (vx,vy)（左下原点）。</summary>
+        public static void PetTarget(out float frac, out float vx, out float vy)
+        {
+            float W, H; MonitorDims(out W, out H);
+            var g = GeoOf(W, H);
+            frac = Mathf.Clamp(XqModeConfig.I.bench_pet_frac, 0.28f, 0.42f);
+            float ex, ey;
+            if (_edge == 0)
+            {
+                float m = 0.12f * g.ph;
+                ex = Mathf.Lerp(g.boardL + m, g.boardR - m, _pos);
+                float vis = (_pose == 0 ? 0.20f : 0.42f) * frac;      // 板上沿以上露出多高
+                ey = g.stageT - vis + 0.07f * frac;                   // 眼睛在头顶下 7% 身高
+                ey = Mathf.Max(ey, 0.012f + 0.07f * frac);            // 头顶别出屏
+            }
+            else
+            {
+                float off = (_pose == 0 ? 0.05f : 0.14f) * frac;      // 身体中线离板边多远
+                ex = _edge == 1 ? g.stageL - off : g.boardR + off;
+                ey = g.stageT + (0.14f + _pos * 0.55f) * g.ph;
+            }
+            vx = ex / g.a; vy = 1f - ey;
+        }
+
+        /// <summary>鼠标（屏高=1 单位，y 向下）→ 三条边里最近的一条与位置。下沿不在候选里。</summary>
+        static void SnapTo(float mx, float my)
+        {
+            float W, H; MonitorDims(out W, out H);
+            var g = GeoOf(W, H);
+            float m = 0.12f * g.ph;
+            float y0 = g.stageT + 0.14f * g.ph, y1 = g.stageT + 0.69f * g.ph;
+            float bestD = 1e9f; int be = _edge; float bp = _pos;
+            // 上沿
+            { float x = Mathf.Clamp(mx, g.boardL + m, g.boardR - m); float d = Mathf.Sqrt((mx - x) * (mx - x) + (my - g.stageT) * (my - g.stageT));
+              if (d < bestD) { bestD = d; be = 0; bp = Mathf.InverseLerp(g.boardL + m, g.boardR - m, x); } }
+            // 左沿
+            { float y = Mathf.Clamp(my, y0, y1); float d = Mathf.Sqrt((mx - g.stageL) * (mx - g.stageL) + (my - y) * (my - y));
+              if (d < bestD) { bestD = d; be = 1; bp = Mathf.InverseLerp(y0, y1, y); } }
+            // 右沿
+            { float y = Mathf.Clamp(my, y0, y1); float d = Mathf.Sqrt((mx - g.boardR) * (mx - g.boardR) + (my - y) * (my - y));
+              if (d < bestD) { bestD = d; be = 2; bp = Mathf.InverseLerp(y0, y1, y); } }
+            _edge = be; _pos = Mathf.Clamp01(bp);
+        }
+
         // ---------------- 状态 ----------------
         bool _built, _shown, _glass;
         float _k = 1f;            // 设计 px → 面板单位
-        float _builtPanelH;
+        float _builtPx, _builtUpp;
         float _t;                 // 进入后的秒数
         float _exitT = -1f;       // >=0 退出动画中
         int _lastClickFrame = -1;
@@ -71,17 +167,23 @@ namespace Xiaoqi.UI2
         XqCloseDay _day;
         string _say;
         float _glassAnim;
+        int _drag;                // 1 = 正在按住她
+        Vector2 _dragFrom;
+        bool _dragMoved;
+        float _toastT = -1f;
 
         VisualElement _host, _stage, _rail, _panel, _glassLayer, _sweep, _offBar, _offRetry, _close, _tg, _knob;
         readonly VisualElement[] _row = new VisualElement[RowN];
         readonly float[] _rowHover = new float[RowN];
         readonly List<VisualElement> _nav = new List<VisualElement>();
+        readonly List<float> _navHover = new List<float>();
         readonly List<VisualElement> _fills = new List<VisualElement>();
         readonly List<VisualElement> _knobs = new List<VisualElement>();
         readonly List<float> _fillPct = new List<float>();
+        float _closeHover, _tgHover, _retryHover;
         VisualElement _timelineHost;
-        Label _sayLabel, _metaLabel;
-        Label[] _sliderVal = new Label[3];
+        Label _sayLabel, _metaLabel, _toast;
+        readonly Label[] _sliderVal = new Label[3];
         XqCloseData _data;
         bool _scheduled;
 
@@ -92,7 +194,7 @@ namespace Xiaoqi.UI2
             if (_host == null) return;
             _glass = PlayerPrefs.GetInt("xq_bench_glass", 0) == 1;
             _glassAnim = _glass ? 1f : 0f;
-            _shown = true; _exitT = -1f; _t = 0f;
+            _shown = true; _exitT = -1f; _t = 0f; _drag = 0; _toastT = -1f;
             _host.style.display = DisplayStyle.Flex;
             _data = XqCloseData.Ensure();
             _data.Changed -= OnData; _data.Changed += OnData;
@@ -101,13 +203,13 @@ namespace Xiaoqi.UI2
             Refill();
             TickVisuals();
             PetHost.I?.SetUiBlocksMovement(true);
-            Debug.Log("XQ_BENCH open k=" + _k.ToString("0.000") + " glass=" + _glass);
+            Debug.Log("XQ_BENCH open k=" + _k.ToString("0.000") + " glass=" + _glass + " edge=" + _edge + " pose=" + _pose);
         }
 
         void HideSelf()
         {
             if (!_shown) return;
-            _shown = false;
+            _shown = false; _drag = 0;
             if (_data != null) { _data.Changed -= OnData; _data.End(); }
             _exitT = 0f;
             PetHost.I?.SetUiBlocksMovement(false);
@@ -117,28 +219,27 @@ namespace Xiaoqi.UI2
         // ---------------- 构建 ----------------
         void EnsureBuilt()
         {
-            float panelH = Mathf.Clamp(Screen.height * 0.70f, 420f, 780f);
-            if (panelH * PanW / PanH + (RailW + Gap) * panelH / PanH > Screen.width * 0.72f)
-                panelH = Screen.width * 0.72f / ((PanW + RailW + Gap) / PanH);
-            if (_built && Mathf.Abs(panelH - _builtPanelH) / _builtPanelH < 0.03f) return;
-
+            float W, H; MonitorDims(out W, out H);
+            float px = PanelPx(W, H);
             var doc = XqClosePanel.PickDoc();
             var root = doc != null ? doc.rootVisualElement : null;
             if (root == null) { Debug.Log("XQ_BENCH no UIDocument"); return; }
+            float upp = root.panel != null ? XqPanelXf.UnitsPerPx(root.panel) : 1f;
+            if (_built && Mathf.Abs(px - _builtPx) / _builtPx < 0.03f && Mathf.Abs(upp - _builtUpp) / _builtUpp < 0.03f) return;
+
             var uss = Resources.Load<StyleSheet>("XqClose");
             if (uss != null && !root.styleSheets.Contains(uss)) root.styleSheets.Add(uss);
 
             if (_host != null && _host.parent != null) _host.parent.Remove(_host);
             _built = false;
-            _builtPanelH = panelH;
-            _nav.Clear(); _fills.Clear(); _knobs.Clear(); _fillPct.Clear();
-            float upp = root.panel != null ? XqPanelXf.UnitsPerPx(root.panel) : 1f;
-            _k = (panelH / PanH) * upp;
+            _builtPx = px; _builtUpp = upp;
+            _nav.Clear(); _navHover.Clear(); _fills.Clear(); _knobs.Clear(); _fillPct.Clear();
+            _k = (px / PanH) * upp;
 
             _host = new VisualElement { name = "xq-bench-host", pickingMode = PickingMode.Ignore };
             _host.AddToClassList("xq-root");
-            Abs(_host, 0, 0, -1, -1);
-            _host.style.right = 0; _host.style.bottom = 0;
+            _host.style.position = Position.Absolute;
+            _host.style.left = 0; _host.style.top = 0; _host.style.right = 0; _host.style.bottom = 0;
             _host.style.display = DisplayStyle.None;
 
             _stage = new VisualElement { name = "xq-bench-stage", pickingMode = PickingMode.Ignore };
@@ -148,26 +249,17 @@ namespace Xiaoqi.UI2
             BuildRail();
             BuildPanel();
             root.Add(_host);
-            PlaceStage();
+            var g = GeoOf(W, H);
+            _stage.style.left = g.stageL * H * upp;
+            _stage.style.top = g.stageT * H * upp;
             if (!_scheduled) { _host.schedule.Execute(Tick).Every(16); _scheduled = true; }
             _built = true;
-            Debug.Log("XQ_BENCH built k=" + _k.ToString("0.000") + " panelH=" + panelH.ToString("0"));
-        }
-
-        void PlaceStage()
-        {
-            float upp = _host.panel != null ? XqPanelXf.UnitsPerPx(_host.panel) : 1f;
-            float stagePx = StageW * _k / upp;
-            float hPx = PanH * _k / upp;
-            float left = Mathf.Clamp(Screen.width * 0.27f, 0f, Mathf.Max(0f, Screen.width - stagePx - 30f));
-            float top = (Screen.height - hPx) * 0.5f + Screen.height * 0.02f;
-            _stage.style.left = left * upp;
-            _stage.style.top = top * upp;
+            Debug.Log("XQ_BENCH built k=" + _k.ToString("0.000") + " panelPx=" + px.ToString("0") + " monitor=" + W.ToString("0") + "x" + H.ToString("0"));
         }
 
         void BuildRail()
         {
-            _rail = new VisualElement { pickingMode = PickingMode.Position };
+            _rail = new VisualElement { pickingMode = PickingMode.Ignore };
             Abs(_rail, 0, 0, RailW * _k, PanH * _k);
             Round(_rail, 33f * _k);
             _rail.style.backgroundColor = Rgb(120, 110, 150, 0.50f);
@@ -181,14 +273,13 @@ namespace Xiaoqi.UI2
             for (int n = 0; n < icons.Length; n++)
             {
                 var b = Box(46f * _k, 46f * _k, 16f * _k, n == 0 ? Color.white : new Color(1, 1, 1, 0));
-                b.pickingMode = PickingMode.Position;
                 b.style.marginBottom = 6f * _k;
                 b.style.alignItems = Align.Center; b.style.justifyContent = Justify.Center;
-                var g = new XqGlyph(icons[n], n == 0 ? Ink : new Color(1, 1, 1, n >= 3 ? 0.42f : 0.88f));
+                var g = new XqGlyph(icons[n], n == 0 ? Ink : new Color(1, 1, 1, n >= 3 ? 0.55f : 0.88f));
                 g.style.width = 22f * _k; g.style.height = 22f * _k;
                 b.Add(g);
                 if (n == 4) b.style.marginTop = new StyleLength(StyleKeyword.Auto); // 设置键沉到底
-                _nav.Add(b); _rail.Add(b);
+                _nav.Add(b); _navHover.Add(0f); _rail.Add(b);
             }
             _stage.Add(_rail);
         }
@@ -199,12 +290,11 @@ namespace Xiaoqi.UI2
             for (int s = 3; s >= 1; s--)
             {
                 var sh = Box((PanW + s * 14f) * _k, (PanH + s * 14f) * _k, (38f + s * 7f) * _k, new Color(0.06f, 0.03f, 0.16f, 0.07f));
-                sh.pickingMode = PickingMode.Ignore;
                 Abs(sh, (RailW + Gap - s * 7f) * _k, (s * 10f - 7f) * _k, (PanW + s * 14f) * _k, (PanH + s * 14f) * _k);
                 _stage.Add(sh);
             }
 
-            _panel = new VisualElement { name = "xq-bench-panel", pickingMode = PickingMode.Position };
+            _panel = new VisualElement { name = "xq-bench-panel", pickingMode = PickingMode.Ignore };
             Abs(_panel, (RailW + Gap) * _k, 0, PanW * _k, PanH * _k);
             Round(_panel, 38f * _k);
             _panel.style.backgroundColor = Color.white;
@@ -216,21 +306,18 @@ namespace Xiaoqi.UI2
             _glassLayer.style.opacity = 0f;
             _panel.Add(_glassLayer);
 
-            // 标题区
             var title = L("XIAOQI WORKBENCH", 25f, Ink, true);
             Abs(title, 40f * _k, 28f * _k, -1, -1);
             _metaLabel = L("主人 · --:-- · 今日", 11.5f, Ink2, false);
             Abs(_metaLabel, 40f * _k, 62f * _k, -1, -1);
             _panel.Add(title); _panel.Add(_metaLabel);
             _close = Box(34f * _k, 34f * _k, 17f * _k, new Color(0, 0, 0, 0));
-            _close.pickingMode = PickingMode.Position;
             Abs(_close, (PanW - 40f - 34f) * _k, 26f * _k, 34f * _k, 34f * _k);
             _close.style.alignItems = Align.Center; _close.style.justifyContent = Justify.Center;
-            var x = L("×", 22f, Ink2, false); _close.Add(x);
+            _close.Add(L("×", 22f, Ink2, false));
             _panel.Add(_close);
             var gm = new XqGlyph("moon", Ink2); Abs(gm, (PanW - 40f - 34f - 40f) * _k, 32f * _k, 20f * _k, 20f * _k); _panel.Add(gm);
 
-            // 行
             float y0 = 98f, rh = 80f;
             for (int r = 0; r < RowN; r++)
             {
@@ -240,28 +327,28 @@ namespace Xiaoqi.UI2
                 if (r < RowN - 1) { row.style.borderBottomWidth = 1f; row.style.borderBottomColor = Line; }
                 _row[r] = row; _panel.Add(row);
             }
-            Row(0, "今日日程", "按今天的安排走", out var c0);
-            _timelineHost = c0; _timelineHost.style.flexDirection = FlexDirection.Row;
-            Row(1, "精力", "越高越有劲", out var c1); AddSlider(c1, 0);
-            Row(2, "困倦", "越高越想睡", out var c2); AddSlider(c2, 1);
-            Row(3, "社交", "她今天跟人说了多少话", out var c3); AddSlider(c3, 2);
-            Row(4, "最近说的", "她最近一句", out var c4);
-            c4.style.justifyContent = Justify.FlexEnd;
+            VisualElement c;
+            Row(0, "今日日程", "按今天的安排走", out c);
+            _timelineHost = c; _timelineHost.style.flexDirection = FlexDirection.Row;
+            Row(1, "精力", "越高越有劲", out c); AddSlider(c, 0);
+            Row(2, "困倦", "越高越想睡", out c); AddSlider(c, 1);
+            Row(3, "社交", "她今天跟人说了多少话", out c); AddSlider(c, 2);
+            Row(4, "最近说的", "她最近一句", out c);
+            c.style.justifyContent = Justify.FlexEnd;
             _sayLabel = L("还没有", 12.5f, Ink, false);
             var bub = new VisualElement { pickingMode = PickingMode.Ignore };
             bub.style.backgroundColor = Rgb(243, 241, 247);
             bub.style.paddingLeft = bub.style.paddingRight = 14f * _k; bub.style.paddingTop = bub.style.paddingBottom = 9f * _k;
             Round(bub, 14f * _k); bub.style.borderBottomLeftRadius = 4f * _k; bub.style.maxWidth = 380f * _k;
             _sayLabel.style.whiteSpace = WhiteSpace.Normal;
-            bub.Add(_sayLabel); c4.Add(bub);
-            Row(5, "薄雾玻璃", "面板半透明，背后的壁纸透出来", out var c5);
-            c5.style.justifyContent = Justify.FlexEnd;
-            _tg = Box(56f * _k, 30f * _k, 15f * _k, Dark); _tg.pickingMode = PickingMode.Position;
+            bub.Add(_sayLabel); c.Add(bub);
+            Row(5, "薄雾玻璃", "面板半透明，背后的壁纸透出来", out c);
+            c.style.justifyContent = Justify.FlexEnd;
+            _tg = Box(56f * _k, 30f * _k, 15f * _k, Dark);
             _knob = Box(24f * _k, 24f * _k, 12f * _k, Color.white);
             Abs(_knob, 29f * _k, 3f * _k, 24f * _k, 24f * _k);
-            _tg.Add(_knob); c5.Add(_tg);
+            _tg.Add(_knob); c.Add(_tg);
 
-            // 高光扫过
             _sweep = new VisualElement { pickingMode = PickingMode.Ignore };
             Abs(_sweep, -200f * _k, -120f * _k, 150f * _k, 900f * _k);
             _sweep.style.backgroundColor = new Color(1, 1, 1, 0.30f);
@@ -276,12 +363,22 @@ namespace Xiaoqi.UI2
             _offBar.style.paddingLeft = 14f * _k; _offBar.style.opacity = 0f;
             var ot = L("本地服务没开 · 显示的是上次的内容", 11.5f, Color.white, true);
             ot.style.flexGrow = 1f;
-            _offRetry = Box(52f * _k, 26f * _k, 13f * _k, Color.white); _offRetry.pickingMode = PickingMode.Position;
+            _offRetry = Box(52f * _k, 26f * _k, 13f * _k, Color.white);
             _offRetry.style.alignItems = Align.Center; _offRetry.style.justifyContent = Justify.Center;
             _offRetry.style.marginRight = 5f * _k;
             _offRetry.Add(L("重试", 11.5f, Ink, true));
             _offBar.Add(ot); _offBar.Add(_offRetry);
             _panel.Add(_offBar);
+
+            // 轻提示（点还没开的页签时）
+            _toast = L("", 12f, Color.white, true);
+            Abs(_toast, 40f * _k, (PanH - 54f) * _k, -1, -1);
+            _toast.style.backgroundColor = Ink;
+            _toast.style.paddingLeft = _toast.style.paddingRight = 14f * _k;
+            _toast.style.paddingTop = _toast.style.paddingBottom = 8f * _k;
+            Round(_toast, 16f * _k);
+            _toast.style.opacity = 0f;
+            _panel.Add(_toast);
 
             _stage.Add(_panel);
         }
@@ -362,7 +459,6 @@ namespace Xiaoqi.UI2
             string stamp = (!_offline && _day != null && !string.IsNullOrEmpty(_day.now)) ? _day.now : now.ToString("HH:mm");
             _metaLabel.text = "主人 · " + stamp + " · 今日";
 
-            // 日程：以当前段为中心取 5 段
             _timelineHost.Clear();
             var segs = _day != null && _day.segs != null ? _day.segs : new XqCloseDay.Seg[0];
             if (segs.Length == 0)
@@ -391,8 +487,8 @@ namespace Xiaoqi.UI2
                     var col = new VisualElement { pickingMode = PickingMode.Ignore };
                     col.style.width = 80f * _k; col.style.alignItems = Align.Center;
                     var d = Box(12f * _k, 12f * _k, 6f * _k, isNow ? Acc : (past ? Ink : Color.white));
-                    Border(d, 2f, isNow ? Color.white : (past ? Ink : Ink3));
-                    if (isNow) { d.name = "now-dot"; }
+                    Border(d, 2f * _k, isNow ? Color.white : (past ? Ink : Ink3));
+                    if (isNow) d.name = "now-dot";
                     col.Add(d);
                     var tm = L(string.IsNullOrEmpty(sg.start) ? "" : sg.start, 11.5f, Ink, true); tm.style.marginTop = 7f * _k; col.Add(tm);
                     var nm = L(XqCloseDay.What(sg), 10.5f, isNow ? Ink : Ink2, isNow); nm.style.marginTop = 3f * _k;
@@ -404,7 +500,6 @@ namespace Xiaoqi.UI2
                 _timelineHost.Add(wrap);
             }
 
-            // 精力 / 困倦 / 社交（0–100，和近景同量纲）
             var b = _day != null ? _day.body : null;
             var vals = new float[] { b != null ? b.stamina : -1f, b != null ? b.sleepy : -1f, b != null ? b.social : -1f };
             for (int s = 0; s < 3; s++)
@@ -422,7 +517,7 @@ namespace Xiaoqi.UI2
             return segs.Length - 1;
         }
 
-        // ---------------- 每帧 ----------------
+        // ---------------- 动画（只管画面）----------------
         static float EaseOut(float x) { x = Mathf.Clamp01(x); return 1f - Mathf.Pow(1f - x, 3f); }
         static float EaseBack(float x)
         {
@@ -447,13 +542,11 @@ namespace Xiaoqi.UI2
             }
             else return;
             TickVisuals();
-            if (_shown) TickPointer(dt);
         }
 
         void TickVisuals()
         {
             float k = _k;
-            // 整块：进入 0.8s 弹性放大 + 上浮；退出 0.3s 反向
             float op, sc, ty;
             if (_exitT >= 0f)
             {
@@ -469,21 +562,19 @@ namespace Xiaoqi.UI2
             _stage.style.scale = new Scale(new Vector3(sc, sc, 1f));
             _stage.style.translate = new Translate(0f, ty, 0f);
 
-            // 侧栏图标错开浮入
             for (int n = 0; n < _nav.Count; n++)
             {
                 float p = EaseOut((_t - 0.10f - n * 0.05f) / 0.45f);
                 _nav[n].style.opacity = p;
-                _nav[n].style.translate = new Translate(-10f * k * (1f - p), 0f, 0f);
+                _nav[n].style.translate = new Translate(-10f * k * (1f - p) + _navHover[n] * 3f * k, 0f, 0f);
+                if (n > 0) _nav[n].style.backgroundColor = new Color(1f, 1f, 1f, 0.20f * _navHover[n]);
             }
-            // 行依次浮入 + 悬停右移
             for (int r = 0; r < RowN; r++)
             {
                 float p = EaseOut((_t - 0.20f - r * 0.08f) / 0.60f);
                 _row[r].style.opacity = p;
                 _row[r].style.translate = new Translate(_rowHover[r] * 4f * k, (1f - p) * 14f * k, 0f);
             }
-            // 细滑条从 0 长到值
             for (int s = 0; s < _fills.Count; s++)
             {
                 float p = EaseOut((_t - 0.45f - (s + 1) * 0.08f) / 1.0f);
@@ -491,32 +582,37 @@ namespace Xiaoqi.UI2
                 _fills[s].style.width = w;
                 _knobs[s].style.left = w - 5f * k;
             }
-            // 当前段的点：脉冲
             var nd = _timelineHost != null ? _timelineHost.Q("now-dot") : null;
             if (nd != null)
             {
                 float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 3.2f);
                 nd.style.scale = new Scale(new Vector3(1f + 0.25f * pulse, 1f + 0.25f * pulse, 1f));
             }
-            // 高光扫过：每 6 秒一次，前 40% 时间内从左划到右
             float ph = (_t % 6f) / 6f;
             float sx = ph < 0.4f ? Mathf.Lerp(-200f, PanW + 80f, ph / 0.4f) : -400f;
             _sweep.style.left = sx * k;
             _sweep.style.opacity = _t > 1.2f ? 1f : 0f;
-            // 玻璃档：白板底色从不透明白到半透明
             float gt = _glass ? 1f : 0f;
             _glassAnim = Mathf.MoveTowards(_glassAnim, gt, Time.unscaledDeltaTime * 4f);
             _panel.style.backgroundColor = new Color(1f, 1f, 1f, Mathf.Lerp(1f, 0.62f, _glassAnim));
             _glassLayer.style.opacity = _glassAnim;
             _tg.style.backgroundColor = Color.Lerp(Rgb(217, 214, 224), Dark, _glassAnim);
             _knob.style.left = Mathf.Lerp(3f, 29f, _glassAnim) * k;
-            // 离线条
+            _tg.style.scale = new Scale(Vector3.one * (1f + 0.06f * _tgHover));
+            _close.style.backgroundColor = new Color(0f, 0f, 0f, 0.07f * _closeHover);
             float ot = Mathf.MoveTowards(_offBar.style.opacity.value, _offline ? 1f : 0f, Time.unscaledDeltaTime * 3f);
             _offBar.style.opacity = ot;
-            _offBar.pickingMode = ot > 0.5f ? PickingMode.Position : PickingMode.Ignore;
+            _offRetry.style.scale = new Scale(Vector3.one * (1f + 0.08f * _retryHover));
+            if (_toastT >= 0f)
+            {
+                _toastT += Time.unscaledDeltaTime;
+                float a = _toastT < 0.2f ? _toastT / 0.2f : (_toastT > 1.6f ? Mathf.Clamp01(1f - (_toastT - 1.6f) / 0.4f) : 1f);
+                _toast.style.opacity = a;
+                if (_toastT > 2.0f) { _toastT = -1f; _toast.style.opacity = 0f; }
+            }
         }
 
-        // ---------------- 点击 ----------------
+        // ---------------- 指针（每帧）----------------
         bool OverEl(VisualElement el)
         {
             if (el == null || _host == null || _host.panel == null) return false;
@@ -528,27 +624,85 @@ namespace Xiaoqi.UI2
 
         bool OverAnySelf() { return OverEl(_rail) || OverEl(_panel); }
 
-        void TickPointer(float dt)
+        static bool OnHer()
         {
-            for (int r = 0; r < RowN; r++)
-                _rowHover[r] = Mathf.MoveTowards(_rowHover[r], OverEl(_row[r]) ? 1f : 0f, dt * 6f);
-            if (!Input.GetMouseButtonDown(0) || _lastClickFrame == Time.frameCount || XqMode.Busy) return;
-            if (OverEl(_close)) { _lastClickFrame = Time.frameCount; Debug.Log("XQ_BENCH btn close"); XqMode.Set(XqView.Close); return; }
-            if (_offline && OverEl(_offRetry))
+            if (PetHost.I == null) return false;
+            var r = PetHost.I.ScreenRect();
+            return r.width > 2f && r.height > 2f && r.Contains((Vector2)Input.mousePosition);
+        }
+
+        void Toast(string s) { _toast.text = s; _toastT = 0f; }
+
+        void PollSelf()
+        {
+            if (_host == null || _host.panel == null || _exitT >= 0f) return;
+            float dt = Time.unscaledDeltaTime;
+            // 悬停反馈
+            for (int r = 0; r < RowN; r++) _rowHover[r] = Mathf.MoveTowards(_rowHover[r], OverEl(_row[r]) ? 1f : 0f, dt * 6f);
+            for (int n = 0; n < _nav.Count; n++) _navHover[n] = Mathf.MoveTowards(_navHover[n], OverEl(_nav[n]) ? 1f : 0f, dt * 8f);
+            _closeHover = Mathf.MoveTowards(_closeHover, OverEl(_close) ? 1f : 0f, dt * 8f);
+            _tgHover = Mathf.MoveTowards(_tgHover, (OverEl(_tg) || OverEl(_row[5])) ? 1f : 0f, dt * 8f);
+            _retryHover = Mathf.MoveTowards(_retryHover, (_offline && OverEl(_offRetry)) ? 1f : 0f, dt * 8f);
+
+            if (XqMode.Busy) { _drag = 0; return; }
+
+            bool down = Input.GetMouseButtonDown(0), held = Input.GetMouseButton(0);
+            if (down && _lastClickFrame != Time.frameCount)
             {
-                _lastClickFrame = Time.frameCount; Debug.Log("XQ_BENCH retry");
-                if (_data != null) { _data.End(); _data.Begin(); }
-                return;
+                if (OverEl(_close)) { _lastClickFrame = Time.frameCount; Debug.Log("XQ_BENCH btn close"); XqMode.Set(XqView.Close); return; }
+                if (_offline && OverEl(_offRetry))
+                {
+                    _lastClickFrame = Time.frameCount; Debug.Log("XQ_BENCH retry");
+                    if (_data != null) { _data.End(); _data.Begin(); }
+                    return;
+                }
+                if (OverEl(_tg) || OverEl(_row[5]))
+                {
+                    _lastClickFrame = Time.frameCount;
+                    _glass = !_glass; PlayerPrefs.SetInt("xq_bench_glass", _glass ? 1 : 0); PlayerPrefs.Save();
+                    Debug.Log("XQ_BENCH glass=" + _glass);
+                    return;
+                }
+                for (int n = 0; n < _nav.Count; n++)
+                    if (OverEl(_nav[n]))
+                    {
+                        _lastClickFrame = Time.frameCount;
+                        if (n > 0) { Debug.Log("XQ_BENCH nav " + n + " (W2)"); Toast("这一页下一期开放"); }
+                        return;
+                    }
+                if (!OverAnySelf() && OnHer())
+                {
+                    _lastClickFrame = Time.frameCount; _drag = 1; _dragFrom = Input.mousePosition; _dragMoved = false;
+                    return;
+                }
             }
-            if (OverEl(_tg) || OverEl(_row[5]))
+            if (_drag == 1)
             {
-                _lastClickFrame = Time.frameCount;
-                _glass = !_glass; PlayerPrefs.SetInt("xq_bench_glass", _glass ? 1 : 0); PlayerPrefs.Save();
-                Debug.Log("XQ_BENCH glass=" + _glass);
-                return;
+                var m = (Vector2)Input.mousePosition;
+                if (held)
+                {
+                    if (!_dragMoved && (m - _dragFrom).magnitude > 8f) { _dragMoved = true; Debug.Log("XQ_BENCH drag start"); }
+                    if (_dragMoved)
+                    {
+                        float H = Mathf.Max(1f, Screen.height);
+                        SnapTo(m.x / H, 1f - m.y / H);
+                        float f, vx, vy; PetTarget(out f, out vx, out vy);
+                        XqCloseCamera.NudgeEyes(vx, vy);
+                    }
+                }
+                else
+                {
+                    _drag = 0;
+                    if (_dragMoved) Debug.Log("XQ_BENCH drag end edge=" + _edge + " pos=" + _pos.ToString("0.00"));
+                    else
+                    {
+                        _pose = 1 - _pose;
+                        Debug.Log("XQ_BENCH pose=" + _pose);
+                        float f, vx, vy; PetTarget(out f, out vx, out vy);
+                        XqCloseCamera.NudgeEyes(vx, vy);
+                    }
+                }
             }
-            for (int n = 1; n < _nav.Count; n++)
-                if (OverEl(_nav[n])) { _lastClickFrame = Time.frameCount; Debug.Log("XQ_BENCH nav " + n + " (W2)"); return; }
         }
 
         // ---------------- 小工具 ----------------

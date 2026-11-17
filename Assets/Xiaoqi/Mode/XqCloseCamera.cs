@@ -29,6 +29,8 @@ namespace Xiaoqi.Mode
         // XQ(WB): G74 W1 工作台原生版也借这套大屏窗口，只是镜头拉远、眼睛落点换到屏幕左侧。落点做成可改的。
         private static float TargetVx = CloseVx;
         private static float TargetVy = CloseVy;
+        private static float _benchFrac = 0f;   // >0 = 工作台：每帧把她的身高收敛到屏高的这个比例
+        private static float _win = 1.6f;       // 对眼/缩放的收敛窗口（秒，从进入起算）
         private static float _enterAt;
         private static bool _loggedSettledEyes;
         private static float _xShift;
@@ -88,7 +90,8 @@ namespace Xiaoqi.Mode
         {
             if (TryGetEyeViewport(h, out _, out _, out _, out var vp))
             {
-                Debug.Log("XQ_CLOSE eyes view=(" + vp.x.ToString("0.00") + "," + vp.y.ToString("0.00") + ") target=(0.50,0.57)");
+                Debug.Log("XQ_CLOSE eyes view=(" + vp.x.ToString("0.00") + "," + vp.y.ToString("0.00") + ") target=(" + TargetVx.ToString("0.00") + "," + TargetVy.ToString("0.00") + ")"
+                    + (_benchFrac > 0f ? " bench frac=" + CurFrac().ToString("0.00") + "/" + _benchFrac.ToString("0.00") : ""));
             }
         }
 
@@ -103,7 +106,8 @@ namespace Xiaoqi.Mode
                 a0.transform.position = _savedAvatarPos + new Vector3(_xShift, 0f, 0f);
             // XQ: B1 第二轮 #16 对眼只在进入后的收敛窗口里做（到 1.6s 为止）。之后她做动作、头在动，每帧再「追」眼睛位置，
             // 整个身体就跟着头一起抽（之前每帧 0.65 增益追到天荒地老）。收敛完位置就定住，动作的幅度该是多少就是多少。
-            if (elapsed > 1.6f) { if (!_loggedSettledEyes) { _loggedSettledEyes = true; LogEyes(h); } return; }
+            if (elapsed > _win) { if (!_loggedSettledEyes) { _loggedSettledEyes = true; LogEyes(h); } return; }
+            if (_benchFrac > 0f && h != null) ZoomStep(h);
             if (!TryGetEyeViewport(h, out var cam, out var a, out var eyeWorld, out var vp)) return;
 
             float ex = Mathf.Abs(vp.x - TargetVx);
@@ -137,6 +141,47 @@ namespace Xiaoqi.Mode
                 _loggedSettledEyes = true;
                 LogEyes(h);
             }
+        }
+
+        private static float CurFrac()
+        {
+            if (Xiaoqi.Host.PetHost.I == null) return 0f;
+            return Xiaoqi.Host.PetHost.I.ScreenRect().height / Mathf.Max(1f, Screen.height);
+        }
+
+        /// <summary>工作台：用她当前外框高度/屏高 与目标比例的比，逐帧修正镜头缩放（不管镜头是透视还是正交）。</summary>
+        private static void ZoomStep(AvatarBigScreenHandler h)
+        {
+            var cam = h.MainCamera != null ? h.MainCamera : Camera.main;
+            if (cam == null || h.avatarAnimator == null) return;
+            float cur = CurFrac();
+            if (cur < 0.03f) return;
+            float err = cur / _benchFrac;
+            if (Mathf.Abs(err - 1f) < 0.03f) return;
+            float step = Mathf.Pow(err, 0.7f);
+            float scale = Mathf.Max(0.01f, h.avatarAnimator.transform.lossyScale.y);
+            float z;
+            if (cam.orthographic)
+            {
+                float z0 = h.TargetZoom > 0f ? h.TargetZoom : cam.orthographicSize / scale;
+                z = Mathf.Max(0.01f, z0 * step);
+            }
+            else
+            {
+                float z0 = h.TargetZoom > 0f ? h.TargetZoom : cam.fieldOfView;
+                float t = Mathf.Tan(z0 * 0.5f * Mathf.Deg2Rad) * step;
+                z = Mathf.Clamp(2f * Mathf.Atan(t) * Mathf.Rad2Deg, 3f, 150f);
+            }
+            h.TargetZoom = z;
+        }
+
+        /// <summary>工作台里拖她：把眼睛落点改到 (vx,vy)，并让对眼再跑 0.6 秒。</summary>
+        public static void NudgeEyes(float vx, float vy)
+        {
+            if (!_active || Handler() == null) return;
+            TargetVx = vx; TargetVy = vy;
+            _enterAt = Time.unscaledTime - (_win - 0.6f);
+            _loggedSettledEyes = false;
         }
 
         private static AvatarBigScreenHandler Handler()
@@ -180,9 +225,9 @@ namespace Xiaoqi.Mode
             var h = Handler();
             if (h == null) { Debug.Log("XQ_HOST_MISS AvatarBigScreenHandler"); return false; }
             float z = _active ? 0f : ZoomForFrac(h, bodyFrac);
-            TargetVx = vx; TargetVy = vy;
             bool ok = BeginEnter();
             TargetVx = vx; TargetVy = vy; // BeginEnter 会把落点复位成近景的，这里再设一次
+            _benchFrac = bodyFrac; _win = 2.6f;
             if (ok && z > 0f) h.TargetZoom = z;
             return ok;
         }
@@ -195,17 +240,18 @@ namespace Xiaoqi.Mode
             var c = XqModeConfig.I;
             if (toBench)
             {
-                float z = ZoomForFrac(h, bodyFrac);
-                if (z > 0f) h.TargetZoom = z;
                 TargetVx = vx; TargetVy = vy;
+                _benchFrac = bodyFrac; _win = 2.6f;
+                _enterAt = Time.unscaledTime - 0.6f; // 已经在大屏里，不用等淡入
             }
             else
             {
                 h.TargetZoom = c.close_zoom > 0f ? c.close_zoom : 0f;
                 h.YOffset = c.close_yoffset;
                 TargetVx = CloseVx; TargetVy = CloseVy;
+                _benchFrac = 0f; _win = 1.6f;
+                _enterAt = Time.unscaledTime;
             }
-            _enterAt = Time.unscaledTime;
             _loggedSettledEyes = false;
             return true;
         }
@@ -216,7 +262,7 @@ namespace Xiaoqi.Mode
             var h = Handler();
             if (h == null) { Debug.Log("XQ_HOST_MISS AvatarBigScreenHandler"); return false; }
             var c = XqModeConfig.I;
-            if (!_active) { TargetVx = CloseVx; TargetVy = CloseVy; }
+            if (!_active) { TargetVx = CloseVx; TargetVy = CloseVy; _benchFrac = 0f; _win = 1.6f; }
             if (c.close_zoom > 0f) h.TargetZoom = c.close_zoom;
             h.YOffset = c.close_yoffset;
             if (!_active)
@@ -271,6 +317,7 @@ namespace Xiaoqi.Mode
                     h.avatarAnimator.transform.position = _savedAvatarPos + new Vector3(_xShift, 0f, 0f);
                 LogEyes(h);
                 _active = false;
+                _benchFrac = 0f; _win = 1.6f;
                 _xShift = 0f;
                 if (h.avatarAnimator != null) h.avatarAnimator.speed = 1f;
                 h.ToggleBigScreenFromUI();
