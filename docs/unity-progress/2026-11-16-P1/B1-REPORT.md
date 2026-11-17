@@ -438,3 +438,51 @@ XQ_MENU2 click l1/p0 row='宿舍 · fake walk_in' picked=VisualElement.xq-mrow.x
    - 主人原话：「当切换到近景的时候，工作台显示是无法打开的」。
    - **源码确认（`XqClosePanel.Controls.cs:78-84`）**：`_btnBench` 仍写死 `.AddToClassList("off")` 与悬停「还没开放」，尚未按 `-xq-bench` 接入 `XqMode.Set(XqView.Bench)`。
 
+---
+
+## 第十次（自动化）（`int-all @ 468a93a2` + `XqBenchPanel` 编译修正，G74 W1 原生工作台与回归）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `468a93a2`（含 `efe867fc` #18/#20 与 `468a93a2` 原生工作台 `XqBenchPanel`）；`xiaoqi/p2-agy4` @ `56fd7b5`（含 1 处纯编译修正，未改任何业务逻辑）。
+- **`.meta` 核对**：`Assets/Xiaoqi/UI2/XqBenchPanel.cs.meta`（`guid: a3d96f1b52c84e07b1f84c2d6e905a31`）已带在 `468a93a2` 中，无 GUID 冲突、无遗漏 `.meta`。
+- **最小编译修正（记入 `ISSUES.md` `#21`）**：
+  - 原 `Assets/Xiaoqi/UI2/XqBenchPanel.cs:268` 编译报错 `error CS1729: 'Rotate' does not contain a constructor that takes 1 arguments`（因 `Assets/MATE ENGINE - Shaders/kage-master/kage-master/kage-BRP/Assets/Scripts/Rotate.cs` 在全局命名空间定义了 `class Rotate : MonoBehaviour` 遮蔽 `UnityEngine.UIElements.Rotate`）。
+  - 修正：`Assets/Xiaoqi/UI2/XqBenchPanel.cs:268` 改为 `new UnityEngine.UIElements.Rotate(new Angle(18f, AngleUnit.Degree))`（`xiaoqi/p2-agy4 @ 56fd7b5`）。
+- **编译**：**过**（0 compile errors，76 warnings，耗时 69s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r10/build-summary-468a93a.md`）。
+- **证据文件**：`evidence/2026-11-17-B1-r10/`（`build-summary-468a93a.md`、`bench-mode-468a93a-Player.log`、`close-test-468a93a-Player.log`、`close-menu-test-468a93a-Player.log`、`smoke30s-468a93a-Player.log`、`ACCEPT-TONIGHT.md`）。
+
+### 1. 进工作台取证（`-xq-bench -xq-mode bench -settings-v2`）
+
+- **关键日志（`bench-mode-468a93a-Player.log`，0 业务 `Exception`）**：
+```text
+XQ_UI2 on theme=pink class=xq-theme-pink scale=1.00 bodyH=363 fontPx=16.0 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+XQ_BENCH built k=1.260 panelH=756
+XQ_WATCH rect=-5,0,1927,1119
+XQ_MODE Pet -> Bench
+XQ_BENCH zoom cur=0.33 new=0.88 z=0.82 ortho
+XQ_BENCH open k=1.260 glass=False
+XQ_CLOSE eyes view=(0.11,0.82) target=(0.50,0.57)
+XQ_CLOSE day fail: 502
+XQ_MODE Bench -> Close
+XQ_BENCH close
+XQ_CLOSE eyes view=(0.50,0.57) target=(0.50,0.57)
+XQ_CLOSE exit by=esc
+XQ_MODE Close -> Pet
+XQ_CLOSE anim exit
+XQ_CLOSE close
+XQ_CLOSE eyes view=(0.51,0.57) target=(0.50,0.57)
+XQ_CLOSE anim done
+```
+- **日志已确认**：窗口铺满显示器（`XQ_WATCH rect=-5,0,1927,1119` 覆盖 1920×1080）、她站在屏幕左侧（`XQ_CLOSE eyes view=(0.11,0.82)`）、工作台构建 `k=1.260 panelH=756` 并顺利打开、按 `Esc` 两级回退 `Bench -> Close`（`XQ_BENCH close`）→ `Close -> Pet`（`XQ_CLOSE exit by=esc`）全程 **0** 条 `Exception`。
+- **截图与视觉/物理项**：隔离桌面 `CopyFromScreen` 报 `The handle is invalid`，`PrintWindow` 仅得全白空白帧无 UI 渲染画面，故截图「**无法取得**」；**4:3 白板+左药丸栏是否完整、她是否没被面板盖住、各行是否溢出、镜头里大小位置对不对、动效是否顺、透明处穿透、拖动手感** 一律标为「**待晚上主人验收**」。
+
+### 2. 回归与离线兜底
+
+- `-xq-close-test`（`close-test-468a93a-Player.log`）：3 轮切入 `1.03s / 1.01s / 1.02s`，`XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`，整段无 `body outside / fix window / center`，0 业务 `Exception`。
+- `-xq-close-test -xq-menu-test -xq-menu-debug`（`close-menu-test-468a93a-Player.log`）：`XQ_MENU2 test-open mode=Close`、`XQ_MENU2 place close-face side=R l1=1202,194 limit=1916x1080`、`XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`，无退化。
+- `30s` 冒烟（`smoke30s-468a93a-Player.log`，199 行）：`XQ_BENCH built k=1.260 panelH=756`，0 业务 `Exception`。
+- **离线兜底与钮点击**：无本地服务时命中 `XQ_CLOSE day fail: 502` 无崩溃/无异常；近景点右下「工作台」钮、工作台点 `×`、右下「本地服务没开」提示条可见性与点「重试」出 `XQ_BENCH retry` 因隔离桌面无法点击/截屏，均标「**待晚上主人验收**」。
+
+### 3. 重打晚上验收包
+
+- **路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（主程序 `Xiaoqi\Xiaoqi.exe` 已覆盖为 `56fd7b5` 编译产物；`1-启动验收(pink).cmd`、`2-主题blue.cmd`、`3-主题violet.cmd` **三个全部带 `-xq-bench`**；[ACCEPT-TONIGHT.md] 已更新为工作台原生版清单，物理项均标「**待晚上主人验收**」）。
+
