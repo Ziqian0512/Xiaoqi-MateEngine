@@ -60,14 +60,34 @@ namespace Xiaoqi.UI2
             catch (Exception e) { Debug.LogWarning("XQ_BENCH poll: " + e.Message); }
         }
 
-        // ---------------- 色 ----------------
+        // ---------------- 色（跟随 pink / blue / violet 主题）----------------
         static Color Rgb(int r, int g, int b, float a = 1f) { return new Color(r / 255f, g / 255f, b / 255f, a); }
-        static readonly Color Ink = Rgb(23, 21, 31);
-        static readonly Color Ink2 = Rgb(23, 21, 31, 0.52f);
-        static readonly Color Ink3 = Rgb(23, 21, 31, 0.30f);
-        static readonly Color Line = Rgb(23, 21, 31, 0.08f);
-        static readonly Color Acc = Rgb(255, 127, 174);
-        static readonly Color Dark = Rgb(43, 40, 51);
+        static readonly Color Ink = Rgb(42, 33, 62);
+        static readonly Color Ink2 = Rgb(59, 47, 85, 0.58f);
+        static readonly Color Ink3 = Rgb(59, 47, 85, 0.30f);
+        static readonly Color Line = Rgb(59, 47, 85, 0.07f);
+        static readonly Color Dark = Rgb(62, 52, 86);
+
+        static void ThemePalette(out Color acc, out Color accDeep, out Color glassBg, out Color railBg, out Color trackBg)
+        {
+            string th = XqUi2Sample.CurrentTheme;
+            if (th == "blue")
+            {
+                acc = Rgb(90, 168, 255); accDeep = Rgb(42, 111, 196);
+                glassBg = Rgb(245, 250, 255); railBg = Rgb(228, 240, 254, 0.64f); trackBg = Rgb(90, 168, 255, 0.16f);
+            }
+            else if (th == "violet")
+            {
+                acc = Rgb(177, 132, 255); accDeep = Rgb(123, 79, 208);
+                glassBg = Rgb(249, 245, 255); railBg = Rgb(236, 226, 254, 0.64f); trackBg = Rgb(177, 132, 255, 0.16f);
+            }
+            else
+            {
+                acc = Rgb(255, 132, 178); accDeep = Rgb(214, 71, 127);
+                glassBg = Rgb(255, 247, 251); railBg = Rgb(250, 230, 240, 0.64f); trackBg = Rgb(255, 132, 178, 0.16f);
+            }
+        }
+        static Color Acc { get { Color a, d, g, r, t; ThemePalette(out a, out d, out g, out r, out t); return a; } }
 
         // 设计稿尺寸（和预览 v3 一致）：侧栏 66 + 间距 16 + 白板 800×600
         const float RailW = 66f, Gap = 16f, PanW = 800f, PanH = 600f, StageW = RailW + Gap + PanW;
@@ -200,7 +220,8 @@ namespace Xiaoqi.UI2
         float _glassAnim;
         int _drag;                // 1 = 正在按住她
         int _bdrag;               // 1 = 正在拖整个工作台
-        Vector2 _bdragMouse, _bdragStage;
+        Vector2 _bdragMouse, _bdragStage, _bdragPrev;
+        float _dragTilt, _dragScale = 1f;
         bool _bdragMoved;
         VisualElement _header;
         Vector2 _dragFrom;
@@ -304,23 +325,26 @@ namespace Xiaoqi.UI2
 
         void BuildRail()
         {
+            Color acc, accDeep, glassBg, railBg, trackBg;
+            ThemePalette(out acc, out accDeep, out glassBg, out railBg, out trackBg);
             _rail = new VisualElement { pickingMode = PickingMode.Ignore };
             Abs(_rail, 0, 0, RailW * _k, PanH * _k);
             Round(_rail, 33f * _k);
-            _rail.style.backgroundColor = Rgb(110, 100, 145, 0.42f);
-            Border(_rail, 1f, Rgb(255, 255, 255, 0.34f));
+            _rail.style.backgroundColor = railBg;
+            Border(_rail, 1.5f, Rgb(255, 255, 255, 0.72f));
             _rail.style.alignItems = Align.Center;
             _rail.style.paddingTop = 16f * _k; _rail.style.paddingBottom = 16f * _k;
-            var dot = Box(6f * _k, 6f * _k, 3f * _k, Rgb(255, 255, 255, 0.75f));
+            var dot = Box(8f * _k, 8f * _k, 4f * _k, acc);
             dot.style.marginBottom = 12f * _k;
             _rail.Add(dot);
             string[] icons = { "home", "heart", "chat", "spark", "gear" };
             for (int n = 0; n < icons.Length; n++)
             {
                 var b = Box(46f * _k, 46f * _k, 16f * _k, n == 0 ? Color.white : new Color(1, 1, 1, 0));
+                if (n == 0) Border(b, 1f, new Color(acc.r, acc.g, acc.b, 0.35f));
                 b.style.marginBottom = 6f * _k;
                 b.style.alignItems = Align.Center; b.style.justifyContent = Justify.Center;
-                var g = new XqGlyph(icons[n], n == 0 ? Ink : new Color(1, 1, 1, n >= 3 ? 0.55f : 0.88f));
+                var g = new XqGlyph(icons[n], n == 0 ? accDeep : new Color(Ink.r, Ink.g, Ink.b, n >= 3 ? 0.45f : 0.78f));
                 g.style.width = 22f * _k; g.style.height = 22f * _k;
                 b.Add(g);
                 if (n == 4) b.style.marginTop = new StyleLength(StyleKeyword.Auto); // 设置键沉到底
@@ -331,44 +355,59 @@ namespace Xiaoqi.UI2
 
         void BuildPanel()
         {
-            // 阴影三层（UI Toolkit 没有 box-shadow，用放大、偏移、低透明度的圆角矩形叠）
-            // W3：主人说叠卡露边廉价，去掉；只留一层软影
-            _shadow = Box((PanW + 24f) * _k, (PanH + 24f) * _k, 44f * _k, new Color(0.06f, 0.03f, 0.16f, 0.08f));
-            Abs(_shadow, (RailW + Gap - 12f) * _k, 4f * _k, (PanW + 24f) * _k, (PanH + 24f) * _k);
+            Color acc, accDeep, glassBg, railBg, trackBg;
+            ThemePalette(out acc, out accDeep, out glassBg, out railBg, out trackBg);
+            _shadow = Box((PanW + 26f) * _k, (PanH + 26f) * _k, 44f * _k, new Color(accDeep.r * 0.25f, accDeep.g * 0.20f, accDeep.b * 0.40f, 0.14f));
+            Abs(_shadow, (RailW + Gap - 13f) * _k, 6f * _k, (PanW + 26f) * _k, (PanH + 26f) * _k);
             _stage.Add(_shadow);
 
             _panel = new VisualElement { name = "xq-bench-panel", pickingMode = PickingMode.Ignore };
             Abs(_panel, (RailW + Gap) * _k, 0, PanW * _k, PanH * _k);
             Round(_panel, 38f * _k);
-            _panel.style.backgroundColor = Color.white;
+            _panel.style.backgroundColor = glassBg;
             _panel.style.overflow = Overflow.Hidden;
             _glassLayer = new VisualElement { pickingMode = PickingMode.Ignore };
             Abs(_glassLayer, 0, 0, PanW * _k, PanH * _k);
             Round(_glassLayer, 38f * _k);
-            Border(_glassLayer, 1.5f, Rgb(255, 255, 255, 0.9f));
+            Border(_glassLayer, 1.8f, Rgb(255, 255, 255, 0.88f));
             _glassLayer.style.opacity = 0f;
             _panel.Add(_glassLayer);
+
+            // 顶部高光柔带 + 二次元拖手指示条
+            var topGlow = new VisualElement { pickingMode = PickingMode.Ignore };
+            Abs(topGlow, 0, 0, PanW * _k, 98f * _k);
+            topGlow.style.backgroundColor = new Color(1f, 1f, 1f, 0.24f);
+            _panel.Add(topGlow);
 
             _header = new VisualElement { pickingMode = PickingMode.Ignore };
             Abs(_header, 0, 0, PanW * _k, 98f * _k);
             _panel.Add(_header);
-            var title = L("XIAOQI WORKBENCH", 25f, Ink, true);
-            Abs(title, 40f * _k, 28f * _k, -1, -1);
+            var grab = Box(44f * _k, 4f * _k, 2f * _k, new Color(Ink.r, Ink.g, Ink.b, 0.18f));
+            Abs(grab, (PanW - 44f) * 0.5f * _k, 11f * _k, 44f * _k, 4f * _k);
+            _panel.Add(grab);
+            var badge = new XqGlyph("spark", acc);
+            Abs(badge, 40f * _k, 31f * _k, 18f * _k, 18f * _k);
+            _panel.Add(badge);
+            var title = L("XIAOQI WORKBENCH", 24f, Ink, true);
+            Abs(title, 66f * _k, 27f * _k, -1, -1);
             _metaLabel = L("主人 · --:-- · 今日", 11.5f, Ink2, false);
             Abs(_metaLabel, 40f * _k, 62f * _k, -1, -1);
             _panel.Add(title); _panel.Add(_metaLabel);
-            _close = Box(34f * _k, 34f * _k, 17f * _k, new Color(0, 0, 0, 0));
+            _close = Box(34f * _k, 34f * _k, 17f * _k, new Color(1f, 1f, 1f, 0.45f));
+            Border(_close, 1f, Rgb(255, 255, 255, 0.7f));
             Abs(_close, (PanW - 40f - 34f) * _k, 26f * _k, 34f * _k, 34f * _k);
             _close.style.alignItems = Align.Center; _close.style.justifyContent = Justify.Center;
             _close.Add(L("×", 22f, Ink2, false));
             _panel.Add(_close);
-            var gm = new XqGlyph("moon", Ink2); Abs(gm, (PanW - 40f - 34f - 40f) * _k, 32f * _k, 20f * _k, 20f * _k); _panel.Add(gm);
+            var gm = new XqGlyph("moon", accDeep); Abs(gm, (PanW - 40f - 34f - 40f) * _k, 32f * _k, 20f * _k, 20f * _k); _panel.Add(gm);
 
             float y0 = 98f, rh = 80f;
             for (int r = 0; r < RowN; r++)
             {
                 var row = new VisualElement { pickingMode = PickingMode.Ignore };
-                Abs(row, 40f * _k, (y0 + r * rh) * _k, (PanW - 80f) * _k, rh * _k);
+                Abs(row, 28f * _k, (y0 + r * rh) * _k, (PanW - 56f) * _k, (rh - 6f) * _k);
+                Round(row, 18f * _k);
+                row.style.paddingLeft = 14f * _k; row.style.paddingRight = 14f * _k;
                 row.style.flexDirection = FlexDirection.Row; row.style.alignItems = Align.Center;
                 if (r < RowN - 1) { row.style.borderBottomWidth = 1f; row.style.borderBottomColor = Line; }
                 _row[r] = row; _panel.Add(row);
@@ -442,17 +481,21 @@ namespace Xiaoqi.UI2
 
         void AddSlider(VisualElement ctl, int idx)
         {
+            Color acc, accDeep, glassBg, railBg, trackBg;
+            ThemePalette(out acc, out accDeep, out glassBg, out railBg, out trackBg);
             ctl.style.justifyContent = Justify.FlexEnd;
             var tr = new VisualElement { pickingMode = PickingMode.Ignore };
-            tr.style.width = 300f * _k; tr.style.height = 2f * _k; tr.style.backgroundColor = Rgb(23, 21, 31, 0.12f);
+            tr.style.width = 300f * _k; tr.style.height = 6f * _k; tr.style.backgroundColor = trackBg;
+            Round(tr, 3f * _k);
             tr.style.marginRight = 16f * _k;
             var fill = new VisualElement { pickingMode = PickingMode.Ignore };
-            Abs(fill, 0, 0, 0, 2f * _k); fill.style.backgroundColor = Ink;
-            var kn = Box(10f * _k, 10f * _k, 5f * _k, Ink);
-            Abs(kn, -5f * _k, -4f * _k, 10f * _k, 10f * _k);
+            Abs(fill, 0, 0, 0, 6f * _k); fill.style.backgroundColor = acc; Round(fill, 3f * _k);
+            var kn = Box(14f * _k, 14f * _k, 7f * _k, Color.white);
+            Border(kn, 2.5f * _k, accDeep);
+            Abs(kn, -7f * _k, -4f * _k, 14f * _k, 14f * _k);
             tr.Add(fill); tr.Add(kn);
             _fills.Add(fill); _knobs.Add(kn); _fillPct.Add(0f);
-            _sliderVal[idx] = L("--", 12f, Ink2, true);
+            _sliderVal[idx] = L("--", 12f, accDeep, true);
             _sliderVal[idx].style.width = 70f * _k; _sliderVal[idx].style.unityTextAlign = TextAnchor.MiddleRight;
             ctl.Add(tr); ctl.Add(_sliderVal[idx]);
         }
@@ -621,37 +664,43 @@ namespace Xiaoqi.UI2
                 float p = EaseBack(_t / 0.8f);
                 op = Mathf.Clamp01(_t / 0.35f); sc = 0.93f + 0.07f * p; ty = (1f - p) * 26f * k;
             }
-            // W3 视差：左栏 + 右板 = 同一个刚体舞台（_stage），整体平移 + 小角度倾转 + 微缩放；她在后面真 3D 转身（见 PetTilt）。内部只有极小的景深差。
+            // W3 AGY 改版：左栏 + 右板刚体倾转 + 拖板惯性倾斜 + 主题色毛玻璃胶囊行
+            Color acc, accDeep, glassBg, railBg, trackBg;
+            ThemePalette(out acc, out accDeep, out glassBg, out railBg, out trackBg);
             var cfg = XqModeConfig.I;
+            float dt = Time.unscaledDeltaTime;
+            _dragTilt = Mathf.Lerp(_dragTilt, 0f, 1f - Mathf.Exp(-10f * dt));
+            _dragScale = Mathf.Lerp(_dragScale, (_bdrag == 1 && _bdragMoved) ? 1.015f : 1f, 1f - Mathf.Exp(-12f * dt));
             float dx = _pxS, dy = -_pyS;     // UI 的 y 向下
             float shift = Mathf.Clamp(cfg.bench_parallax_px, 0f, 40f);
             float rotD = Mathf.Clamp(cfg.bench_parallax_rot, 0f, 6f);
-            float depthSc = 1f + 0.012f * Mathf.Clamp01(Mathf.Sqrt(dx * dx + dy * dy));
+            float depthSc = 1f + 0.016f * Mathf.Clamp01(Mathf.Sqrt(dx * dx + dy * dy));
             _stage.style.opacity = op;
-            _stage.style.scale = new Scale(new Vector3(sc * depthSc, sc * depthSc, 1f));
+            _stage.style.scale = new Scale(new Vector3(sc * depthSc * _dragScale, sc * depthSc * _dragScale, 1f));
             _stage.style.translate = new Translate(dx * shift * k, ty + dy * shift * 0.6f * k, 0f);
-            _stage.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(dx * rotD, AngleUnit.Degree));
-            if (_shadow != null) _shadow.style.translate = new Translate(-dx * 3f * k, -dy * 2f * k, 0f);
+            _stage.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(dx * rotD + _dragTilt, AngleUnit.Degree));
+            if (_shadow != null) _shadow.style.translate = new Translate(-dx * 4f * k, -dy * 2.5f * k, 0f);
 
             for (int n = 0; n < _nav.Count; n++)
             {
                 float p = EaseOut((_t - 0.10f - n * 0.05f) / 0.45f);
                 _nav[n].style.opacity = p;
                 _nav[n].style.translate = new Translate(-10f * k * (1f - p) + _navHover[n] * 3f * k, 0f, 0f);
-                if (n > 0) _nav[n].style.backgroundColor = new Color(1f, 1f, 1f, 0.20f * _navHover[n]);
+                if (n > 0) _nav[n].style.backgroundColor = new Color(1f, 1f, 1f, 0.34f * _navHover[n]);
             }
             for (int r = 0; r < RowN; r++)
             {
                 float p = EaseOut((_t - 0.20f - r * 0.08f) / 0.60f);
                 _row[r].style.opacity = p;
                 _row[r].style.translate = new Translate((_rowHover[r] * 4f + _pxS * 1.6f) * k, ((1f - p) * 14f + (-_pyS) * 1.0f) * k, 0f);
+                _row[r].style.backgroundColor = new Color(1f, 1f, 1f, 0.32f * _rowHover[r]);
             }
             for (int s = 0; s < _fills.Count; s++)
             {
                 float p = EaseOut((_t - 0.45f - (s + 1) * 0.08f) / 1.0f);
                 float w = 300f * k * _fillPct[s] * p;
                 _fills[s].style.width = w;
-                _knobs[s].style.left = w - 5f * k;
+                _knobs[s].style.left = w - 7f * k;
             }
             var nd = _timelineHost != null ? _timelineHost.Q("now-dot") : null;
             if (nd != null)
@@ -664,10 +713,10 @@ namespace Xiaoqi.UI2
             _sweep.style.left = sx * k;
             _sweep.style.opacity = _t > 1.2f ? 1f : 0f;
             float gt = _glass ? 1f : 0f;
-            _glassAnim = Mathf.MoveTowards(_glassAnim, gt, Time.unscaledDeltaTime * 4f);
-            _panel.style.backgroundColor = new Color(1f, 1f, 1f, Mathf.Lerp(0.88f, 0.56f, _glassAnim));
+            _glassAnim = Mathf.MoveTowards(_glassAnim, gt, dt * 4f);
+            _panel.style.backgroundColor = new Color(glassBg.r, glassBg.g, glassBg.b, Mathf.Lerp(0.88f, 0.58f, _glassAnim));
             _glassLayer.style.opacity = _glassAnim;
-            _tg.style.backgroundColor = Color.Lerp(Rgb(217, 214, 224), Dark, _glassAnim);
+            _tg.style.backgroundColor = Color.Lerp(Rgb(217, 214, 224), acc, _glassAnim);
             _knob.style.left = Mathf.Lerp(3f, 29f, _glassAnim) * k;
             _tg.style.scale = new Scale(Vector3.one * (1f + 0.06f * _tgHover));
             _close.style.backgroundColor = new Color(0f, 0f, 0f, 0.07f * _closeHover);
@@ -779,6 +828,7 @@ namespace Xiaoqi.UI2
                     _lastClickFrame = Time.frameCount; _bdrag = 1; _bdragMoved = false;
                     float Hn = Mathf.Max(1f, Screen.height);
                     _bdragMouse = new Vector2(Input.mousePosition.x / Hn, 1f - Input.mousePosition.y / Hn);
+                    _bdragPrev = _bdragMouse;
                     float W0, H0; MonitorDims(out W0, out H0);
                     var g0 = GeoOf(W0, H0);
                     _bdragStage = new Vector2(g0.stageL, g0.stageT);
@@ -794,6 +844,9 @@ namespace Xiaoqi.UI2
                     if (!_bdragMoved && (mn - _bdragMouse).magnitude * Hn > 4f) { _bdragMoved = true; Debug.Log("XQ_BENCH board drag start"); }
                     if (_bdragMoved)
                     {
+                        float vx = (mn.x - _bdragPrev.x) / Mathf.Max(0.004f, dt);
+                        _dragTilt = Mathf.Clamp(_dragTilt + Mathf.Clamp(vx * 0.9f, -3.5f, 3.5f) * 0.25f, -3.5f, 3.5f);
+                        _bdragPrev = mn;
                         _sx = _bdragStage.x + (mn.x - _bdragMouse.x);
                         _sy = _bdragStage.y + (mn.y - _bdragMouse.y);
                         float W1, H1; MonitorDims(out W1, out H1);
