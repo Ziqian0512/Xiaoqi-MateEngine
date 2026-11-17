@@ -288,3 +288,32 @@ XQ_UI2 on theme=pink class=xq-theme-pink scale=1.33 bodyH=484 fontPx=21.3 scaleM
   - **b)** 近景右键菜单的位置：是否在脸区右侧、不压脸、打开后不跟镜头晃——**待晚上主人验收**。
 - 原八项（设置页 / 拖她 / 菜单抖 / 坐窗睡 / 主题 / 坐窗后退出 / 工作台 / 工作台全屏联动）均保持「**待晚上主人验收**」。
 
+---
+
+## 第七次（自动化）（`int-all @ 707e68e9`，`-xq-menu-test` 近景菜单取证与回归）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `707e68e9`（新增 `-xq-menu-test` 验收钩子）；`xiaoqi/p2-agy4` @ `707e68e`（0 新增 `.meta`，未改任何源码）。
+- **编译**：**过**（0 个错误，59 条警告，耗时 62s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r7/build-summary-707e68e.md`）。
+- **证据文件**：`evidence/2026-11-17-B1-r7/`（`build-summary-707e68e.md`、`close-menu-test-707e68e-Player.log`、`close-test-707e68e-Player.log`、`smoke30s-707e68e-Player.log`、`ACCEPT-TONIGHT.md`）。
+
+### 1. `-xq-close-test -xq-menu-test -xq-menu-debug` 取证：**通过（三条日志全取到，drift 全 0）**
+
+```text
+XQ_MENU2 test-open mode=Close
+XQ_MENU2 place close-face side=R l1=607,97 limit=960x540
+XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0
+```
+- 整段日志 **0** 条 `XQ_WATCH body outside`、**0** 条 `XQ_HOST fix window`、**0** 条 `XQ_HOST center`；仅 Unity Localization 预加载常规日志，0 运行时异常。
+- 坐标换算核对：`limit=960x540` 下，`rect=602,97 244x291` 处于屏宽 `62.7%–88.1%`、屏高 `18.0%–71.9%`，完全位于脸区（屏宽 `38–62%`、屏高 `18–65%`）右侧不重叠（日志验证）。
+- **近景菜单打开截图**：**无法取得**（隔离桌面 `CopyFromScreen` 报 `The handle is invalid`，`PrintWindow(..., 2)` 仅输出空白白色底图无 UI 内容，已核对不冒充截图）。实机不压脸视觉表现仍标「**待晚上主人验收**」。
+
+### 2. 无 `-xq-menu-test` 的 `-xq-close-test` 回归 + 30s 冒烟：**均通过（无回归）**
+
+- `-xq-close-test`（`close-test-707e68e-Player.log`）：3 轮切入 `1.03s / 1.01s / 1.01s`，眼位 `(0.50,0.57)/(0.50,0.55)/(0.50,0.57)`，最终 `XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`，无 `body outside / fix window / center`。
+- 30s 冒烟（`smoke30s-707e68e-Player.log`，199 行）：仅 Localization 预加载常规日志，0 业务异常；`XQ_PANEL flipsY=False` 出现 1 次。
+
+### 3. `ISSUES.md` 与晚上验收包更新
+
+- `ISSUES.md` `#12` 已标记为 **已关闭**（已取到 `-xq-menu-test` 近景菜单摆位日志）。
+- **晚上验收包路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（已用 `707e68e9` 覆盖更新 `Xiaoqi\Xiaoqi.exe`，[ACCEPT-TONIGHT.md] 观察项 b 已补充 `XQ_MENU2 test-open mode=Close` 与 `XQ_MENU2 place close-face side=R l1=607,97 limit=960x540`，所有物理桌面项均保持「**待晚上主人验收**」）。
+
