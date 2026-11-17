@@ -139,6 +139,7 @@ namespace Xiaoqi.UI2
             _needRelease = true; // XQ: B1 #9 打开它的那一下点击（菜单「设置」/近景 ⚙）还按着，等抬起之后才认「点页外关闭」
             _openFrame = Time.frameCount;
             _host.style.display = DisplayStyle.Flex;
+            _host.BringToFront();            // W5b：近景里别被装饰卡压住
             _cascT0 = Time.unscaledTime; _cascLogged = false; _placedH = -1f;
             _panel.style.opacity = 0f;       // 量到高度、摆好位置之后再显出来，不在 (0,0) 闪一下
             _placed = false;
@@ -403,7 +404,8 @@ namespace Xiaoqi.UI2
 
             // 5 模型：一行内放路径灰字 + 「重新加载」按钮
             string path = cfg != null ? cfg.model_path : "";
-            page.Add(XqSettingsRows.Button("模型", path, "重新加载", () =>
+            string shortPath = string.IsNullOrEmpty(path) ? "" : System.IO.Path.GetFileName(path);   // W5b：整条路径在窄卡里把标签挤成竖排
+            page.Add(XqSettingsRows.Button("模型", shortPath, "重新加载", () =>
             {
                 var p = XiaoqiRuntime.Config != null ? XiaoqiRuntime.Config.model_path : null;
                 if (string.IsNullOrEmpty(p)) { Debug.Log("XQ_SET2 miss model_path"); return; }

@@ -161,6 +161,30 @@ namespace Xiaoqi.UI2
         Rect _anch;
         bool _hasAnch;
         bool _placeLogged;
+        VisualElement _hudNext;   // W5b：近景里菜单被装饰卡压在下面（r16 close_l3_behave.png）；打开时把 HUD 根抬到最上，关闭时放回原位
+        bool _hudLifted;
+
+        void LiftHud()
+        {
+            var hr = Root != null ? Root.parent : null;
+            var pp = hr != null ? hr.parent : null;
+            if (pp == null || hr == null) return;
+            int i = pp.IndexOf(hr);
+            if (i < 0 || i == pp.childCount - 1) { _hudLifted = false; return; }
+            _hudNext = pp[i + 1];
+            hr.BringToFront();
+            _hudLifted = true;
+            Debug.Log("XQ_MENU2 lift hud above=" + (_hudNext != null ? _hudNext.name : "-"));
+        }
+
+        void DropHud()
+        {
+            if (!_hudLifted) return;
+            _hudLifted = false;
+            var hr = Root != null ? Root.parent : null;
+            if (hr != null && hr.parent != null && _hudNext != null && _hudNext.parent == hr.parent) hr.PlaceBehind(_hudNext);
+            _hudNext = null;
+        }
 
         public void Open(IPanel panel, float scale)
         {
@@ -201,6 +225,7 @@ namespace Xiaoqi.UI2
 
             Rebuild();
             Root.style.display = DisplayStyle.Flex;
+            LiftHud();
             Debug.Log("XQ_MENU2 open side=" + (_sideRight ? "R" : "L") + " body=" + body.xMin.ToString("0") + ".." + body.xMax.ToString("0") + " scale=" + scale.ToString("0.00"));
         }
 
@@ -214,6 +239,7 @@ namespace Xiaoqi.UI2
             XqSettingsPanel.CloseIfOpen();   // W5：三级跟着关
             _danceOpen = false;
             Root.style.display = DisplayStyle.None;
+            DropHud();
             Xiaoqi.UI.XqMenu.LastCloseFrame = Time.frameCount;
             _hold = true;
             _holdFrame = Time.frameCount;

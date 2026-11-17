@@ -373,3 +373,23 @@
 .xq-st-card .xq-st-textval {
     max-width: 180px;
 }
+
+/* W5b：窄卡里标签/提示/按钮不许折行（r16 l3_0_look：「模型」「重新加载」被挤成竖排） */
+.xq-st-card .xq-st-row-label {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.xq-st-card .xq-st-hint {
+    font-size: 12px;
+    flex-shrink: 1;
+    white-space: nowrap;
+}
+
+.xq-st-card .xq-st-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 14px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
