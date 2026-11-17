@@ -599,3 +599,41 @@ XQ_WSPROBE click#3 BEFORE tag=Outside screenPt=(40,540) cntA=1 cntB=1 cntBoard=2
 XQ_WSPROBE click#3 AFTER tag=Outside phys=[Shadow dist=5.280] es=[EventSystem@WorldDocumentRaycaster:d=5.28:wp=(-1.87, 0.27, 2.02); ...] picked=null cntA=1 cntB=1 cntBoard=2
 ```
 - **ISSUES**：本轮 `82367953` 0 编译错误，未改代码，无新增编译 ISSUES（前序仅 `#21`）。
+
+---
+
+## 第十三次（自动化）（`int-all @ 8dbbd5e2`，G74 W2 右侧置底立绘 + 叠卡 + 视差 + 直切工作台路径与 `diag`）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `8dbbd5e2`（G74 W2：`UI2/XqBenchPanel.cs`、`Mode/XqMode.cs`、`Mode/XqModeConfig.cs`）；`xiaoqi/p2-agy4` 同步至 `8dbbd5e`（0 修改；方案 B 作废，`p3-ws-probe` 未合入）。
+- **编译**：**过**（0 compile errors，76 warnings，耗时 69s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r13/build-summary-8dbbd5e.md`）。`TickVisuals` 与 `XqMode.Transition` `if/else` 中新增 `yield` 均直接编译通过。
+- **证据目录**：`evidence/2026-11-17-B1-r13/`（`build-summary-8dbbd5e.md`、`w2-direct-bench-8dbbd5e-Player.log`、`w2-close-to-bench-8dbbd5e-Player.log`、`w2-bench-esc-8dbbd5e-Player.log`、`w2-close-test-8dbbd5e-Player.log`、`w2-close-menu-test-8dbbd5e-Player.log`、`w2-smoke30s-8dbbd5e-Player.log`、`ACCEPT-TONIGHT.md`）。
+
+### 1. 直切 / 近景切工作台复现与 `XQ_BENCH diag`
+
+- **(a) 桌宠直接 `Set(Bench)`（`-xq-bench -xq-mode bench`）**（`w2-direct-bench-8dbbd5e-Player.log`，0 业务 `Exception`）：
+```text
+XQ_BENCH built k=1.332 panelPx=799 monitor=1920x1080
+XQ_MODE Pet -> Bench
+XQ_BENCH open k=1.332 glass=False edge=0 pose=1
+XQ_BENCH parallax src=mouse
+XQ_CLOSE eyes view=(0.76,0.56) target=(0.76,0.56) bench frac=0.79/0.78
+XQ_BENCH diag host.disp=Flex vis=True parent=XqUi2Document-container stage=76,139,1176x801 op=1.00 panelSize=1920x1080 screen=1920x1080 pxS=-1.00
+```
+  - 另在多屏切换跑（`w2-bench-esc-8dbbd5e-Player.log`）中还观测到一段值得记录：`Warm()` 阶段窗口在 `2560x1440` 屏先构建 `XQ_BENCH built k=1.776 panelPx=1066 monitor=2560x1440`，进工作台铺满到 `1920x1080` 屏时 `diag` 打印：`XQ_BENCH diag host.disp=Flex vis=True parent=XqUi2Document-container stage=101,185,1569x1067 op=1.00 panelSize=1920x1080 screen=1920x1080 pxS=-1.00`（`185+1067=1252 > 1080`，因 `EnsureBuilt()` 重建阈值看的是 `MonitorDims()` 的 `px` 而未重核屏尺寸改变；未按单屏复现，已如实贴出两端 `diag` 备查，未改动任何逻辑）。
+  - 接 `Esc` 验证（`w2-bench-esc-8dbbd5e-Player.log`）：`XQ_MODE Bench -> Close` → `XQ_BENCH close` → `XQ_CLOSE exit by=esc` → `XQ_MODE Close -> Pet`，均 0 `Exception`。
+- **(b) 近景 → 点工作台**（`w2-close-to-bench-8dbbd5e-Player.log`）：近景打开正常（`XQ_CLOSE open`、`XQ_CLOSE ok btn-bench rect=0.919,0.896 0.042x0.074`），但隔离桌面无法通过 `PostMessage(WM_LBUTTONDOWN)` / `SendInput` 命中 `btn-bench`（未触发 `XQ_CLOSE btn bench`），此路是否出板标「**待晚上主人验收**」。
+
+### 2. 1080p 截图、视差、拖板与回归
+
+- **1080p 截图（含右侧 78% / 置底不歪 / 左板 3 层叠卡 / 光标最左最右视差对比）**：**无法取得**（隔离桌面 `CopyFromScreen` 报 `The handle is invalid`，`PrintWindow(..., 2)` 仅输出空白白板帧；`SendInput mouse left=0 right=0` 无法移动真实光标或拖动）。
+  - 实测已有 `XQ_BENCH parallax src=mouse` 日志出现，`XQ_CLOSE eyes view=(0.76,0.56) target=(0.76,0.56) bench frac=0.79/0.78` 对位落点命中目标。
+  - **全部物理视觉与鼠标交互项**（两条入口出板视觉、右侧 78% 脚切屏外不歪、左板下 3 层叠卡、最左/最右光标视差画面差、拖药丸栏空白/顶部 98px 整板动且她不动、点 `×`/玻璃开关/重试/侧栏 2 号、右键禁菜单、桌宠↔近景↔工作台 5 轮连切与退出站姿还原、手感质感）均标「**待晚上主人验收**」。
+- **自动化回归（均 0 业务 `Exception`）**：
+  - `-xq-close-test`（`w2-close-test-8dbbd5e-Player.log`）：3 轮 `1.01s~1.03s` 切入，`XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`。
+  - `-xq-close-test -xq-menu-test -xq-menu-debug`（`w2-close-menu-test-8dbbd5e-Player.log`）：`XQ_MENU2 test-open mode=Close`、`XQ_MENU2 place close-face side=R l1=1202,194 limit=1920x1080`、drift 全 0，无退化。
+  - `30s` 冒烟（`w2-smoke30s-8dbbd5e-Player.log`）：0 业务 `Exception`。
+
+### 3. 晚上验收包更新 & ISSUES
+
+- **晚上包**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（已覆写为 `8dbbd5e` 纯净构建，三个 `.cmd` 均带 `-xq-bench`，[ACCEPT-TONIGHT.md] 已更新为 W2 验收清单）。
+- **ISSUES**：本轮 `8dbbd5e2` 0 编译 error，未修改正式代码，**无新增 ISSUES**（前序仅 `#21`）。
