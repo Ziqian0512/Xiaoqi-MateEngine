@@ -1,0 +1,299 @@
+Mono path[0] = 'E:/dsh-pet-projects/xq-builds/w3-10530de/Xiaoqi_Data/Managed'
+Mono config path = 'E:/dsh-pet-projects/xq-builds/w3-10530de/MonoBleedingEdge/etc'
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Initialize engine version: 6000.2.6f2 (4a4dcaec6541)
+[Subsystems] Discovering subsystems at path E:/dsh-pet-projects/xq-builds/w3-10530de/Xiaoqi_Data/UnitySubsystems
+kGfxThreadingModeSplitJobs is not supported on Direct3D 11. Reverting to kGfxThreadingModeClientWorkerJobs instead.
+GfxDevice: creating device client; kGfxThreadingModeClientWorkerJobs
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 5090 D v2 (ID=0x2b8c)
+    Vendor:   NVIDIA
+    VRAM:     24035 MB
+    Driver:   32.0.16.1088
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.069 seconds
+- Finished resetting the current domain, in  0.002 seconds
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+<RI> Initializing input.
+<RI> Input initialized.
+The class named 'SteamDRM' is abstract. The script class can't be abstract!
+UnloadTime: 0.326400 ms
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+[Steamworks.NET] SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.
+Failed to add system tray icon. Error: -2147467259
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+FPS set to: 90
+<color=#bada55>[Receiver] Awake! Avatar: DEFAULT AVATAR</color>
+<color=#4FFFD7>[Receiver] Aktiviert: DEFAULT AVATAR (VRMModel)</color>
+[AvatarMinecraftMessages] UDP ready on 32145
+XiaoqiHide: not found = AI
+XiaoqiHide: not found = FOOD SYSTEM
+XiaoqiHide: not found = STEAM DLC
+XiaoqiHide: not found AI INPUT
+XiaoqiHide: not found AiSystemPrompt
+XiaoqiHide: not found AlarmMenuCanvas
+XiaoqiHide: not found BlendshapeMenuCanvas
+XiaoqiHide: not found DancePlayerMenuCanvas
+XiaoqiHide: not found Discord
+XiaoqiHide: not found Discord RPC
+XiaoqiHide: not found Food System
+XiaoqiHide: not found FoodMenu
+XiaoqiHide: not found LOCK_STEAM_DLC
+XiaoqiHide: not found Main Menu
+XiaoqiHide: not found MainMenuAlarm
+XiaoqiHide: not found MateEngineAPI/FoodMenu
+XiaoqiHide: not found MenuPanel
+XiaoqiHide: not found ModLoader
+XiaoqiHide: not found STEAM_DLC
+XiaoqiHide: not found STEAM_FS
+XiaoqiHide: not found STEAM_MC
+XiaoqiHide: not found SteamContent
+XiaoqiHide: not found SteamDRM
+XiaoqiHide: not found SteamSDK
+XiaoqiHide: not found SteamWorkshop
+XiaoqiHide: not found SystemStart
+XiaoqiHide: not found Tutorial
+XiaoqiHide: not found Welcome
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XQ_UI2 theme=pink class=xq-theme-pink
+XQ_SHOT_Awake args=2 index=-1
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+[SystemStartHandler] Enabled autostart (HKCU) as 'Xiaoqi' → "E:\dsh-pet-projects\xq-builds\w3-10530de\Xiaoqi.exe"
+XiaoqiHide: not found = AI
+XiaoqiHide: not found = FOOD SYSTEM
+XiaoqiHide: not found = ME Modding
+XiaoqiHide: not found = Settings
+XiaoqiHide: not found = STEAM DLC
+XiaoqiHide: not found = Steam Exklusives
+XiaoqiHide: not found AI Alarm Speech
+XiaoqiHide: not found AI INPUT
+XiaoqiHide: not found AI Speech
+XiaoqiHide: not found AiSystemPrompt
+XiaoqiHide: not found AlarmMenuCanvas
+XiaoqiHide: not found BlendshapeMenuCanvas
+XiaoqiHide: not found Chat
+XiaoqiHide: not found ChatBot AI
+XiaoqiHide: not found DancePlayerMenuCanvas
+XiaoqiHide: not found Discord
+XiaoqiHide: not found Discord RPC
+XiaoqiHide: not found DiscordPresence
+XiaoqiHide: not found Food
+XiaoqiHide: not found Food System
+XiaoqiHide: not found FoodMenu
+XiaoqiHide: not found LOCK_STEAM_DLC
+XiaoqiHide: not found Main Menu
+XiaoqiHide: not found MainMenuAlarm
+XiaoqiHide: not found MateEngineAPI/FoodMenu
+XiaoqiHide: not found MateEngineAPI/ModLoader
+XiaoqiHide: not found MenuPanel
+XiaoqiHide: not found ModLoader
+XiaoqiHide: not found STEAM_DLC
+XiaoqiHide: not found STEAM_FS
+XiaoqiHide: not found STEAM_MC
+XiaoqiHide: not found SteamAPI
+XiaoqiHide: not found SteamContent
+XiaoqiHide: not found SteamDRM
+XiaoqiHide: not found SteamSDK
+XiaoqiHide: not found SteamWorkshop
+XiaoqiHide: not found SystemStart
+XiaoqiHide: not found Tutorial
+XiaoqiHide: not found Welcome
+XiaoqiHide: not found Welcome Window
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XIAOQI_SYSTEMS ready model=E:\dsh-pet-projects\Xiaoqi-ME-p2\Build\Xiaoqi\XiaoqiData\16.vrm host=True
+XQ_HOST me-menu suppressed
+XQ_PANEL ScreenToPanel flipsY=False origin=0.0,0.0 H=1080
+<color=#FFBC4F>[Receiver] Deaktiviert: DEFAULT AVATAR (VRMModel)</color>
+<color=#bada55>[Receiver] Awake! Avatar: Default</color>
+<color=#4FFFD7>[Receiver] Aktiviert: Default (CustomVRM(Clone))</color>
+<color=#93FF4F>[Receiver] SetAnimator called! Neuer Animator gesetzt f黵: MODDED AVATAR (CustomVRM(Clone))</color>
+[AvatarMinecraftMessages] UDP ready on 32145
+[AvatarLibraryMenu] VRM already exists in library, skipping: Ciel_VRC_bake_1.0
+Unloading 5 Unused Serialized files (Serialized files now loaded: 5)
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+XQ_UI2 camera direct hdr=0 msaa=0 keepAlpha=1
+Unloading 27 unused Assets to reduce memory usage. Loaded Objects now: 15192.
+Total: 2.850900 ms (FindLiveObjects: 0.624000 ms CreateObjectMapping: 0.195900 ms MarkObjects: 1.986100 ms  DeleteObjects: 0.044700 ms)
+
+XQ_HOST avatar CustomVRM(Clone) animator=True proxy=True
+XQ_IDLE bound anim=CustomVRM(Clone) cur=0 pool=10 switch_time=1e9
+XQ_CLIPS PET_IDLE | PET_IDLE_UPDATE2_01 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_2 | PET_IDLE_14 | PET_IDLE_4 | PET_IDLE_3 | PET_IDLE_5 | PET_IDLE_15 | PET_IDLE_13 | PET_IDLE_9 | PET_IDLE_12 | PET_IDLE_6 | PET_IDLE_10 | PET_IDLE_11 | PET_IDLE_7 | PET_IDLE_8 | PET_IDLE | HUS_IDLE01 | HUS_IDLE02 | HUS_IDLE03 | HUS_IDLE04 | HUS_IDLE05 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE08 | HUS_IDLE09 | HUS_IDLE05 | HUS_IDLE03 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE02 | HUS_IDLE04 | HUS_IDLE09 | HUS_IDLE06 | HUS_IDLE08 | HUS_IDLE03 | HUS_IDLE01 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_02 | HUS_DANCE_01 | HUS_IDLE09 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_UPDATE2_01 | CUSTOM_DANCE | PET_IDLE_12 | FACE_IDLE_1 | 
+XQ_UI2 on theme=pink class=xq-theme-pink scale=1.00 bodyH=363 fontPx=16.0 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+OperationException : Failed to initialize localization, could not preload string tables.
+
+XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=1030,991 40x40 scale=1.00
+XQ_HOST dances=0
+XQ_BENCH built(rebuild=n) k=1.776 panelPx=1066 monitor=2560x1440
+XQ_WATCH start
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_TEST close before win=-1929,-403 1936x1119 body=883..1073 y=3..349 h=346 mode=Pet
+XQ_MODE Pet -> Close
+XQ_EVENT view close
+XQ_TEST close round=1 enter accepted=True
+XQ_HUD gate shown=False near=False menuOpen=False rect(panel)=1048,997 40x40 scale=1.00
+XQ_CLOSE doc=XqUi2Document
+XQ_CLOSE ok rail rect=0.023,0.048 0.065x0.904
+XQ_CLOSE ok plate rect=0.375,0.826 0.229x0.074
+XQ_CLOSE ok btn-pet rect=0.869,0.896 0.042x0.074
+XQ_CLOSE ok btn-bench rect=0.919,0.896 0.042x0.074
+XQ_CLOSE ok card-next rect=0.113,0.178 0.235x0.237
+XQ_CLOSE ok card-energy rect=0.113,0.456 0.215x0.170
+XQ_CLOSE ok card-say rect=0.696,0.063 0.273x0.237
+XQ_CLOSE ok card-tiny rect=0.729,0.344 0.240x0.237
+XQ_CLOSE ok ring rect=0.833,0.652 0.123x0.219
+XQ_CLOSE ok tip-bench rect=0.811,0.905 0.100x0.056
+XQ_CLOSE anim enter
+XQ_CLOSE open
+XQ_CLOSE ok rail rect=0.023,0.048 0.065x0.904
+XQ_CLOSE ok plate rect=0.375,0.826 0.229x0.074
+XQ_CLOSE ok btn-pet rect=0.869,0.896 0.042x0.074
+XQ_CLOSE ok btn-bench rect=0.919,0.896 0.042x0.074
+XQ_CLOSE ok card-next rect=0.113,0.178 0.235x0.237
+XQ_CLOSE ok card-energy rect=0.113,0.456 0.215x0.170
+XQ_CLOSE ok card-say rect=0.696,0.063 0.273x0.237
+XQ_CLOSE ok card-tiny rect=0.729,0.344 0.240x0.237
+XQ_CLOSE ok ring rect=0.833,0.652 0.123x0.219
+XQ_CLOSE ok tip-bench rect=0.811,0.905 0.100x0.056
+XQ_TEST close round=1 entered in=1.03s win=-1929,-403 1936x1119 body=-61..2042 y=-4568..-1390 h=3178 mode=Close
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_CLOSE eyes view=(0.50,0.57) target=(0.50,0.57)
+XQ_CLOSE day fail: 502
+XQ_CLOSE anim settled
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_TEST close round=1 hold4s win=-1929,-403 1936x1119 body=142..2085 y=-1907..1220 h=3127 mode=Close
+XQ_MODE Close -> Pet
+XQ_EVENT view pet
+XQ_CLOSE anim exit
+XQ_CLOSE close
+XQ_CLOSE eyes view=(0.53,0.57) target=(0.50,0.57)
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_CLOSE anim done
+XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=1892,9624 40x40 scale=1.00
+XQ_TEST close round=1 exited accepted=True win=-1929,-403 1936x1119 body=883..1073 y=3..349 h=346 mode=Pet
+XQ_MODE Pet -> Close
+XQ_EVENT view close
+XQ_TEST close round=2 enter accepted=True
+XQ_HUD gate shown=False near=False menuOpen=False rect(panel)=1047,995 40x40 scale=1.00
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_CLOSE anim enter
+XQ_CLOSE open
+XQ_CLOSE ok rail rect=0.023,0.048 0.065x0.904
+XQ_CLOSE ok plate rect=0.375,0.826 0.229x0.074
+XQ_CLOSE ok btn-pet rect=0.869,0.896 0.042x0.074
+XQ_CLOSE ok btn-bench rect=0.919,0.896 0.042x0.074
+XQ_CLOSE ok card-next rect=0.113,0.178 0.235x0.237
+XQ_CLOSE ok card-energy rect=0.113,0.456 0.215x0.170
+XQ_CLOSE ok card-say rect=0.696,0.063 0.273x0.237
+XQ_CLOSE ok card-tiny rect=0.729,0.344 0.240x0.237
+XQ_CLOSE ok ring rect=0.833,0.652 0.123x0.219
+XQ_CLOSE ok tip-bench rect=0.811,0.905 0.100x0.056
+XQ_TEST close round=2 entered in=1.01s win=-1929,-403 1936x1119 body=-67..2037 y=-4826..-1648 h=3178 mode=Close
+XQ_CLOSE eyes view=(0.50,0.56) target=(0.50,0.57)
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_CLOSE anim settled
+XQ_CLOSE day fail: 502
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_TEST close round=2 hold4s win=-1929,-403 1936x1119 body=140..2085 y=-1907..1220 h=3127 mode=Close
+XQ_MODE Close -> Pet
+XQ_EVENT view pet
+XQ_CLOSE anim exit
+XQ_CLOSE close
+XQ_CLOSE eyes view=(0.53,0.57) target=(0.50,0.57)
+XQ_CLOSE anim done
+XQ_EVENT drop view code=502
+XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=1892,9624 40x40 scale=1.00
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_TEST close round=2 exited accepted=True win=-1929,-403 1936x1119 body=883..1073 y=3..349 h=346 mode=Pet
+XQ_MODE Pet -> Close
+XQ_EVENT view close
+XQ_TEST close round=3 enter accepted=True
+XQ_HUD gate shown=False near=False menuOpen=False rect(panel)=1047,994 40x40 scale=1.00
+XQ_CLOSE anim enter
+XQ_CLOSE open
+XQ_CLOSE ok rail rect=0.023,0.048 0.065x0.904
+XQ_CLOSE ok plate rect=0.375,0.826 0.229x0.074
+XQ_CLOSE ok btn-pet rect=0.869,0.896 0.042x0.074
+XQ_CLOSE ok btn-bench rect=0.919,0.896 0.042x0.074
+XQ_CLOSE ok card-next rect=0.113,0.178 0.235x0.237
+XQ_CLOSE ok card-energy rect=0.113,0.456 0.215x0.170
+XQ_CLOSE ok card-say rect=0.696,0.063 0.273x0.237
+XQ_CLOSE ok card-tiny rect=0.729,0.344 0.240x0.237
+XQ_CLOSE ok ring rect=0.833,0.652 0.123x0.219
+XQ_CLOSE ok tip-bench rect=0.811,0.905 0.100x0.056
+XQ_TEST close round=3 entered in=1.01s win=-1929,-403 1936x1119 body=-62..2042 y=-4740..-1562 h=3178 mode=Close
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_CLOSE eyes view=(0.50,0.56) target=(0.50,0.57)
+XQ_EVENT drop view code=502
+XQ_CLOSE anim settled
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_CLOSE day fail: 502
+XQ_EVENT drop view code=502
+XQ_BRAIN 2026-11-17 11:50:57 src=random evt=idle from=0 pick=8:PET_IDLE_3 fade=0.44 tier=normal cand=1:PET_IDLE_UPDATE2_01(1.1)|2:PET_IDLE_UPDATE2_02(1.3)|3:PET_IDLE_UPDATE2_03(1.7)|4:PET_IDLE_UPDATE2_04(1.2)|5:PET_IDLE_2(1.8)|6:PET_IDLE_14(1.1)|7:PET_IDLE_4(1.8)|8:PET_IDLE_3(2.0)|9:PET_IDLE_5(1.4) why=timer
+XQ_TEST close round=3 hold4s win=-1929,-403 1936x1119 body=355..1983 y=-1879..1152 h=3031 mode=Close
+XQ_MODE Close -> Pet
+XQ_EVENT view pet
+XQ_CLOSE anim exit
+XQ_CLOSE close
+XQ_CLOSE eyes view=(0.51,0.58) target=(0.50,0.57)
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_CLOSE anim done
+XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=1787,9801 40x40 scale=1.00
+XQ_TEST close round=3 exited accepted=True win=-1929,-403 1936x1119 body=883..1073 y=3..349 h=346 mode=Pet
+XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716
+XQ_WATCH hwnd=5703596
+XQ_WATCH rect=-1929,-403,7,716

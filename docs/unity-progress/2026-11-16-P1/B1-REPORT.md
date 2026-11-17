@@ -637,3 +637,52 @@ XQ_BENCH diag host.disp=Flex vis=True parent=XqUi2Document-container stage=76,13
 
 - **晚上包**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（已覆写为 `8dbbd5e` 纯净构建，三个 `.cmd` 均带 `-xq-bench`，[ACCEPT-TONIGHT.md] 已更新为 W2 验收清单）。
 - **ISSUES**：本轮 `8dbbd5e2` 0 编译 error，未修改正式代码，**无新增 ISSUES**（前序仅 `#21`）。
+
+---
+
+## 第十四次（自动化 + 内嵌截帧 + AGY 改良对比）（`int-all @ 10530de5` W3 vs `xiaoqi/agy-w3-alt @ 590e5e4`）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `10530de5`（G74 W3；禁止 World Space，`p3-ws-probe` 未合入）；`xiaoqi/p2-agy4` 同步停在 `10530de`（0 修改）。
+- **编译**：**过**（0 compile errors，59 warnings，耗时 67s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r14/build-summary-10530de.md`）。`XqBenchPanel.Poll`、`XqMode.Transition` `path`、`XqGlassMenu` 均直接编译通过。
+- **证据目录**：`evidence/2026-11-17-B1-r14/`（全套 `.log`、`build-summary-10530de.md`、`ACCEPT-TONIGHT.md`、`w3-02/06/07/08*.png`、`alt-02/06/07/08*.png`）。
+
+### 1. 多屏复现 & 截帧致命发现（**ISSUES #22**）
+
+- **多屏路径（`w3-shot-pet-Player.log`）**：启动先在 `2560x1440` 屏 `Warm()` 构建出 `panelPx=1066`，`Pet -> Bench`（`path=pet-direct ok=True screen=1920x1080`）后立刻触发重建并按当前 `1920x1080` 算准尺寸，两条入口（`pet-direct` 与 `from-close`）均 `ok=True shown=True`，0 业务 `Exception`：
+```text
+XQ_BENCH built(rebuild=n) k=1.776 panelPx=1066 monitor=2560x1440
+XQ_MODE Pet -> Bench
+XQ_MODE bench path=pet-direct ok=True screen=1920x1080 target frac=0.78 eye=(0.37,0.87)
+XQ_BENCH built(rebuild=y) k=1.332 panelPx=799 monitor=1920x1080
+XQ_BENCH open k=1.332 glass=True edge=0 pose=1
+XQ_MODE bench shown=True path=pet-direct
+XQ_BENCH parallax src=mouse
+XQ_CLOSE eyes view=(0.37,0.87) target=(0.37,0.87) bench frac=0.78/0.78
+XQ_BENCH diag host.disp=Flex vis=True parent=XqUi2Document-container stage=29,122,1225x862 op=1.00 panelSize=1920x1080 screen=1920x1080 pxS=-0.97 pet=(x:461.49, y:270.98, width:534.43, height:836.95) builtPx=799 k=1.332
+XQ_MODE Close -> Bench
+XQ_MODE bench path=from-close ok=True screen=1920x1080 target frac=0.78 eye=(0.37,0.87)
+XQ_BENCH diag host.disp=Flex vis=True parent=XqUi2Document-container stage=76,139,1177x801 op=1.00 panelSize=1920x1080 screen=1920x1080 pxS=0.00 pet=(x:503.57, y:249.86, width:497.99, height:853.98) builtPx=799 k=1.332
+```
+- **实机截帧与 `#22` 根因**：通过 `XqShotProbe` 进程内 `ScreenCapture` 抓到 `10530de` 的 1080p 画面（`w3-02_bench_center.png`）：
+  - **左栏（`_rail`）** 正常半透（像素 `(120,250) A=107`）且 5 个图标清晰；
+  - **右板（`_panel`）** 因 `XqBenchPanel.cs:344` 保留 `_panel.style.overflow = Overflow.Hidden;`，在 `clearDepthStencil=false` 下触发模板缓冲裁剪，导致整块右板变成 **纯白不透明（`(400,200)` / `(600,400)` 为 `R=255,G=255,B=255,A=255`）**，所有标题、6 行内容、滑条、开关与 `×` 钮全部被裁没且背后小祈完全透不出！
+- **站姿 20s 固定 / 视差 / 拖板 / 多轮回归（探针日志实证）**：
+  - `still0 -> still10 -> still20`：`idle=0.00 speed=0.05 state=2081823275`（20 秒姿势完全静止）；
+  - 视差：`parL` `rot=(0.6, 192.0, 357.1) pxS=-1` vs `parR` `rot=(0.5, 169.3, 2.6) pxS=0.89`，左栏+右板刚体同向整体平移倾转，背后小祈真 3D 转身；
+  - 拖板：`08_drag_mid`（`rect=1034,217`）、`09_drag_edge`（`rect=1163,207`）板与她同步移动且边缘不越屏；
+  - 来回切换（4 轮完成至第 5 轮时 135s 超时收尾）：每轮退出回 `Pet` 均复位 `idle=0.00 speed=1.00 rot=(0.0, 180.0, 0.0)`。
+- **纯净回归（`w3-close-test` / `w3-close-menu-test` / `w3-smoke30s`，均 0 业务 `Exception`）**：
+  - `-xq-close-test`：`XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`；
+  - `-xq-close-test -xq-menu-test -xq-menu-debug`：`XQ_MENU2 test-open mode=Close`、`XQ_MENU2 place close-face side=R l1=1202,194 limit=1920x1080`，drift 全 0；
+  - 物理桌面 `SendInput` 鼠点/拖动/右键与质感体感标「**待晚上主人验收**」。
+
+### 2. AGY 改良对比版（分支 `xiaoqi/agy-w3-alt @ 590e5e4`，构建包 `E:\dsh-pet-projects\xq-builds\w3-agy-alt\Xiaoqi.exe`）
+
+- **对比 `10530de`（`w3-02_bench_center.png`）与 AGY 改版（`alt-02_bench_center.png`，`blue` 主题）**：
+  1. **修复 `#22`**：去掉 `_panel.style.overflow = Overflow.Hidden;`，右板立即从纯白死板恢复通透毛玻璃（`(400,200) A=185`、`(600,400) A=175`），`✦ XIAOQI WORKBENCH`、6 行、滑条、开关、`×` 与背后小祈全身清晰透出；
+  2. **二次元主题与材质统一**：读取 `XqUi2Sample.CurrentTheme`（`pink/blue/violet`）统一配色，左栏从深灰紫改为同色系浅霜玻璃与高光白边，左栏+右板质地协调不再割裂；
+  3. **控件与手感升级**：新增顶部居中拖手条与柔光带、行胶囊悬停高亮、6px 圆角主题色滑条与描边拇指滑块、拖板按速度动态微倾（`±3.5°`）与轻微抬起缩放（`1.015x`）松手回弹。（注：自查 `alt-02` 见 `topGlow` 直角上沿与斜向 `_sweep` 顶角微露，后续用圆角或安全内边距收掉即可。）
+
+### 3. 晚上验收包更新
+
+- `E:\dsh-pet-projects\Xiaoqi-Tonight\`（纯净 `10530de` 构建，三 `.cmd` 均带 `-xq-bench`，[ACCEPT-TONIGHT.md] 已更新为 W3 清单并附对比包路径 `xq-builds\w3-agy-alt\Xiaoqi.exe`）。
