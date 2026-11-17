@@ -773,3 +773,45 @@ XQ_MODE Close -> Bench ... XQ_MODE bench shown=True path=from-close
 - **纯净回归（0 业务 `Exception`）**：`-xq-close-test`（`drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`）、`-xq-close-test -xq-menu-test -xq-menu-debug`（drift 全 0）、`30s` 冒烟全过。
 - **晚上包**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（已覆写为纯净 `18097d6` 构建，三个 `.cmd` 均带 `-xq-bench`，[ACCEPT-TONIGHT.md] 已更新）。
 - **ISSUES**：本轮 `18097d60` 0 编译 error，未修改正式代码，**无新增 ISSUES**。
+
+---
+
+## 第十七次（自动化 + 内嵌截帧）（`int-all @ aab9080f`，G74 W5b：近景菜单抬层 + 外观模型行不折行）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `aab9080f`（相对 `18097d60` 只改 `UI2/XqGlassMenu.cs`、`UI2/XqSettingsPanel.cs`、`Resources/XqSettings.uss`；`XqBenchPanel` 未动）。`xiaoqi/p2-agy4` 同步停在 `aab9080`（0 修改）。
+- **编译**：**过**（0 compile errors，76 warnings，耗时 70s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r17/build-summary-aab9080.md`）。
+- **证据目录**：`evidence/2026-11-17-B1-r17/`（`w5b-probe-aab9080-Player.log`、`w5b-close-test-aab9080-Player.log`、`w5b-close-menu-test-aab9080-Player.log`、`w5b-smoke30s-aab9080-Player.log`、`pet_l3_look.png`、`close_l3_behave.png`、`w4_bench_check.png`、`build-summary-aab9080.md`、`ACCEPT-TONIGHT.md`）。
+
+### 1. 近景菜单抬层与外观「模型」行截帧核对
+
+- **关键日志（`w5b-probe-aab9080-Player.log`）**：
+```text
+XQ_MENU2 lift hud above=xq-bench-host
+XQ_MENU2 open side=L body=864..1117 scale=1.00
+XQ_MENU2 settings page=外观
+XQ_SET2 page 外观
+XQ_SET2 open cascade=True
+XQ_SET2 cascade place page=外观 x=15 y=780 size=380x276 side=L limit=1918x1080 squeeze
+XQ_MENU2 close by=esc
+XQ_MODE Pet -> Close
+XQ_MENU2 lift hud above=xq-bench-host
+XQ_MENU2 open side=L body=-29..2047 scale=1.00
+XQ_MENU2 settings page=行为
+XQ_SET2 page 行为
+XQ_SET2 open cascade=True
+XQ_SET2 cascade place page=行为 x=1530 y=517 size=380x366 side=R limit=1918x1080 squeeze
+XQ_MODE Close -> Bench
+XQ_MODE bench path=from-close ok=True screen=1918x1080 target frac=1.50 eye=(0.37,0.72)
+XQ_MODE bench shown=True path=from-close
+XQ_W5BP round=1 done ~ round=5 done
+```
+- **截帧核对**：
+  - **近景抬层（`close_l3_behave.png`）**：日志出现 `XQ_MENU2 lift hud above=xq-bench-host`，一级/二级/三级（「行为」）卡均明确盖在「今日小事 / 她说 / 25:00」等装饰卡之上；菜单关闭后物理鼠点装饰卡与近景左栏因隔离桌面 `SendInput` 受限标「**待晚上主人验收**」（纯净 `-xq-close-test` / `-xq-close-test -xq-menu-test` drift 全 `0`）。
+  - **桌宠态外观「模型」行（`pet_l3_look.png`）**：「模型」行保持单行不折行，提示仅显示 `16.vrm`，右侧「重新加载」按钮完整对齐。
+  - **W4 工作台（`w4_bench_check.png`）**：毛玻璃、布局与胸像构图未受影响。
+
+### 2. 回归与晚上包
+
+- **纯净回归（0 业务 `Exception`）**：`-xq-close-test`（`drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`）、`-xq-close-test -xq-menu-test -xq-menu-debug`（drift 全 0）、`30s` 冒烟（`XQ_START waking→ok 2.5s`）、`Close ↔ Bench ↔ Pet` 5 轮连切（`XQ_W5BP round=1..5 done`）均无业务 `Exception`。
+- **晚上包**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（已覆写为纯净 `aab9080` 构建，三个 `.cmd` 均带 `-xq-bench`，[ACCEPT-TONIGHT.md] 已更新为 `aab9080f`）。
+- **ISSUES**：本轮 `aab9080f` 0 编译 error，未修改正式代码，**无新增 ISSUES**。
