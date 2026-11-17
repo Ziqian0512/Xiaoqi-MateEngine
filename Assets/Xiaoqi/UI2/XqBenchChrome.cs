@@ -237,8 +237,7 @@ namespace Xiaoqi.UI2
             _clickFrame = Time.frameCount;
             if (!overExit) { Debug.Log("XQ_BENCH chrome click chat(gray)"); return; }
             Debug.Log("XQ_BENCH chrome click exit");
-            XqBenchWindow.Close();
-            XqMode.Set(XqView.Close);
+            XqMode.Set(XqView.Close); // XQ(WB 复核): Bench→Close 的过渡里本来就会关网页窗口并还原她，不再提前 Close()
         }
 
         void MousePts(IPanel panel)
@@ -246,8 +245,9 @@ namespace Xiaoqi.UI2
             var m = Input.mousePosition;
             float sc = Mathf.Max(0.1f, Screen.height / Mathf.Max(1f, _host.worldBound.height));
             _pts[0] = XqPanelXf.FromScreen(panel, m);                     // 本仓库正解（已处理翻不翻 Y）
-            _pts[1] = RuntimePanelUtils.ScreenToPanel(panel, m);          // 面板自己翻 Y 时的原样结果
-            _pts[2] = new Vector2(m.x / sc, (Screen.height - m.y) / sc);  // 纯 scale 换算
+            // XQ(WB 复核): 去掉另外两路兜底。XqPanelXf 已是正解；ScreenToPanel 原样结果在不翻 Y 的机器上是镜像点，
+            // 鼠标在屏幕镜像位置也会被当成点到方钮（误关工作台、误挡拖动）。
+            _pts[1] = _pts[2] = _pts[0];
         }
 
         bool OverEl(VisualElement el)
