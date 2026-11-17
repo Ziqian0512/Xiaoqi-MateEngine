@@ -239,6 +239,7 @@ namespace Xiaoqi.UI2
                 || Over(Bubble) || Over(_next) || Over(_here) || Over(_ringHost) || Over(_gate)
                 || (_entries != null && _menu > 0.02f && (Over(_modeEntries[0]) || Over(_modeEntries[1]) || Over(_modeEntries[2])))
                 || (XqClosePanel.IsShown && XqClosePanel.OverAny())
+                || XqBenchPanel.OverNow
                 || (_glass != null && _glass.Hit(picked))
                 || (_today != null && (_today.Hit(picked) || (_today.IsOpen && Over(_today.Root))));
         }

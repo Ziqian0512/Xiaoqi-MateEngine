@@ -32,6 +32,7 @@ namespace Xiaoqi.Mode
 
         private static XqMode _i;
         private bool _autoDone;
+        private bool _warmDone;
         private readonly bool[] _keyDown = new bool[3];
 
         [DllImport("user32.dll")] private static extern short GetAsyncKeyState(int vKey);
@@ -52,6 +53,9 @@ namespace Xiaoqi.Mode
 
         /// <summary>工作台入口是否可用（P2 通过前默认灰）。</summary>
         public static bool BenchAvailable { get { return XqModeConfig.I.bench_enabled; } }
+
+        /// <summary>G74 W1：工作台走 Unity 原生面板（默认）；-xq-bench-web 才开旧的 Edge 网页窗口。</summary>
+        public static bool BenchNative { get { return !XqModeConfig.I.bench_web; } }
 
         public static bool Set(XqView to)
         {
@@ -84,13 +88,38 @@ namespace Xiaoqi.Mode
             {
                 try { if (OnCloseLeaving != null) OnCloseLeaving(); }
                 catch (Exception e) { Debug.LogWarning("XQ_MODE leaving listener: " + e.Message); }
-                XqCloseCamera.BeginExit();
-                yield return XqCloseCamera.Settle();
+                if (to == XqView.Bench && BenchNative)
+                {
+                    // 近景 → 原生工作台：同一个大屏窗口，不退出，只换镜头
+                    yield return new WaitForSecondsRealtime(0.35f);
+                }
+                else
+                {
+                    XqCloseCamera.BeginExit();
+                    yield return XqCloseCamera.Settle();
+                }
             }
             else if (from == XqView.Bench)
             {
-                XqBenchWindow.Close();
-                yield return new WaitForSecondsRealtime(0.2f);
+                if (BenchNative)
+                {
+                    Xiaoqi.UI2.XqBenchPanel.Hide();
+                    if (to == XqView.Close)
+                    {
+                        XqCloseCamera.Retarget(false, 0f, 0f, 0f);
+                        yield return new WaitForSecondsRealtime(0.5f);
+                    }
+                    else
+                    {
+                        XqCloseCamera.BeginExit();
+                        yield return XqCloseCamera.Settle();
+                    }
+                }
+                else
+                {
+                    XqBenchWindow.Close();
+                    yield return new WaitForSecondsRealtime(0.2f);
+                }
             }
 
             Current = to;
@@ -114,7 +143,25 @@ namespace Xiaoqi.Mode
             }
             else if (to == XqView.Bench)
             {
-                if (!XqBenchWindow.Open())
+                if (BenchNative)
+                {
+                    var bc = XqModeConfig.I;
+                    bool ok = from == XqView.Close
+                        ? XqCloseCamera.Retarget(true, bc.bench_pet_frac, bc.bench_eye_vx, bc.bench_eye_vy)
+                        : XqCloseCamera.BeginEnterBench(bc.bench_pet_frac, bc.bench_eye_vx, bc.bench_eye_vy);
+                    if (!ok)
+                    {
+                        Debug.Log("XQ_MODE bench(native) failed, back to Pet");
+                        Current = XqView.Pet;
+                    }
+                    else
+                    {
+                        yield return new WaitForSecondsRealtime(CardsDelaySec);
+                        Xiaoqi.UI2.XqBenchPanel.Show();
+                        yield return new WaitForSecondsRealtime(Mathf.Max(0f, XqCloseCamera.SettleSec - CardsDelaySec));
+                    }
+                }
+                else if (!XqBenchWindow.Open())
                 {
                     Debug.Log("XQ_MODE bench failed, back to Pet");
                     Current = XqView.Pet;
@@ -126,6 +173,13 @@ namespace Xiaoqi.Mode
         private void Update()
         {
             var cfg = XqModeConfig.I;
+
+            // G74 W1：宿主就绪 3 秒后把工作台面板预建好（隐藏），点「工作台」时不用现场构建
+            if (!_warmDone && BenchNative && PetHost.I != null && PetHost.I.Ready && Time.realtimeSinceStartup > 3f)
+            {
+                _warmDone = true;
+                Xiaoqi.UI2.XqBenchPanel.Warm();
+            }
 
             // 无人值守测试：-xq-mode close|bench
             if (!_autoDone && PetHost.I != null && PetHost.I.Ready && Time.realtimeSinceStartup > 5f)

@@ -216,7 +216,7 @@ namespace Xiaoqi.UI2
         /// 场景里可能不止一个 UIDocument。优先挑挂 XqUi2Sample 的、再挑名字含 Xq/Xiaoqi 的，
         /// 都没有才退回第一个（与 b4-deepseek 设置页同一套挑选规则）。
         /// </summary>
-        static UIDocument PickDoc()
+        internal static UIDocument PickDoc()
         {
             var docs = UnityEngine.Object.FindObjectsByType<UIDocument>(
                 FindObjectsInactive.Include, FindObjectsSortMode.None);

@@ -175,7 +175,7 @@ namespace Xiaoqi.UI2
             // XQ: B1 第二轮 #13 设置页先处理指针（点页外关页并吞掉那一下；点页内也不再当成点她），
             // 且设置页开着/刚关掉的那几帧一律挡拖动——以前它和这里各自设挡板，这里每帧把它改回 false。
             bool setConsumed = XqSettingsPanel.HandlePointer();
-            bool over = Hit(_sample) || (_hud != null && _hud.OverChromeNow()) || XqSettingsPanel.OpenNow || XqSettingsPanel.Swallow;
+            bool over = Hit(_sample) || (_hud != null && _hud.OverChromeNow()) || XqSettingsPanel.OpenNow || XqSettingsPanel.Swallow || XqBenchPanel.OverNow;
             PetHost.I?.SetUiBlocksMovement(over);
             GuardWindowDrag(over);
             if (!setConsumed) _hud?.HandlePointer(this);

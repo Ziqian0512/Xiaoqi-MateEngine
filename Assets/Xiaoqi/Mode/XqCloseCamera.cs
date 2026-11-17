@@ -24,8 +24,11 @@ namespace Xiaoqi.Mode
         private static float _savedClipLen;
         private static float _savedIdleIdx;
         // XQ: P2-2 R-1 双眼视口收敛状态（vx=0.50, vy=0.57）
-        private const float TargetVx = 0.50f;
-        private const float TargetVy = 0.57f;
+        private const float CloseVx = 0.50f;
+        private const float CloseVy = 0.57f;
+        // XQ(WB): G74 W1 工作台原生版也借这套大屏窗口，只是镜头拉远、眼睛落点换到屏幕左侧。落点做成可改的。
+        private static float TargetVx = CloseVx;
+        private static float TargetVy = CloseVy;
         private static float _enterAt;
         private static bool _loggedSettledEyes;
         private static float _xShift;
@@ -120,7 +123,7 @@ namespace Xiaoqi.Mode
                 {
                     float scale = Mathf.Max(0.01f, a.transform.lossyScale.y);
                     float dyOff = ((eyeWorld.y - targetWorld.y) / scale) * 0.65f;
-                    h.YOffset = Mathf.Clamp(h.YOffset + dyOff, -0.4f, 0.4f);
+                    h.YOffset = Mathf.Clamp(h.YOffset + dyOff, -1.2f, 1.2f); // XQ(WB): 工作台落点离中心远，原 ±0.4 不够
                 }
             }
 
@@ -152,12 +155,68 @@ namespace Xiaoqi.Mode
             }
         }
 
+        /// <summary>
+        /// 按「她的身高占屏高多少」算出 TargetZoom（0 = 保持 ME 自动）。用镜头当前值按比例缩放，
+        /// 所以从小窗口进入、从近景切过来都能用。取不到她的外框就返回 0。
+        /// </summary>
+        private static float ZoomForFrac(AvatarBigScreenHandler h, float newFrac)
+        {
+            var cam = h.MainCamera != null ? h.MainCamera : Camera.main;
+            if (cam == null || h.avatarAnimator == null || Xiaoqi.Host.PetHost.I == null || newFrac <= 0.05f) return 0f;
+            float curFrac = Xiaoqi.Host.PetHost.I.ScreenRect().height / Mathf.Max(1f, Screen.height);
+            if (curFrac < 0.05f) return 0f;
+            float k = curFrac / newFrac;
+            float scale = Mathf.Max(0.01f, h.avatarAnimator.transform.lossyScale.y);
+            float z;
+            if (cam.orthographic) z = cam.orthographicSize * k / scale;
+            else z = Mathf.Clamp(2f * Mathf.Atan(Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * k) * Mathf.Rad2Deg, 5f, 110f);
+            Debug.Log("XQ_BENCH zoom cur=" + curFrac.ToString("0.00") + " new=" + newFrac.ToString("0.00") + " z=" + z.ToString("0.00") + (cam.orthographic ? " ortho" : " persp"));
+            return z;
+        }
+
+        /// <summary>工作台镜头：窗口铺满显示器，她以 bodyFrac×屏高的身高站在屏幕左侧（眼睛落在 vx,vy）。</summary>
+        public static bool BeginEnterBench(float bodyFrac, float vx, float vy)
+        {
+            var h = Handler();
+            if (h == null) { Debug.Log("XQ_HOST_MISS AvatarBigScreenHandler"); return false; }
+            float z = _active ? 0f : ZoomForFrac(h, bodyFrac);
+            TargetVx = vx; TargetVy = vy;
+            bool ok = BeginEnter();
+            TargetVx = vx; TargetVy = vy; // BeginEnter 会把落点复位成近景的，这里再设一次
+            if (ok && z > 0f) h.TargetZoom = z;
+            return ok;
+        }
+
+        /// <summary>已经在大屏里（近景↔工作台）直接换镜头，不退出窗口。</summary>
+        public static bool Retarget(bool toBench, float bodyFrac, float vx, float vy)
+        {
+            var h = Handler();
+            if (h == null || !_active) return false;
+            var c = XqModeConfig.I;
+            if (toBench)
+            {
+                float z = ZoomForFrac(h, bodyFrac);
+                if (z > 0f) h.TargetZoom = z;
+                TargetVx = vx; TargetVy = vy;
+            }
+            else
+            {
+                h.TargetZoom = c.close_zoom > 0f ? c.close_zoom : 0f;
+                h.YOffset = c.close_yoffset;
+                TargetVx = CloseVx; TargetVy = CloseVy;
+            }
+            _enterAt = Time.unscaledTime;
+            _loggedSettledEyes = false;
+            return true;
+        }
+
         /// <summary>开始进入。返回 false = 找不到 ME 的大屏组件（不崩，调用方写日志）。</summary>
         public static bool BeginEnter()
         {
             var h = Handler();
             if (h == null) { Debug.Log("XQ_HOST_MISS AvatarBigScreenHandler"); return false; }
             var c = XqModeConfig.I;
+            if (!_active) { TargetVx = CloseVx; TargetVy = CloseVy; }
             if (c.close_zoom > 0f) h.TargetZoom = c.close_zoom;
             h.YOffset = c.close_yoffset;
             if (!_active)

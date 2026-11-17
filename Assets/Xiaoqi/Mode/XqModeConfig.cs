@@ -31,6 +31,11 @@ namespace Xiaoqi.Mode
         public int bench_sit_right_gap = 220; // 离窗口右边缘至少多少物理像素（右上角三个系统按钮）
         public float bench_pet_size = 0f;     // >0 时进入工作台临时改 Size，退出恢复；0 = 不动（等实机标定）
         public string bench_theme = "pink";
+        // ---- G74 W1 原生工作台（默认走 Unity 原生；-xq-bench-web 或 bench_web=true 才开旧 Edge 网页版）----
+        public bool bench_web = false;
+        public float bench_pet_frac = 0.88f;  // 她在工作台里的身高占屏高比例（站在左边，脚在屏外）
+        public float bench_eye_vx = 0.11f;    // 眼睛落点（视口 0~1，左下原点）
+        public float bench_eye_vy = 0.80f;
         public string edge_path = "";         // 空 = 自动找 msedge.exe
 
         private static XqModeConfig _i;
@@ -72,6 +77,7 @@ namespace Xiaoqi.Mode
             if (cfg == null) cfg = new XqModeConfig();
             if (HasArg("-xq-bench")) cfg.bench_enabled = true;
             if (HasArg("-xq-hotkeys")) cfg.hotkeys = true;
+            if (HasArg("-xq-bench-web")) cfg.bench_web = true;
             return cfg;
         }
     }
