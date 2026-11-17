@@ -69,10 +69,8 @@ namespace Xiaoqi.UI2
             var r = el.worldBound;
             if (float.IsNaN(r.x) || r.width < 1f || r.height < 1f) return false;
             var m = Input.mousePosition;
-            var p0 = RuntimePanelUtils.ScreenToPanel(_host.panel, m);
-            float sc = Mathf.Max(0.1f, Screen.height / Mathf.Max(1f, _host.worldBound.height));
-            var p1 = new Vector2(m.x / sc, (Screen.height - m.y) / sc);
-            return r.Contains(p0) || r.Contains(p1);
+            var p0 = XqPanelXf.FromScreen(_host.panel, m); // XQ: B1 第二轮 #18 不再用未翻 Y 的镜像点
+            return r.Contains(p0);
         }
 
         void TickPointer()
@@ -88,6 +86,7 @@ namespace Xiaoqi.UI2
             if (Input.GetMouseButtonDown(0) && _lastClickFrame != Time.frameCount)
             {
                 if (OverEl(_btnPet)) { _lastClickFrame = Time.frameCount; Debug.Log("XQ_CLOSE btn pet"); Debug.Log("XQ_CLOSE exit by=btn"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet); return; }
+                if (OverEl(_btnBench) && Xiaoqi.Mode.XqMode.BenchAvailable) { _lastClickFrame = Time.frameCount; Debug.Log("XQ_CLOSE btn bench"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Bench); return; }
                 if (OverEl(_ringFocus)) { _lastClickFrame = Time.frameCount; Pair("ring placeholder"); return; }
                 if (OverEl(DotByWord("♥"))) { _lastClickFrame = Time.frameCount; Pair("rail pet"); Debug.Log("XQ_CLOSE exit by=rail"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet); return; }
                 if (OverEl(DotByWord("今"))) { _lastClickFrame = Time.frameCount; Focus(_cardNext); return; }

@@ -248,11 +248,10 @@ namespace Xiaoqi.UI2
         {
             var m = Input.mousePosition;
             float sc = Mathf.Max(0.1f, scale);
-            return new[]
-            {
-                RuntimePanelUtils.ScreenToPanel(panel, m),
-                new Vector2(m.x / sc, (Screen.height - m.y) / sc),
-            };
+            // XQ: B1 第二轮 #18 只用翻过 Y 的点。以前 pts[0] 是未翻 Y 的 ScreenToPanel（本机 flipsY=False，镜像点），
+            // 菜单跨过屏中线时镜像点也落在卡内，整张菜单上下颠倒命中（点「让她…」开了今天）。第二个点保留同值，避免动下标。
+            var pt = XqPanelXf.FromScreen(panel, m);
+            return new[] { pt, pt };
         }
 
         /// <summary>按下时找被点的那一行。inside=点在卡上（含灰行/空隙）。</summary>

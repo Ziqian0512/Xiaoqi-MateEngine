@@ -76,14 +76,29 @@ namespace Xiaoqi.UI2
 
             _btnBench = new VisualElement { name = "xq-close-btn-bench", pickingMode = PickingMode.Position };
             _btnBench.AddToClassList("xq-cl-btn");
-            _btnBench.AddToClassList("off");
+            // XQ: B1 第二轮 #20 工作台开着（-xq-bench / xq_mode.json bench_enabled）就不灰、可点；没开才灰置「还没开放」
+            bool benchOn = XqMode.BenchAvailable;
+            if (!benchOn) _btnBench.AddToClassList("off");
             AddText(_btnBench, "工作台");
             Add("btn-bench", XqCloseLayout.BtnBenchL, XqCloseLayout.BtnTop,
                 XqCloseLayout.BtnSize, XqCloseLayout.BtnSize);
             // 悬停提示：沿用 XqPetHud 的 EnableInClassList 写法，不做新机制
-            _tipBench = new Label("还没开放") { pickingMode = PickingMode.Ignore };
+            _tipBench = new Label(benchOn ? "打开工作台" : "还没开放") { pickingMode = PickingMode.Ignore };
             _tipBench.AddToClassList("xq-cl-tip");
             _btnBench.Add(_tipBench);
+            _btnBench.RegisterCallback<ClickEvent>(e =>
+            {
+                try
+                {
+                    e.StopPropagation();
+                    if (!XqMode.BenchAvailable) return;
+                    if (_lastClickFrame == Time.frameCount) return;
+                    _lastClickFrame = Time.frameCount;
+                    Debug.Log("XQ_CLOSE btn bench");
+                    XqMode.Set(XqView.Bench);
+                }
+                catch (Exception ex) { Debug.LogWarning("XQ_CLOSE btn bench: " + ex.Message); }
+            });
             _btnBench.RegisterCallback<MouseEnterEvent>(_ =>
             {
                 try { _tipBench.EnableInClassList("on", true); }

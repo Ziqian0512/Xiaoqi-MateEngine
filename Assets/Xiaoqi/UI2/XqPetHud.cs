@@ -457,8 +457,9 @@ namespace Xiaoqi.UI2
         {
             var m = Input.mousePosition;
             float sc = Mathf.Max(0.1f, _lastScale);
-            _pts[0] = RuntimePanelUtils.ScreenToPanel(panel, m);
-            _pts[1] = new Vector2(m.x / sc, (Screen.height - m.y) / sc);
+            // XQ: B1 第二轮 #18 同 XqGlassMenu：不用未翻 Y 的镜像点，只用 FromScreen
+            _pts[0] = XqPanelXf.FromScreen(panel, m);
+            _pts[1] = _pts[0];
         }
 
         bool Over(VisualElement el)
