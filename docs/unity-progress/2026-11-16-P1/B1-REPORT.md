@@ -154,3 +154,45 @@ XQ_TEST close round=3 exited accepted=True win=-327,-447 2574x1479 body=1171..14
 XQ_TEST close drift win=2240,236 size=0,0 bodyCx=0 bodyBottom=0 bodyH=-1
 ```
 
+---
+
+## 第四次（自动化部分）（`int-all @ 628221fc`，WB-G69）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `628221fc`（含 `17c96fda` 窗口保护修正与 `628221fc` 全屏躲开联动工作台）；`xiaoqi/p2-agy4` @ `628221f`（0 新增 `.meta` 需提交，未改任何逻辑文件）。
+- **编译**：**过**（0 个错误，49 条警告，耗时 61s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r4/build-summary-628221f.md`）。
+- **P3-3（DeepSeek `xiaoqi/p3-deepseek`）**：**未到**（查询 `origin` 尚未出现 `xiaoqi/p3-deepseek` 分支）。
+- **证据文件**：`evidence/2026-11-17-B1-r4/`（`build-summary-628221f.md`、`close-test-628221f-Player.log`、`smoke30s-628221f-Player.log`、`nap-test-628221f-Player.log`、`sit-test-628221f-Player.log`、`theme-blue-628221f-Player.log`、`theme-violet-628221f-Player.log`、`ACCEPT-TONIGHT.md`）。
+
+### 1. `-xq-close-test` 回归：**通过**
+
+- `XQ_PANEL ScreenToPanel flipsY=False origin=0.0,0.0 H=1440`（仅出现 1 次）。
+- 3 轮切入耗时：`1.02s`、`1.01s`、`1.01s`（全部 ≤ 1.3s）。
+- `XQ_CLOSE eyes`：3 轮稳定 `(0.50,0.57)` / `(0.50,0.55)` / `(0.50,0.57)`，退出前均 `(0.50,0.57)`（目标 `(0.50,0.57)`）。
+- 最终漂移：`XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=-1`。
+- 整段日志 **0** 条 `XQ_WATCH body outside`、**0** 条 `XQ_HOST fix window`、**0** 条 `XQ_HOST center`（`17c96fda` 确已消除 G68 的副屏拉回漂移回归）。
+
+### 2. 自动冒烟：**通过**
+
+| 用例 | 结果 | 关键日志（`evidence/2026-11-17-B1-r4/`） |
+|---|---|---|
+| 启动 30 秒无 Exception | **通过** | `smoke30s-628221f-Player.log`（198 行）：仅 `OperationException : Failed to initialize localization, could not preload string tables.`，无业务/运行时 `Exception` 或 `NullReferenceException`；`XQ_PANEL flipsY=False` 出现 1 次。 |
+| `-xq-nap-test` | **通过** | `nap-test-628221f-Player.log`：`XQ_TEST nap start` → `XQ_TEST nap asleep=True` → `XQ_TEST nap woke asleep=False`（0 异常）。 |
+| `-xq-sit-test`（目标窗 `Untitled - Notepad`） | **通过** | `sit-test-628221f-Player.log`：`XQ_TEST sit ok=True sitting=True` → 1/3/5s `snapped=True sitting=True` → `XQ_TEST sit exit sitting=False`（0 异常）。 |
+| `-xq-theme blue` / `violet` | **通过** | 分别打印 `XQ_UI2 theme=blue class=xq-theme-blue` 与 `XQ_UI2 theme=violet class=xq-theme-violet`（`scale=1.33 bodyH=484 fontPx=21.3`），各含 1 次 `XQ_PANEL flipsY=False`（0 异常）。 |
+
+### 3. 物理桌面六项（均**待晚上主人验收**）
+
+| 序号 | 项 | 状态 | 晚上验收方式 |
+|---|---|---|---|
+| 1 | 设置页（主菜单/托盘/近景 `⚙`、点内外关、无今天卡） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #1 |
+| 2 | 拖她（上沿/左右边缘不闪回、跨双屏、无 `fix window`） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #2 |
+| 3 | 菜单抖（开菜单待机 10s 不抖、放大/缩小各开一次） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #3 |
+| 4 | 坐窗睡（坐窗顶边、右键、先下窗再睡、叫醒/拖醒） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #4 |
+| 5 | 主题（`-xq-theme blue \| violet` 各元素观感） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #5 |
+| 6 | 坐窗口后托盘退出（无 `SetOtherQuadsActive` 空指针） | **待晚上主人验收** | 见 `ACCEPT-TONIGHT.md` #6 |
+
+### 4. 晚上验收包位置与说明
+
+- **固定可运行路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\Xiaoqi\Xiaoqi.exe`
+- **操作清单与一键脚本**：`E:\dsh-pet-projects\Xiaoqi-Tonight\ACCEPT-TONIGHT.md`（配套 `1-启动验收(pink).cmd`、`2-主题blue.cmd`、`3-主题violet.cmd`），清单副本同步存于 `evidence/2026-11-17-B1-r4/ACCEPT-TONIGHT.md`。
+
