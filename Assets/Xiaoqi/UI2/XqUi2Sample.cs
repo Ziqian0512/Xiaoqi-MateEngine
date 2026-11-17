@@ -59,6 +59,9 @@ namespace Xiaoqi.UI2
             return true;
         }
 
+        /// <summary>当前主题名（pink/blue/violet）。设置页建好后用它对齐 class，别再各自读 cfg（命令行 -xq-theme 不进 cfg）。</summary>
+        public static string CurrentTheme { get { return _instance != null ? _instance._theme : "pink"; } }
+
         public static void SetTheme(string theme)
         {
             if (_instance == null)
@@ -129,12 +132,15 @@ namespace Xiaoqi.UI2
             // XQ: B1 #10 面板缩放原来每帧跟「蒙皮包围盒高度」走，待机抬手歪头就在 1.24~1.32 间抖，菜单/方钮跟着抽。
             // 改成用稳定外框（死区+平滑）的高度；变化小于 4% 不动；菜单开着只在她真的变了 15% 以上才动。
             float bodyH = 0f;
+            var bodyC = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
             if (PetHost.I != null)
             {
                 var sb = XqBodyAnchor.Stable();
                 bodyH = sb.height >= 8f ? sb.height : PetHost.I.ScreenRect().height;
+                if (sb.height >= 8f) bodyC = sb.center;
             }
-            float scale = bodyH >= 8f ? Mathf.Clamp(bodyH / RefHeight, 0.8f, 2f) : 1f;
+            // XQ: B1 第二轮 #14 界面尺寸只看她所在显示器的 DPI（夹 1~2），不再乘人物外框高（近景外框几千 px → 顶到 2.0，设置页/左栏巨大遮人）
+            float scale = bodyH >= 8f ? XqMonitor.UiScale(bodyC) : 1f;
             float curScale = _runtimePanel.scale;
             float rel = curScale > 0.01f ? Mathf.Abs(scale - curScale) / curScale : 1f;
             float need = XqGlassMenu.IsOpen ? 0.15f : 0.04f;
@@ -166,10 +172,13 @@ namespace Xiaoqi.UI2
                 PetHost.I?.SetUiBlocksMovement(false);
                 return;
             }
-            bool over = Hit(_sample) || (_hud != null && _hud.OverChromeNow());
+            // XQ: B1 第二轮 #13 设置页先处理指针（点页外关页并吞掉那一下；点页内也不再当成点她），
+            // 且设置页开着/刚关掉的那几帧一律挡拖动——以前它和这里各自设挡板，这里每帧把它改回 false。
+            bool setConsumed = XqSettingsPanel.HandlePointer();
+            bool over = Hit(_sample) || (_hud != null && _hud.OverChromeNow()) || XqSettingsPanel.OpenNow || XqSettingsPanel.Swallow;
             PetHost.I?.SetUiBlocksMovement(over);
             GuardWindowDrag(over);
-            _hud?.HandlePointer(this);
+            if (!setConsumed) _hud?.HandlePointer(this);
         }
 
         GameObject SpawnDocument()

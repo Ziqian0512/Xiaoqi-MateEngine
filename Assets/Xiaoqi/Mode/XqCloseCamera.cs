@@ -98,6 +98,9 @@ namespace Xiaoqi.Mode
             var a0 = h != null ? h.avatarAnimator : null;
             if (a0 != null && _hasSavedPos)
                 a0.transform.position = _savedAvatarPos + new Vector3(_xShift, 0f, 0f);
+            // XQ: B1 第二轮 #16 对眼只在进入后的收敛窗口里做（到 1.6s 为止）。之后她做动作、头在动，每帧再「追」眼睛位置，
+            // 整个身体就跟着头一起抽（之前每帧 0.65 增益追到天荒地老）。收敛完位置就定住，动作的幅度该是多少就是多少。
+            if (elapsed > 1.6f) { if (!_loggedSettledEyes) { _loggedSettledEyes = true; LogEyes(h); } return; }
             if (!TryGetEyeViewport(h, out var cam, out var a, out var eyeWorld, out var vp)) return;
 
             float ex = Mathf.Abs(vp.x - TargetVx);

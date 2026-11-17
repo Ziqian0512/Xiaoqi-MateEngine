@@ -24,6 +24,52 @@ namespace Xiaoqi.UI2
 
         public bool IsOpen { get; private set; }
 
+        // XQ: B1 第二轮 #13/#14 静态入口：HUD / 菜单 / Sample 不用持有实例就能问「设置页开着没、鼠标在不在页上、刚点掉页的那一下要不要吞」。
+        public static bool OpenNow { get { return _inst != null && _inst.IsOpen; } }
+        public static bool OverNow { get { return _inst != null && _inst.IsOpen && _inst._over; } }
+        static int _swallowFrame = -100;
+        /// <summary>点页外关掉设置页的那一下点击（含按住期间）不能再穿到她身上（今天卡 / 拖动）。</summary>
+        public static bool Swallow
+        {
+            get
+            {
+                if (_swallowFrame < 0) return false;
+                if (Input.GetMouseButton(0) || Time.frameCount <= _swallowFrame + 3) return true;
+                _swallowFrame = -100;
+                return false;
+            }
+        }
+        /// <summary>开右键菜单前调：设置页和菜单互斥。</summary>
+        public static void CloseIfOpen() { if (_inst != null && _inst.IsOpen) _inst.Close(); }
+
+        /// <summary>HUD 每帧最先调。左键按在页外 → 关页并吞掉这一下，返回 true。页内/页外但页没开 → false。</summary>
+        public static bool HandlePointer()
+        {
+            if (_inst == null || !_inst.IsOpen || _inst._panel == null || _inst._panel.panel == null) return false;
+            return _inst.PointerSelf();
+        }
+
+        bool _over;
+
+        bool PointerSelf()
+        {
+            var picked = _panel.panel.Pick(XqPanelXf.FromScreen(_panel.panel, Input.mousePosition));
+            _over = Inside(_panel, picked);
+            if (_needRelease)
+            {
+                if (Time.frameCount > _openFrame && !Input.GetMouseButton(0) && !Input.GetMouseButtonDown(0)) _needRelease = false;
+                return _over && Input.GetMouseButtonDown(0);
+            }
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (_over) return true; // 点在页里：页自己的控件处理，HUD 别当成点她
+                Close();
+                _swallowFrame = Time.frameCount;
+                return true;
+            }
+            return false;
+        }
+
         VisualElement _host;
         VisualElement _panel;
         VisualElement[] _pageViews;
@@ -52,6 +98,7 @@ namespace Xiaoqi.UI2
         void OpenSelf()
         {
             if (!_built && !Build()) return;
+            ApplyThemeClass(XqUi2Sample.CurrentTheme); // XQ: B1 第二轮 #14 主题以 XqUi2Sample 为准（它读命令行 -xq-theme），不再只读 cfg
             IsOpen = true;
             _needRelease = true; // XQ: B1 #9 打开它的那一下点击（菜单「设置」/近景 ⚙）还按着，等抬起之后才认「点页外关闭」
             _openFrame = Time.frameCount;
@@ -580,13 +627,26 @@ namespace Xiaoqi.UI2
         {
             if (_panel == null || _host == null || _panel.panel == null) return;
             _placed = true;
-            float h = Mathf.Max(600f, Screen.height * 0.7f);
-            h = Mathf.Min(h, Screen.height - 20f);
+            // XQ: B1 第二轮 #14/#15 设置页紧凑、固定在她所在显示器的可用区里：高 = 可用区高 62%（夹 440~600×DPI），
+            // 优先放在她身体外侧（哪边空间够放哪边，不压人），两边都放不下才放可用区居中；永远不出可用区，不被裁。
+            var body = XqBodyAnchor.Stable();
+            var bc = body.height >= 8f ? body.center : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+            var wa = XqMonitor.WorkArea(bc);
+            float dpi = XqMonitor.UiScale(bc);
+            float h = Mathf.Clamp(wa.height * 0.62f, 500f * dpi, 620f * dpi); // 内容按 492 高设计，别比它矮
+            h = Mathf.Min(h, wa.height - 24f);
             float w = h * 610f / 492f;
-            float maxW = Screen.width - 20f;
-            if (w > maxW) { w = maxW; h = w * 492f / 610f; }
-            float cx = Screen.width * 0.5f;
-            float cy = Screen.height * 0.5f;
+            if (w > wa.width - 24f) { w = wa.width - 24f; h = w * 492f / 610f; }
+            const float gap = 16f;
+            float cx, cy = Mathf.Clamp(wa.center.y, wa.yMin + h * 0.5f + 12f, wa.yMax - h * 0.5f - 12f);
+            string side;
+            float roomL = body.height >= 8f ? body.xMin - wa.xMin : 0f;
+            float roomR = body.height >= 8f ? wa.xMax - body.xMax : 0f;
+            if (body.height < 8f || (roomL < w + gap && roomR < w + gap)) { cx = wa.center.x; side = "center"; }
+            else if (roomR >= roomL) { cx = body.xMax + gap + w * 0.5f; side = "R"; }
+            else { cx = body.xMin - gap - w * 0.5f; side = "L"; }
+            cx = Mathf.Clamp(cx, wa.xMin + w * 0.5f + 12f, wa.xMax - w * 0.5f - 12f);
+            Debug.Log("XQ_SET2 place side=" + side + " wa=" + wa.xMin.ToString("0") + "," + wa.yMin.ToString("0") + " " + wa.width.ToString("0") + "x" + wa.height.ToString("0") + " size=" + w.ToString("0") + "x" + h.ToString("0") + " dpi=" + dpi.ToString("0.00"));
             var a = XqPanelXf.FromScreen(_panel.panel, new Vector2(cx - w * 0.5f, cy + h * 0.5f)); // XQ: B1 #4
             var b = XqPanelXf.FromScreen(_panel.panel, new Vector2(cx + w * 0.5f, cy - h * 0.5f));
             _panel.style.left = a.x;
@@ -609,16 +669,10 @@ namespace Xiaoqi.UI2
             if (Input.GetKeyDown(KeyCode.Escape)) { Close(); return; }
             // 连接状态每半秒刷一次（跟 Tick 的 16ms 节流分开，别每帧改文字）
             if (Time.unscaledTime - _statusAt > 0.5f) { _statusAt = Time.unscaledTime; RefreshStatus(); }
-            var picked = _panel.panel.Pick(
-                XqPanelXf.FromScreen(_panel.panel, Input.mousePosition)); // XQ: B1 #7 Pick 要用翻过 Y 的面板坐标，否则点设置页里面被当成点外面→关掉并穿到今天卡
-            bool over = Inside(_panel, picked);
-            PetHost.I?.SetUiBlocksMovement(over);
-            if (_needRelease)
-            {
-                if (Time.frameCount > _openFrame && !Input.GetMouseButton(0) && !Input.GetMouseButtonDown(0)) _needRelease = false;
-                return;
-            }
-            if (!over && Input.GetMouseButtonDown(0)) Close();
+            // XQ: B1 第二轮 #13 点页外关闭 / 挡拖动都挪到 HandlePointer（HUD 每帧最先调）和 XqUi2Sample.Update（统一设挡板）。
+            // 之前这里和 Sample.Update 两头各自 SetUiBlocksMovement，谁后跑谁说了算，Sample 每帧把它改回 false，点设置页里面就漏到她身上。
+            var picked = _panel.panel.Pick(XqPanelXf.FromScreen(_panel.panel, Input.mousePosition));
+            _over = Inside(_panel, picked);
         }
 
         static string ThemeClass(string theme)

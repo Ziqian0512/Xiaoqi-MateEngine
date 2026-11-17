@@ -224,14 +224,36 @@ namespace Xiaoqi.Host
             {
                 _holdingSleep = false;
                 ApplySleep(false);
+                // XQ: B1 第二轮 #17 坐窗时睡的，醒来回到坐窗
+                if (_sitSleep)
+                {
+                    _sitSleep = false;
+                    if (_animator != null) _animator.SetBool("isWindowSit", true);
+                    Debug.Log("XQ_SLEEP sit-restore");
+                }
                 return;
             }
             StartCoroutine(SleepWhenIdle(_sleepTicket));
         }
 
+        bool _sitSleep;
+        static bool SitExitOld { get { return Array.IndexOf(Environment.GetCommandLineArgs(), "-xq-sit-exit") >= 0; } }
+
         System.Collections.IEnumerator SleepWhenIdle(int ticket)
         {
-            if (IsWindowSitting) ExitWindowSit();
+            // XQ: B1 第二轮 #17 坐在窗口上点「睡一会」不再 ExitWindowSit()（那会解除吸附、她掉下窗）。
+            // 只把动画机的 isWindowSit 放下（吸附还在，窗位置不动），让 Idle→Sleeping 的过渡能走；醒来再放回 isWindowSit。
+            // 命令行 -xq-sit-exit 退回旧行为（先下窗再睡）。
+            if (IsWindowSitting)
+            {
+                if (SitExitOld) ExitWindowSit();
+                else if (_animator != null)
+                {
+                    _sitSleep = true;
+                    _animator.SetBool("isWindowSit", false);
+                    Debug.Log("XQ_SLEEP sit-keep window (isWindowSit off, snap kept)");
+                }
+            }
             if (IsDancing) StopDance();
             float until = Time.unscaledTime + 2f;
             while (Time.unscaledTime < until && ticket == _sleepTicket)
@@ -244,7 +266,8 @@ namespace Xiaoqi.Host
             ApplySleep(true);
             _holdingSleep = true;
             MaybeZzz();
-            Debug.Log("XQ_SLEEP hold idle=" + (_animator != null && _animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")));
+            Debug.Log("XQ_SLEEP hold idle=" + (_animator != null && _animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")) + " sitSleep=" + _sitSleep);
+            if (_sitSleep) { yield return new WaitForSecondsRealtime(1.2f); Debug.Log("XQ_SLEEP sit-check sleeping=" + (_animator != null && _animator.GetCurrentAnimatorStateInfo(0).IsName("Sleeping"))); }
         }
 
         void ApplySleep(bool on)

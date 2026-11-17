@@ -652,15 +652,23 @@ namespace Xiaoqi.UI2
         {
             if (_today == null || !_today.IsOpen || _today.Root == null) return;
             var card = _today.Root;
-            float cw = Width(card, 280f * scale);
-            float ch = Height(card, 180f * scale);
-            float left = body.xMin - 16f * scale - cw;
-            float bottom = body.center.y - ch * 0.5f;
-            var p = XqPanelXf.FromScreen(panel, new Vector2(left, bottom + ch));
-            var origin = RuntimePanelUtils.ScreenToPanel(panel, Vector2.zero);
-            var span = RuntimePanelUtils.ScreenToPanel(panel, new Vector2(cw, ch));
-            float pw = Mathf.Abs(span.x - origin.x);
-            float ph = Mathf.Abs(span.y - origin.y);
+            // XQ: B1 第二轮 #15 今天卡按「她所在显示器的可用区」摆：哪边空间够放哪边（默认她左边，左边放不下放右边），
+            // 两边都放不下就夹进可用区；之前一律放她左边、还把面板单位和屏幕像素混着减，她靠左时卡就出界/偏离。
+            float upp = XqPanelXf.UnitsPerPx(panel);
+            float cwPx = Width(card, 280f * scale) / upp;   // 面板单位 → 屏幕像素
+            float chPx = Height(card, 180f * scale) / upp;
+            var wa = XqMonitor.WorkArea(body.center);
+            const float gap = 16f;
+            float left;
+            float roomL = body.xMin - wa.xMin, roomR = wa.xMax - body.xMax;
+            if (roomL >= cwPx + gap) left = body.xMin - gap - cwPx;
+            else if (roomR >= cwPx + gap) left = body.xMax + gap;
+            else left = roomR > roomL ? body.xMax + gap : body.xMin - gap - cwPx;
+            left = Mathf.Clamp(left, wa.xMin + 8f, Mathf.Max(wa.xMin + 8f, wa.xMax - cwPx - 8f));
+            float bottom = Mathf.Clamp(body.center.y - chPx * 0.5f, wa.yMin + 8f, Mathf.Max(wa.yMin + 8f, wa.yMax - chPx - 8f));
+            var p = XqPanelXf.FromScreen(panel, new Vector2(left, bottom + chPx));
+            float pw = cwPx * upp;
+            float ph = chPx * upp;
             float limitW = Root != null ? Root.worldBound.width : 0f;
             float limitH = Root != null ? Root.worldBound.height : 0f;
             if (limitW > 16f) p.x = Mathf.Clamp(p.x, 8f, Mathf.Max(8f, limitW - pw - 8f));

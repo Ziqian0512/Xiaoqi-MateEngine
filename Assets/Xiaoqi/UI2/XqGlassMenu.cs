@@ -159,6 +159,7 @@ namespace Xiaoqi.UI2
             _hasAnch = false; // XQ: 每次打开重新取外框
             _placeLogged = false;
             if (_open) return;
+            XqSettingsPanel.CloseIfOpen(); // XQ: B1 第二轮 #14 菜单与设置页互斥
             var body = XqBodyAnchor.Stable();
             if (body.height < 8f) return;
             _open = true;
@@ -317,7 +318,8 @@ namespace Xiaoqi.UI2
                 if (PetHost.I != null && !PetHost.I.AvatarVisible) { Close("hidden"); return false; }
                 return false;
             }
-            if (Input.GetMouseButtonDown(1) && onHer && !overChrome && !XqMode.Busy)
+            // XQ: B1 第二轮 #16 近景态不开桌宠右键菜单（近景自己有左栏）；测试钩子 TestOpenRequest 不受影响
+            if (Input.GetMouseButtonDown(1) && onHer && !overChrome && !XqMode.Busy && XqMode.Current != XqView.Close)
             {
                 Open(panel, scale);
                 return true;

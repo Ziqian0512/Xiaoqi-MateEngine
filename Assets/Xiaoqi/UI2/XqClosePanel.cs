@@ -171,29 +171,33 @@ namespace Xiaoqi.UI2
 
             float u = ph / XqCloseLayout.Stage;
             _u = u;
+            // XQ: B1 第二轮 #14 稿子按 540 高画的，1080 屏上 u≈2 → 左栏 124px 宽、字 32px，巨大。
+            // 控件（左栏/名牌/方钮）面板单位上限 1.3，卡片 1.6：位置仍按屏幕百分比，只是尺寸不再随屏高倍增。
+            float uc = Mathf.Min(u, 1.3f);
+            float ucard = Mathf.Min(u, 1.6f);
             PlaceOne(_rail, XqCloseLayout.RailL, XqCloseLayout.RailT,
-                XqCloseLayout.RailW, XqCloseLayout.RailH, pw, ph, u);
+                XqCloseLayout.RailW, XqCloseLayout.RailH, pw, ph, uc);
             PlaceOne(_plate, XqCloseLayout.PlateL, XqCloseLayout.PlateT,
-                XqCloseLayout.PlateW, XqCloseLayout.PlateH, pw, ph, u);
+                XqCloseLayout.PlateW, XqCloseLayout.PlateH, pw, ph, uc);
             PlaceOne(_btnPet, XqCloseLayout.BtnPetL, XqCloseLayout.BtnTop,
-                XqCloseLayout.BtnSize, XqCloseLayout.BtnSize, pw, ph, u);
+                XqCloseLayout.BtnSize, XqCloseLayout.BtnSize, pw, ph, uc);
             PlaceOne(_btnBench, XqCloseLayout.BtnBenchL, XqCloseLayout.BtnTop,
-                XqCloseLayout.BtnSize, XqCloseLayout.BtnSize, pw, ph, u);
+                XqCloseLayout.BtnSize, XqCloseLayout.BtnSize, pw, ph, uc);
             PlaceOne(_cardNext, XqCloseLayout.NextL, XqCloseLayout.NextT,
-                XqCloseLayout.NextW, XqCloseLayout.NextH, pw, ph, u);
+                XqCloseLayout.NextW, XqCloseLayout.NextH, pw, ph, ucard);
             PlaceOne(_cardEnergy, XqCloseLayout.EnergyL, XqCloseLayout.EnergyT,
-                XqCloseLayout.EnergyW, XqCloseLayout.EnergyH, pw, ph, u);
+                XqCloseLayout.EnergyW, XqCloseLayout.EnergyH, pw, ph, ucard);
             PlaceOne(_cardSay, XqCloseLayout.SayL, XqCloseLayout.SayT,
-                XqCloseLayout.SayW, XqCloseLayout.SayH, pw, ph, u);
+                XqCloseLayout.SayW, XqCloseLayout.SayH, pw, ph, ucard);
             PlaceOne(_cardTiny, XqCloseLayout.TinyL, XqCloseLayout.TinyT,
-                XqCloseLayout.TinyW, XqCloseLayout.TinyH, pw, ph, u);
+                XqCloseLayout.TinyW, XqCloseLayout.TinyH, pw, ph, ucard);
             PlaceOne(_ringFocus, XqCloseLayout.RingL, XqCloseLayout.RingT,
-                XqCloseLayout.RingSize, XqCloseLayout.RingSize, pw, ph, u);
+                XqCloseLayout.RingSize, XqCloseLayout.RingSize, pw, ph, ucard);
 
-            PlaceRail(u);
-            PlacePlate(u);
-            PlaceButtons(u);
-            PlaceCards(u);
+            PlaceRail(uc);
+            PlacePlate(uc);
+            PlaceButtons(uc);
+            PlaceCards(ucard);
         }
 
         static void PlaceOne(VisualElement el, float left, float top,
