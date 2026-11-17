@@ -486,3 +486,50 @@ XQ_CLOSE anim done
 
 - **路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（主程序 `Xiaoqi\Xiaoqi.exe` 已覆盖为 `56fd7b5` 编译产物；`1-启动验收(pink).cmd`、`2-主题blue.cmd`、`3-主题violet.cmd` **三个全部带 `-xq-bench`**；[ACCEPT-TONIGHT.md] 已更新为工作台原生版清单，物理项均标「**待晚上主人验收**」）。
 
+---
+
+## 第十一次（自动化）（`int-all @ bd024f74`，G74 W1b 工作台缩回桌宠大小+Poll 挡 HUD+禁右键）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `bd024f74`（已合入 `56fd7b5`，含 `XqBenchPanel` 重写、`XqCloseCamera` `_benchFrac`、`XqModeConfig.bench_pet_frac=0.34`、`XqGlassMenu` 排除 `Bench`、`XqUi2Sample` `Poll` + 整体挡 HUD）；`xiaoqi/p2-agy4` @ `bd024f7`（0 修改，0 新增 `.meta`）。
+- **编译**：**过**（0 compile errors，59 warnings，耗时 69s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r11/build-summary-bd024f7.md`）。`Screen.mainWindowDisplayInfo` 在 Unity `6000.2.6f2` 下直接编译通过，无需改成 `Display.main` 或 `Screen.currentResolution`。
+- **证据文件**：`evidence/2026-11-17-B1-r11/`（`build-summary-bd024f7.md`、`bench-mode-bd024f7-Player.log`、`close-test-bd024f7-Player.log`、`close-menu-test-bd024f7-Player.log`、`smoke30s-bd024f7-Player.log`、`ACCEPT-TONIGHT.md`）。
+
+### 1. `-xq-bench -xq-mode bench` 1080p 取证与 `Esc` 切换
+
+- **关键日志（`bench-mode-bd024f7-Player.log`，全程 0 条 `Exception`）**：
+```text
+XQ_UI2 on theme=pink class=xq-theme-pink scale=1.00 bodyH=363 fontPx=16.0 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+XQ_BENCH built k=1.260 panelPx=756 monitor=1920x1080
+XQ_WATCH rect=-9,-80,1927,1039
+XQ_MODE Pet -> Bench
+XQ_BENCH zoom cur=0.31 new=0.34 z=1.98 ortho
+XQ_BENCH open k=1.260 glass=False edge=0 pose=1
+XQ_CLOSE eyes view=(0.68,0.79) target=(0.68,0.95) bench frac=0.35/0.34
+XQ_CLOSE day fail: 502
+XQ_MODE Bench -> Close
+XQ_BENCH close
+XQ_CLOSE eyes view=(0.50,0.57) target=(0.50,0.57)
+XQ_CLOSE exit by=esc
+XQ_MODE Close -> Pet
+XQ_CLOSE anim exit
+XQ_CLOSE close
+XQ_CLOSE eyes view=(0.51,0.57) target=(0.50,0.57)
+XQ_CLOSE anim done
+```
+- **日志核对**：
+  - 她身高比例已落到目标：`XQ_BENCH zoom cur=0.31 new=0.34 z=1.98 ortho`、`XQ_CLOSE eyes view=(0.68,0.79) target=(0.68,0.95) bench frac=0.35/0.34`（屏高 ~35%，目标 34% / 1080p 约 378px）；
+  - 处于板上沿（`edge=0 pose=1`，未出现在板下方）；
+  - 通过 `Esc` 完成 `Pet -> Bench -> Close -> Pet` 来回切换，0 `Exception`。
+- **1080p 截图**：**无法取得**（隔离桌面 `CopyFromScreen` 报 `The handle is invalid`，`PrintWindow` 仅导出空白白板无 UI 渲染画面，不以空图冒充）。4:3 白板+左侧药丸栏视觉完整性、位置美观度、动效顺不顺、拖动手感一律标「**待晚上主人验收**」。
+
+### 2. 自动化交互与回归
+
+- **点击交互（`×` / 玻璃开关 / 侧栏 2 号 / 工作台右键她）**：**待晚上主人验收**（隔离桌面无法向物理桌面注入 `SendInput` 鼠标点击与命中 `worldBound` 坐标，且无对应点击测试钩子；源码核对 `XqGlassMenu.cs:322` 已改为仅 `XqMode.Current == XqView.Pet` 才开桌宠右键菜单、`XqUi2Sample.cs` 已在 `XqBenchPanel.IsShown` 时跳过 `_hud?.HandlePointer`）。
+- **`-xq-close-test`**（`close-test-bd024f7-Player.log`）：3 轮切入 `1.03s / 1.01s / 1.02s`，`XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`，无 `body outside / fix window / center`，0 业务 `Exception`。
+- **`-xq-close-test -xq-menu-test -xq-menu-debug`**（`close-menu-test-bd024f7-Player.log`）：`XQ_MENU2 test-open mode=Close`、`XQ_MENU2 place close-face side=R l1=1202,194 limit=1920x1080`、drift 全 0，无退化。
+- **`30s` 冒烟**（`smoke30s-bd024f7-Player.log`，199 行）：`XQ_BENCH built k=1.500 panelPx=900 monitor=2560x1440`，0 业务 `Exception`。
+
+### 3. 晚上验收包更新
+
+- **路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（`Xiaoqi\Xiaoqi.exe` 已覆盖为 `bd024f74` 构建，`1-启动验收(pink).cmd`、`2-主题blue.cmd`、`3-主题violet.cmd` **三个全部带 `-xq-bench`**，[ACCEPT-TONIGHT.md] 已更新为 `bd024f74` 清单，物理项均标「**待晚上主人验收**」）。
+
