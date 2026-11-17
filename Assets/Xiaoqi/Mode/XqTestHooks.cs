@@ -34,16 +34,18 @@ namespace Xiaoqi.Mode
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Boot()
         {
-            string sit = null; bool nap = false, close = false, snap = false;
+            string sit = null; bool nap = false, close = false, snap = false, menu = false;
             foreach (var a in Environment.GetCommandLineArgs())
             {
                 if (a == "-xq-sit-test") sit = "";
                 else if (a.StartsWith("-xq-sit-test=")) sit = a.Substring("-xq-sit-test=".Length);
                 else if (a == "-xq-nap-test") nap = true;
                 else if (a == "-xq-close-test") close = true;
+                else if (a == "-xq-menu-test") menu = true; // XQ: 与 -xq-close-test 同用：近景里自动开右键菜单
                 else if (a == "-xq-snap-mode") snap = true; // XQ: 默认关；仅 R-3 位置快照验收启用
             }
             if (sit == null && !nap && !close && !snap) return;
+            XqTestHooks.MenuTest = menu;
             var go = new GameObject("XqTestHooks");
             DontDestroyOnLoad(go);
             var hooks = go.AddComponent<XqTestHooks>();
@@ -104,6 +106,8 @@ namespace Xiaoqi.Mode
                 + " h=" + b.height.ToString("0") + " mode=" + XqMode.Current;
         }
 
+        public static bool MenuTest;
+
         IEnumerator RunClose()
         {
             yield return new WaitForSecondsRealtime(12f);
@@ -119,7 +123,8 @@ namespace Xiaoqi.Mode
                 float t0 = Time.unscaledTime;
                 while (XqMode.Busy && Time.unscaledTime - t0 < 6f) yield return null;
                 Debug.Log("XQ_TEST close round=" + i + " entered in=" + (Time.unscaledTime - t0).ToString("0.00") + "s " + Snap(uh));
-                yield return new WaitForSecondsRealtime(4f);
+                if (MenuTest && i == 1) { yield return new WaitForSecondsRealtime(1.5f); Xiaoqi.UI2.XqGlassMenu.TestOpenRequest = true; yield return new WaitForSecondsRealtime(2.5f); }
+                else yield return new WaitForSecondsRealtime(4f);
                 Debug.Log("XQ_TEST close round=" + i + " hold4s " + Snap(uh));
                 ok = XqMode.Set(XqView.Pet);
                 t0 = Time.unscaledTime;

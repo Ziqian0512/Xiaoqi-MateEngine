@@ -22,6 +22,7 @@ namespace Xiaoqi.UI2
         const float L2W = 224f;
 
         public static bool IsOpen { get; private set; }
+        public static bool TestOpenRequest; // XQ: 验收钩子 -xq-menu-test 置位，下一次 Tick 自动打开菜单（默认不用）
 
         // 关菜单（点了某一行）的那一帧，ME 的「任意左键即拖动」还会看到同一次按下：
         // 菜单一关挡板就撤了，她被当成被拖，睡着立刻 wake_drag。关菜单后继续挡到鼠标抬起再多 3 帧。
@@ -328,6 +329,7 @@ namespace Xiaoqi.UI2
 
         public void Tick(IPanel panel, float scale)
         {
+            if (TestOpenRequest && !_open && Root != null && panel != null) { TestOpenRequest = false; Open(panel, scale); Debug.Log("XQ_MENU2 test-open mode=" + Xiaoqi.Mode.XqMode.Current); }
             if (!_open || Root == null || panel == null) return;
             _panelRef = panel;
             _scaleRef = scale;
