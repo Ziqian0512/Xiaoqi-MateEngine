@@ -367,3 +367,42 @@ XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0
 5. **坐窗口状态下点「睡一会」会掉下窗口**：主人要求坐窗口上直接切换睡姿，保持坐窗前置状态不先下窗（`#17`）。
 6. **配置提醒**：验收启动命令需带 `-xq-bench` 才会开启工作台入口（已更新 `.cmd`）。
 
+---
+
+## 第九次（自动化）（`int-all @ 1454ba8f`，WB-G73 B1 #13~#17 第二轮修复编译与回归）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `1454ba8f`（`[未编]`，含 `XqMonitor.cs` + `XqMonitor.cs.meta` 与 #13~#17 修复）；`xiaoqi/p2-agy4` @ `1454ba8`（无新增 `.meta` 需补，未改动任何源码）。
+- **`.meta` 与 GUID 核对**：`Assets/Xiaoqi/UI2/XqMonitor.cs.meta` 的 `guid: 7c1e5b2a94d84f3a8b6e0d2f1a3c5e79` 全仓唯一，无冲突。
+- **编译**：**过**（0 compile errors，76 warnings，耗时 71s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r9/build-summary-1454ba8.md`）。
+- **证据文件**：`evidence/2026-11-17-B1-r9/`（`build-summary-1454ba8.md`、`close-test-1454ba8-Player.log`、`close-menu-test-1454ba8-Player.log`、`smoke30s-1454ba8-Player.log`、`theme-blue-1454ba8-Player.log`、`ACCEPT-TONIGHT.md`）。
+
+### 1. `-xq-close-test`、`-xq-menu-test` 回归与 30s 冒烟：**均通过**
+
+- **`-xq-close-test`**（`close-test-1454ba8-Player.log`）：
+  - 3 轮切入耗时 `1.02s`、`1.01s`、`1.01s`；对眼稳定 `view=(0.50,0.55)/(0.50,0.55)/(0.50,0.56)`，因 `1454ba8f` 在 1.6s 后冻结 `TickEyeAlign`，4s 后退出前 `view=(0.53,0.57)`（目标 `(0.50,0.57)`）。
+  - 最终漂移：`XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`（全 0）。
+  - 整段日志 **0** 条 `body outside` / `fix window` / `center`。
+- **`-xq-close-test -xq-menu-test -xq-menu-debug`**（`close-menu-test-1454ba8-Player.log`）：
+  - `XQ_MENU2 test-open mode=Close`
+  - `XQ_MENU2 place close-face side=R l1=1201,194 limit=1917x1080`
+  - `XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`
+  - 注意：`Close` 态下 `scale` 保持 `1.00`（不再被外框撑到 `2.00`），`limit=1917x1080`。
+- **30s 冒烟 + `blue` 主题启动**：
+  - `smoke30s-1454ba8-Player.log`（198 行）：仅 Localization 预加载常规日志，0 业务异常。
+  - `theme-blue-1454ba8-Player.log`：`XQ_UI2 theme=blue class=xq-theme-blue`、`XQ_UI2 on theme=blue class=xq-theme-blue scale=1.00 bodyH=363 fontPx=16.0`（0 业务异常）。
+
+### 2. 新增日志核对（G73 §4-3）
+
+| 项 | 结果 | 实测日志或说明 |
+|---|---|---|
+| a) `XQ_UI2 on … scale=`（主屏 1.00 / 副屏 1.75） | 主屏已取到 `1.00`；副屏 1.75 **待主人** | 主屏桌宠态与近景态均稳定：`XQ_UI2 on theme=pink class=xq-theme-pink scale=1.00 bodyH=363 fontPx=16.0`、`XQ_MENU2 place ... scale=1.00`（不再随人物跳到 `2.00`）。 |
+| b) 设置页 `XQ_SET2 place side=… wa=… size=… dpi=…` | **待晚上主人验收** | 隔离桌面无自动点击开设置页入口。 |
+| c) 坐窗睡 `XQ_SLEEP sit-keep` / `sit-check sleeping=…` / `sit-restore` | **待晚上主人验收** | 需物理桌面坐窗后菜单点「睡一会」触发。 |
+
+### 3. 晚上验收包更新（`E:\dsh-pet-projects\Xiaoqi-Tonight\`）
+
+- **固定路径**：`E:\dsh-pet-projects\Xiaoqi-Tonight\Xiaoqi\Xiaoqi.exe`（已覆盖为 `1454ba8f` 最新构建）。
+- **启动 `.cmd` 核对**：`1-启动验收(pink).cmd`、`2-主题blue.cmd`、`3-主题violet.cmd` **三个全部已确认带上 `-xq-bench`**，且 `2-主题blue.cmd` 带 `-xq-theme blue`。
+- `ACCEPT-TONIGHT.md` 已按 `WB-G73` §3 更新为 10 项复测清单，物理桌面项全部标为「**待晚上主人验收**」。
+- **ISSUES**：无新增纯编译错误（0 error，未新增 Issue）。
+
