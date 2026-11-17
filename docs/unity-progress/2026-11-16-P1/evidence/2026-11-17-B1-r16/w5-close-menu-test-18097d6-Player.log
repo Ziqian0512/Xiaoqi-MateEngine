@@ -1,0 +1,698 @@
+Mono path[0] = 'E:/dsh-pet-projects/xq-builds/w5-18097d6/Xiaoqi_Data/Managed'
+Mono config path = 'E:/dsh-pet-projects/xq-builds/w5-18097d6/MonoBleedingEdge/etc'
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Initialize engine version: 6000.2.6f2 (4a4dcaec6541)
+[Subsystems] Discovering subsystems at path E:/dsh-pet-projects/xq-builds/w5-18097d6/Xiaoqi_Data/UnitySubsystems
+kGfxThreadingModeSplitJobs is not supported on Direct3D 11. Reverting to kGfxThreadingModeClientWorkerJobs instead.
+GfxDevice: creating device client; kGfxThreadingModeClientWorkerJobs
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce RTX 5090 D v2 (ID=0x2b8c)
+    Vendor:   NVIDIA
+    VRAM:     24035 MB
+    Driver:   32.0.16.1088
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.073 seconds
+- Finished resetting the current domain, in  0.002 seconds
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+<RI> Initializing input.
+<RI> Input initialized.
+The class named 'SteamDRM' is abstract. The script class can't be abstract!
+UnloadTime: 0.459500 ms
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+[Steamworks.NET] SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.
+Failed to add system tray icon. Error: -2147467259
+DontDestroyOnLoad only works for root GameObjects or components on root GameObjects.
+FPS set to: 90
+<color=#bada55>[Receiver] Awake! Avatar: DEFAULT AVATAR</color>
+<color=#4FFFD7>[Receiver] Aktiviert: DEFAULT AVATAR (VRMModel)</color>
+[AvatarMinecraftMessages] UDP ready on 32145
+XiaoqiHide: not found = AI
+XiaoqiHide: not found = FOOD SYSTEM
+XiaoqiHide: not found = STEAM DLC
+XiaoqiHide: not found AI INPUT
+XiaoqiHide: not found AiSystemPrompt
+XiaoqiHide: not found AlarmMenuCanvas
+XiaoqiHide: not found BlendshapeMenuCanvas
+XiaoqiHide: not found DancePlayerMenuCanvas
+XiaoqiHide: not found Discord
+XiaoqiHide: not found Discord RPC
+XiaoqiHide: not found Food System
+XiaoqiHide: not found FoodMenu
+XiaoqiHide: not found LOCK_STEAM_DLC
+XiaoqiHide: not found Main Menu
+XiaoqiHide: not found MainMenuAlarm
+XiaoqiHide: not found MateEngineAPI/FoodMenu
+XiaoqiHide: not found MenuPanel
+XiaoqiHide: not found ModLoader
+XiaoqiHide: not found STEAM_DLC
+XiaoqiHide: not found STEAM_FS
+XiaoqiHide: not found STEAM_MC
+XiaoqiHide: not found SteamContent
+XiaoqiHide: not found SteamDRM
+XiaoqiHide: not found SteamSDK
+XiaoqiHide: not found SteamWorkshop
+XiaoqiHide: not found SystemStart
+XiaoqiHide: not found Tutorial
+XiaoqiHide: not found Welcome
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XQ_UI2 theme=pink class=xq-theme-pink
+XQ_SHOT_Awake args=4 index=-1
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+[SystemStartHandler] Enabled autostart (HKCU) as 'Xiaoqi' → "E:\dsh-pet-projects\xq-builds\w5-18097d6\Xiaoqi.exe"
+XiaoqiHide: not found = AI
+XiaoqiHide: not found = FOOD SYSTEM
+XiaoqiHide: not found = ME Modding
+XiaoqiHide: not found = Settings
+XiaoqiHide: not found = STEAM DLC
+XiaoqiHide: not found = Steam Exklusives
+XiaoqiHide: not found AI Alarm Speech
+XiaoqiHide: not found AI INPUT
+XiaoqiHide: not found AI Speech
+XiaoqiHide: not found AiSystemPrompt
+XiaoqiHide: not found AlarmMenuCanvas
+XiaoqiHide: not found BlendshapeMenuCanvas
+XiaoqiHide: not found Chat
+XiaoqiHide: not found ChatBot AI
+XiaoqiHide: not found DancePlayerMenuCanvas
+XiaoqiHide: not found Discord
+XiaoqiHide: not found Discord RPC
+XiaoqiHide: not found DiscordPresence
+XiaoqiHide: not found Food
+XiaoqiHide: not found Food System
+XiaoqiHide: not found FoodMenu
+XiaoqiHide: not found LOCK_STEAM_DLC
+XiaoqiHide: not found Main Menu
+XiaoqiHide: not found MainMenuAlarm
+XiaoqiHide: not found MateEngineAPI/FoodMenu
+XiaoqiHide: not found MateEngineAPI/ModLoader
+XiaoqiHide: not found MenuPanel
+XiaoqiHide: not found ModLoader
+XiaoqiHide: not found STEAM_DLC
+XiaoqiHide: not found STEAM_FS
+XiaoqiHide: not found STEAM_MC
+XiaoqiHide: not found SteamAPI
+XiaoqiHide: not found SteamContent
+XiaoqiHide: not found SteamDRM
+XiaoqiHide: not found SteamSDK
+XiaoqiHide: not found SteamWorkshop
+XiaoqiHide: not found SystemStart
+XiaoqiHide: not found Tutorial
+XiaoqiHide: not found Welcome
+XiaoqiHide: not found Welcome Window
+XQ_HIDE comp AvatarMinecraftMessages off
+XQ_HIDE comp AvatarRandomMessages off
+XQ_HIDE comp DiscordPresence off
+XQ_HIDE comp KeyBindHandler not found
+XQ_HIDE comp LaunchMateEngineInstances not found
+XQ_HIDE comp MenuAudioHandler off
+XQ_HIDE comp PetVoiceReactionHandler off
+XQ_HIDE comp SteamWorkshopAutoLoader off
+XQ_HIDE comp SteamWorkshopHandler off
+XQ_HIDE comp SystemStartHandler off
+XQ_HIDE comp TutorialMenu off
+XIAOQI_SYSTEMS ready model=E:\dsh-pet-projects\Xiaoqi-ME-p2\Build\Xiaoqi\XiaoqiData\16.vrm host=True
+XQ_HOST me-menu suppressed
+XQ_PANEL ScreenToPanel flipsY=False origin=0.0,0.0 H=1080
+<color=#FFBC4F>[Receiver] Deaktiviert: DEFAULT AVATAR (VRMModel)</color>
+<color=#bada55>[Receiver] Awake! Avatar: Default</color>
+<color=#4FFFD7>[Receiver] Aktiviert: Default (CustomVRM(Clone))</color>
+<color=#93FF4F>[Receiver] SetAnimator called! Neuer Animator gesetzt f黵: MODDED AVATAR (CustomVRM(Clone))</color>
+[AvatarMinecraftMessages] UDP ready on 32145
+[AvatarLibraryMenu] VRM already exists in library, skipping: Ciel_VRC_bake_1.0
+Unloading 5 Unused Serialized files (Serialized files now loaded: 5)
+FPS set to: 90
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+[SaveLoadHandler] Saved settings to: C:/Users/10943/AppData/LocalLow/Xiaoqi/Xiaoqi\settings.json
+XQ_UI2 camera direct hdr=0 msaa=0 keepAlpha=1
+Unloading 27 unused Assets to reduce memory usage. Loaded Objects now: 15192.
+Total: 2.655500 ms (FindLiveObjects: 0.485200 ms CreateObjectMapping: 0.166400 ms MarkObjects: 1.973400 ms  DeleteObjects: 0.030300 ms)
+
+XQ_HOST avatar CustomVRM(Clone) animator=True proxy=True
+XQ_IDLE bound anim=CustomVRM(Clone) cur=0 pool=10 switch_time=1e9
+XQ_CLIPS PET_IDLE | PET_IDLE_UPDATE2_01 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_2 | PET_IDLE_14 | PET_IDLE_4 | PET_IDLE_3 | PET_IDLE_5 | PET_IDLE_15 | PET_IDLE_13 | PET_IDLE_9 | PET_IDLE_12 | PET_IDLE_6 | PET_IDLE_10 | PET_IDLE_11 | PET_IDLE_7 | PET_IDLE_8 | PET_IDLE | HUS_IDLE01 | HUS_IDLE02 | HUS_IDLE03 | HUS_IDLE04 | HUS_IDLE05 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE08 | HUS_IDLE09 | HUS_IDLE05 | HUS_IDLE03 | HUS_IDLE06 | HUS_IDLE07 | HUS_IDLE02 | HUS_IDLE04 | HUS_IDLE09 | HUS_IDLE06 | HUS_IDLE08 | HUS_IDLE03 | HUS_IDLE01 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_01 | HUS_DANCE_02 | HUS_DANCE_03 | HUS_DANCE_04 | HUS_DANCE_02 | HUS_DANCE_01 | HUS_IDLE09 | PET_IDLE_UPDATE2_02 | PET_IDLE_UPDATE2_03 | PET_IDLE_UPDATE2_04 | PET_IDLE_UPDATE2_01 | CUSTOM_DANCE | PET_IDLE_12 | FACE_IDLE_1 | 
+XQ_UI2 on theme=pink class=xq-theme-pink scale=1.00 bodyH=363 fontPx=16.0 scaleMode=ConstantPixelSize clearColor=False clearDepth=False hook=GetOnOpaquePixel
+OperationException : Failed to initialize localization, could not preload string tables.
+
+XQ_HUD gate shown=True near=False menuOpen=False rect(panel)=1029,991 40x40 scale=1.00
+XQ_HOST dances=0
+XQ_BENCH built(rebuild=n) k=1.332 panelPx=799 monitor=1920x1080
+XQ_WATCH start
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_TEST close before win=-7,0 1934x1119 body=882..1072 y=3..349 h=345 mode=Pet
+XQ_MODE Pet -> Close
+XQ_EVENT view close
+XQ_TEST close round=1 enter accepted=True
+XQ_HUD gate shown=False near=False menuOpen=False rect(panel)=1047,997 40x40 scale=1.00
+XQ_CLOSE doc=XqUi2Document
+XQ_CLOSE ok rail rect=0.023,0.048 0.065x0.904
+XQ_CLOSE ok plate rect=0.375,0.826 0.229x0.074
+XQ_CLOSE ok btn-pet rect=0.869,0.896 0.042x0.074
+XQ_CLOSE ok btn-bench rect=0.919,0.896 0.042x0.074
+XQ_CLOSE ok card-next rect=0.113,0.178 0.236x0.237
+XQ_CLOSE ok card-energy rect=0.113,0.456 0.215x0.170
+XQ_CLOSE ok card-say rect=0.696,0.063 0.273x0.237
+XQ_CLOSE ok card-tiny rect=0.729,0.344 0.240x0.237
+XQ_CLOSE ok ring rect=0.833,0.652 0.123x0.219
+XQ_CLOSE ok tip-bench rect=0.811,0.905 0.100x0.056
+XQ_CLOSE anim enter
+XQ_CLOSE open
+XQ_CLOSE ok rail rect=0.023,0.048 0.065x0.904
+XQ_CLOSE ok plate rect=0.375,0.826 0.229x0.074
+XQ_CLOSE ok btn-pet rect=0.869,0.896 0.042x0.074
+XQ_CLOSE ok btn-bench rect=0.919,0.896 0.042x0.074
+XQ_CLOSE ok card-next rect=0.113,0.178 0.236x0.237
+XQ_CLOSE ok card-energy rect=0.113,0.456 0.215x0.170
+XQ_CLOSE ok card-say rect=0.696,0.063 0.273x0.237
+XQ_CLOSE ok card-tiny rect=0.729,0.344 0.240x0.237
+XQ_CLOSE ok ring rect=0.833,0.652 0.123x0.219
+XQ_CLOSE ok tip-bench rect=0.811,0.905 0.100x0.056
+XQ_TEST close round=1 entered in=1.03s win=-7,0 1934x1119 body=-62..2041 y=-4538..-1360 h=3178 mode=Close
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_CLOSE eyes view=(0.50,0.57) target=(0.50,0.57)
+XQ_MENU2 side-pick desktop cx=1002 mon=0..1920 roomL=-36 roomR=-120 need=504 -> L
+XQ_MENU2 open side=L body=-29..2047 scale=1.00
+XQ_MENU2 test-open mode=Close
+XQ_MENU2 place close-face side=R l1=1204,194 limit=1918x1080
+XQ_MENU2 place body(screen)=-29..2047 y=-1928..1244 H=1080 tl(panel)=-29,-164 l1=1204,194 scale=1.00
+XQ_MENU2 tree VisualElement.xq-mcard rect=1199,194 244x329 disp=Flex vis=Visible op=0.47 bg=00000000
+XQ_MENU2 tree   VisualElement.xq-shadow rect=1171,176 300x375 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree   VisualElement.xq-mbg rect=1199,194 244x329 disp=Flex vis=Visible op=1.00 bg=33E6E6FF
+XQ_MENU2 tree   VisualElement.xq-mbox rect=1199,194 244x329 disp=Flex vis=Visible op=1.00 bg=FF33CC8C
+XQ_MENU2 tree     VisualElement.xq-mstat rect=1209,204 224x30 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mdot rect=1217,215 8x8 disp=Flex vis=Visible op=1.00 bg=FF8FB8FF
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mstat-text rect=1233,208 192x22 disp=Flex vis=Visible op=1.00 bg=00000000 text="还没有" color=3B2E549E font=15
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mstat-energy rect=1425,219 0x0 disp=Flex vis=Visible op=1.00 bg=00000000 text="" color=D6477FFF font=15
+XQ_MENU2 tree     VisualElement.xq-mrow rect=1209,240 224x38 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mic rect=1217,246 26x26 disp=Flex vis=Visible op=1.00 bg=FF8FB8FF
+XQ_MENU2 tree         XqGlyph.xq-mglyph rect=1222,251 16x16 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtext rect=1253,247 170x24 disp=Flex vis=Visible op=1.00 bg=00000000 text="今天" color=3B2F55FF font=16
+XQ_MENU2 tree     VisualElement.xq-mrow.xq-mrow-gray rect=1209,278 224x38 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mic rect=1217,284 26x26 disp=Flex vis=Visible op=1.00 bg=3B2E5424
+XQ_MENU2 tree         XqGlyph.xq-mglyph rect=1222,289 16x16 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtext rect=1253,285 109x24 disp=Flex vis=Visible op=1.00 bg=00000000 text="工作台" color=3B2E5466 font=16
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtag rect=1362,286 61x22 disp=Flex vis=Visible op=1.00 bg=00000000 text="还没开放" color=3B2E5473 font=15
+XQ_MENU2 tree     VisualElement.xq-mrow.xq-mrow-gray rect=1209,316 224x38 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mic rect=1217,322 26x26 disp=Flex vis=Visible op=1.00 bg=3B2E5424
+XQ_MENU2 tree         XqGlyph.xq-mglyph rect=1222,327 16x16 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtext rect=1253,323 109x24 disp=Flex vis=Visible op=1.00 bg=00000000 text="说句话" color=3B2E5466 font=16
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtag rect=1362,324 61x22 disp=Flex vis=Visible op=1.00 bg=00000000 text="还没开通" color=3B2E5473 font=15
+XQ_MENU2 tree     VisualElement.xq-mrow rect=1209,354 224x38 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mic rect=1217,360 26x26 disp=Flex vis=Visible op=1.00 bg=FF8FB8FF
+XQ_MENU2 tree         XqGlyph.xq-mglyph rect=1222,365 16x16 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtext rect=1253,361 156x24 disp=Flex vis=Visible op=1.00 bg=00000000 text="让她…" color=3B2F55FF font=16
+XQ_MENU2 tree       XqGlyph.xq-mchev rect=1409,366 14x14 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree     VisualElement.xq-mrow rect=1209,392 224x38 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mic rect=1217,398 26x26 disp=Flex vis=Visible op=1.00 bg=FF8FB8FF
+XQ_MENU2 tree         XqGlyph.xq-mglyph rect=1222,403 16x16 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtext rect=1253,399 156x24 disp=Flex vis=Visible op=1.00 bg=00000000 text="安静一会 · 安静中" color=3B2F55FF font=16
+XQ_MENU2 tree       XqGlyph.xq-mchev rect=1409,404 14x14 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree     VisualElement.xq-mrow.xq-mrow-gray rect=1209,430 224x38 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mic rect=1217,436 26x26 disp=Flex vis=Visible op=1.00 bg=3B2E5424
+XQ_MENU2 tree         XqGlyph.xq-mglyph rect=1222,441 16x16 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtext rect=1253,437 124x24 disp=Flex vis=Visible op=1.00 bg=00000000 text="直播间" color=3B2E5466 font=16
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtag rect=1377,438 46x22 disp=Flex vis=Visible op=1.00 bg=00000000 text="还在做" color=3B2E5473 font=15
+XQ_MENU2 tree     VisualElement.xq-msep rect=1217,474 208x1 disp=Flex vis=Visible op=1.00 bg=FFFFFF9A
+XQ_MENU2 tree     VisualElement.xq-mrow.xq-mrow-set rect=1209,481 224x32 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       VisualElement.xq-mic rect=1217,484 26x26 disp=Flex vis=Visible op=1.00 bg=FF8FB8FF
+XQ_MENU2 tree         XqGlyph.xq-mglyph rect=1222,489 16x16 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_MENU2 tree       Label.unity-text-element.unity-label.xq-mtext rect=1253,486 156x22 disp=Flex vis=Visible op=1.00 bg=00000000 text="设置" color=3B2F55FF font=15
+XQ_MENU2 tree       XqGlyph.xq-mchev rect=1409,490 14x14 disp=Flex vis=Visible op=1.00 bg=00000000
+XQ_CLOSE anim settled
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_CLOSE day fail: 502
+XQ_TEST close round=1 hold4s win=-7,0 1934x1119 body=141..2084 y=-1906..1221 h=3127 mode=Close
+XQ_MODE Close -> Pet
+XQ_EVENT view pet
+XQ_CLOSE anim exit
+XQ_CLOSE close
+XQ_CLOSE eyes view=(0.53,0.57) target=(0.50,0.57)
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_MENU2 anchor-moved body=127..2068 y=-2050..1076
+XQ_MENU2 anchor-moved body=120..2055 y=-2179..944
+XQ_MENU2 anchor-moved body=114..2042 y=-2295..825
+XQ_MENU2 anchor-moved body=103..2021 y=-2496..619
+XQ_MENU2 anchor-moved body=95..2004 y=-2660..451
+XQ_MENU2 anchor-moved body=87..1989 y=-2795..313
+XQ_MENU2 anchor-moved body=81..1978 y=-2905..200
+XQ_MENU2 anchor-moved body=75..1964 y=-3034..68
+XQ_MENU2 anchor-moved body=68..1951 y=-3156..-56
+XQ_MENU2 anchor-moved body=62..1939 y=-3267..-171
+XQ_MENU2 anchor-moved body=68..1937 y=-3586..-494
+XQ_MENU2 anchor-moved body=73..1936 y=-3875..-786
+XQ_MENU2 anchor-moved body=78..1934 y=-4136..-1051
+XQ_MENU2 anchor-moved body=83..1933 y=-4372..-1291
+XQ_MENU2 anchor-moved body=87..1931 y=-4586..-1507
+XQ_MENU2 anchor-moved body=90..1930 y=-4779..-1703
+XQ_MENU2 anchor-moved body=93..1929 y=-4954..-1881
+XQ_MENU2 anchor-moved body=96..1928 y=-5113..-2041
+XQ_MENU2 anchor-moved body=99..1927 y=-5256..-2187
+XQ_MENU2 anchor-moved body=101..1927 y=-5385..-2318
+XQ_MENU2 anchor-moved body=104..1926 y=-5503..-2437
+XQ_MENU2 anchor-moved body=107..1925 y=-5705..-2642
+XQ_MENU2 anchor-moved body=110..1924 y=-5870..-2810
+XQ_CLOSE anim done
+XQ_MENU2 anchor-moved body=113..1923 y=-6006..-2947
+XQ_MENU2 anchor-moved body=115..1922 y=-6117..-3060
+XQ_MENU2 anchor-moved body=117..1922 y=-6247..-3192
+XQ_MENU2 anchor-moved body=123..1922 y=-6628..-3574
+XQ_MENU2 anchor-moved body=128..1922 y=-6912..-3858
+XQ_MENU2 anchor-moved body=132..1923 y=-7169..-4116
+XQ_MENU2 anchor-moved body=135..1923 y=-7402..-4349
+XQ_MENU2 anchor-moved body=138..1923 y=-7612..-4559
+XQ_MENU2 anchor-moved body=141..1924 y=-7802..-4750
+XQ_MENU2 anchor-moved body=144..1924 y=-7975..-4922
+XQ_MENU2 anchor-moved body=146..1924 y=-8131..-5078
+XQ_MENU2 anchor-moved body=148..1924 y=-8272..-5220
+XQ_MENU2 anchor-moved body=150..1924 y=-8399..-5347
+XQ_MENU2 anchor-moved body=152..1925 y=-8515..-5463
+XQ_MENU2 anchor-moved body=155..1925 y=-8714..-5662
+XQ_MENU2 anchor-moved body=158..1925 y=-8877..-5825
+XQ_MENU2 anchor-moved body=160..1925 y=-9010..-5959
+XQ_MENU2 anchor-moved body=161..1926 y=-9119..-6068
+XQ_MENU2 anchor-moved body=163..1926 y=-9247..-6196
+XQ_MENU2 anchor-moved body=232..1846 y=-8488..-5694
+XQ_MENU2 anchor-moved body=294..1774 y=-7741..-5180
+XQ_MENU2 anchor-moved body=350..1709 y=-7064..-4713
+XQ_MENU2 anchor-moved body=401..1650 y=-6453..-4292
+XQ_MENU2 anchor-moved body=446..1596 y=-5900..-3911
+XQ_MENU2 anchor-moved body=488..1548 y=-5399..-3566
+XQ_MENU2 anchor-moved body=525..1504 y=-4946..-3254
+XQ_MENU2 anchor-moved body=559..1465 y=-4536..-2972
+XQ_MENU2 anchor-moved body=590..1429 y=-4166..-2717
+XQ_MENU2 anchor-moved body=617..1397 y=-3830..-2485
+XQ_MENU2 anchor-moved body=642..1367 y=-3526..-2276
+XQ_MENU2 anchor-moved body=665..1341 y=-3252..-2087
+XQ_MENU2 anchor-moved body=686..1317 y=-3003..-1916
+XQ_MENU2 anchor-moved body=704..1295 y=-2778..-1761
+XQ_MENU2 anchor-moved body=721..1275 y=-2575..-1621
+XQ_MENU2 anchor-moved body=736..1258 y=-2391..-1494
+XQ_MENU2 anchor-moved body=750..1242 y=-2224..-1379
+XQ_MENU2 anchor-moved body=762..1227 y=-2073..-1275
+XQ_MENU2 anchor-moved body=774..1214 y=-1937..-1181
+XQ_MENU2 anchor-moved body=793..1191 y=-1702..-1019
+XQ_MENU2 anchor-moved body=809..1173 y=-1509..-887
+XQ_MENU2 anchor-moved body=822..1157 y=-1352..-778
+XQ_MENU2 anchor-moved body=828..1150 y=-1202..-650
+XQ_MENU2 anchor-moved body=834..1144 y=-1068..-534
+XQ_MENU2 anchor-moved body=839..1138 y=-945..-429
+XQ_MENU2 anchor-moved body=848..1127 y=-735..-248
+XQ_MENU2 anchor-moved body=855..1119 y=-563..-100
+XQ_MENU2 anchor-moved body=860..1112 y=-422..22
+XQ_MENU2 anchor-moved body=867..1104 y=-257..164
+XQ_MENU2 anchor-moved body=872..1098 y=-134..269
+XQ_MENU2 anchor-moved body=877..1093 y=-19..368
+XQ_MENU2 anchor-moved body=881..1087 y=87..459
+XQ_MENU2 anchor-moved body=887..1080 y=2..357
+XQ_TEST close round=1 exited accepted=True win=-7,0 1934x1119 body=882..1072 y=3..349 h=345 mode=Pet
+XQ_MODE Pet -> Close
+XQ_EVENT view close
+XQ_TEST close round=2 enter accepted=True
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_MENU2 anchor-moved body=870..1075 y=-111..245
+XQ_MENU2 anchor-moved body=853..1071 y=-216..143
+XQ_MENU2 anchor-moved body=838..1067 y=-311..49
+XQ_CLOSE anim enter
+XQ_CLOSE open
+XQ_CLOSE ok rail rect=0.023,0.048 0.065x0.904
+XQ_CLOSE ok plate rect=0.375,0.826 0.229x0.074
+XQ_CLOSE ok btn-pet rect=0.869,0.896 0.042x0.074
+XQ_CLOSE ok btn-bench rect=0.919,0.896 0.042x0.074
+XQ_CLOSE ok card-next rect=0.113,0.178 0.236x0.237
+XQ_CLOSE ok card-energy rect=0.113,0.456 0.215x0.170
+XQ_CLOSE ok card-say rect=0.696,0.063 0.273x0.237
+XQ_CLOSE ok card-tiny rect=0.729,0.344 0.240x0.237
+XQ_CLOSE ok ring rect=0.833,0.652 0.123x0.219
+XQ_CLOSE ok tip-bench rect=0.811,0.905 0.100x0.056
+XQ_MENU2 anchor-moved body=723..1141 y=-1320..-690
+XQ_MENU2 anchor-moved body=630..1210 y=-2162..-1288
+XQ_MENU2 anchor-moved body=544..1274 y=-2942..-1843
+XQ_MENU2 anchor-moved body=468..1331 y=-3629..-2332
+XQ_MENU2 anchor-moved body=399..1382 y=-4251..-2775
+XQ_MENU2 anchor-moved body=337..1429 y=-4814..-3175
+XQ_MENU2 anchor-moved body=281..1471 y=-5324..-3538
+XQ_MENU2 anchor-moved body=230..1509 y=-5785..-3866
+XQ_MENU2 anchor-moved body=184..1543 y=-6202..-4162
+XQ_MENU2 anchor-moved body=142..1574 y=-6579..-4431
+XQ_MENU2 anchor-moved body=104..1603 y=-6920..-4674
+XQ_MENU2 anchor-moved body=70..1628 y=-7229..-4893
+XQ_MENU2 anchor-moved body=39..1651 y=-7509..-5092
+XQ_MENU2 anchor-moved body=11..1672 y=-7762..-5272
+XQ_MENU2 anchor-moved body=-14..1691 y=-7991..-5435
+XQ_MENU2 anchor-moved body=-37..1708 y=-8198..-5582
+XQ_MENU2 anchor-moved body=-58..1723 y=-8385..-5716
+XQ_MENU2 anchor-moved body=-76..1737 y=-8555..-5836
+XQ_MENU2 anchor-moved body=-93..1750 y=-8708..-5945
+XQ_MENU2 anchor-moved body=-109..1762 y=-8847..-6044
+XQ_MENU2 anchor-moved body=-135..1781 y=-9086..-6214
+XQ_MENU2 anchor-moved body=-157..1797 y=-9282..-6354
+XQ_MENU2 anchor-moved body=-165..1805 y=-9123..-6171
+XQ_MENU2 anchor-moved body=-172..1811 y=-8980..-6005
+XQ_MENU2 anchor-moved body=-178..1817 y=-8850..-5856
+XQ_MENU2 anchor-moved body=-184..1822 y=-8732..-5720
+XQ_MENU2 anchor-moved body=-190..1827 y=-8626..-5598
+XQ_MENU2 anchor-moved body=-199..1836 y=-8442..-5386
+XQ_MENU2 anchor-moved body=-206..1842 y=-8292..-5213
+XQ_MENU2 anchor-moved body=-212..1848 y=-8169..-5072
+XQ_MENU2 anchor-moved body=-217..1853 y=-8068..-4956
+XQ_MENU2 anchor-moved body=-223..1858 y=-7950..-4820
+XQ_MENU2 anchor-moved body=-229..1863 y=-7839..-4692
+XQ_TEST close round=2 entered in=1.01s win=-7,0 1934x1119 body=-63..2041 y=-4779..-1600 h=3178 mode=Close
+XQ_MENU2 anchor-moved body=-216..1883 y=-7430..-4270
+XQ_MENU2 anchor-moved body=-201..1898 y=-7126..-3965
+XQ_MENU2 anchor-moved body=-188..1912 y=-6852..-3689
+XQ_MENU2 anchor-moved body=-176..1924 y=-6604..-3439
+XQ_MENU2 anchor-moved body=-165..1935 y=-6379..-3213
+XQ_MENU2 anchor-moved body=-155..1945 y=-6176..-3009
+XQ_MENU2 anchor-moved body=-146..1954 y=-5992..-2824
+XQ_MENU2 anchor-moved body=-138..1963 y=-5826..-2657
+XQ_MENU2 anchor-moved body=-130..1970 y=-5675..-2505
+XQ_MENU2 anchor-moved body=-124..1977 y=-5539..-2368
+XQ_MENU2 anchor-moved body=-118..1983 y=-5416..-2245
+XQ_MENU2 anchor-moved body=-112..1989 y=-5304..-2132
+XQ_MENU2 anchor-moved body=-103..1998 y=-5111..-1938
+XQ_MENU2 anchor-moved body=-95..2006 y=-4954..-1780
+XQ_MENU2 anchor-moved body=-89..2012 y=-4825..-1651
+XQ_MENU2 anchor-moved body=-81..2020 y=-4675..-1499
+XQ_MENU2 anchor-moved body=-76..2025 y=-4563..-1387
+XQ_MENU2 anchor-moved body=-73..2027 y=-4321..-1145
+XQ_MENU2 anchor-moved body=-70..2029 y=-4103..-927
+XQ_MENU2 anchor-moved body=-68..2030 y=-3905..-729
+XQ_CLOSE eyes view=(0.50,0.55) target=(0.50,0.57)
+XQ_MENU2 anchor-moved body=-66..2032 y=-3726..-550
+XQ_MENU2 anchor-moved body=-64..2033 y=-3564..-388
+XQ_MENU2 anchor-moved body=-62..2034 y=-3417..-242
+XQ_MENU2 anchor-moved body=-60..2035 y=-3285..-109
+XQ_MENU2 anchor-moved body=-59..2036 y=-3165..11
+XQ_MENU2 anchor-moved body=-57..2037 y=-3056..119
+XQ_MENU2 anchor-moved body=-55..2038 y=-2869..306
+XQ_MENU2 anchor-moved body=-53..2039 y=-2716..460
+XQ_MENU2 anchor-moved body=-52..2040 y=-2590..585
+XQ_MENU2 anchor-moved body=-50..2041 y=-2443..732
+XQ_MENU2 anchor-moved body=-49..2042 y=-2335..840
+XQ_MENU2 anchor-moved body=-46..2043 y=-2203..972
+XQ_MENU2 anchor-moved body=-38..2045 y=-2079..1094
+XQ_MENU2 anchor-moved body=-31..2047 y=-1969..1203
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_CLOSE anim settled
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_CLOSE day fail: 502
+XQ_TEST close round=2 hold4s win=-7,0 1934x1119 body=139..2084 y=-1907..1221 h=3127 mode=Close
+XQ_MODE Close -> Pet
+XQ_EVENT view pet
+XQ_CLOSE anim exit
+XQ_CLOSE close
+XQ_CLOSE eyes view=(0.53,0.57) target=(0.50,0.57)
+XQ_MENU2 anchor-moved body=133..2083 y=-1908..1222
+XQ_MENU2 anchor-moved body=126..2068 y=-2051..1075
+XQ_MENU2 anchor-moved body=120..2054 y=-2180..943
+XQ_MENU2 anchor-moved body=113..2042 y=-2296..824
+XQ_MENU2 anchor-moved body=102..2021 y=-2497..618
+XQ_MENU2 anchor-moved body=94..2003 y=-2661..450
+XQ_MENU2 anchor-moved body=86..1989 y=-2796..313
+XQ_MENU2 anchor-moved body=80..1978 y=-2906..200
+XQ_MENU2 anchor-moved body=74..1964 y=-3035..68
+XQ_MENU2 anchor-moved body=67..1951 y=-3156..-56
+XQ_MENU2 anchor-moved body=61..1939 y=-3267..-170
+XQ_MENU2 anchor-moved body=67..1937 y=-3586..-493
+XQ_MENU2 anchor-moved body=73..1935 y=-3918..-830
+XQ_MENU2 anchor-moved body=78..1934 y=-4177..-1093
+XQ_MENU2 anchor-moved body=82..1932 y=-4409..-1328
+XQ_MENU2 anchor-moved body=86..1931 y=-4619..-1541
+XQ_MENU2 anchor-moved body=90..1930 y=-4809..-1733
+XQ_MENU2 anchor-moved body=93..1929 y=-4981..-1908
+XQ_MENU2 anchor-moved body=96..1928 y=-5137..-2065
+XQ_MENU2 anchor-moved body=98..1927 y=-5277..-2208
+XQ_MENU2 anchor-moved body=101..1927 y=-5405..-2337
+XQ_MENU2 anchor-moved body=103..1926 y=-5520..-2454
+XQ_MENU2 anchor-moved body=107..1925 y=-5718..-2655
+XQ_CLOSE anim done
+XQ_EVENT drop view code=502
+XQ_MENU2 anchor-moved body=110..1924 y=-5881..-2820
+XQ_MENU2 anchor-moved body=112..1923 y=-6014..-2955
+XQ_MENU2 anchor-moved body=114..1922 y=-6123..-3065
+XQ_MENU2 anchor-moved body=117..1922 y=-6250..-3195
+XQ_MENU2 anchor-moved body=123..1922 y=-6632..-3577
+XQ_MENU2 anchor-moved body=127..1922 y=-6917..-3863
+XQ_MENU2 anchor-moved body=131..1922 y=-7174..-4121
+XQ_MENU2 anchor-moved body=134..1923 y=-7408..-4354
+XQ_MENU2 anchor-moved body=138..1923 y=-7619..-4566
+XQ_MENU2 anchor-moved body=141..1923 y=-7810..-4757
+XQ_MENU2 anchor-moved body=143..1924 y=-7983..-4930
+XQ_MENU2 anchor-moved body=146..1924 y=-8139..-5087
+XQ_MENU2 anchor-moved body=148..1924 y=-8281..-5229
+XQ_MENU2 anchor-moved body=150..1924 y=-8409..-5357
+XQ_MENU2 anchor-moved body=152..1925 y=-8525..-5473
+XQ_MENU2 anchor-moved body=155..1925 y=-8724..-5673
+XQ_MENU2 anchor-moved body=157..1925 y=-8890..-5839
+XQ_MENU2 anchor-moved body=159..1925 y=-9023..-5972
+XQ_MENU2 anchor-moved body=161..1926 y=-9133..-6082
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_MENU2 anchor-moved body=163..1926 y=-9261..-6210
+XQ_MENU2 anchor-moved body=232..1846 y=-8500..-5706
+XQ_MENU2 anchor-moved body=294..1774 y=-7752..-5190
+XQ_MENU2 anchor-moved body=350..1709 y=-7075..-4724
+XQ_MENU2 anchor-moved body=400..1650 y=-6463..-4302
+XQ_MENU2 anchor-moved body=446..1596 y=-5909..-3920
+XQ_MENU2 anchor-moved body=488..1548 y=-5407..-3574
+XQ_MENU2 anchor-moved body=525..1504 y=-4954..-3261
+XQ_MENU2 anchor-moved body=559..1465 y=-4543..-2978
+XQ_MENU2 anchor-moved body=590..1429 y=-4172..-2722
+XQ_MENU2 anchor-moved body=617..1396 y=-3836..-2491
+XQ_MENU2 anchor-moved body=643..1367 y=-3531..-2281
+XQ_MENU2 anchor-moved body=665..1340 y=-3256..-2091
+XQ_MENU2 anchor-moved body=686..1316 y=-3007..-1920
+XQ_MENU2 anchor-moved body=704..1295 y=-2782..-1764
+XQ_MENU2 anchor-moved body=721..1275 y=-2578..-1624
+XQ_MENU2 anchor-moved body=737..1257 y=-2394..-1497
+XQ_MENU2 anchor-moved body=750..1241 y=-2227..-1382
+XQ_MENU2 anchor-moved body=763..1227 y=-2076..-1278
+XQ_MENU2 anchor-moved body=774..1213 y=-1939..-1183
+XQ_MENU2 anchor-moved body=794..1191 y=-1704..-1021
+XQ_MENU2 anchor-moved body=809..1172 y=-1511..-888
+XQ_MENU2 anchor-moved body=822..1157 y=-1353..-779
+XQ_MENU2 anchor-moved body=829..1150 y=-1204..-651
+XQ_MENU2 anchor-moved body=834..1143 y=-1069..-535
+XQ_MENU2 anchor-moved body=839..1137 y=-947..-430
+XQ_MENU2 anchor-moved body=848..1127 y=-736..-249
+XQ_MENU2 anchor-moved body=855..1119 y=-564..-100
+XQ_MENU2 anchor-moved body=861..1112 y=-422..21
+XQ_MENU2 anchor-moved body=867..1104 y=-257..163
+XQ_MENU2 anchor-moved body=872..1098 y=-135..269
+XQ_MENU2 anchor-moved body=877..1092 y=-19..368
+XQ_MENU2 anchor-moved body=882..1087 y=87..459
+XQ_MENU2 anchor-moved body=887..1080 y=2..357
+XQ_TEST close round=2 exited accepted=True win=-7,0 1934x1119 body=881..1071 y=3..348 h=345 mode=Pet
+XQ_MODE Pet -> Close
+XQ_EVENT view close
+XQ_TEST close round=3 enter accepted=True
+XQ_MENU2 anchor-moved body=870..1076 y=-111..245
+XQ_MENU2 anchor-moved body=853..1071 y=-216..143
+XQ_MENU2 anchor-moved body=838..1067 y=-311..49
+XQ_CLOSE anim enter
+XQ_CLOSE open
+XQ_CLOSE ok rail rect=0.023,0.048 0.065x0.904
+XQ_CLOSE ok plate rect=0.375,0.826 0.229x0.074
+XQ_CLOSE ok btn-pet rect=0.869,0.896 0.042x0.074
+XQ_CLOSE ok btn-bench rect=0.919,0.896 0.042x0.074
+XQ_CLOSE ok card-next rect=0.113,0.178 0.236x0.237
+XQ_CLOSE ok card-energy rect=0.113,0.456 0.215x0.170
+XQ_CLOSE ok card-say rect=0.696,0.063 0.273x0.237
+XQ_CLOSE ok card-tiny rect=0.729,0.344 0.240x0.237
+XQ_CLOSE ok ring rect=0.833,0.652 0.123x0.219
+XQ_CLOSE ok tip-bench rect=0.811,0.905 0.100x0.056
+XQ_MENU2 anchor-moved body=-7..1685 y=-7966..-5430
+XQ_MENU2 anchor-moved body=-30..1702 y=-8176..-5580
+XQ_MENU2 anchor-moved body=-51..1718 y=-8371..-5719
+XQ_MENU2 anchor-moved body=-71..1733 y=-8548..-5845
+XQ_MENU2 anchor-moved body=-88..1746 y=-8707..-5959
+XQ_MENU2 anchor-moved body=-104..1758 y=-8852..-6062
+XQ_MENU2 anchor-moved body=-118..1768 y=-8983..-6155
+XQ_MENU2 anchor-moved body=-143..1787 y=-9208..-6316
+XQ_MENU2 anchor-moved body=-163..1802 y=-9393..-6448
+XQ_MENU2 anchor-moved body=-180..1814 y=-9544..-6556
+XQ_MENU2 anchor-moved body=-199..1829 y=-9721..-6682
+XQ_MENU2 anchor-moved body=-214..1840 y=-9852..-6775
+XQ_MENU2 anchor-moved body=-230..1852 y=-9999..-6880
+XQ_MENU2 anchor-moved body=-230..1854 y=-9601..-6476
+XQ_MENU2 anchor-moved body=-230..1856 y=-9240..-6110
+XQ_MENU2 anchor-moved body=-231..1858 y=-8914..-5780
+XQ_MENU2 anchor-moved body=-231..1859 y=-8619..-5480
+XQ_MENU2 anchor-moved body=-231..1861 y=-8352..-5209
+XQ_MENU2 anchor-moved body=-231..1862 y=-8110..-4964
+XQ_MENU2 anchor-moved body=-231..1863 y=-7892..-4742
+XQ_TEST close round=3 entered in=1.01s win=-7,0 1934x1119 body=-63..2041 y=-4826..-1647 h=3178 mode=Close
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_MENU2 anchor-moved body=-231..1864 y=-7694..-4542
+XQ_MENU2 anchor-moved body=-232..1865 y=-7515..-4360
+XQ_MENU2 anchor-moved body=-232..1866 y=-7353..-4196
+XQ_MENU2 anchor-moved body=-232..1867 y=-7206..-4047
+XQ_MENU2 anchor-moved body=-232..1868 y=-7074..-3913
+XQ_MENU2 anchor-moved body=-232..1868 y=-6954..-3791
+XQ_MENU2 anchor-moved body=-232..1869 y=-6845..-3681
+XQ_MENU2 anchor-moved body=-232..1870 y=-6658..-3491
+XQ_MENU2 anchor-moved body=-232..1871 y=-6505..-3336
+XQ_MENU2 anchor-moved body=-232..1872 y=-6380..-3208
+XQ_MENU2 anchor-moved body=-232..1872 y=-6233..-3059
+XQ_MENU2 anchor-moved body=-215..1889 y=-5870..-2696
+XQ_MENU2 anchor-moved body=-200..1903 y=-5579..-2404
+XQ_MENU2 anchor-moved body=-186..1917 y=-5315..-2140
+XQ_MENU2 anchor-moved body=-173..1929 y=-5076..-1901
+XQ_MENU2 anchor-moved body=-161..1940 y=-4860..-1685
+XQ_MENU2 anchor-moved body=-151..1949 y=-4664..-1489
+XQ_MENU2 anchor-moved body=-142..1958 y=-4487..-1312
+XQ_MENU2 anchor-moved body=-133..1966 y=-4327..-1152
+XQ_MENU2 anchor-moved body=-125..1974 y=-4182..-1007
+XQ_MENU2 anchor-moved body=-118..1980 y=-4051..-876
+XQ_MENU2 anchor-moved body=-112..1986 y=-3933..-757
+XQ_MENU2 anchor-moved body=-101..1996 y=-3728..-553
+XQ_MENU2 anchor-moved body=-92..2005 y=-3561..-385
+XQ_CLOSE eyes view=(0.50,0.57) target=(0.50,0.57)
+XQ_MENU2 anchor-moved body=-85..2012 y=-3424..-248
+XQ_MENU2 anchor-moved body=-79..2017 y=-3312..-136
+XQ_MENU2 anchor-moved body=-72..2024 y=-3180..-4
+XQ_MENU2 anchor-moved body=-66..2029 y=-2992..184
+XQ_MENU2 anchor-moved body=-63..2031 y=-2883..292
+XQ_MENU2 anchor-moved body=-58..2033 y=-2695..480
+XQ_MENU2 anchor-moved body=-54..2036 y=-2542..633
+XQ_MENU2 anchor-moved body=-51..2037 y=-2417..758
+XQ_MENU2 anchor-moved body=-47..2040 y=-2270..904
+XQ_MENU2 anchor-moved body=-45..2041 y=-2161..1013
+XQ_MENU2 anchor-moved body=-41..2043 y=-2039..1135
+XQ_EVENT drop view code=502
+XQ_MENU2 anchor-moved body=-22..2049 y=-1930..1241
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_CLOSE anim settled
+XQ_CLOSE day fail: 502
+XQ_TEST close round=3 hold4s win=-7,0 1934x1119 body=139..2084 y=-1907..1221 h=3128 mode=Close
+XQ_MODE Close -> Pet
+XQ_EVENT view pet
+XQ_CLOSE anim exit
+XQ_CLOSE close
+XQ_CLOSE eyes view=(0.53,0.57) target=(0.50,0.57)
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_EVENT drop view code=502
+XQ_MENU2 anchor-moved body=71..2036 y=-2037..1098
+XQ_MENU2 anchor-moved body=53..2000 y=-2152..975
+XQ_MENU2 anchor-moved body=37..1966 y=-2258..863
+XQ_MENU2 anchor-moved body=30..1937 y=-2602..509
+XQ_MENU2 anchor-moved body=36..1936 y=-2835..272
+XQ_MENU2 anchor-moved body=42..1935 y=-3046..57
+XQ_MENU2 anchor-moved body=47..1933 y=-3238..-137
+XQ_MENU2 anchor-moved body=51..1932 y=-3411..-313
+XQ_MENU2 anchor-moved body=55..1931 y=-3567..-472
+XQ_MENU2 anchor-moved body=59..1930 y=-3709..-616
+XQ_MENU2 anchor-moved body=62..1930 y=-3837..-746
+XQ_MENU2 anchor-moved body=65..1929 y=-3953..-864
+XQ_MENU2 anchor-moved body=77..1926 y=-4429..-1348
+XQ_MENU2 anchor-moved body=80..1925 y=-4541..-1462
+XQ_MENU2 anchor-moved body=84..1925 y=-4674..-1598
+XQ_MENU2 anchor-moved body=87..1924 y=-4800..-1725
+XQ_MENU2 anchor-moved body=93..1923 y=-5137..-2066
+XQ_MENU2 anchor-moved body=98..1923 y=-5443..-2373
+XQ_MENU2 anchor-moved body=103..1923 y=-5719..-2652
+XQ_MENU2 anchor-moved body=108..1923 y=-5969..-2904
+XQ_MENU2 anchor-moved body=112..1923 y=-6195..-3132
+XQ_MENU2 anchor-moved body=115..1923 y=-6399..-3338
+XQ_CLOSE anim done
+XQ_MENU2 anchor-moved body=119..1922 y=-6584..-3525
+XQ_MENU2 anchor-moved body=122..1922 y=-6752..-3694
+XQ_MENU2 anchor-moved body=124..1922 y=-6903..-3847
+XQ_MENU2 anchor-moved body=127..1922 y=-7040..-3985
+XQ_MENU2 anchor-moved body=129..1922 y=-7164..-4110
+XQ_MENU2 anchor-moved body=131..1922 y=-7277..-4223
+XQ_MENU2 anchor-moved body=134..1922 y=-7470..-4418
+XQ_MENU2 anchor-moved body=137..1922 y=-7628..-4578
+XQ_MENU2 anchor-moved body=139..1922 y=-7758..-4709
+XQ_MENU2 anchor-moved body=142..1921 y=-7910..-4862
+XQ_MENU2 anchor-moved body=144..1921 y=-8022..-4975
+XQ_MENU2 anchor-moved body=148..1923 y=-8251..-5204
+XQ_MENU2 anchor-moved body=151..1924 y=-8458..-5410
+XQ_MENU2 anchor-moved body=154..1925 y=-8645..-5597
+XQ_MENU2 anchor-moved body=157..1926 y=-8815..-5767
+XQ_MENU2 anchor-moved body=159..1927 y=-8968..-5920
+XQ_MENU2 anchor-moved body=161..1928 y=-9107..-6058
+XQ_MENU2 anchor-moved body=163..1929 y=-9232..-6184
+XQ_MENU2 anchor-moved body=165..1930 y=-9346..-6297
+XQ_MENU2 anchor-moved body=168..1931 y=-9541..-6492
+XQ_MENU2 anchor-moved body=171..1932 y=-9701..-6652
+XQ_MENU2 anchor-moved body=173..1933 y=-9832..-6783
+XQ_MENU2 anchor-moved body=175..1934 y=-9986..-6937
+XQ_MENU2 anchor-moved body=177..1935 y=-10100..-7050
+XQ_MENU2 anchor-moved body=179..1936 y=-10228..-7178
+XQ_MENU2 anchor-moved body=246..1855 y=-9272..-6478
+XQ_MENU2 anchor-moved body=307..1781 y=-8407..-5846
+XQ_MENU2 anchor-moved body=362..1715 y=-7624..-5273
+XQ_MENU2 anchor-moved body=412..1655 y=-6916..-4755
+XQ_MENU2 anchor-moved body=457..1600 y=-6275..-4286
+XQ_MENU2 anchor-moved body=498..1551 y=-5695..-3862
+XQ_MENU2 anchor-moved body=535..1506 y=-5171..-3478
+XQ_MENU2 anchor-moved body=568..1466 y=-4696..-3131
+XQ_MENU2 anchor-moved body=598..1430 y=-4266..-2816
+XQ_MENU2 anchor-moved body=625..1397 y=-3878..-2532
+XQ_MENU2 anchor-moved body=650..1367 y=-3526..-2275
+XQ_MENU2 anchor-moved body=673..1340 y=-3208..-2042
+XQ_MENU2 anchor-moved body=693..1315 y=-2920..-1831
+XQ_MENU2 anchor-moved body=711..1293 y=-2659..-1641
+XQ_MENU2 anchor-moved body=728..1273 y=-2424..-1468
+XQ_MENU2 anchor-moved body=743..1255 y=-2210..-1312
+XQ_MENU2 anchor-moved body=756..1239 y=-2017..-1171
+XQ_MENU2 anchor-moved body=768..1224 y=-1843..-1043
+XQ_MENU2 anchor-moved body=780..1211 y=-1685..-928
+XQ_MENU2 anchor-moved body=790..1199 y=-1542..-823
+XQ_MENU2 anchor-moved body=799..1188 y=-1412..-728
+XQ_MENU2 anchor-moved body=814..1169 y=-1189..-565
+XQ_MENU2 anchor-moved body=827..1153 y=-990..-414
+XQ_MENU2 anchor-moved body=838..1140 y=-810..-275
+XQ_MENU2 anchor-moved body=847..1129 y=-664..-161
+XQ_MENU2 anchor-moved body=858..1116 y=-492..-28
+XQ_MENU2 anchor-moved body=866..1107 y=-365..71
+XQ_MENU2 anchor-moved body=874..1096 y=-221..183
+XQ_MENU2 anchor-moved body=882..1087 y=-100..277
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119
+XQ_TEST close round=3 exited accepted=True win=-7,0 1934x1119 body=881..1071 y=3..348 h=345 mode=Pet
+XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0
+XQ_MENU2 anchor-moved body=823..1060 y=-7..352
+XQ_WATCH hwnd=2229338
+XQ_WATCH rect=-7,0,1927,1119

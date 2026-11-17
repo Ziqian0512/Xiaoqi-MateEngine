@@ -735,3 +735,41 @@ XQ_BENCH diag host.disp=Flex vis=True parent=XqUi2Document-container stage=92,12
 - **纯净回归（0 业务 `Exception`）**：`-xq-close-test`（`drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`）、`-xq-close-test -xq-menu-test -xq-menu-debug`（`XQ_MENU2 place close-face side=R l1=1202,194 limit=1919x1080`、drift 全 0）、`30s` 冒烟全过。
 - **晚上包**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（已覆写为纯净 `2ac1238` 构建，三个 `.cmd` 均带 `-xq-bench`，[ACCEPT-TONIGHT.md] 已更新；物理手感/质感/动效均标「**待晚上主人验收**」）。
 - **ISSUES**：本轮 `2ac1238b` 0 编译 error，未修改正式代码，无新增 ISSUES（`#22` 已于 `2ac1238b` 回归通过，待 WB 正式闭单）。
+
+---
+
+## 第十六次（自动化 + 内嵌截帧）（`int-all @ 18097d60`，G74 W5：设置页改成菜单二/三级 + `GATE-P1P2P3.md`）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `18097d60`（只改 `UI2/XqSettingsPanel.cs`、`UI2/XqGlassMenu.cs`、`Resources/XqSettings.uss`；`XqBenchPanel` 未动）。`xiaoqi/p2-agy4` 同步停在 `18097d6`（0 修改）。
+- **编译**：**过**（0 compile errors，76 warnings，耗时 70s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r16/build-summary-18097d6.md`）。`Hei`/`Ease`/`PlaceCascade`/`TickSettings` 均直接编译通过。
+- **证据目录**：`evidence/2026-11-17-B1-r16/`（`w5-probe-pink/blue/violet-Player.log`、`w5-close-test/close-menu-test/smoke30s-18097d6-Player.log`、`l2_settings.png`、`l3_0_look.png`~`l3_5_about.png`、`blue/violet-l2/l3*.png`、`standalone.png`、`close_l3_behave.png`、`w4_bench_ok.png`、`build-summary-18097d6.md`、`ACCEPT-TONIGHT.md`）及总表 `evidence/GATE-P1P2P3.md`。
+
+### 1. 二级 + 三级级联菜单与三主题
+
+- **日志（`w5-probe-pink-Player.log`）**：
+```text
+XQ_MENU2 test-open mode=Pet
+XQ_MENU2 settings page=外观
+XQ_SET2 page 外观
+XQ_SET2 open cascade=True
+XQ_SET2 cascade place page=外观 x=15 y=780 size=380x276 side=L limit=1918x1080 squeeze
+XQ_MENU2 settings page=行为 ... 显示 ... 声音 ... 连接 ... 关于
+XQ_SET2 close
+XQ_MENU2 close by=esc
+XQ_SET2 open cascade=False
+XQ_SET2 place side=L wa=7,48 1911x1032 size=380x219 dpi=1.00
+XQ_SET2 cascade place page=行为 x=1530 y=517 size=380x366 side=R limit=1918x1080 squeeze
+XQ_MODE Close -> Bench ... XQ_MODE bench shown=True path=from-close
+```
+- **截帧核对**：
+  - `pink`/`blue`/`violet` 三主题二级（6 行）与三级卡配色完全跟随菜单、贴二级外侧、顶对齐选中行、内容无裁切无空白行；
+  - 独立卡（`standalone.png`）顶部 6 个小标签清晰可辨、居于可用区不压她；
+  - 近景下右键展开行为三级（`close_l3_behave.png`）：不压脸区、不出屏（与右侧装饰卡轻微叠层已如实附图）；
+  - W4 工作台（`w4_bench_ok.png`）回归正常。
+
+### 2. 物理桌面交互项 & 纯净回归
+
+- **物理桌面鼠标驱动项**（`SendInput` 悬停 1s 逐页切换、20+ 个控件点击落盘 `XQ_SET2 set ...`、点卡外空白不穿、右键关、点菜单「今天」/「设置」开关、拖她拦截与恢复、左/右/多屏边界）：因隔离桌面 `SendInput` 返回 `0`，一律标「**待晚上主人验收**」。
+- **纯净回归（0 业务 `Exception`）**：`-xq-close-test`（`drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`）、`-xq-close-test -xq-menu-test -xq-menu-debug`（drift 全 0）、`30s` 冒烟全过。
+- **晚上包**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（已覆写为纯净 `18097d6` 构建，三个 `.cmd` 均带 `-xq-bench`，[ACCEPT-TONIGHT.md] 已更新）。
+- **ISSUES**：本轮 `18097d60` 0 编译 error，未修改正式代码，**无新增 ISSUES**。
