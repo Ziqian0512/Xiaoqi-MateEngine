@@ -1,0 +1,51 @@
+/* P3-3 工作台方钮样式（G59-P3 §3.2 的 10/11 号，派工 WB-G69 §3）。
+   放在 UI2/Resources/ 下是为了运行时能 Resources.Load<StyleSheet>("XqBenchChrome")，
+   不改动已有的 xq.uss / XqClose.uss。几何量（left/top/width/height/font-size/圆角）
+   全部由 XqBenchChrome.Place() 按屏幕 DPI 写进 style，这里只写颜色、描边、
+   对齐这些不随分辨率变的部分，避免两处数字打架。 */
+
+.xq-bc-btn {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.78);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.85);
+    align-items: center;
+    justify-content: center;
+}
+
+.xq-bc-word {
+    font-size: 15px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    color: var(--xq-ink, #3B2F55);
+    white-space: nowrap;
+}
+
+.xq-bc-btn.off {
+    background-color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.55);
+    opacity: 0.55;
+}
+
+.xq-bc-btn.off .xq-bc-word {
+    color: rgba(59, 47, 85, 0.5);
+}
+
+.xq-bc-tip {
+    position: absolute;
+    font-size: 15px;
+    -unity-text-align: middle-center;
+    color: var(--xq-ink, #3B2F55);
+    background-color: rgba(255, 255, 255, 0.92);
+    border-radius: 8px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+    white-space: nowrap;
+    display: none;
+}
+
+.xq-bc-tip.on {
+    display: flex;
+}
