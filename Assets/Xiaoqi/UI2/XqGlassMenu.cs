@@ -375,6 +375,7 @@ namespace Xiaoqi.UI2
             float k = Ease(Mathf.Clamp01((Time.unscaledTime - _t0) / 0.18f));
             float dir = _sideRight ? 1f : -1f;
 
+            float closeFaceL = 0f, closeFaceR = 0f; // XQ: 近景脸区左右边界（面板单位），二级卡放不下时用
             float x1 = _sideRight ? br.x + Gap : tl.x - Gap - w1;
             float y1 = tl.y + (br.y - tl.y) * 0.04f;
             if (closeMode)
@@ -385,6 +386,7 @@ namespace Xiaoqi.UI2
                 float monW = monR - monL;
                 float faceR = monL + (XqCloseLayout.FaceL + XqCloseLayout.FaceW) * monW;
                 float faceL = monL + XqCloseLayout.FaceL * monW;
+                closeFaceL = faceL; closeFaceR = faceR;
                 float needP = w1 + Wid(_l2, L2W) + Gap * 3f;
                 float roomR = monR - faceR, roomL = faceL - monL;
                 _sideRight = roomR >= needP || roomR >= roomL;
@@ -412,6 +414,12 @@ namespace Xiaoqi.UI2
                 }
                 // 二级永远在一级的外侧
                 float x2 = _sideRight ? x1 + w1 + Gap : x1 - Gap - w2;
+                // XQ: 近景里一级卡这侧放不下二级卡（16:9 脸区两侧各只有约 365，两张卡要 504）→ 二级卡放到脸区另一侧，不再压在一级卡上
+                if (closeMode && closeFaceR > 0f)
+                {
+                    if (_sideRight && x2 + w2 > limitW - 8f) x2 = closeFaceL - Gap - w2;
+                    else if (!_sideRight && x2 < minX) x2 = closeFaceR + Gap;
+                }
                 float y2 = Mathf.Clamp(rowTop, 8f, Mathf.Max(8f, limitH - h2 - 56f));
                 x2 = Mathf.Clamp(x2, minX, Mathf.Max(minX, limitW - w2 - 8f));
                 float k2 = Ease(Mathf.Clamp01((Time.unscaledTime - _subT0) / 0.18f));
