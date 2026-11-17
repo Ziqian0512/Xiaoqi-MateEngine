@@ -49,6 +49,7 @@ public class XqFullscreenHide : MonoBehaviour
     }
 
     bool _hidden;
+    IntPtr _benchHwnd;
     float _nextCheck;
     uint _selfPid;
 
@@ -83,6 +84,9 @@ public class XqFullscreenHide : MonoBehaviour
         if (hwnd == IntPtr.Zero) return;
         SetHitTest(false);
         ShowWindow(hwnd, SW_HIDE);
+        // XQ: P3 全屏躲开 × 工作台：网页窗口跟她一起藏
+        _benchHwnd = Xiaoqi.Mode.XqBenchWindow.Hwnd;
+        if (_benchHwnd != IntPtr.Zero) ShowWindow(_benchHwnd, SW_HIDE);
         _hidden = true;
         UnityEngine.Debug.Log("XQ_FS hide");
     }
@@ -91,6 +95,7 @@ public class XqFullscreenHide : MonoBehaviour
     {
         var hwnd = SelfWindow();
         if (hwnd != IntPtr.Zero) ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+        if (_benchHwnd != IntPtr.Zero) { ShowWindow(_benchHwnd, SW_SHOWNOACTIVATE); _benchHwnd = IntPtr.Zero; } // XQ
         SetHitTest(true);
         _hidden = false;
         UnityEngine.Debug.Log("XQ_FS show");
