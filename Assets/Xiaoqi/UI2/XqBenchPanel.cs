@@ -151,11 +151,25 @@ namespace Xiaoqi.UI2
             var c = XqModeConfig.I;
             float W, H; MonitorDims(out W, out H);
             var g = GeoOf(W, H);
-            frac = Mathf.Clamp(c.bench_stage_frac, 0.5f, 0.95f);
+            // W4：两种构图。0 = 胸像/半身特写（默认，参考图：大头像铺满板后面，身体延伸出板下沿）；1 = 全身，高度严格缩到略小于板高
+            bool full = c.bench_stage_mode == 1;
+            float headTop;
+            if (full)
+            {
+                frac = Mathf.Clamp(c.bench_stage_frac, 0.5f, 1.0f) * g.ph;      // 身高 = 板高的 92%
+                headTop = g.stageT + (1f - c.bench_stage_frac) * 0.5f * g.ph;   // 上下居中
+            }
+            else
+            {
+                frac = Mathf.Clamp(c.bench_bust_frac, 0.9f, 2.6f);              // 身高 = 屏高的 1.5 倍：只看得到头到腰
+                headTop = g.stageT + c.bench_bust_top * g.ph;                   // 头顶略低于板上沿
+            }
             float ex = 0.5f * (g.boardL + g.boardR) + c.bench_stage_dx * g.ph;
-            float headTop = g.stageT + c.bench_stage_top * g.ph;      // 头顶相对板上沿（负 = 探出板上沿）
-            float ey = headTop + 0.09f * frac;                        // 眼睛在头顶下 9% 身高
-            ey = Mathf.Max(ey, 0.012f + 0.09f * frac);                // 头顶别出屏
+            float ey = headTop + 0.09f * frac;                                  // 眼睛在头顶下 9% 身高
+            ey = Mathf.Max(ey, 0.012f + 0.09f * frac);
+            // 视差：她是远景，只随光标极轻地移（和前景板反向，层次差靠这点）
+            ex += _pxS * Mathf.Clamp(c.bench_parallax_far, 0f, 0.05f) * g.a * 0.5f;
+            ey += -_pyS * Mathf.Clamp(c.bench_parallax_far, 0f, 0.05f) * 0.5f;
             ex = Mathf.Clamp(ex, 0.04f, g.a - 0.04f);
             vx = ex / g.a; vy = 1f - ey;
         }
@@ -165,12 +179,13 @@ namespace Xiaoqi.UI2
         {
             // W2「陀螺仪」：她朝光标（或真陀螺仪）的方向轻轻转身 + 歪头；正 yaw = 脸朝屏幕左
             float deg = Mathf.Clamp(XqModeConfig.I.bench_parallax_deg, 0f, 18f);
-            yaw = -_pxS * deg;
-            roll = yaw * 0.25f;
+            yaw = -_pxS * deg;             // 真 3D 转身（绕她自己的竖轴），透视是模型带来的，不是 UI 在晃
+            roll = 0f;
         }
         static float _pxS, _pyS;           // 平滑后的视差输入 -1~1（右/上为正）
         static float _lastTy = 999f;
         static bool _gyroTried, _gyroOk;
+        static float _lastFarX = 999f, _lastFarY = 999f;
 
         /// <summary>XqMode 进入工作台后调：把贴边的歪头/转身角度交给镜头那边。</summary>
         public static void ApplyTilt()
@@ -377,6 +392,7 @@ namespace Xiaoqi.UI2
             var topGlow = new VisualElement { pickingMode = PickingMode.Ignore };
             Abs(topGlow, 0, 0, PanW * _k, 98f * _k);
             topGlow.style.backgroundColor = new Color(1f, 1f, 1f, 0.24f);
+            topGlow.style.borderTopLeftRadius = 38f * _k; topGlow.style.borderTopRightRadius = 38f * _k;   // W4：贴合板顶圆角，不露直角
             _panel.Add(topGlow);
 
             _header = new VisualElement { pickingMode = PickingMode.Ignore };
@@ -672,13 +688,14 @@ namespace Xiaoqi.UI2
             _dragTilt = Mathf.Lerp(_dragTilt, 0f, 1f - Mathf.Exp(-10f * dt));
             _dragScale = Mathf.Lerp(_dragScale, (_bdrag == 1 && _bdragMoved) ? 1.015f : 1f, 1f - Mathf.Exp(-12f * dt));
             float dx = _pxS, dy = -_pyS;     // UI 的 y 向下
+            // W4：不再整板 2D 歪斜/放大（像一张纸在晃）。前景舞台只做克制的平滑平移，方向和她相反；真正的透视来自她的 3D 转身
             float shift = Mathf.Clamp(cfg.bench_parallax_px, 0f, 40f);
-            float rotD = Mathf.Clamp(cfg.bench_parallax_rot, 0f, 6f);
-            float depthSc = 1f + 0.016f * Mathf.Clamp01(Mathf.Sqrt(dx * dx + dy * dy));
+            float rotD = Mathf.Clamp(cfg.bench_parallax_rot, 0f, 6f);        // 默认 0 = 关
+            float depthSc = 1f;
             _stage.style.opacity = op;
             _stage.style.scale = new Scale(new Vector3(sc * depthSc * _dragScale, sc * depthSc * _dragScale, 1f));
-            _stage.style.translate = new Translate(dx * shift * k, ty + dy * shift * 0.6f * k, 0f);
-            _stage.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(dx * rotD + _dragTilt, AngleUnit.Degree));
+            _stage.style.translate = new Translate(-dx * shift * k, ty - dy * shift * 0.6f * k, 0f);
+            if (rotD > 0.01f) _stage.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(dx * rotD + _dragTilt, AngleUnit.Degree));
             if (_shadow != null) _shadow.style.translate = new Translate(-dx * 4f * k, -dy * 2.5f * k, 0f);
 
             for (int n = 0; n < _nav.Count; n++)
@@ -709,11 +726,12 @@ namespace Xiaoqi.UI2
                 nd.style.scale = new Scale(new Vector3(1f + 0.25f * pulse, 1f + 0.25f * pulse, 1f));
             }
             float ph = (_t % 6f) / 6f;
-            float sx = ph < 0.35f ? Mathf.Lerp(24f, PanW - 174f, ph / 0.35f) : 24f;
+            float sx = ph < 0.35f ? Mathf.Lerp(90f, PanW - 220f, ph / 0.35f) : 90f;   // W4：旋转后外接框不超出板
             float sweepEnv = ph < 0.35f ? Mathf.Sin((ph / 0.35f) * Mathf.PI) : 0f;
             _sweep.style.left = sx * k;
-            _sweep.style.height = (PanH - 40f) * k;
-            _sweep.style.top = 20f * k;
+            _sweep.style.width = 120f * k;
+            _sweep.style.height = 400f * k;
+            _sweep.style.top = 100f * k;
             _sweep.style.opacity = (_t > 1.2f ? sweepEnv * 0.65f : 0f);
             float gt = _glass ? 1f : 0f;
             _glassAnim = Mathf.MoveTowards(_glassAnim, gt, dt * 4f);
@@ -782,7 +800,11 @@ namespace Xiaoqi.UI2
                 _pxS = Mathf.Lerp(_pxS, nx, a); _pyS = Mathf.Lerp(_pyS, ny, a);
             }
             float roll, yaw; PetTilt(out roll, out yaw);
-            if (Mathf.Abs(yaw - _lastTy) > 0.05f) { _lastTy = yaw; XqCloseCamera.SetTilt(roll, yaw); }
+            if (Mathf.Abs(yaw - _lastTy) > 0.05f || Mathf.Abs(_pxS - _lastFarX) > 0.004f || Mathf.Abs(_pyS - _lastFarY) > 0.004f)
+            {
+                _lastTy = yaw; _lastFarX = _pxS; _lastFarY = _pyS;
+                ApplyPet();     // 转身 + 远景微移（NudgeEyes 让对眼继续跑，她绕着眼睛转）
+            }
         }
 
         void Toast(string s) { _toast.text = s; _toastT = 0f; }

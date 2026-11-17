@@ -35,13 +35,17 @@ namespace Xiaoqi.Mode
         public bool bench_web = false;
         public float bench_pet_frac = 0.34f;  // 她在工作台里的身高占屏高比例（夹在 0.28~0.42，和桌宠差不多大）
         // ---- G74 W2：她当「背景立绘」固定在右侧（置底不动），板在左边半透明；陀螺仪视差 ----
-        public float bench_stage_frac = 0.78f;   // 她身高占屏高（0.5~0.95）
+        public int bench_stage_mode = 0;         // 0 = 胸像/半身特写（默认）  1 = 全身缩进板高
+        public float bench_bust_frac = 1.5f;     // 胸像：她身高 = 屏高的多少倍（0.9~2.6），越大越近
+        public float bench_bust_top = 0.02f;     // 胸像：头顶低于板上沿多少（以板高为 1）
+        public float bench_stage_frac = 0.92f;   // 全身：身高 = 板高的多少（0.5~1.0）
+        public float bench_parallax_far = 0.012f; // 她（远景）随光标平移幅度（视口比例，0~0.05）
         public float bench_stage_dx = 0f;        // 她相对板中心左右偏多少（以板高为 1）
-        public float bench_stage_top = -0.10f;   // 她头顶相对板上沿（以板高为 1；负 = 探出板上沿）
+        public float bench_stage_top = 0f;       // （已不用）
         public bool bench_parallax = true;       // 陀螺仪 / 光标视差：整块舞台刚体平移+倾转，她在后面真 3D 转身
-        public float bench_parallax_deg = 12f;   // 她最多转多少度（0~18）
-        public float bench_parallax_px = 18f;    // 舞台最多平移多少设计 px
-        public float bench_parallax_rot = 2.6f;  // 舞台最多倾转多少度
+        public float bench_parallax_deg = 9f;    // 她最多转多少度（0~18）
+        public float bench_parallax_px = 12f;    // 舞台最多平移多少设计 px
+        public float bench_parallax_rot = 0f;    // 舞台 2D 倾转（默认关：一张纸在晃）
         public float bench_eye_vx = 0.11f;    // 眼睛落点（视口 0~1，左下原点）
         public float bench_eye_vy = 0.80f;
         public string edge_path = "";         // 空 = 自动找 msedge.exe

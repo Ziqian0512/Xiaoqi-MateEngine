@@ -132,7 +132,7 @@ namespace Xiaoqi.Mode
                 {
                     float scale = Mathf.Max(0.01f, a.transform.lossyScale.y);
                     float dyOff = ((eyeWorld.y - targetWorld.y) / scale) * 0.65f;
-                    h.YOffset = Mathf.Clamp(h.YOffset + dyOff, -1.2f, 1.2f); // XQ(WB): 工作台落点离中心远，原 ±0.4 不够
+                    h.YOffset = Mathf.Clamp(h.YOffset + dyOff, -2.5f, 2.5f); // XQ(WB): 工作台落点离中心远，原 ±0.4 不够
                 }
             }
 
