@@ -6,7 +6,9 @@ using Xiaoqi.Host;
 namespace Xiaoqi.UI2
 {
     /// <summary>
-    /// P1-5 设置页。玻璃面板（G59-P1 §4.2）+ 左分类栏 6 项 + 右内容区。
+    /// P1-5 设置页。G74 W5 起改成右键玻璃菜单的第三级：菜单「设置」展开二级（6 个分类），
+    /// 悬停/点分类 → 在二级旁边弹这张紧凑玻璃卡（只显示该分类的设置项）。
+    /// 没有菜单时（托盘 / 近景 ⚙ 打开）退回独立卡：顶部多一排小标签可切分类。
     /// 挂到现有 UIDocument 的 rootVisualElement 下；样式 Resources.Load&lt;StyleSheet&gt;("XqSettings")。
     /// 尺寸先按物理像素算（屏高 70%，至少 600），再用 RuntimePanelUtils.ScreenToPanel 换算，
     /// PanelSettings.scale 变化时物理尺寸不变。
@@ -18,6 +20,8 @@ namespace Xiaoqi.UI2
         const string Blue = "xq-theme-blue";
         const string Violet = "xq-theme-violet";
         static readonly string[] Pages = { "外观", "行为", "显示", "声音", "连接", "关于" };
+        public static string[] PageNames { get { return Pages; } }
+        public const float CardW = 380f;     // 卡宽（面板单位）
 
         static XqSettingsPanel _inst;
         static bool _ussAdded;
@@ -39,6 +43,22 @@ namespace Xiaoqi.UI2
                 return false;
             }
         }
+        /// <summary>W5：菜单二级里悬停/点了某个分类 → 开（或切到）三级卡。</summary>
+        public static void OpenCascade(int page)
+        {
+            if (_inst == null) _inst = new XqSettingsPanel();
+            _inst.OpenSelf(true, page);
+        }
+
+        public static bool CascadeShown { get { return _inst != null && _inst.IsOpen && _inst._cascade; } }
+
+        /// <summary>W5：菜单每帧调。l2 = 二级卡外框，row = 选中分类那一行，toRight = 三级放在二级右侧。全是面板单位。</summary>
+        public static void CascadeTick(Rect l2, Rect row, bool toRight, float minX, float limitW, float limitH)
+        {
+            if (_inst == null || !_inst.IsOpen || !_inst._cascade) return;
+            _inst.PlaceCascade(l2, row, toRight, minX, limitW, limitH);
+        }
+
         /// <summary>开右键菜单前调：设置页和菜单互斥。</summary>
         public static void CloseIfOpen() { if (_inst != null && _inst.IsOpen) _inst.Close(); }
 
@@ -63,7 +83,10 @@ namespace Xiaoqi.UI2
             if (Input.GetMouseButtonDown(0))
             {
                 if (_over) return true; // 点在页里：页自己的控件处理，HUD 别当成点她
+                if (_cascade && XqGlassMenu.OverCardNow) return false; // W5：点的是菜单（换分类 / 点别的行），交给菜单
+                bool wasCascade = _cascade;
                 Close();
+                if (wasCascade) XqGlassMenu.CloseCurrent("blank");      // W5：点卡外空白：三级 + 菜单一起关
                 _swallowFrame = Time.frameCount;
                 return true;
             }
@@ -74,6 +97,12 @@ namespace Xiaoqi.UI2
         VisualElement _panel;
         VisualElement[] _pageViews;
         Label[] _tabs;
+        Label _title;
+        VisualElement _hTabs;
+        bool _cascade;
+        float _cascT0;
+        float _placedH = -1f;
+        bool _cascLogged;
         int _page = 1;
         bool _built;
         bool _placed;
@@ -92,19 +121,28 @@ namespace Xiaoqi.UI2
         public static void Open()
         {
             if (_inst == null) _inst = new XqSettingsPanel();
-            _inst.OpenSelf();
+            _inst.OpenSelf(false, -1);
         }
 
-        void OpenSelf()
+        void OpenSelf(bool cascade, int page)
         {
             if (!_built && !Build()) return;
+            if (IsOpen && _cascade == cascade && cascade)
+            {
+                if (page != _page) ShowPage(page);   // 三级里切分类：不重播入场
+                return;
+            }
             ApplyThemeClass(XqUi2Sample.CurrentTheme); // XQ: B1 第二轮 #14 主题以 XqUi2Sample 为准（它读命令行 -xq-theme），不再只读 cfg
+            _cascade = cascade;
+            _hTabs.style.display = cascade ? DisplayStyle.None : DisplayStyle.Flex;
             IsOpen = true;
             _needRelease = true; // XQ: B1 #9 打开它的那一下点击（菜单「设置」/近景 ⚙）还按着，等抬起之后才认「点页外关闭」
             _openFrame = Time.frameCount;
             _host.style.display = DisplayStyle.Flex;
-            Place();
-            ShowPage(_page);
+            _cascT0 = Time.unscaledTime; _cascLogged = false; _placedH = -1f;
+            _panel.style.opacity = 0f;       // 量到高度、摆好位置之后再显出来，不在 (0,0) 闪一下
+            _placed = false;
+            ShowPage(page >= 0 ? page : _page);
             if (!_scheduled && _panel != null)
             {
                 // TODO(编译员)：确认 IVisualElementScheduler（VisualElement.schedule.Execute(Action).Every(ms)，
@@ -119,12 +157,13 @@ namespace Xiaoqi.UI2
                 _applied = true;
                 XqSettingsApply.ApplyAll(XiaoqiRuntime.Config);
             }
-            Debug.Log("XQ_SET2 open");
+            Debug.Log("XQ_SET2 open cascade=" + cascade);
         }
 
         public void Close()
         {
             IsOpen = false;
+            _cascade = false;
             if (_host != null) _host.style.display = DisplayStyle.None;
             PetHost.I?.SetUiBlocksMovement(false);
             Debug.Log("XQ_SET2 close");
@@ -155,6 +194,8 @@ namespace Xiaoqi.UI2
 
             _panel = new VisualElement { name = "xq-settings", pickingMode = PickingMode.Position };
             _panel.AddToClassList("xq-st-panel");
+            _panel.AddToClassList("xq-st-card");
+            _panel.style.width = CardW;
             _panel.AddToClassList(ThemeClass(cfg != null ? cfg.theme : "pink"));
             var shadow = new VisualElement { pickingMode = PickingMode.Ignore };
             shadow.AddToClassList("xq-shadow");
@@ -164,16 +205,18 @@ namespace Xiaoqi.UI2
             hi.AddToClassList("xq-hi");
 
             var frame = new VisualElement { pickingMode = PickingMode.Ignore };
-            frame.AddToClassList("xq-st-frame");
-            var title = new Label("设置");
-            title.AddToClassList("xq-st-title");
-            title.pickingMode = PickingMode.Ignore;
-            frame.Add(title);
-
-            var body = new VisualElement { pickingMode = PickingMode.Ignore };
-            body.AddToClassList("xq-st-body");
+            frame.AddToClassList("xq-st-frame2");
+            var head = new VisualElement { pickingMode = PickingMode.Ignore };
+            head.AddToClassList("xq-st-head");
+            _title = new Label("设置");
+            _title.AddToClassList("xq-st-title");
+            _title.pickingMode = PickingMode.Ignore;
+            head.Add(_title);
             var tabHost = new VisualElement { pickingMode = PickingMode.Ignore };
-            tabHost.AddToClassList("xq-st-tabs");
+            tabHost.AddToClassList("xq-st-htabs");
+            _hTabs = tabHost;
+            head.Add(tabHost);
+            frame.Add(head);
             var pageHost = new VisualElement { pickingMode = PickingMode.Ignore };
             pageHost.AddToClassList("xq-st-pages");
 
@@ -183,7 +226,7 @@ namespace Xiaoqi.UI2
             {
                 int idx = i;
                 var t = new Label(Pages[i]);
-                t.AddToClassList("xq-st-tab");
+                t.AddToClassList("xq-st-htab");
                 t.pickingMode = PickingMode.Position;
                 t.RegisterCallback<ClickEvent>(e => { e.StopPropagation(); ShowPage(idx); });
                 _tabs[i] = t;
@@ -195,9 +238,7 @@ namespace Xiaoqi.UI2
                 pageHost.Add(p);
             }
 
-            body.Add(tabHost);
-            body.Add(pageHost);
-            frame.Add(body);
+            frame.Add(pageHost);
             _panel.Add(shadow);
             _panel.Add(glass);
             _panel.Add(hi);
@@ -619,24 +660,61 @@ namespace Xiaoqi.UI2
                 if (_pageViews[k] != null)
                     _pageViews[k].style.display = k == _page ? DisplayStyle.Flex : DisplayStyle.None;
             for (int k = 0; k < _tabs.Length; k++)
-                if (_tabs[k] != null) _tabs[k].EnableInClassList("xq-st-tab-on", k == _page);
+                if (_tabs[k] != null) _tabs[k].EnableInClassList("xq-st-htab-on", k == _page);
+            if (_title != null) _title.text = _cascade ? Pages[_page] : "设置";
             Debug.Log("XQ_SET2 page " + Pages[_page]);
+        }
+
+        static float Hei(VisualElement el, float fb)
+        {
+            float h = el.resolvedStyle.height;
+            return float.IsNaN(h) || h < 8f ? fb : h;
+        }
+
+        static float Ease(float t) { t = Mathf.Clamp01(t); return 1f - Mathf.Pow(1f - t, 3f); }
+
+        /// <summary>三级卡：贴着二级卡外侧，顶对齐选中的那一行；不出可用区（minX / limitW / limitH 由菜单算好传来）。</summary>
+        void PlaceCascade(Rect l2, Rect row, bool toRight, float minX, float limitW, float limitH)
+        {
+            if (_panel == null || _panel.panel == null) return;
+            float hMeasured = _panel.resolvedStyle.height;
+            if (float.IsNaN(hMeasured) || hMeasured < 8f) return;      // 还没布局出来，先不显示
+            const float gap = 12f;
+            float w = CardW, h = hMeasured;
+            float x = toRight ? l2.xMax + gap : l2.xMin - gap - w;
+            bool squeeze = x < minX || x + w > limitW - 8f;
+            x = Mathf.Clamp(x, minX, Mathf.Max(minX, limitW - w - 8f));
+            float rowTop = (!float.IsNaN(row.y) && row.y > 0f) ? row.y - 6f : l2.y;
+            float y = Mathf.Clamp(rowTop, 8f, Mathf.Max(8f, limitH - h - 8f));
+            float k = Ease((Time.unscaledTime - _cascT0) / 0.18f);
+            _panel.style.left = x;
+            _panel.style.top = y;
+            _panel.style.opacity = k;
+            _panel.style.translate = new Translate((1f - k) * 10f * (toRight ? -1f : 1f), 0f, 0f);
+            _placed = true;
+            if (!_cascLogged)
+            {
+                _cascLogged = true;
+                Debug.Log("XQ_SET2 cascade place page=" + Pages[_page] + " x=" + x.ToString("0") + " y=" + y.ToString("0") + " size=" + w.ToString("0") + "x" + h.ToString("0")
+                    + " side=" + (toRight ? "R" : "L") + " limit=" + limitW.ToString("0") + "x" + limitH.ToString("0") + (squeeze ? " squeeze" : ""));
+            }
         }
 
         void Place()
         {
             if (_panel == null || _host == null || _panel.panel == null) return;
+            if (_cascade) return;
             _placed = true;
+            _placedH = Hei(_panel, 420f);
             // XQ: B1 第二轮 #14/#15 设置页紧凑、固定在她所在显示器的可用区里：高 = 可用区高 62%（夹 440~600×DPI），
             // 优先放在她身体外侧（哪边空间够放哪边，不压人），两边都放不下才放可用区居中；永远不出可用区，不被裁。
             var body = XqBodyAnchor.Stable();
             var bc = body.height >= 8f ? body.center : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
             var wa = XqMonitor.WorkArea(bc);
             float dpi = XqMonitor.UiScale(bc);
-            float h = Mathf.Clamp(wa.height * 0.62f, 500f * dpi, 620f * dpi); // 内容按 492 高设计，别比它矮
-            h = Mathf.Min(h, wa.height - 24f);
-            float w = h * 610f / 492f;
-            if (w > wa.width - 24f) { w = wa.width - 24f; h = w * 492f / 610f; }
+            float upp = Mathf.Max(0.01f, XqPanelXf.UnitsPerPx(_panel.panel));
+            float h = Mathf.Min(_placedH / upp, wa.height - 24f);   // 卡高 = 内容高（面板单位 → 屏幕像素）
+            float w = Mathf.Min(CardW / upp, wa.width - 24f);
             const float gap = 16f;
             float cx, cy = Mathf.Clamp(wa.center.y, wa.yMin + h * 0.5f + 12f, wa.yMax - h * 0.5f - 12f);
             string side;
@@ -651,8 +729,8 @@ namespace Xiaoqi.UI2
             var b = XqPanelXf.FromScreen(_panel.panel, new Vector2(cx + w * 0.5f, cy - h * 0.5f));
             _panel.style.left = a.x;
             _panel.style.top = a.y;
-            _panel.style.width = Mathf.Abs(b.x - a.x);
-            _panel.style.height = Mathf.Abs(b.y - a.y);
+            _panel.style.opacity = 1f;
+            _panel.style.translate = new Translate(0f, 0f, 0f);
         }
 
         static bool Inside(VisualElement target, VisualElement picked)
@@ -665,8 +743,14 @@ namespace Xiaoqi.UI2
         void Tick()
         {
             if (!IsOpen || _panel == null || _panel.panel == null) return;
-            if (!_placed) Place();
-            if (Input.GetKeyDown(KeyCode.Escape)) { Close(); return; }
+            if (!_cascade && (!_placed || Mathf.Abs(Hei(_panel, 420f) - _placedH) > 2f)) Place();   // 独立卡：内容高变了（换分类）就重新居中
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                bool wasCascade = _cascade;
+                Close();
+                if (wasCascade) XqGlassMenu.CloseCurrent("esc");   // W5：Esc 统一关（三级 + 菜单）
+                return;
+            }
             // 连接状态每半秒刷一次（跟 Tick 的 16ms 节流分开，别每帧改文字）
             if (Time.unscaledTime - _statusAt > 0.5f) { _statusAt = Time.unscaledTime; RefreshStatus(); }
             // XQ: B1 第二轮 #13 点页外关闭 / 挡拖动都挪到 HandlePointer（HUD 每帧最先调）和 XqUi2Sample.Update（统一设挡板）。

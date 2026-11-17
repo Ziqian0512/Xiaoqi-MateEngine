@@ -38,6 +38,13 @@ namespace Xiaoqi.UI2
         }
         public VisualElement Root { get; private set; }
 
+        // G74 W5：设置页是这张菜单的第三级。设置卡要问「鼠标在不在菜单上」、要能把菜单一起关掉
+        static XqGlassMenu _curInst;
+        public static bool OverCardNow { get { return _curInst != null && _curInst.OverCard(); } }
+        public static void CloseCurrent(string by) { if (_curInst != null) _curInst.Close(by); }
+        int _setPage = -1;                                   // 二级里选中的设置分类（-1 = 没选）
+        readonly List<VisualElement> _setRowEls = new List<VisualElement>();
+
         readonly Action _openToday;
         VisualElement _l1, _l2, _l1Box, _l2Box;
         VisualElement _subRow;
@@ -72,6 +79,7 @@ namespace Xiaoqi.UI2
 
         public void Build(VisualElement hudRoot)
         {
+            _curInst = this;
             Root = new VisualElement { name = "xq-menu2", pickingMode = PickingMode.Ignore };
             Root.AddToClassList("xq-menu2");
             Root.style.display = DisplayStyle.None;
@@ -202,6 +210,8 @@ namespace Xiaoqi.UI2
             _open = false;
             IsOpen = false;
             _sub = null;
+            _setPage = -1;
+            XqSettingsPanel.CloseIfOpen();   // W5：三级跟着关
             _danceOpen = false;
             Root.style.display = DisplayStyle.None;
             Xiaoqi.UI.XqMenu.LastCloseFrame = Time.frameCount;
@@ -293,7 +303,8 @@ namespace Xiaoqi.UI2
             {
                 if (Input.GetKeyDown(KeyCode.Escape))
                 {
-                    if (!string.IsNullOrEmpty(_sub)) { _sub = null; _danceOpen = false; Rebuild(); }
+                    if (_sub == "settings" || XqSettingsPanel.CascadeShown) Close("esc");   // W5：Esc 统一关（设置的二、三级 + 菜单）
+                    else if (!string.IsNullOrEmpty(_sub)) { _sub = null; _danceOpen = false; Rebuild(); }
                     else Close("esc");
                     return true;
                 }
@@ -429,6 +440,7 @@ namespace Xiaoqi.UI2
                 if (k2 < 0.999f) _l2.style.opacity = k2; else _l2.style.opacity = StyleKeyword.Null;
                 _l2.style.translate = new Translate((1f - k2) * 10f * -dir, 0f, 0f);
             }
+            if (showSub) TickSettings(panel, minX, limitW, limitH);
         }
 
         // ------------------------------------------------------------ 内容
@@ -481,17 +493,58 @@ namespace Xiaoqi.UI2
             var sep = new VisualElement { pickingMode = PickingMode.Ignore };
             sep.AddToClassList("xq-msep");
             _l1Box.Add(sep);
-            var setRow = Row("gear", "设置", () => { Close("action"); XiaoqiSettings.Open(); });
+            var setRow = SubRow("gear", "设置", "settings");   // W5：不再关菜单弹大框，展开二级（6 个分类）
             setRow.AddToClassList("xq-mrow-set");
             _l1Box.Add(setRow);
 
             _cur = _c2;
+            _setRowEls.Clear();
             if (_sub == "doing") BuildDoing();
             else if (_sub == "quiet") BuildQuiet();
+            else if (_sub == "settings") BuildSettingsCats();
+        }
+
+        static readonly string[] SetGlyphs = { "heart", "spark", "win", "music", "live", "home" };
+
+        void BuildSettingsCats()
+        {
+            var names = XqSettingsPanel.PageNames;
+            for (int i = 0; i < names.Length; i++)
+            {
+                int idx = i;
+                var r = Row(SetGlyphs[i % SetGlyphs.Length], names[i], () => SelectSettingsPage(idx), chev: true);
+                if (idx == _setPage) r.AddToClassList("xq-mrow-open");
+                _setRowEls.Add(r);
+                _l2Box.Add(r);
+            }
+        }
+
+        /// <summary>悬停或点了二级里的某个分类：高亮这一行，开 / 切三级卡。</summary>
+        void SelectSettingsPage(int idx)
+        {
+            if (idx < 0 || idx >= _setRowEls.Count || idx == _setPage) return;
+            _setPage = idx;
+            for (int i = 0; i < _setRowEls.Count; i++) _setRowEls[i].EnableInClassList("xq-mrow-open", i == idx);
+            Debug.Log("XQ_MENU2 settings page=" + XqSettingsPanel.PageNames[idx]);
+            XqSettingsPanel.OpenCascade(idx);
+        }
+
+        void TickSettings(IPanel panel, float minX, float limitW, float limitH)
+        {
+            if (_sub != "settings" || _setRowEls.Count == 0) return;
+            var pt = XqPanelXf.FromScreen(panel, Input.mousePosition);
+            for (int i = 0; i < _setRowEls.Count; i++)
+                if (Contains(_setRowEls[i], pt)) { SelectSettingsPage(i); break; }
+            if (_setPage < 0 || _setPage >= _setRowEls.Count) return;
+            var l2 = _l2.worldBound; var l1 = _l1.worldBound;
+            bool toRight = l2.center.x >= l1.center.x;
+            XqSettingsPanel.CascadeTick(l2, _setRowEls[_setPage].worldBound, toRight, minX, limitW, limitH);
         }
 
         void SetSub(string kind, VisualElement row)
         {
+            XqSettingsPanel.CloseIfOpen();   // W5：换二级 / 收二级，三级先收
+            _setPage = -1;
             _sub = _sub == kind ? null : kind;
             _danceOpen = false;
             _subT0 = Time.unscaledTime;

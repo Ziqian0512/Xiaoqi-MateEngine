@@ -298,3 +298,78 @@
     margin-top: -4px;
     padding-left: 14px;
 }
+/* ===== G74 W5：设置页 = 玻璃菜单第三级（紧凑卡） ===== */
+.xq-st-card {
+    width: 380px;
+}
+
+.xq-st-card .xq-st-glass {
+    border-radius: 22px;
+    background-color: rgba(255, 255, 255, 0.82);
+    border-color: rgba(255, 255, 255, 0.9);
+}
+
+.xq-st-frame2 {
+    flex-direction: column;
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 12px;
+    padding-bottom: 7px;
+}
+
+.xq-st-head {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-left: 6px;
+}
+
+.xq-st-card .xq-st-title {
+    font-size: 16px;
+    margin-bottom: 0;
+}
+
+.xq-st-htabs {
+    flex-direction: row;
+}
+
+.xq-st-htab {
+    font-size: 12px;
+    -unity-font-style: bold;
+    color: var(--xq-ink-soft, rgba(59, 47, 85, 0.62));
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 7px;
+    padding-right: 7px;
+    margin-left: 2px;
+    border-radius: var(--xq-r-pill, 999px);
+}
+
+.xq-st-htab-on {
+    color: var(--xq-accent-ink, #D6477F);
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.xq-st-card .xq-st-row {
+    height: 40px;
+    margin-bottom: 5px;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.xq-st-card .xq-st-row-label {
+    font-size: 14px;
+}
+
+.xq-st-card .xq-st-input {
+    width: 150px;
+}
+
+.xq-st-card .xq-st-track {
+    width: 100px;
+}
+
+.xq-st-card .xq-st-textval {
+    max-width: 180px;
+}
