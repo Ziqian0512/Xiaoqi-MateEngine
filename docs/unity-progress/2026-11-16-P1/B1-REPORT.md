@@ -406,3 +406,35 @@ XQ_TEST close drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0
 - `ACCEPT-TONIGHT.md` 已按 `WB-G73` §3 更新为 10 项复测清单，物理桌面项全部标为「**待晚上主人验收**」。
 - **ISSUES**：无新增纯编译错误（0 error，未新增 Issue）。
 
+---
+
+## 第九次补充：主人实机复测反馈与日志定位（`int-all @ 1454ba8f`）
+
+- **证据文件**：`evidence/2026-11-17-B1-r9-real/`（`real-g73-Player.log`、`real-g73-bench-127-refused.jpg`、`real-g73-close-bench-off.png`）。
+
+### 1. 本次实机已验证生效的修复
+
+- **#13 设置页内点击不透传**：打开设置页并连续点击「外观/行为/显示/声音/连接/关于」及切换 `blue/violet/pink` 主题期间，日志中 **0** 条 `XQ_HUD down` 与 `drag_end`（已生效）。
+- **#14 设置页尺寸摆位与主题同源**：日志实证 `XQ_SET2 place side=R wa=205,0 1711x864 size=664x536 dpi=1.00`、`XQ_SET2 set theme=blue` / `violet` / `pink` 均即时生效；开菜单后设置页自动退让不叠层。
+- **工作台窗口定位/吸附/外侧方钮（含随窗换边）**：工作台启动后成功坐上标题栏（`XQ_BENCH sit ok=True frac=0.49`），外侧双方钮正常显示且由 `side=R rect=1794,326 40x88` 随窗口切换成 `side=L rect=130,261 40x88`，关窗后恢复 `XQ_BENCH restore pet window`。
+
+### 2. 新暴露问题与主人明确否定项（已记入 `ISSUES.md` `#18`~`#20`）
+
+1. **右键菜单除「设置」外行点击错位 / 点「让她…」弹今日日程（`#18`）**：
+   - 主人原话：「点击让他直接弹出今日日程，右边四个菜单除了设置全部都是对照不是上的，要么就是点了没反应」。
+   - **日志实锤**：
+```text
+XQ_MENU2 place body(screen)=769..1168 y=-17..666 H=1080 tl(panel)=769,414 l1=1180,442 scale=1.00
+XQ_MENU2 click l1/p0 row='让她…' picked=VisualElement.xq-mrow
+XQ_MENU2 click l1/p0 row='今天' picked=VisualElement.xq-mrow.xq-mrow-open
+XQ_MENU2 click l1/p0 row='安静一会 · 安静中' picked=VisualElement.xq-mrow
+XQ_MENU2 click l1/p0 row='宿舍 · fake walk_in' picked=VisualElement.xq-mrow.xq-mrow-open
+```
+   - **源码根因（`XqGlassMenu.cs:247-275`）**：`MousePanelPoints` 把未翻 Y 的 `RuntimePanelUtils.ScreenToPanel(panel, m)`（本机 `flipsY=False`）放在 `pts[0]`（`p0`），把正确的翻 Y 坐标放在 `pts[1]`（`p1`）；`Locate()` 先遍历 `pts[0]`。当菜单竖直跨越屏幕中线（如 `l1=1180,442` 高 `291`）时，镜像后的 `p0` 同样落在菜单卡片内，直接导致整卡行号**上下颠倒错命中**（点「让她…」命中「今天」展开/打开「今日日程」，点「安静一会」命中「宿舍 · fake walk_in」），只有最底行「设置」的镜像 `p0` 跑出卡外才落回 `p1` 命中成功。
+2. **工作台弹出白底 Edge 网页且 `127.0.0.1` 拒绝连接，样式不符合二次元动漫风格（`#19`）**：
+   - 主人原话：「工作台啥也打不开，而且我不希望是这种网业的样式，这和之前我们看的预览以及参考图完全不一样，没有那种二次元动漫风格啊」。
+   - **现场实证**：`real-g73-bench-127-refused.jpg` 为标准 Windows Edge 浏览器白框窗口且页面报 `127.0.0.1 refused to connect`（本机未同启 `dspet` 本地后端服务；且产品形态与外观本身被主人否决，需重设非浏览器外观方案）。
+3. **近景左下/右下「工作台」按钮仍灰置不可点（`#20`）**：
+   - 主人原话：「当切换到近景的时候，工作台显示是无法打开的」。
+   - **源码确认（`XqClosePanel.Controls.cs:78-84`）**：`_btnBench` 仍写死 `.AddToClassList("off")` 与悬停「还没开放」，尚未按 `-xq-bench` 接入 `XqMode.Set(XqView.Bench)`。
+
