@@ -815,3 +815,51 @@ XQ_W5BP round=1 done ~ round=5 done
 - **纯净回归（0 业务 `Exception`）**：`-xq-close-test`（`drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`）、`-xq-close-test -xq-menu-test -xq-menu-debug`（drift 全 0）、`30s` 冒烟（`XQ_START waking→ok 2.5s`）、`Close ↔ Bench ↔ Pet` 5 轮连切（`XQ_W5BP round=1..5 done`）均无业务 `Exception`。
 - **晚上包**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（已覆写为纯净 `aab9080` 构建，三个 `.cmd` 均带 `-xq-bench`，[ACCEPT-TONIGHT.md] 已更新为 `aab9080f`）。
 - **ISSUES**：本轮 `aab9080f` 0 编译 error，未修改正式代码，**无新增 ISSUES**。
+
+---
+
+## 第十八次（自动化 + 内嵌截帧）（`int-all @ ff82f463`，G74 W6：工作台 1/2/3/4 四页只读展示 + 假数据 + 离线/缓存）
+
+- **被验提交**：`origin/xiaoqi/int-all` @ `ff82f463`（相对 `aab9080f` 新增 `UI2/XqBenchData.cs`、`UI2/XqBenchPanel.Pages.cs`、`StreamingAssets/Xiaoqi/bench_fake/*.json` 并改 `UI2/XqBenchPanel.cs`）。`xiaoqi/p2-agy4` 同步停在 `ff82f46`（0 修改）。
+- **编译**：**过**（0 compile errors，76 warnings，耗时 67s，`XiaoqiBuild.Win64`，见 `evidence/2026-11-17-B1-r18/build-summary-ff82f46.md`）。`XqBenchPanel` `partial` 分拆、`JToken` 解析与 `Loop` 均直接编译通过。
+- **证据目录**：`evidence/2026-11-17-B1-r18/`（`w6-probe-fake/blue/violet/offline/live/cache-Player.log`、`w6-close-test/close-menu-test/smoke30s-ff82f46-Player.log`、`p0_today.png`、`p1_her_fake.png`、`p2_life_fake.png`、`p3_mem_fake.png`、`p4_growth_fake.png`、`blue_p1_her.png`、`violet_p1_her.png`、`p1_her_offline_nocache.png`、`p1_her_cache.png`、`build-summary-ff82f46.md`、`ACCEPT-TONIGHT.md`）。
+
+### 1. 第 0 页回归与假数据四页截帧（`-xq-bench -xq-bench-fake`）
+
+- **关键日志（`w6-probe-fake-Player.log`，0 业务 `Exception`）**：
+```text
+XQ_W6P navCount=6 page=0
+XQ_BENCH page=1 她（此刻）
+XQ_BENCHDATA fake dir=E:/dsh-pet-projects/xq-builds/w6-probe/Xiaoqi_Data/StreamingAssets\Xiaoqi\bench_fake
+XQ_BENCHDATA fetch key=state ok=y src=fake bytes=1644 ms=5
+XQ_BENCHDATA fetch key=life ok=y src=fake bytes=1046 ms=0
+XQ_BENCH page=2 生活
+XQ_BENCHDATA fetch key=life ok=y src=fake bytes=1046 ms=0
+XQ_BENCHDATA fetch key=diary ok=y src=fake bytes=651 ms=0
+XQ_BENCHDATA fetch key=library ok=y src=fake bytes=747 ms=1
+XQ_BENCHDATA fetch key=pools ok=y src=fake bytes=577 ms=0
+XQ_BENCHDATA fetch key=about ok=y src=fake bytes=121 ms=1
+XQ_BENCH page=3 记忆
+XQ_BENCHDATA fetch key=memory ok=y src=fake bytes=269 ms=0
+XQ_BENCHDATA fetch key=today ok=y src=fake bytes=506 ms=0
+XQ_W6P mem snapBtn=True
+XQ_BENCH page=4 成长
+XQ_BENCHDATA fetch key=growth ok=y src=fake bytes=1050 ms=0
+XQ_W6P round=1 done ~ round=5 done
+```
+- **截帧核对**：
+  - **第 0 页（`p0_today.png`）**：左栏 `6` 个钮（`home/heart/cal/chat/spark/gear`），`home` 默认高亮，半透毛玻璃、胸像、视差、6 行内容与「薄雾玻璃」开关与 `aab9080f`/`2ac1238b` 一致。
+  - **1/2/3/4 页假数据（`p1_her_fake.png`~`p4_growth_fake.png`）** 与 **`blue`/`violet` 主题（`blue_p1_her.png`、`violet_p1_her.png`）**：6 行均正常填充，无竖排折字、不出板、不被裁、无 `□` 缺字；三主题配色一致。
+
+### 2. 离线条、缓存、Tailscale 直连与物理交互项
+
+- **无缓存离线（`w6-probe-offline-Player.log`、`p1_her_offline_nocache.png`）**：`XQ_BENCHDATA fetch key=state ok=n result=ProtocolError code=502 ms=3379`，第一行显示「连不上服务器，也没有缓存。点右下『重试』，或检查 server 配置。」，其余行收起；右下离线条与「重试」物理点击因探针未等完整循环 `Fire()` 回调及隔离桌面限制，均标「**待晚上主人验收**」。
+- **手动填充 `xq_bench_cache/` 离线缓存与重试（`w6-probe-cache-Player.log`、`p1_her_cache.png`）**：日志实证 `XQ_BENCHDATA cache load key=state`、`XQ_BENCHDATA cache load key=life`、`XQ_BENCHDATA fetch key=state ok=n` 及 `XQ_BENCH retry page=1` 后重发请求；画面成功回显缓存内容（顶部 `缓存 HH:mm:ss` 与右下离线条亮因探针提前截帧，实机表现标「**待晚上主人验收**」）。
+- **Tailscale 直连 `http://100.117.93.31:8787`（`w6-probe-live-Player.log`）**：本机 `curl` 返回 `200`，但 Unity 侧因默认 `insecureHttpOption=NotAllowed` 抛出 `InvalidOperationException: Insecure connection not allowed`（已记 **ISSUES #23**），故真实服务器四页实机取数标「**待主人**」。
+- **滚轮翻动 / 六层快照 `XQ_BENCH snapshot-open` / 切页中拖板与点 `×` / 手感质感信息密度**：因隔离桌面无法注入 `SendInput` 滚轮与鼠点，均标「**待晚上主人验收**」（探针已确认记忆页 `_snapBtn` 存在）。
+
+### 3. 纯净回归、晚上包与 ISSUES
+
+- **纯净回归（0 业务 `Exception`）**：`-xq-close-test`（`drift win=0,0 size=0,0 bodyCx=0 bodyBottom=0 bodyH=0`）、`-xq-close-test -xq-menu-test -xq-menu-debug`（drift 全 0）、`30s` 冒烟、5 轮 `Close ↔ Bench ↔ Pet` 连切均无业务 `Exception`。
+- **晚上包**：`E:\dsh-pet-projects\Xiaoqi-Tonight\`（已覆写为纯净 `ff82f46` 构建；前 3 个 `.cmd` 均带 `-xq-bench`；新增 `4-假数据.cmd` 带 `-xq-bench -xq-bench-fake`；[ACCEPT-TONIGHT.md] 已更新为 `ff82f463` 与「工作台四页验收」）。
+- **ISSUES**：新增 **#23**（非 `127.0.0.1` 的明文 `http://100.117.93.31:8787` 在 Unity 默认策略下报 `Insecure connection not allowed`）。
