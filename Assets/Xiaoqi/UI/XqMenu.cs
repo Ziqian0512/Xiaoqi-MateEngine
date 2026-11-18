@@ -24,6 +24,7 @@ namespace Xiaoqi.UI
             public bool Gray;
             public string Hint;
             public Action Act;
+            public Image Icon;
         }
 
         private Canvas _canvas;
@@ -38,6 +39,7 @@ namespace Xiaoqi.UI
         private readonly List<Slot> _sub = new List<Slot>();
         private string _subKind = "";
         private Text _settings;
+        private Image _settingsIcon;
         private CanvasGroup _settingsGroup;
         private Image _underline;
         private Image _arcRight, _arcLeft;
@@ -192,9 +194,32 @@ namespace Xiaoqi.UI
             _settings.raycastTarget = true;
             _settingsGroup = _settings.gameObject.AddComponent<CanvasGroup>();
             var sh = _settings.gameObject.AddComponent<XqHover>();
-            sh.OnEnter = () => { _settings.color = XqStyle.Ink; _underline.enabled = true; };
-            sh.OnExit = () => { _settings.color = XqStyle.Muted; _underline.enabled = false; };
+            sh.OnEnter = () =>
+            {
+                _settings.color = XqStyle.Ink; _underline.enabled = true;
+                if (_settingsIcon != null) _settingsIcon.color = XqStyle.TextPrimary;
+            };
+            sh.OnExit = () =>
+            {
+                _settings.color = XqStyle.Muted; _underline.enabled = false;
+                if (_settingsIcon != null) _settingsIcon.color = XqStyle.IconTint;
+            };
             sh.OnClick = () => { Close("action"); XiaoqiSettings.Open(); };
+
+            // 主题 C：设置也是一级项，左侧同样一枚细线图标（相对文字中心摆，不改点击区）。
+            {
+                float tw0 = XqUi.EstimateText("设置", XqStyle.Px(XqStyle.FontSmall));
+                float icoW = XqStyle.Fr(XqStyle.IconGeo.Size);
+                var irt = XqUi.Node(_settings.transform, "Icon");
+                irt.anchorMin = irt.anchorMax = new Vector2(0.5f, 0.5f);
+                irt.pivot = new Vector2(0.5f, 0.5f);
+                irt.sizeDelta = new Vector2(icoW, icoW);
+                irt.anchoredPosition = new Vector2(-(tw0 * 0.5f + XqStyle.Fr(XqStyle.IconGeo.Gap) + icoW * 0.5f), 0f);
+                _settingsIcon = XqUi.Panel(irt, XqUi.Icon.Get(XqUi.Icon.Settings), XqStyle.IconTint);
+                _settingsIcon.type = Image.Type.Simple;
+                _settingsIcon.preserveAspect = true;
+                _settingsIcon.raycastTarget = false;
+            }
 
             var line = new GameObject("Underline", typeof(RectTransform));
             line.transform.SetParent(_settings.transform, false);
@@ -213,6 +238,19 @@ namespace Xiaoqi.UI
             _hintGroup.alpha = 0f;
         }
 
+        private static string IconOf(string id)
+        {
+            switch (id)
+            {
+                case "today": return XqUi.Icon.Today;
+                case "say": return XqUi.Icon.Say;
+                case "doing": return XqUi.Icon.Doing;
+                case "quiet": return XqUi.Icon.Quiet;
+                case "live": return XqUi.Icon.Live;
+                default: return XqUi.Icon.Today;
+            }
+        }
+
         private void AddSlot(string id, string text, bool gray, string hint, Action act)
         {
             var cap = XqUi.Capsule(_root, text, null);
@@ -221,6 +259,12 @@ namespace Xiaoqi.UI
             {
                 Id = id, Text = text, View = cap, Group = grp, Gray = gray, Hint = hint, Act = act
             };
+            // 主题 C：一级项左侧一枚 14px 细线图标；文字区整体右移，右侧留白不变，读起来仍然居中。
+            slot.Icon = XqUi.Icon.Attach(cap.Root, IconOf(id),
+                gray ? XqStyle.IconTintMuted : XqStyle.IconTint);
+            var trt = cap.Text.rectTransform;
+            trt.offsetMin = new Vector2(XqStyle.Fr(XqStyle.IconGeo.InsetX + XqStyle.IconGeo.Size + XqStyle.IconGeo.Gap), 0f);
+            trt.offsetMax = new Vector2(-XqStyle.Fr(XqStyle.CapsulePadX), 0f);
             if (gray)
             {
                 cap.Bg.sprite = XqUi.Round(XqStyle.GrayFill, XqStyle.GrayLine, XqStyle.CapsuleRadius, XqStyle.StrokeWidth);
@@ -994,11 +1038,13 @@ namespace Xiaoqi.UI
                     var until = XiaoqiRuntime.Config != null ? XiaoqiRuntime.Config.dnd_until : "";
                     q.View.Text.text = until == "forever" ? "安静中" : XiaoqiRuntime.QuietLabel();
                     q.View.Text.color = XqStyle.PinkStrong;
+                    if (q.Icon != null) q.Icon.color = XqStyle.IconTintActive;
                 }
                 else
                 {
                     q.View.Text.text = "安静一会";
                     q.View.Text.color = XqStyle.Ink;
+                    if (q.Icon != null) q.Icon.color = XqStyle.IconTint;
                 }
             }
         }
@@ -1013,7 +1059,8 @@ namespace Xiaoqi.UI
             _maxWidth = 0f;
             foreach (var s in _slots)
             {
-                float tw = s.View.Text.preferredWidth + XqStyle.Fr(2f * XqStyle.CapsulePadX);
+                float tw = s.View.Text.preferredWidth + XqStyle.Fr(2f * XqStyle.CapsulePadX)
+                           + (s.Icon != null ? XqStyle.Fr(XqStyle.IconGeo.Size + XqStyle.IconGeo.Gap) : 0f);
                 float cw = Mathf.Max(XqStyle.Fr(XqStyle.CapsuleMinWidth), tw);
                 s.View.Root.sizeDelta = new Vector2(cw, _capH);
                 int pw2 = Mathf.RoundToInt(cw), ph2 = Mathf.RoundToInt(_capH);

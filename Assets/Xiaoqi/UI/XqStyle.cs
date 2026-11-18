@@ -50,6 +50,25 @@ namespace Xiaoqi.UI
         public const float SubGap = 16f;
         public const float SubColStep = 168f;
 
+        // 主题 C：一级项的 14px 细线图标（纯代码绘制，颜色只取这三档）。
+        public readonly struct IconSpec
+        {
+            public readonly float Size;
+            public readonly float Stroke;
+            public readonly float Gap;
+            public readonly float InsetX;
+
+            public IconSpec(float size, float stroke, float gap, float insetX)
+            {
+                Size = size; Stroke = stroke; Gap = gap; InsetX = insetX;
+            }
+        }
+
+        public static readonly IconSpec IconGeo = new IconSpec(14f, 1.25f, 8f, 14f);
+        public static readonly Color IconTint = TextSecondary;
+        public static readonly Color IconTintMuted = TextDisabled;
+        public static readonly Color IconTintActive = PinkStrong;
+
         public const float InSec = 0.18f;
         public const float OutSec = 0.12f;
         public const float HoverSec = 0.10f;

@@ -219,6 +219,247 @@ tex.Apply();
             return Mathf.Sqrt(ax * ax + ay * ay) + Mathf.Min(Mathf.Max(qx, qy), 0f) - r;
         }
 
+        // ------------------------------------- 主题 C：一级项 14px 细线图标
+
+        /// <summary>
+        /// 主题 C：一级项左侧的细线图标。全部在 14×14 设计坐标里**用代码光栅化**（4× 超采样），
+        /// 不依赖任何贴图资源；贴图是白色 + alpha 覆盖率，颜色由 Image.color 给，只取 XqStyle 的三档。
+        /// </summary>
+        public static class Icon
+        {
+            public const string Today = "today";
+            public const string Say = "say";
+            public const string Doing = "doing";
+            public const string Quiet = "quiet";
+            public const string Live = "live";
+            public const string Settings = "settings";
+
+            private const float BoxSize = 14f; // 设计坐标：14×14，y 向下
+            private const int Super = 4;       // 超采样倍数
+
+            public static Sprite Get(string kind)
+            {
+                int px = Mathf.Max(10, XqStyle.Px(XqStyle.IconGeo.Size));
+                string key = "ic" + kind + px;
+                if (Sprites.TryGetValue(key, out var hit)) return hit;
+
+                int n = px * Super;
+                float k = n / BoxSize;
+                var cov = new float[n * n];
+                switch (kind)
+                {
+                    case Say: ArtSay(cov, n, k); break;
+                    case Doing: ArtDoing(cov, n, k); break;
+                    case Quiet: ArtQuiet(cov, n, k); break;
+                    case Live: ArtLive(cov, n, k); break;
+                    case Settings: ArtSettings(cov, n, k); break;
+                    default: ArtToday(cov, n, k); break;
+                }
+
+                var tex = new Texture2D(px, px, TextureFormat.RGBA32, false);
+                var outPx = new Color32[px * px];
+                for (int y = 0; y < px; y++)
+                for (int x = 0; x < px; x++)
+                {
+                    float a = 0f;
+                    for (int sy = 0; sy < Super; sy++)
+                    {
+                        int dr = (px - 1 - y) * Super + sy; // 设计 y 向下，纹理 y 向上
+                        int row = dr * n;
+                        for (int sx = 0; sx < Super; sx++) a += cov[row + x * Super + sx];
+                    }
+                    a /= Super * Super;
+                    outPx[y * px + x] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(Mathf.Clamp01(a) * 255f));
+                }
+                tex.SetPixels32(outPx);
+                tex.Apply();
+                tex.wrapMode = TextureWrapMode.Clamp;
+                tex.filterMode = FilterMode.Bilinear;
+                var s = Sprite.Create(tex, new Rect(0, 0, px, px), new Vector2(0.5f, 0.5f), 100f, 0,
+                    SpriteMeshType.FullRect);
+                Sprites[key] = s;
+                return s;
+            }
+
+            /// <summary>挂一枚图标节点到 parent 左上（以 parent 左中为锚，向内缩 InsetX）。</summary>
+            public static Image Attach(Transform parent, string kind, Color tint)
+            {
+                var rt = Node(parent, "Icon");
+                rt.anchorMin = rt.anchorMax = new Vector2(0f, 0.5f);
+                rt.pivot = new Vector2(0f, 0.5f);
+                rt.sizeDelta = new Vector2(XqStyle.Fr(XqStyle.IconGeo.Size), XqStyle.Fr(XqStyle.IconGeo.Size));
+                rt.anchoredPosition = new Vector2(XqStyle.Fr(XqStyle.IconGeo.InsetX), 0f);
+                var img = Panel(rt, Get(kind), tint);
+                img.type = Image.Type.Simple;
+                img.preserveAspect = true;
+                img.raycastTarget = false;
+                return img;
+            }
+
+            // -------------------------------------------------------- 光栅化
+
+            private static void Ink(float[] cov, int n, float k, Func<float, float, float> dist)
+            {
+                float hw = XqStyle.IconGeo.Stroke * 0.5f;
+                float cutoff = hw + 1f;
+                for (int y = 0; y < n; y++)
+                {
+                    float py = (y + 0.5f) / k;
+                    int row = y * n;
+                    for (int x = 0; x < n; x++)
+                    {
+                        float d = dist((x + 0.5f) / k, py);
+                        if (d > cutoff) continue;
+                        float a = Mathf.Clamp01((hw - d) * k + 0.5f);
+                        int i = row + x;
+                        if (a > cov[i]) cov[i] = a;
+                    }
+                }
+            }
+
+            private static void Fill(float[] cov, int n, float k, Func<float, float, float> signed)
+            {
+                for (int y = 0; y < n; y++)
+                {
+                    float py = (y + 0.5f) / k;
+                    int row = y * n;
+                    for (int x = 0; x < n; x++)
+                    {
+                        if (signed((x + 0.5f) / k, py) >= 0f) continue;
+                        int i = row + x;
+                        cov[i] = 1f;
+                    }
+                }
+            }
+
+            /// <summary>按“洞”挖掉：signed 为负表示洞内。</summary>
+            private static void Cut(float[] cov, int n, float k, Func<float, float, float> signed)
+            {
+                for (int y = 0; y < n; y++)
+                {
+                    float py = (y + 0.5f) / k;
+                    int row = y * n;
+                    for (int x = 0; x < n; x++)
+                    {
+                        float d = signed((x + 0.5f) / k, py);
+                        if (d > 0.5f) continue;
+                        float m = Mathf.Clamp01(-d * k + 0.5f);
+                        int i = row + x;
+                        cov[i] *= 1f - m;
+                    }
+                }
+            }
+
+            private static float Seg(float px, float py, float ax, float ay, float bx, float by)
+            {
+                float vx = bx - ax, vy = by - ay;
+                float wx = px - ax, wy = py - ay;
+                float t = Mathf.Clamp01((wx * vx + wy * vy) / Mathf.Max(1e-6f, vx * vx + vy * vy));
+                float dx = wx - vx * t, dy = wy - vy * t;
+                return Mathf.Sqrt(dx * dx + dy * dy);
+            }
+
+            /// <summary>闭合折线（pts 为 x,y 成对）。</summary>
+            private static float Poly(float px, float py, float[] pts)
+            {
+                float best = 999f;
+                int m = pts.Length / 2;
+                for (int i = 0; i < m; i++)
+                {
+                    int j = (i + 1) % m;
+                    float d = Seg(px, py, pts[i * 2], pts[i * 2 + 1], pts[j * 2], pts[j * 2 + 1]);
+                    if (d < best) best = d;
+                }
+                return best;
+            }
+
+            /// <summary>圆角矩形的带符号距离（负为内部）。</summary>
+            private static float Box(float px, float py, float x0, float y0, float x1, float y1, float r)
+            {
+                float cx = (x0 + x1) * 0.5f, cy = (y0 + y1) * 0.5f;
+                float hx = (x1 - x0) * 0.5f - r, hy = (y1 - y0) * 0.5f - r;
+                float qx = Mathf.Abs(px - cx) - hx;
+                float qy = Mathf.Abs(py - cy) - hy;
+                float ax = Mathf.Max(qx, 0f), ay = Mathf.Max(qy, 0f);
+                return Mathf.Sqrt(ax * ax + ay * ay) + Mathf.Min(Mathf.Max(qx, qy), 0f) - r;
+            }
+
+            private static float Ring(float px, float py, float cx, float cy, float r)
+            {
+                float dx = px - cx, dy = py - cy;
+                return Mathf.Abs(Mathf.Sqrt(dx * dx + dy * dy) - r);
+            }
+
+            private static float Disk(float px, float py, float cx, float cy, float r)
+            {
+                float dx = px - cx, dy = py - cy;
+                return Mathf.Sqrt(dx * dx + dy * dy) - r;
+            }
+
+            // ---------------------------------------------------------- 图形
+
+            /// <summary>今天：日历（外框 + 两枚挂耳 + 表头线 + 两点）。</summary>
+            private static void ArtToday(float[] cov, int n, float k)
+            {
+                Ink(cov, n, k, (x, y) => Mathf.Abs(Box(x, y, 1.8f, 3.5f, 12.2f, 12.3f, 2.2f)));
+                Ink(cov, n, k, (x, y) => Seg(x, y, 4.8f, 1.8f, 4.8f, 3.7f));
+                Ink(cov, n, k, (x, y) => Seg(x, y, 9.2f, 1.8f, 9.2f, 3.7f));
+                Ink(cov, n, k, (x, y) => Seg(x, y, 2.0f, 6.4f, 12.0f, 6.4f));
+                Fill(cov, n, k, (x, y) => Disk(x, y, 5.1f, 9.3f, 0.7f));
+                Fill(cov, n, k, (x, y) => Disk(x, y, 8.9f, 9.3f, 0.7f));
+            }
+
+            /// <summary>说句话：对话气泡 + 小尾巴 + 两点。</summary>
+            private static void ArtSay(float[] cov, int n, float k)
+            {
+                Ink(cov, n, k, (x, y) => Mathf.Abs(Box(x, y, 1.8f, 2.4f, 12.2f, 10.1f, 2.8f)));
+                Ink(cov, n, k, (x, y) => Seg(x, y, 4.6f, 9.9f, 4.6f, 12.3f));
+                Ink(cov, n, k, (x, y) => Seg(x, y, 4.6f, 12.3f, 7.5f, 9.9f));
+                Fill(cov, n, k, (x, y) => Disk(x, y, 5.5f, 6.2f, 0.6f));
+                Fill(cov, n, k, (x, y) => Disk(x, y, 8.5f, 6.2f, 0.6f));
+            }
+
+            /// <summary>让她…：一枚四角星（她做点什么）。</summary>
+            private static void ArtDoing(float[] cov, int n, float k)
+            {
+                var star = new[]
+                {
+                    7f, 1.6f, 8.5f, 5.5f, 12.4f, 7f, 8.5f, 8.5f,
+                    7f, 12.4f, 5.5f, 8.5f, 1.6f, 7f, 5.5f, 5.5f
+                };
+                Ink(cov, n, k, (x, y) => Poly(x, y, star));
+            }
+
+            /// <summary>安静一会：实心月牙（圆盘减去偏移圆盘，14px 也读得出）。</summary>
+            private static void ArtQuiet(float[] cov, int n, float k)
+            {
+                Fill(cov, n, k, (x, y) => Disk(x, y, 7.0f, 7.2f, 4.9f));
+                Cut(cov, n, k, (x, y) => Disk(x, y, 9.4f, 5.4f, 4.3f));
+            }
+
+            /// <summary>直播间：圆角方框 + 播放三角。</summary>
+            private static void ArtLive(float[] cov, int n, float k)
+            {
+                Ink(cov, n, k, (x, y) => Mathf.Abs(Box(x, y, 1.8f, 3.0f, 12.2f, 11.6f, 2.6f)));
+                var tri = new[] { 5.8f, 5.2f, 9.9f, 7.3f, 5.8f, 9.4f };
+                Ink(cov, n, k, (x, y) => Poly(x, y, tri));
+            }
+
+            /// <summary>设置：齿轮（中心圈 + 六枚齿，14px 下比八齿更不像花）。</summary>
+            private static void ArtSettings(float[] cov, int n, float k)
+            {
+                Ink(cov, n, k, (x, y) => Ring(x, y, 7f, 7f, 3.0f));
+                Fill(cov, n, k, (x, y) => Disk(x, y, 7f, 7f, 0.95f));
+                for (int i = 0; i < 6; i++)
+                {
+                    float a = (i * 60f + 30f) * Mathf.Deg2Rad;
+                    float c = Mathf.Cos(a), s = Mathf.Sin(a);
+                    Ink(cov, n, k, (x, y) => Seg(x, y, 7f + 3.6f * c, 7f + 3.6f * s,
+                        7f + 5.5f * c, 7f + 5.5f * s));
+                }
+            }
+        }
+
         // --------------------------------------------------------- primitives
 
         public static RectTransform Node(Transform parent, string name)
