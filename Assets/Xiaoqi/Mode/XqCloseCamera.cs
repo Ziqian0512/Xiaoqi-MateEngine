@@ -57,7 +57,17 @@ namespace Xiaoqi.Mode
         public static void SetBenchViewportBottom(float bottomNorm)
         {
             _benchBottomNorm = Mathf.Clamp(bottomNorm, 0f, 0.55f);
+            SetAvatarRenderersVisible(_benchBottomNorm <= 0.005f);
             ApplyBenchViewport();
+        }
+
+        static void SetAvatarRenderersVisible(bool visible)
+        {
+            var h = Handler();
+            var root = h != null && h.avatarAnimator != null ? h.avatarAnimator.gameObject : null;
+            if (root == null) return;
+            foreach (var rend in root.GetComponentsInChildren<Renderer>(true))
+                if (rend != null) rend.enabled = visible;
         }
 
         static int _origMask = -1;

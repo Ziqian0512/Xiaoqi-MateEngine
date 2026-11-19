@@ -683,7 +683,7 @@ namespace Xiaoqi.UI2
             _rail = Box(64f * _k, PanH * _k, 32f * _k, new Color(.95f, .93f, .99f, .86f));
             Abs(_rail, 6f * _k, 0, 64f * _k, PanH * _k); Border(_rail, 1f, new Color(1f, 1f, 1f, 0.88f));
             _rail.style.alignItems = Align.Center; _rail.style.paddingTop = 22f * _k; _rail.style.paddingBottom = 18f * _k;
-            var logo = L("祈.", 22f, XqMoonStyle.Soft, true); logo.style.marginBottom = 22f * _k; _rail.Add(logo);
+            var logo = L("祈", 22f, XqMoonStyle.Soft, true); logo.style.marginBottom = 22f * _k; _rail.Add(logo);
             string[] labels = { "此刻", "手账", "歌单", "记忆", "设置" };
             string[] icons = { "spark", "cal", "sun", "heart", "gear" };
             for (int n = 0; n < labels.Length; n++)
@@ -706,7 +706,7 @@ namespace Xiaoqi.UI2
 
         void BuildApprovedPanel()
         {
-            float x = (RailW + Gap) * _k;
+            float x = 78f * _k;
             _panel = new VisualElement { name = "xq-bench-panel", pickingMode = PickingMode.Ignore };
             Abs(_panel, x, 0, PanW * _k, PanH * _k); XqMoonStyle.Surface(_panel, 24f * _k);
             _panel.style.backgroundColor = new Color(.97f, .95f, .99f, 1f);
