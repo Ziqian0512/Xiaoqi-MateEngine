@@ -88,10 +88,11 @@ namespace Xiaoqi.UI2
         }
 
         // 设计稿尺寸：76(左等高坞) + 16 + 1020(一体舞台: 左翼296 + 中央立绘窗280 + 右翼444) = 1112 x 620
-        const float RailW = 128f, Gap = 16f, LeftW = 296f, CharW = 280f, RightW = 444f;
+        const float Gap = 16f, LeftW = 296f, CharW = 280f, RightW = 444f;
+        static float RailW => CampusPreview ? 66f : 128f;
         const float PanW = LeftW + CharW + RightW; // 1020
         const float PanH = 620f, TopH = 76f, BotH = 96f, MidH = PanH - TopH - BotH; // 448
-        const float StageW = RailW + Gap + PanW; // 1112
+        static float StageW => RailW + Gap + PanW; // 1112
 
         struct Geo { public float a, ph, k, stageL, stageT, stageW, charCenterX; }
 
@@ -113,6 +114,7 @@ namespace Xiaoqi.UI2
 
         static float PanelPx(float W, float H)
         {
+            if (CampusPreview) return Mathf.Min(810f, H * .90f, W * .94f * PanH / StageW);
             float ph = 0.76f * H;
             float stageW = ph * StageW / PanH;
             if (stageW > 0.89f * W) ph = 0.89f * W * PanH / StageW;
@@ -254,8 +256,8 @@ namespace Xiaoqi.UI2
             _stage.style.transformOrigin = new TransformOrigin(Length.Percent(50), Length.Percent(50));
             _host.Add(_stage);
 
-            BuildApprovedRail();
-            BuildApprovedPanel();
+            if (CampusPreview) { BuildCampusRail(); BuildCampusPanel(); }
+            else { BuildApprovedRail(); BuildApprovedPanel(); }
 
             root.Add(_host);
             ApplyStagePos();
@@ -592,6 +594,7 @@ namespace Xiaoqi.UI2
 
         void UpdateParallax(float dt)
         {
+            if (CampusPreview) { _pxS = _pyS = 0f; return; }
             var c = XqModeConfig.I;
             if (!c.bench_parallax) { _pxS = Mathf.MoveTowards(_pxS, 0f, dt * 3f); _pyS = Mathf.MoveTowards(_pyS, 0f, dt * 3f); }
             else
@@ -635,7 +638,7 @@ namespace Xiaoqi.UI2
             if (OverEl(_refreshBtn)) { target = _refreshBtn; return () => { _bd?.Refresh(); Toast("正在同步…"); }; }
             if (OverEl(_modeBtn)) { target = _modeBtn; return ToggleSceneMode; }
             if (_bd != null && _bd.Offline(_page) && OverEl(_offRetry)) { target = _offRetry; return () => _bd.Refresh(); }
-            for (int i = 0; i < _nav.Count; i++) if (OverEl(_nav[i])) { target = _nav[i]; int page = ApprovedPages[i]; return () => SelectPage(page); }
+            for (int i = 0; i < _nav.Count; i++) if (OverEl(_nav[i])) { target = _nav[i]; if (CampusPreview && i == _nav.Count - 1) return CampusConsole; int page = ApprovedPages[i]; return () => SelectPage(page); }
             for (int i = _pageClicks.Count - 1; i >= 0; i--) if (OverEl(_pageClicks[i].Key)) { target = _pageClicks[i].Key; return _pageClicks[i].Value; }
             return null;
         }

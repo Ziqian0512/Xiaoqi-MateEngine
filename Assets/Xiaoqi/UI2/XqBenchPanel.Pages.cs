@@ -78,6 +78,7 @@ namespace Xiaoqi.UI2
             _pgFade = Mathf.MoveTowards(_pgFade, 1f, dt * 6f);
             RefreshBenchMusic();
             RefreshApprovedMusic();
+            RefreshCampusNow();
         }
 
         void SelectPage(int p)
@@ -209,7 +210,9 @@ namespace Xiaoqi.UI2
             _pgMax = 0;
             if (_bd == null) _bd = XqBenchData.Ensure();
 
+            if (CampusPreview && _page == 0) { BuildCampusNow(_bd.Loading(0)); return; }
             ApprovedContentLayout();
+            if (CampusPreview) CampusOtherPageLayout();
             RefreshCharBox();
             bool loading = _bd.Loading(_page);
             string stampKey = XqBenchData.KeysOf(_page).Length > 0 ? XqBenchData.KeysOf(_page)[0] : "state";
