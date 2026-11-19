@@ -63,3 +63,15 @@
 - 成品通过 robocopy 同步到 `E:\dsh-pet-projects\Xiaoqi-Tonight\Xiaoqi`，退出码 3；配置文件保留，Assembly-CSharp.dll 源/目标 SHA256 相同。Unity 自动改写资产不混入本轮提交。
 - 渲染产物在 `E:\dsh-pet-projects\design-previews\2026-11-19\unity-delivery-review`。图像是运行中 UI Toolkit 面板输出，透明处在查看器中可能呈黑色；不含相机渲染的 3D 人物，不代表 3D 被移除。完整桌面合成与操作手感仍需用户验收。
 - 最终七张面板输出均非空；近景中央 1000×500 像素区域 alpha 均为 0（覆盖像素数 0），运行日志完成三态往返与五个工作台页面检查，无新增面板异常。报告 render-checks.json。
+
+## 7. 2026-11-19 近景 V20 视觉重塑与桌宠修复交付记录
+- **3D 与音频**：`XqCloseCamera.cs` 修复工作台返回桌宠/近景时 3D 本体丢失（保持 `cam.rect = (0,0,1,1)` 与 `cullingMask` 不被覆盖）；`XqSysAudioBridge.cs` 接入 Windows CoreAudio `IAudioMeterInformation` 系统级实时音量峰值与 `XqMusicBridge.IsPlaying` 兜底，驱动底部 160-bar 粉色声浪。
+- **工作台左侧栏**：`BuildApprovedRail()` 重塑为 64px 极简圆角胶囊侧栏，`设置` 按钮独立固定于最底部。
+- **近景 V20 布局与二次元自定义贴纸**：
+  - 左上时钟区仅保留左上角单枚蝴蝶结与高对比深紫日期/地点/天气块。
+  - 右上角重构为 Q 版探头竖卡（`XqChibiPeek.png`）+ 翅膀星星竖向 `TOKEN 80%` 能量柱（`XqStarTop.png`）。
+  - 右下角将“正在做的事”胶囊上移至模式切换条正上方对齐。
+  - 左下 Spotify 风格音乐卡彻底清除外层紫框（`XqMoonStyle.Clear(_cardMusic)`），底部控制键改为亮白高对比；歌名/歌手限制单行省略防穿模。
+  - 4 个互动组件围绕小祈左右各 2 个四散布局，接入 4 套透明二次元贴纸素材：`XqBadgeHeart.png`（摸摸头）、`XqBadgeCassette.png`（听我说）、`XqBadgeWindow.png`（看我屏幕）、`XqBadgeMoon.png`（安静陪伴）。
+  - 底部中央堆叠为：`AMAMIYA Inori` 签名（下移放大）→ 粉色声浪条 → 单行黑字右对齐回复 → 细长柔紫微雾输入框。
+- **构建与同步**：Unity 6000.2.6f2 `XiaoqiBuild.Win64` 退出码 0（`build_v20.log`）；`robocopy` 同步至 `E:\dsh-pet-projects\Xiaoqi-Tonight\Xiaoqi`（退出码 3）；已实机拉起 `Xiaoqi.exe`。
