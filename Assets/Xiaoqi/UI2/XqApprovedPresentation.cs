@@ -251,12 +251,13 @@ namespace Xiaoqi.UI2
                 _nextPill.style.backgroundSize = new BackgroundSize(Length.Percent(100f), Length.Percent(100f));
             }
             _nextPill.style.marginTop = 0f;
-            _nextPill.style.paddingTop = 24f; _nextPill.style.paddingBottom = 18f;
-            _nextPill.style.paddingLeft = _nextPill.style.paddingRight = 50f;
+            _nextPill.style.paddingTop = 18f; _nextPill.style.paddingBottom = 14f;
+            _nextPill.style.paddingLeft = _nextPill.style.paddingRight = 38f;
             _nextPill.style.justifyContent = Justify.Center;
             _nextPill.style.alignItems = Align.Center;
             _nextPill.style.overflow = Overflow.Hidden;
             if (_nextTime != null) _nextTime.style.display = DisplayStyle.None;
+            if (_tipBench != null) _tipBench.style.display = DisplayStyle.None;
             if (_nextPill.childCount > 0)
             {
                 var nextTop = _nextPill[0];
@@ -585,9 +586,9 @@ namespace Xiaoqi.UI2
             SetApprovedRect(_cardSay, chatL, dockT - 26f * k, chatW, 24f * k);
             if (_bodySay != null) { _bodySay.style.paddingTop = _bodySay.style.paddingBottom = _bodySay.style.paddingLeft = _bodySay.style.paddingRight = 0f; }
             SetApprovedRect(_chatDock, chatL, dockT, chatW, dockH);
-            SetApprovedRect(_modeDock, width - 224f * k, dockT, 206f * k, dockH);
-            // V24 右上角置顶：「正在」猫耳蝴蝶结横幅加宽至 258x112 容纳两行居中活动文字
-            if (_nextPill != null) SetApprovedRect(_nextPill, width - 274f * k, height * .025f, 256f * k, 110f * k);
+            SetApprovedRect(_modeDock, width - 238f * k, dockT, 220f * k, dockH);
+            // V26 右上角置顶：「正在」猫耳横幅缩小至 218x88，文字放大，紧致协调
+            if (_nextPill != null) SetApprovedRect(_nextPill, width - 236f * k, height * .028f, 218f * k, 88f * k);
             // V21 签名位于声浪正上方
             if (_plate != null)
             {
@@ -595,10 +596,10 @@ namespace Xiaoqi.UI2
                 _plate.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(0f, AngleUnit.Degree));
             }
 
-            // V23 右侧中上：慢慢来盖被子竖卡 + 电量试管下移至「正在」横幅下方
+            // V26 右侧中上：慢慢来盖被子竖卡 + 电量试管紧接在「正在」横幅下方
             if (_remindPill != null)
             {
-                SetApprovedRect(_remindPill, width - 196f * k, height * .205f, 94f * k, 164f * k);
+                SetApprovedRect(_remindPill, width - 196f * k, height * .175f, 94f * k, 164f * k);
                 _remindPill.style.paddingTop = 44f * k;
                 foreach (var vl in _remindPill.Query<Label>().ToList()) vl.style.fontSize = 11.5f * k;
                 if (_chibiPeekImg != null)
@@ -609,7 +610,7 @@ namespace Xiaoqi.UI2
             }
             if (_tokenCapsule != null)
             {
-                SetApprovedRect(_tokenCapsule, width - 92f * k, height * .175f, 64f * k, 244f * k);
+                SetApprovedRect(_tokenCapsule, width - 92f * k, height * .148f, 64f * k, 244f * k);
                 SetRadius(_tokenCapsule, 0f);
                 if (_tokPctLbl != null) { _tokPctLbl.style.fontSize = 11f * k; _tokPctLbl.style.color = XqMoonStyle.Ink; }
             }
@@ -657,7 +658,7 @@ namespace Xiaoqi.UI2
             SetRadius(_nextPill, 0f);
             _bodyNext.style.paddingLeft = _bodyNext.style.paddingRight = 0f;
             _bodyNext.style.paddingTop = 0f; _bodyNext.style.paddingBottom = 0f;
-            _nextTime.style.fontSize = _nextWhat.style.fontSize = 10f * k;
+            _nextTime.style.fontSize = 11f * k; _nextWhat.style.fontSize = 11.5f * k;
             _chatInput.style.fontSize = 11.5f * k;
             var inp = _chatInput.Q(className: "unity-text-field__input");
             if (inp != null) inp.style.color = XqMoonStyle.Ink;
