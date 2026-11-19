@@ -69,6 +69,37 @@ namespace Xiaoqi.UI
         public static readonly Color IconTintMuted = TextDisabled;
         public static readonly Color IconTintActive = PinkStrong;
 
+        // 主题 D：今天卡 / 设置卡 / 关于卡共用一套卡面、标题区、分隔线、行高与留白。
+        public static readonly Color CardFill = Paper;
+        public static readonly Color CardLine = PinkGuide;
+        public static readonly Color CardRule = Hex("E9E6DE");
+        public static readonly Color CardSectionText = TextTertiary;
+        public static readonly Color CardSectionRule = Hex("F6D4DE");
+        public static readonly Color CardActionFill = PinkFill;
+        public static readonly Color CardActionLine = PinkStrong;
+        public static readonly Color CardActionText = Ink;
+        public static readonly Color CardActionSoftFill = GrayFill;
+        public static readonly Color CardActionSoftLine = PinkLine;
+        public static readonly Color CardActionSoftText = Ink;
+
+        public const float CardHeaderH = 46f;
+        public const float CardHeaderPadX = 18f;
+        public const float CardTitleH = 26f;
+        public const float CardBodyPadX = 16f;
+        public const float CardBodyPadTop = 10f;
+        public const float CardBodyPadBottom = 18f;
+        public const float CardRuleH = 1f;
+        public const float CardRowH = 32f;
+        public const float CardRowHTall = 36f;
+        public const float CardRowGap = 6f;
+        public const float CardSectionH = 24f;
+        public const float CardRadiusLg = 18f;
+        public const float CardButtonH = 32f;
+        public const float CardButtonGap = 10f;
+        public const float CardMinH = 200f;
+        public const float CardMaxH = 820f;
+        public const int FontCardSection = 12;
+
         public const float InSec = 0.18f;
         public const float OutSec = 0.12f;
         public const float HoverSec = 0.10f;

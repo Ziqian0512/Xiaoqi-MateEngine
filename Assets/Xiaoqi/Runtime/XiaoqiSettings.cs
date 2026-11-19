@@ -14,6 +14,7 @@ public class XiaoqiSettings : MonoBehaviour
     private GameObject _go;
     private RectTransform _card;
     private RectTransform _content;
+    private XqUi.CardSkin _skin;
     private float _cardW;
     private float _contentW;
 
@@ -104,34 +105,21 @@ public class XiaoqiSettings : MonoBehaviour
         _card.anchorMin = _card.anchorMax = new Vector2(0.5f, 0.5f);
         _card.pivot = new Vector2(0.5f, 0.5f);
         _cardW = XqStyle.Fr(420f);
-        _contentW = _cardW - XqStyle.Fr(40f);
+        _contentW = _cardW - XqStyle.Fr(XqStyle.CardBodyPadX * 2f);
         _card.sizeDelta = new Vector2(_cardW, XqStyle.Fr(520f));
         _card.anchoredPosition = Vector2.zero;
 
-        var bg = _card.gameObject.AddComponent<Image>();
-        bg.color = XqStyle.Paper;
-        bg.raycastTarget = true;
-
-        var title = XqUi.Label(_card, "设置", XqStyle.FontCardTitle, XqStyle.Ink, TextAnchor.MiddleLeft, 26f);
-        var trt = title.rectTransform;
-        trt.anchorMin = trt.anchorMax = new Vector2(0f, 1f);
-        trt.pivot = new Vector2(0f, 1f);
-        trt.sizeDelta = new Vector2(XqStyle.Fr(160f), XqStyle.Fr(26f));
-        trt.anchoredPosition = new Vector2(XqStyle.Fr(18f), -XqStyle.Fr(14f));
-
-        var close = XqUi.IconButton(_card, "×", Close);
-        var crt = close.GetComponent<RectTransform>();
-        crt.anchorMin = crt.anchorMax = new Vector2(1f, 1f);
-        crt.pivot = new Vector2(1f, 1f);
-        crt.anchoredPosition = new Vector2(-XqStyle.Fr(10f), -XqStyle.Fr(8f));
+        // 主题 D：卡面与标题区走和今天卡/关于卡同一套（投影 + 圆角 + 1px 描边 + 分隔线）。
+        _skin = XqUi.CardBase(_card);
+        XqUi.CardHeader(_card, "设置", Close);
 
         var scrollGo = new GameObject("Scroll", typeof(RectTransform));
         scrollGo.transform.SetParent(_card, false);
         var srt = (RectTransform)scrollGo.transform;
         srt.anchorMin = new Vector2(0f, 0f);
         srt.anchorMax = new Vector2(1f, 1f);
-        srt.offsetMin = new Vector2(XqStyle.Fr(14f), XqStyle.Fr(14f));
-        srt.offsetMax = new Vector2(-XqStyle.Fr(14f), -XqStyle.Fr(48f));
+        srt.offsetMin = new Vector2(XqStyle.Fr(XqStyle.CardBodyPadX), XqStyle.Fr(XqStyle.CardBodyPadBottom));
+        srt.offsetMax = new Vector2(-XqStyle.Fr(XqStyle.CardBodyPadX), -XqStyle.Fr(XqStyle.CardHeaderH));
 
         var viewport = new GameObject("Viewport", typeof(RectTransform));
         viewport.transform.SetParent(scrollGo.transform, false);
@@ -150,7 +138,7 @@ public class XiaoqiSettings : MonoBehaviour
         _content.sizeDelta = new Vector2(0f, 0f);
 
         var vlg = _content.gameObject.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = XqStyle.Fr(8f);
+        vlg.spacing = XqStyle.Fr(XqStyle.CardRowGap);
         vlg.childControlWidth = true;
         vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true;
@@ -179,7 +167,7 @@ public class XiaoqiSettings : MonoBehaviour
 
     private void RowLabel(RectTransform row, string text)
     {
-        var t = XqUi.Label(row, text, XqStyle.FontBody, XqStyle.Body, TextAnchor.MiddleLeft, 20f);
+        var t = XqUi.Label(row, text, XqStyle.FontBody, XqStyle.TextPrimary, TextAnchor.MiddleLeft, 20f);
         var trt = t.rectTransform;
         trt.anchorMin = trt.anchorMax = new Vector2(0f, 1f);
         trt.pivot = new Vector2(0f, 1f);
@@ -195,15 +183,10 @@ public class XiaoqiSettings : MonoBehaviour
         rt.anchoredPosition = new Vector2(x, y);
     }
 
+    /// <summary>主题 D：区标题（12px 小字 + 细线）与今天卡、关于卡同一套。</summary>
     private void Section(string title)
     {
-        var rt = Row(18f);
-        var t = XqUi.Label(rt, title, XqStyle.FontSmall, XqStyle.Muted, TextAnchor.MiddleLeft, 16f);
-        var trt = t.rectTransform;
-        trt.anchorMin = trt.anchorMax = new Vector2(0f, 1f);
-        trt.pivot = new Vector2(0f, 1f);
-        trt.sizeDelta = new Vector2(_contentW, XqStyle.Fr(16f));
-        trt.anchoredPosition = Vector2.zero;
+        XqUi.CardSection(_content, title, _contentW);
     }
 
     private void Rebuild()
@@ -213,8 +196,6 @@ public class XiaoqiSettings : MonoBehaviour
 
         var host = PetHost.I;
         if (host == null) return;
-
-        _card.sizeDelta = new Vector2(_cardW, Mathf.Min(XqStyle.Fr(520f), Screen.height * 0.8f));
 
         Section("外观");
         AddSlider("大小", 0.5f, 2f, host.Size, "0.00", v => host.Size = v);
@@ -249,28 +230,44 @@ public class XiaoqiSettings : MonoBehaviour
         AddInput("令牌", XiaoqiRuntime.Config.token ?? "", true, v => XiaoqiRuntime.Config.token = v);
         AddModelRow();
 
-        var saveRow = Row(34f);
-        var save = XqUi.Capsule(saveRow, "保存并重连", null);
-        Place(save.Root, 0f, 0f, XqStyle.Fr(150f), XqStyle.Fr(32f));
-        save.Bg.sprite = XqUi.Pill(Mathf.RoundToInt(XqStyle.Fr(150f)), Mathf.RoundToInt(XqStyle.Fr(32f)), XqStyle.PinkFill, XqStyle.PinkStrong);
-        save.Bg.type = Image.Type.Simple;
-        save.Text.color = XqStyle.PinkStrong;
-        save.Hover.OnClick = () =>
+        var saveRow = Row(XqStyle.CardRowH);
+        var save = XqUi.CardButton(saveRow, "保存并重连", XqStyle.Fr(150f), XqStyle.Fr(XqStyle.CardButtonH), () =>
         {
             host.SaveSettings();
             if (!string.IsNullOrEmpty(XiaoqiRuntime.Config.model_path))
                 host.LoadModel(XiaoqiRuntime.Config.model_path);
             XiaoqiConfig.Save(XiaoqiRuntime.Config);
             Debug.Log("XQ_SET save");
-        };
+        }, true);
+        Place(save.Root, 0f, 0f, XqStyle.Fr(150f), XqStyle.Fr(XqStyle.CardButtonH));
 
         Section("关于");
-        var aboutRow = Row(30f);
-        var ver = XqUi.Label(aboutRow, "小祈 " + Application.version, XqStyle.FontSmall, XqStyle.Body, TextAnchor.MiddleLeft, 20f);
-        Place(ver.rectTransform, 0f, 0f, XqStyle.Fr(200f), XqStyle.Fr(20f));
-        var aboutBtn = XqUi.Capsule(aboutRow, "关于与许可证", null);
-        Place(aboutBtn.Root, _contentW - XqStyle.Fr(130f), 0f, XqStyle.Fr(130f), XqStyle.Fr(30f));
-        aboutBtn.Hover.OnClick = () => { Close(); XiaoqiAbout.Show(); };
+        var aboutRow = Row(XqStyle.CardRowH);
+        var ver = XqUi.Label(aboutRow, "小祈 " + Application.version, XqStyle.FontSmall, XqStyle.TextTertiary, TextAnchor.MiddleLeft, 20f);
+        Place(ver.rectTransform, 0f, -XqStyle.Fr(6f), XqStyle.Fr(200f), XqStyle.Fr(20f));
+        var aboutBtn = XqUi.CardButton(aboutRow, "关于与许可证", XqStyle.Fr(130f), XqStyle.Fr(XqStyle.CardButtonH),
+            () => { Close(); XiaoqiAbout.Show(); }, false);
+        Place(aboutBtn.Root, _contentW - XqStyle.Fr(130f), 0f, XqStyle.Fr(130f), XqStyle.Fr(XqStyle.CardButtonH));
+
+        FitCard();
+    }
+
+    /// <summary>
+    /// 主题 D 修：卡高按内容自适应（原来固定 520，底部一行被截半）。
+    /// 内容矮于卡高时卡片收短；内容更高时卡高停在 max，滚动由 ScrollRect 负责。
+    /// </summary>
+    private void FitCard()
+    {
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(_content);
+        float body = _content.rect.height;
+        float maxH = Mathf.Min(XqStyle.Fr(XqStyle.CardMaxH), Screen.height * 0.86f);
+        float h = Mathf.Clamp(
+            XqStyle.Fr(XqStyle.CardHeaderH + XqStyle.CardBodyPadBottom) + body,
+            XqStyle.Fr(XqStyle.CardMinH), maxH);
+        _card.sizeDelta = new Vector2(_cardW, h);
+        XqUi.CardSize(_skin, _cardW, h);
+        Debug.Log("XQ_SET fit content=" + body + " card=" + _card.rect + " max=" + maxH);
     }
 
     private static int Nearest(int[] options, int value)
@@ -283,44 +280,44 @@ public class XiaoqiSettings : MonoBehaviour
 
     private void AddSlider(string label, float min, float max, float value, string fmt, Action<float> set)
     {
-        var row = Row(32f);
+        var row = Row(XqStyle.CardRowH);
         RowLabel(row, label);
         var view = XqUi.SliderRow(row, min, max, value, fmt, v => set(v));
-        Place(view.Root, XqStyle.Fr(126f), 0f, _contentW - XqStyle.Fr(126f), XqStyle.Fr(30f));
+        Place(view.Root, XqStyle.Fr(126f), 0f, _contentW - XqStyle.Fr(126f), XqStyle.Fr(XqStyle.CardRowH));
     }
 
     private void AddSwitch(string label, bool value, Action<bool> set)
     {
-        var row = Row(32f);
+        var row = Row(XqStyle.CardRowH);
         RowLabel(row, label);
         var sw = XqUi.Switch(row, value, v => set(v));
-        Place(sw.Root, XqStyle.Fr(126f), 0f, XqStyle.Fr(44f), XqStyle.Fr(28f));
+        Place(sw.Root, XqStyle.Fr(126f), -XqStyle.Fr(2f), XqStyle.Fr(44f), XqStyle.Fr(28f));
     }
 
     private void AddSegmented(string label, string[] options, int index, Action<int> set)
     {
-        var row = Row(36f);
+        var row = Row(XqStyle.CardRowHTall);
         RowLabel(row, label);
-        var seg = XqUi.Segmented(row, options, index, i => set(i));
-        Place(seg.Root, XqStyle.Fr(126f), 0f, _contentW - XqStyle.Fr(126f), XqStyle.Fr(36f));
+        var seg = XqUi.Segmented(row, options, index, i => set(i), false);
+        Place(seg.Root, XqStyle.Fr(126f), 0f, _contentW - XqStyle.Fr(126f), XqStyle.Fr(XqStyle.CardRowHTall));
     }
 
     private void AddInput(string label, string value, bool password, Action<string> set)
     {
-        var row = Row(34f);
+        var row = Row(XqStyle.CardRowH);
         RowLabel(row, label);
         var input = XqUi.TextInput(row, value, password, v => set(v));
-        Place(input.Root, XqStyle.Fr(126f), 0f, _contentW - XqStyle.Fr(126f), XqStyle.Fr(32f));
+        Place(input.Root, XqStyle.Fr(126f), 0f, _contentW - XqStyle.Fr(126f), XqStyle.Fr(30f));
     }
 
     private void AddModelRow()
     {
-        var row = Row(34f);
+        var row = Row(XqStyle.CardRowH);
         RowLabel(row, "模型");
         var input = XqUi.TextInput(row, XiaoqiRuntime.Config.model_path ?? "", false, v => XiaoqiRuntime.Config.model_path = v);
-        Place(input.Root, XqStyle.Fr(126f), 0f, _contentW - XqStyle.Fr(126f) - XqStyle.Fr(70f), XqStyle.Fr(32f));
-        var pick = XqUi.Capsule(row, "选择", null);
-        Place(pick.Root, _contentW - XqStyle.Fr(64f), 0f, XqStyle.Fr(64f), XqStyle.Fr(32f));
+        Place(input.Root, XqStyle.Fr(126f), 0f, _contentW - XqStyle.Fr(126f) - XqStyle.Fr(70f), XqStyle.Fr(30f));
+        var pick = XqUi.CardButton(row, "选择", XqStyle.Fr(64f), XqStyle.Fr(28f), null, false);
+        Place(pick.Root, _contentW - XqStyle.Fr(64f), -XqStyle.Fr(2f), XqStyle.Fr(64f), XqStyle.Fr(28f));
         pick.Hover.OnClick = () =>
         {
             var paths = StandaloneFileBrowser.OpenFilePanel("选择 VRM", "", new[] { new ExtensionFilter("VRM", "vrm") }, false);

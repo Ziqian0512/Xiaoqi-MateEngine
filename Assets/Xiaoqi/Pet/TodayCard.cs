@@ -34,6 +34,7 @@ namespace Xiaoqi.Spike
         private GameObject _go;
         private RectTransform _card;
         private RectTransform _content;
+        private XqUi.CardSkin _skin;
         private float _cursor;
         private float _cardW;
         private float _contentW;
@@ -70,25 +71,20 @@ namespace Xiaoqi.Spike
             _card.anchorMin = _card.anchorMax = new Vector2(0f, 1f);
             _card.pivot = new Vector2(0f, 1f);
             _cardW = XqStyle.Fr(CardWidth);
-            _contentW = _cardW - XqStyle.Fr(32f);
+            _contentW = _cardW - XqStyle.Fr(XqStyle.CardBodyPadX * 2f);
             _card.sizeDelta = new Vector2(_cardW, 0f);
 
-            var bg = _card.gameObject.AddComponent<Image>();
-            bg.color = XqStyle.Paper;
-            bg.raycastTarget = true;
-
-            var close = XqUi.IconButton(_card, "×", Close);
-            var crt = close.GetComponent<RectTransform>();
-            crt.anchorMin = crt.anchorMax = new Vector2(1f, 1f);
-            crt.pivot = new Vector2(1f, 1f);
-            crt.anchoredPosition = new Vector2(-XqStyle.Fr(8f), -XqStyle.Fr(6f));
+            // 主题 D：卡面（投影 + 圆角 + 1px 描边）和标题区都走 XqUi 的同一套。
+            _skin = XqUi.CardBase(_card);
+            XqUi.CardHeader(_card, "今天", Close);
 
             _content = new GameObject("Content", typeof(RectTransform)).GetComponent<RectTransform>();
             _content.transform.SetParent(_card, false);
             _content.anchorMin = _content.anchorMax = new Vector2(0f, 1f);
             _content.pivot = new Vector2(0f, 1f);
             _content.sizeDelta = new Vector2(_contentW, 0f);
-            _content.anchoredPosition = new Vector2(XqStyle.Fr(16f), -XqStyle.Fr(14f));
+            _content.anchoredPosition = new Vector2(XqStyle.Fr(XqStyle.CardBodyPadX),
+                -XqStyle.Fr(XqStyle.CardHeaderH + XqStyle.CardBodyPadTop));
         }
 
         // ------------------------------------------------------------- input
@@ -184,20 +180,21 @@ namespace Xiaoqi.Spike
                 Destroy(_content.GetChild(i).gameObject);
             _cursor = 0f;
 
-            LabelAt("今天", XqStyle.FontCardTitle, XqStyle.Ink, 24f);
-            if (!string.IsNullOrEmpty(_error)) LabelAt(_error, XqStyle.FontSmall, XqStyle.Muted, 18f);
-            else if (_data == null) LabelAt("正在看今天…", XqStyle.FontSmall, XqStyle.Muted, 18f);
+            if (!string.IsNullOrEmpty(_error)) LabelAt(_error, XqStyle.FontSmall, XqStyle.TextTertiary, 18f);
+            else if (_data == null) LabelAt("正在看今天…", XqStyle.FontSmall, XqStyle.TextTertiary, 18f);
             else
             {
-                LabelAt((_data.date ?? "") + "   心情 " + (_data.mood ?? ""), XqStyle.FontSmall, XqStyle.Muted, 18f);
+                LabelAt((_data.date ?? "") + "   心情 " + (_data.mood ?? ""), XqStyle.FontSmall, XqStyle.TextTertiary, 18f);
                 AddSchedule();
                 AddMarks();
                 AddBody();
             }
 
-            _cursor += XqStyle.Fr(6f);
+            _cursor += XqStyle.Fr(XqStyle.CardBodyPadBottom);
             _content.sizeDelta = new Vector2(_contentW, _cursor);
-            _card.sizeDelta = new Vector2(_cardW, _cursor + XqStyle.Fr(28f));
+            float h = XqStyle.Fr(XqStyle.CardHeaderH + XqStyle.CardBodyPadTop) + _cursor;
+            _card.sizeDelta = new Vector2(_cardW, h);
+            XqUi.CardSize(_skin, _cardW, h);
             LayoutCard();
         }
 
@@ -209,8 +206,15 @@ namespace Xiaoqi.Spike
             rt.pivot = new Vector2(0f, 1f);
             rt.sizeDelta = new Vector2(_contentW, h);
             rt.anchoredPosition = new Vector2(0f, -_cursor);
-            _cursor += h + XqStyle.Fr(8f);
+            _cursor += h + XqStyle.Fr(XqStyle.CardRowGap);
             return rt;
+        }
+
+        /// <summary>主题 D：卡片内部的区标题（12px 小字 + 向右细线），和设置卡同一层级。</summary>
+        private void SectionAt(string title)
+        {
+            var row = Row(XqStyle.Fr(XqStyle.CardSectionH));
+            XqUi.CardSection(row, title, _contentW);
         }
 
         private Text LabelAt(string text, int size, Color color, float height)
@@ -227,7 +231,7 @@ namespace Xiaoqi.Spike
 
         private void LayoutCard()
         {
-            float h = _cursor + XqStyle.Fr(28f);
+            float h = _card.sizeDelta.y;
             float w = _cardW;
             float sw = Screen.width, sh = Screen.height;
             var r = PetHost.I != null ? PetHost.I.ScreenRect() : new Rect(sw * 0.5f, sh * 0.5f, 0f, 0f);
@@ -244,7 +248,7 @@ namespace Xiaoqi.Spike
 
         private void AddSchedule()
         {
-            LabelAt("日程", XqStyle.FontSmall, XqStyle.Muted, 16f);
+            SectionAt("日程");
             var row = Row(XqStyle.Fr(16f));
             float w = _contentW;
             int from = int.MaxValue, to = int.MinValue;
@@ -292,7 +296,7 @@ namespace Xiaoqi.Spike
 
         private void AddMarks()
         {
-            LabelAt("情绪点", XqStyle.FontSmall, XqStyle.Muted, 16f);
+            SectionAt("情绪点");
             var marks = _data.marks ?? new Mark[0];
             if (marks.Length == 0)
             {
@@ -324,7 +328,7 @@ namespace Xiaoqi.Spike
         private void AddBody()
         {
             if (_data.body == null) return;
-            LabelAt("身体", XqStyle.FontSmall, XqStyle.Muted, 16f);
+            SectionAt("身体");
             AddBar("困意", _data.body.sleepy);
             AddBar("体力", _data.body.stamina);
             AddBar("社交", _data.body.social);

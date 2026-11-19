@@ -548,6 +548,150 @@ tex.Apply();
             p.Shadow.sprite = Shadow(XqStyle.Fr(XqStyle.SubPanelRadius));
         }
 
+        // ------------------------------------- 主题 D：三张卡共用的卡面 / 标题区 / 区标题
+
+        public class CardSkin
+        {
+            public RectTransform Root;
+            public Image Bg;
+            public Image Shadow;
+        }
+
+        /// <summary>
+        /// 主题 D：卡面 = 柔和投影 + 圆角填充 + 1px 描边。卡根不再自带 Image，
+        /// 点空白处由 Bg 吸收（rawcast 语义和原来一样），子节点一律排在 Bg 之上。
+        /// </summary>
+        public static CardSkin CardBase(RectTransform root, float radiusPx = -1f)
+        {
+            if (radiusPx < 0f) radiusPx = XqStyle.Fr(XqStyle.CardRadiusLg);
+            var skin = new CardSkin { Root = root };
+
+            var shadowRt = Node(root, "Shadow");
+            shadowRt.anchorMin = Vector2.zero;
+            shadowRt.anchorMax = Vector2.one;
+            shadowRt.offsetMin = new Vector2(-XqStyle.Fr(XqStyle.ShadowSpread),
+                -XqStyle.Fr(XqStyle.ShadowSpread) - XqStyle.Fr(XqStyle.ShadowOffsetY));
+            shadowRt.offsetMax = new Vector2(XqStyle.Fr(XqStyle.ShadowSpread),
+                XqStyle.Fr(XqStyle.ShadowSpread) - XqStyle.Fr(XqStyle.ShadowOffsetY));
+            shadowRt.SetAsFirstSibling();
+            var shadow = Panel(shadowRt, Shadow(radiusPx), XqStyle.ShadowSoft);
+            shadow.raycastTarget = false;
+
+            var bgRt = Node(root, "Bg");
+            bgRt.anchorMin = Vector2.zero;
+            bgRt.anchorMax = Vector2.one;
+            bgRt.offsetMin = Vector2.zero;
+            bgRt.offsetMax = Vector2.zero;
+            bgRt.SetSiblingIndex(1);
+            var bg = Panel(bgRt, Rounded(8, 8, radiusPx, XqStyle.CardFill, XqStyle.CardLine), Color.white);
+            bg.type = Image.Type.Simple;
+            bg.raycastTarget = true;
+
+            skin.Bg = bg;
+            skin.Shadow = shadow;
+            return skin;
+        }
+
+        /// <summary>卡尺寸变了就换一张同尺寸的圆角贴图（精确尺寸，圆角不会被九宫格拉扁）。</summary>
+        public static void CardSize(CardSkin skin, float w, float h)
+        {
+            if (skin == null) return;
+            int iw = Mathf.Max(8, Mathf.RoundToInt(w));
+            int ih = Mathf.Max(8, Mathf.RoundToInt(h));
+            skin.Bg.sprite = Rounded(iw, ih, XqStyle.Fr(XqStyle.CardRadiusLg), XqStyle.CardFill, XqStyle.CardLine);
+            skin.Bg.type = Image.Type.Simple;
+            skin.Shadow.sprite = Shadow(XqStyle.Fr(XqStyle.CardRadiusLg));
+        }
+
+        /// <summary>标题区：左标题 + 右关闭 × + 底部 1px 分隔线。返回内容区要往下让出的高度。</summary>
+        public static float CardHeader(RectTransform card, string title, Action onClose)
+        {
+            var t = Label(card, title, XqStyle.FontCardTitle, XqStyle.Ink, TextAnchor.MiddleLeft, XqStyle.CardTitleH);
+            var trt = t.rectTransform;
+            trt.anchorMin = trt.anchorMax = new Vector2(0f, 1f);
+            trt.pivot = new Vector2(0f, 1f);
+            trt.sizeDelta = new Vector2(XqStyle.Fr(220f), XqStyle.Fr(XqStyle.CardTitleH));
+            trt.anchoredPosition = new Vector2(XqStyle.Fr(XqStyle.CardHeaderPadX),
+                -XqStyle.Fr((XqStyle.CardHeaderH - XqStyle.CardTitleH) * 0.5f));
+
+            if (onClose != null)
+            {
+                var btn = IconButton(card, "×", onClose);
+                var crt = btn.GetComponent<RectTransform>();
+                crt.anchorMin = crt.anchorMax = new Vector2(1f, 1f);
+                crt.pivot = new Vector2(1f, 1f);
+                crt.anchoredPosition = new Vector2(-XqStyle.Fr(XqStyle.CardHeaderPadX - 8f),
+                    -XqStyle.Fr((XqStyle.CardHeaderH - 28f) * 0.5f));
+            }
+
+            var rule = Node(card, "HeaderRule");
+            rule.anchorMin = new Vector2(0f, 1f);
+            rule.anchorMax = new Vector2(1f, 1f);
+            rule.pivot = new Vector2(0.5f, 1f);
+            rule.offsetMin = new Vector2(XqStyle.Fr(XqStyle.CardBodyPadX), -XqStyle.Fr(XqStyle.CardHeaderH));
+            rule.offsetMax = new Vector2(-XqStyle.Fr(XqStyle.CardBodyPadX),
+                -XqStyle.Fr(XqStyle.CardHeaderH - XqStyle.CardRuleH));
+            var rimg = Panel(rule, null, XqStyle.CardRule);
+            rimg.type = Image.Type.Simple;
+            rimg.raycastTarget = false;
+
+            return XqStyle.CardHeaderH;
+        }
+
+        /// <summary>区标题：12px 小字 + 向右延伸的 1px 细线，卡片内部的分区统一用这一种层级。</summary>
+        public static RectTransform CardSection(Transform parent, string title, float width)
+        {
+            var rt = Node(parent, "Section");
+            rt.sizeDelta = new Vector2(width, XqStyle.Fr(XqStyle.CardSectionH));
+            var le = rt.gameObject.AddComponent<LayoutElement>();
+            le.preferredHeight = XqStyle.Fr(XqStyle.CardSectionH);
+            le.minHeight = XqStyle.Fr(XqStyle.CardSectionH);
+
+            var t = Label(rt, title, XqStyle.FontCardSection, XqStyle.CardSectionText,
+                TextAnchor.MiddleLeft, XqStyle.CardSectionH);
+            var trt = t.rectTransform;
+            trt.anchorMin = trt.anchorMax = new Vector2(0f, 0.5f);
+            trt.pivot = new Vector2(0f, 0.5f);
+            trt.sizeDelta = new Vector2(XqStyle.Fr(120f), XqStyle.Fr(XqStyle.CardSectionH));
+            trt.anchoredPosition = Vector2.zero;
+
+            float tx = Mathf.Min(width * 0.5f,
+                XqStyle.Fr(EstimateText(title, XqStyle.FontCardSection) + 12f));
+            float lineW = width - tx;
+            if (lineW > 2f)
+            {
+                var line = Node(rt, "Rule");
+                line.anchorMin = line.anchorMax = new Vector2(0f, 0.5f);
+                line.pivot = new Vector2(0f, 0.5f);
+                line.sizeDelta = new Vector2(lineW, XqStyle.Fr(XqStyle.CardRuleH));
+                line.anchoredPosition = new Vector2(tx, 0f);
+                var img = Panel(line, null, XqStyle.CardSectionRule);
+                img.type = Image.Type.Simple;
+                img.raycastTarget = false;
+            }
+            return rt;
+        }
+
+        /// <summary>卡内按钮：主按钮浅粉底 + 粉描边 + 粉字；次按钮白底 + 粉描边 + 墨字。</summary>
+        public static CapsuleView CardButton(Transform parent, string text, float w, float h, Action onClick,
+            bool primary)
+        {
+            var cap = Capsule(parent, text, null, false, false);
+            cap.Root.sizeDelta = new Vector2(w, h);
+            int pw = Mathf.Max(8, Mathf.RoundToInt(w));
+            int ph = Mathf.Max(8, Mathf.RoundToInt(h));
+            cap.Bg.sprite = Pill(pw, ph,
+                primary ? XqStyle.CardActionFill : XqStyle.CardActionSoftFill,
+                primary ? XqStyle.CardActionLine : XqStyle.CardActionSoftLine);
+            cap.Bg.type = Image.Type.Simple;
+            cap.Text.color = primary ? XqStyle.CardActionText : XqStyle.CardActionSoftText;
+            cap.Text.fontSize = Mathf.RoundToInt(XqStyle.FontBody * XqStyle.Scale);
+            cap.Text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            cap.Text.verticalOverflow = VerticalWrapMode.Overflow;
+            cap.Hover.OnClick = onClick;
+            return cap;
+        }
+
         public class CapsuleView
         {
             public RectTransform Root;
@@ -558,20 +702,25 @@ tex.Apply();
             public bool Active = true;
         }
 
-        public static CapsuleView Capsule(Transform parent, string text, Action onClick = null, bool dark = false)
+        public static CapsuleView Capsule(Transform parent, string text, Action onClick = null, bool dark = false,
+            bool shadow = true)
         {
             var rt = Node(parent, "Capsule");
 
             // 主题 A：柔和投影（比本体略外扩、略下沉，跟着胶囊尺寸走）。
-            var shadowRt = Node(rt, "Shadow");
-            shadowRt.anchorMin = Vector2.zero;
-            shadowRt.anchorMax = Vector2.one;
-            shadowRt.offsetMin = new Vector2(-XqStyle.Fr(XqStyle.ShadowSpread),
-                -XqStyle.Fr(XqStyle.ShadowSpread) - XqStyle.Fr(XqStyle.ShadowOffsetY));
-            shadowRt.offsetMax = new Vector2(XqStyle.Fr(XqStyle.ShadowSpread),
-                XqStyle.Fr(XqStyle.ShadowSpread) - XqStyle.Fr(XqStyle.ShadowOffsetY));
-            var shadow = Panel(shadowRt, Shadow(XqStyle.CapsuleRadius), XqStyle.ShadowSoft);
-            shadow.raycastTarget = false;
+            // 主题 D：卡片内的按钮/分段项不投影——落在白卡上会变成一圈灰晕，压掉更干净。
+            if (shadow)
+            {
+                var shadowRt = Node(rt, "Shadow");
+                shadowRt.anchorMin = Vector2.zero;
+                shadowRt.anchorMax = Vector2.one;
+                shadowRt.offsetMin = new Vector2(-XqStyle.Fr(XqStyle.ShadowSpread),
+                    -XqStyle.Fr(XqStyle.ShadowSpread) - XqStyle.Fr(XqStyle.ShadowOffsetY));
+                shadowRt.offsetMax = new Vector2(XqStyle.Fr(XqStyle.ShadowSpread),
+                    XqStyle.Fr(XqStyle.ShadowSpread) - XqStyle.Fr(XqStyle.ShadowOffsetY));
+                var shadowImg = Panel(shadowRt, Shadow(XqStyle.CapsuleRadius), XqStyle.ShadowSoft);
+                shadowImg.raycastTarget = false;
+            }
 
             var bg = Panel(rt, Round(XqStyle.Paper, XqStyle.PinkLine, XqStyle.CapsuleRadius, XqStyle.StrokeWidth),
                 Color.white);
@@ -718,7 +867,8 @@ tex.Apply();
             v.Text.color = on ? XqStyle.PinkStrong : XqStyle.TextPrimary;
         }
 
-        public static SegmentedView Segmented(Transform parent, string[] options, int index, Action<int> onChange)
+        public static SegmentedView Segmented(Transform parent, string[] options, int index, Action<int> onChange,
+            bool shadow = true)
         {
             var rt = Node(parent, "Segmented");
             var h = rt.gameObject.AddComponent<HorizontalLayoutGroup>();
@@ -735,7 +885,7 @@ tex.Apply();
             for (int i = 0; i < options.Length; i++)
             {
                 int idx = i;
-                var cap = Capsule(rt, options[i], null);
+                var cap = Capsule(rt, options[i], null, false, shadow);
                 cap.Hover.OnClick = () => view.SetIndex(idx);
                 // 分段按钮永远单行：空间不够时宁可让文字多占一点内边距，也不折成两行。
                 cap.Text.horizontalOverflow = HorizontalWrapMode.Overflow;
@@ -854,6 +1004,9 @@ tex.Apply();
             var t = Label(rt, glyph, XqStyle.FontBody, XqStyle.Muted, TextAnchor.MiddleCenter, 0f);
             t.rectTransform.anchorMin = Vector2.zero;
             t.rectTransform.anchorMax = Vector2.one;
+            // 主题 D 修：拉伸锚点必须把 Node() 留下的 (100,100) 尺寸清零，否则 × 会被顶到卡外右下各 50px。
+            t.rectTransform.sizeDelta = Vector2.zero;
+            t.rectTransform.anchoredPosition = Vector2.zero;
             return btn;
         }
     }
