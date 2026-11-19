@@ -180,9 +180,8 @@ namespace Xiaoqi.UI2
             XqLiquidGlass.ApplyAcrylicB(_nextPill);
             Add("card-next", XqCloseLayout.NextL, XqCloseLayout.NextT, XqCloseLayout.NextW, XqCloseLayout.NextH);
 
-            // ③ 左下：横向精致紫夜星空音乐卡（参考 starry nights 版式 + 破框小云朵贴纸）
+            // ③ 左下：横向精致紫夜星空音乐卡（参考 starry nights 版式）
             _cardMusic = CardShell("xq-cl-card-music", ClHeroGlass, ClBorderSoft, 1f, 0f, "xq-close-card-music", out _bodyMusic);
-            XqLiquidGlass.AddBreakoutSticker(_cardMusic, "XqStickerCloud", 54f, 38f, -10f, -14f, 6f);
             XqLiquidGlass.ApplyAcrylicB(_bodyMusic);
 
             var mTop = new VisualElement { pickingMode = PickingMode.Ignore };
