@@ -93,18 +93,86 @@ namespace Xiaoqi.UI2
             if (_spectrumRow != null)
             {
                 _spectrumRow.style.display = DisplayStyle.Flex;
-                _spectrumRow.style.bottom = Length.Percent(17.5f);
-                _spectrumRow.style.height = Length.Percent(7.2f);
                 _spectrumRow.SendToBack();
+                foreach (var b in _spectrumRow.Children()) b.style.opacity = 0f;
+                var waveCanvas = new VisualElement { name = "xq-wave-contour", pickingMode = PickingMode.Ignore };
+                waveCanvas.style.position = Position.Absolute;
+                waveCanvas.style.left = waveCanvas.style.top = waveCanvas.style.right = waveCanvas.style.bottom = 0f;
+                waveCanvas.generateVisualContent += mgc =>
+                {
+                    var r = waveCanvas.contentRect;
+                    if (r.width < 20f || r.height < 12f) return;
+                    var p = mgc.painter2D;
+                    const int n = 48;
+                    float tNow = Time.realtimeSinceStartup;
+                    float baseY = r.height - 6f;
+                    float maxH = r.height - 14f;
+                    float[] hs = new float[n];
+                    int childCount = _spectrumRow.childCount - 1;
+                    for (int i = 0; i < n; i++)
+                    {
+                        float u = i / (float)(n - 1);
+                        float env = Mathf.Sin(u * Mathf.PI);
+                        float raw = 0f;
+                        if (childCount > 0)
+                        {
+                            int ci = Mathf.Clamp(Mathf.RoundToInt(u * (childCount - 1)), 0, childCount - 1);
+                            raw = Mathf.Clamp01(_spectrumRow[ci].resolvedStyle.height / 24f);
+                        }
+                        float wave = 0.28f + 0.34f * Mathf.Abs(Mathf.Sin(u * 9.5f + tNow * 2.8f))
+                                   + 0.22f * Mathf.Abs(Mathf.Cos(u * 15f - tNow * 3.9f));
+                        float amp = Mathf.Max(raw, wave * (0.55f + 0.45f * env));
+                        hs[i] = Mathf.Clamp(amp * maxH * (0.35f + 0.65f * env), 4f, maxH);
+                    }
+
+                    // 1. 随波形动态起伏的浅白粉磨砂外轮廓包络
+                    p.fillColor = new Color(1.00f, 0.96f, 0.99f, 0.86f);
+                    p.strokeColor = new Color(0.92f, 0.84f, 0.98f, 0.70f);
+                    p.lineWidth = 1.2f;
+                    p.BeginPath();
+                    p.MoveTo(new Vector2(2f, baseY + 5f));
+                    p.LineTo(new Vector2(2f, baseY - hs[0] - 5f));
+                    for (int i = 0; i < n; i++)
+                    {
+                        float x = Mathf.Lerp(8f, r.width - 8f, i / (float)(n - 1));
+                        p.LineTo(new Vector2(x, baseY - hs[i] - 6f));
+                    }
+                    p.LineTo(new Vector2(r.width - 2f, baseY - hs[n - 1] - 5f));
+                    p.LineTo(new Vector2(r.width - 2f, baseY + 5f));
+                    p.ClosePath();
+                    p.Fill();
+                    p.Stroke();
+
+                    // 2. 粉色→柔紫竖向波浪条
+                    float step = (r.width - 20f) / (n - 1);
+                    float barW = Mathf.Max(2.2f, step * 0.46f);
+                    for (int i = 0; i < n; i++)
+                    {
+                        float u = i / (float)(n - 1);
+                        float x = 10f + i * step - barW * 0.5f;
+                        float h = hs[i];
+                        p.fillColor = Color.Lerp(new Color(0.96f, 0.56f, 0.84f, 0.95f), new Color(0.72f, 0.56f, 0.96f, 0.95f), u);
+                        p.BeginPath();
+                        p.MoveTo(new Vector2(x, baseY));
+                        p.LineTo(new Vector2(x, baseY - h));
+                        p.LineTo(new Vector2(x + barW, baseY - h));
+                        p.LineTo(new Vector2(x + barW, baseY));
+                        p.ClosePath();
+                        p.Fill();
+                    }
+                };
+                waveCanvas.schedule.Execute(() => waveCanvas.MarkDirtyRepaint()).Every(42);
+                _spectrumRow.Add(waveCanvas);
             }
 
-            // 左上时钟区：放大蝴蝶结贴纸，日期地点与温度天气拆分成两个单行小胶囊并排
+            // 左上时钟区：放大蝴蝶结贴纸并置顶，日期地点与温度天气上下两行独立小胶囊
             XqMoonStyle.Clear(_cardNext); XqMoonStyle.Clear(_bodyNext);
-            XqMoonStyle.Sticker(_cardNext, "XqStickerRibbon", 56f, -18f, -16f);
+            XqMoonStyle.Sticker(_cardNext, "XqStickerRibbon", 68f, -22f, -18f);
+            _cardNext[_cardNext.childCount - 1].BringToFront();
             _locPill.RemoveFromHierarchy();
             var infoRow = new VisualElement { pickingMode = PickingMode.Ignore };
-            infoRow.style.flexDirection = FlexDirection.Row;
-            infoRow.style.alignItems = Align.Center;
+            infoRow.style.flexDirection = FlexDirection.Column;
+            infoRow.style.alignItems = Align.FlexStart;
             infoRow.style.marginTop = 8f;
             _locPill.style.backgroundColor = new Color(0.24f, 0.18f, 0.42f, 0.92f);
             SetAllBorder(_locPill, 1f, new Color(1f, 1f, 1f, 0.45f));
@@ -112,53 +180,40 @@ namespace Xiaoqi.UI2
             _locPill.style.paddingLeft = _locPill.style.paddingRight = 10f;
             _locPill.style.paddingTop = _locPill.style.paddingBottom = 4f;
             _locPill.style.marginTop = _locPill.style.marginBottom = 0f;
-            _locPill.style.marginRight = 6f;
             _weatherPill = new Label("☁ 同步中") { pickingMode = PickingMode.Ignore };
-            _weatherPill.style.backgroundColor = new Color(0.97f, 0.94f, 1.00f, 0.92f);
+            _weatherPill.style.backgroundColor = new Color(0.97f, 0.94f, 1.00f, 0.94f);
             SetAllBorder(_weatherPill, 1f, Color.white);
             SetRadius(_weatherPill, 10f);
             _weatherPill.style.paddingLeft = _weatherPill.style.paddingRight = 9f;
             _weatherPill.style.paddingTop = _weatherPill.style.paddingBottom = 4f;
+            _weatherPill.style.marginTop = 6f;
             _weatherPill.style.color = XqMoonStyle.Ink;
             _weatherPill.style.unityFontStyleAndWeight = FontStyle.Bold;
             _weatherPill.style.whiteSpace = WhiteSpace.NoWrap;
             infoRow.Add(_locPill); infoRow.Add(_weatherPill);
             _bodyNext.Add(infoRow);
 
-            // V20 右上角：慢慢来 Q 版探头竖卡（瘦长粉紫渐变 + 中文从右到左竖排）
+            // V21 右上角：慢慢来 Q 版盖被子竖卡（XqChibiCardBg 整卡渐变+弧形被边 + 中文从右到左竖排）
             _remindPill.RemoveFromHierarchy();
             _host.Add(_remindPill);
             _remindPill.Clear();
             _remindPill.style.position = Position.Absolute;
-            _remindPill.style.backgroundImage = StyleKeyword.None;
             _remindPill.style.backgroundColor = Color.clear;
-            SetAllBorder(_remindPill, 1.5f, Color.white);
-            SetRadius(_remindPill, 14f);
+            SetAllBorder(_remindPill, 0f, Color.clear);
+            SetRadius(_remindPill, 0f);
+            var chibiBg = Resources.Load<Texture2D>("XqChibiCardBg");
+            if (chibiBg != null)
+            {
+                _remindPill.style.backgroundImage = Background.FromTexture2D(chibiBg);
+                _remindPill.style.backgroundSize = new BackgroundSize(Length.Percent(100f), Length.Percent(100f));
+            }
             _remindPill.style.marginLeft = _remindPill.style.marginTop = 0f;
             _remindPill.style.paddingLeft = _remindPill.style.paddingRight = 6f;
-            _remindPill.style.paddingBottom = 8f;
-            _remindPill.style.paddingTop = 36f;
+            _remindPill.style.paddingBottom = 10f;
+            _remindPill.style.paddingTop = 44f;
             _remindPill.style.justifyContent = Justify.Center;
             _remindPill.style.alignItems = Align.Center;
             _remindPill.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(0f, AngleUnit.Degree));
-            _remindPill.generateVisualContent += mgc =>
-            {
-                var r = _remindPill.contentRect;
-                if (r.width < 4f || r.height < 4f) return;
-                var p = mgc.painter2D;
-                const int bands = 24;
-                for (int i = 0; i < bands; i++)
-                {
-                    float t = i / (float)(bands - 1);
-                    p.fillColor = Color.Lerp(new Color(1.00f, 0.90f, 0.96f, 0.95f), new Color(0.90f, 0.87f, 1.00f, 0.95f), t);
-                    float y0 = r.height * (i / (float)bands);
-                    float y1 = r.height * ((i + 1) / (float)bands) + 0.5f;
-                    p.BeginPath();
-                    p.MoveTo(new Vector2(0f, y0)); p.LineTo(new Vector2(r.width, y0));
-                    p.LineTo(new Vector2(r.width, y1)); p.LineTo(new Vector2(0f, y1));
-                    p.ClosePath(); p.Fill();
-                }
-            };
             var vRow = new VisualElement { pickingMode = PickingMode.Ignore };
             vRow.style.flexDirection = FlexDirection.Row;
             vRow.style.justifyContent = Justify.Center;
@@ -182,19 +237,22 @@ namespace Xiaoqi.UI2
                 _remindPill.Add(_chibiPeekImg);
             }
 
-            // V20 右下角：正在做的事胶囊移到模式切换条正上方
+            // V21 右下角：正在做的事使用猫耳蝴蝶结飘带装饰框 XqBannerNext
             _nextPill.RemoveFromHierarchy();
             _host.Add(_nextPill);
             _nextPill.style.position = Position.Absolute;
             XqMoonStyle.Clear(_nextPill);
-            _nextPill.style.backgroundColor = new Color(1f, 1f, 1f, 0.88f);
-            SetAllBorder(_nextPill, 1f, new Color(1f, 1f, 1f, 0.92f));
-            SetRadius(_nextPill, 12f);
-            _nextPill.style.borderLeftWidth = 3f; _nextPill.style.borderLeftColor = new Color(.54f, .38f, .86f, 1f);
+            var banTex = Resources.Load<Texture2D>("XqBannerNext");
+            if (banTex != null)
+            {
+                _nextPill.style.backgroundImage = Background.FromTexture2D(banTex);
+                _nextPill.style.backgroundSize = new BackgroundSize(Length.Percent(100f), Length.Percent(100f));
+            }
             _nextPill.style.marginTop = 0f;
-            _nextPill.style.paddingTop = _nextPill.style.paddingBottom = 4f;
-            _nextPill.style.paddingLeft = _nextPill.style.paddingRight = 10f;
+            _nextPill.style.paddingTop = 10f; _nextPill.style.paddingBottom = 4f;
+            _nextPill.style.paddingLeft = _nextPill.style.paddingRight = 18f;
             _nextPill.style.justifyContent = Justify.Center;
+            _nextPill.style.alignItems = Align.Center;
             _nextPill.Q("xq-old-schedule-progress")?.RemoveFromHierarchy();
 
             // 音乐卡重塑为 Spotify 紧凑布局（彻底清除外层 _cardMusic 底框，亮白控制键）
@@ -233,25 +291,13 @@ namespace Xiaoqi.UI2
             _bodyMusic.Add(scrim);
 
             var mContent = new VisualElement { pickingMode = PickingMode.Ignore };
-            mContent.style.flexGrow = 1f; mContent.style.justifyContent = Justify.SpaceBetween;
+            mContent.style.flexGrow = 1f; mContent.style.justifyContent = Justify.FlexEnd;
             mContent.style.paddingLeft = mContent.style.paddingRight = 14f;
-            mContent.style.paddingTop = mContent.style.paddingBottom = 11f;
-
-            var mTopRow = new VisualElement { pickingMode = PickingMode.Ignore };
-            mTopRow.style.flexDirection = FlexDirection.Row; mTopRow.style.justifyContent = Justify.SpaceBetween; mTopRow.style.alignItems = Align.Center;
-            var mIcon = new Label("♫") { pickingMode = PickingMode.Ignore };
-            mIcon.style.color = new Color(1f, 1f, 1f, 0.95f); mIcon.style.fontSize = 14f;
-            var mBadge = new VisualElement { pickingMode = PickingMode.Ignore };
-            mBadge.style.backgroundColor = new Color(1f, 1f, 1f, 0.90f); SetRadius(mBadge, 10f);
-            mBadge.style.paddingLeft = mBadge.style.paddingRight = 8f; mBadge.style.paddingTop = mBadge.style.paddingBottom = 2f;
-            var mBadgeLbl = new Label("🎧 一起听") { pickingMode = PickingMode.Ignore };
-            mBadgeLbl.style.color = XqMoonStyle.Ink; mBadgeLbl.style.fontSize = 9.5f; mBadgeLbl.style.unityFontStyleAndWeight = FontStyle.Bold;
-            mBadge.Add(mBadgeLbl);
-            mTopRow.Add(mIcon); mTopRow.Add(mBadge);
-            mContent.Add(mTopRow);
+            mContent.style.paddingTop = 12f; mContent.style.paddingBottom = 11f;
 
             var mMidRow = new VisualElement { pickingMode = PickingMode.Ignore };
             mMidRow.style.flexDirection = FlexDirection.Row; mMidRow.style.justifyContent = Justify.SpaceBetween; mMidRow.style.alignItems = Align.Center;
+            mMidRow.style.marginBottom = 10f;
             var mTxtCol = new VisualElement { pickingMode = PickingMode.Ignore };
             mTxtCol.style.flexGrow = 1f; mTxtCol.style.flexShrink = 1f; mTxtCol.style.overflow = Overflow.Hidden; mTxtCol.style.marginRight = 10f;
             _musicTitle.style.color = Color.white; _musicTitle.style.unityTextAlign = TextAnchor.MiddleLeft;
@@ -259,25 +305,27 @@ namespace Xiaoqi.UI2
             _musicArtist.style.color = new Color(0.92f, 0.89f, 0.98f, 0.90f); _musicArtist.style.unityTextAlign = TextAnchor.MiddleLeft;
             _musicArtist.style.whiteSpace = WhiteSpace.NoWrap; _musicArtist.style.overflow = Overflow.Hidden; _musicArtist.style.textOverflow = TextOverflow.Ellipsis;
             mTxtCol.Add(_musicTitle); mTxtCol.Add(_musicArtist);
-            _musicPlay.style.width = 36f; _musicPlay.style.height = 36f; SetRadius(_musicPlay, 11f);
+            _musicPlay.style.width = 34f; _musicPlay.style.height = 34f; SetRadius(_musicPlay, 10f);
             _musicPlay.style.backgroundColor = new Color(1f, 1f, 1f, 0.94f); _musicPlay.style.flexShrink = 0f;
             _musicPlayLbl.style.color = XqMoonStyle.Ink;
             mMidRow.Add(mTxtCol); mMidRow.Add(_musicPlay);
             mContent.Add(mMidRow);
 
-            var mBotRow = new VisualElement { pickingMode = PickingMode.Ignore };
-            mBotRow.style.flexDirection = FlexDirection.Row; mBotRow.style.alignItems = Align.Center;
-            _musicPrev.style.backgroundColor = Color.clear; _musicPrev.style.width = 22f; _musicPrev.style.height = 22f;
-            var prevLbl = _musicPrev.Q<Label>(); if (prevLbl != null) { prevLbl.style.color = Color.white; prevLbl.style.unityFontStyleAndWeight = FontStyle.Bold; }
             var barTrack = new VisualElement { pickingMode = PickingMode.Ignore };
-            barTrack.style.flexGrow = 1f; barTrack.style.height = 3.5f; barTrack.style.marginLeft = 6f; barTrack.style.marginRight = 6f;
+            barTrack.style.height = 3.5f; barTrack.style.marginBottom = 8f;
             barTrack.style.backgroundColor = new Color(1f, 1f, 1f, 0.34f); SetRadius(barTrack, 2f);
             _musicFill.style.backgroundColor = Color.white; barTrack.Add(_musicFill);
+            mContent.Add(barTrack);
+
+            var mBotRow = new VisualElement { pickingMode = PickingMode.Ignore };
+            mBotRow.style.flexDirection = FlexDirection.Row; mBotRow.style.justifyContent = Justify.SpaceAround; mBotRow.style.alignItems = Align.Center;
+            _musicPrev.style.backgroundColor = Color.clear; _musicPrev.style.width = 22f; _musicPrev.style.height = 22f;
+            var prevLbl = _musicPrev.Q<Label>(); if (prevLbl != null) { prevLbl.style.color = Color.white; prevLbl.style.unityFontStyleAndWeight = FontStyle.Bold; }
             _musicNext.style.backgroundColor = Color.clear; _musicNext.style.width = 22f; _musicNext.style.height = 22f;
             var nextLbl = _musicNext.Q<Label>(); if (nextLbl != null) { nextLbl.style.color = Color.white; nextLbl.style.unityFontStyleAndWeight = FontStyle.Bold; }
             _musicLike.style.display = DisplayStyle.Flex; _musicLike.style.backgroundColor = Color.clear; _musicLike.style.width = 22f; _musicLike.style.height = 22f;
             if (_musicLikeLbl != null) _musicLikeLbl.style.color = new Color(1f, 0.78f, 0.90f, 1f);
-            mBotRow.Add(_musicPrev); mBotRow.Add(barTrack); mBotRow.Add(_musicNext); mBotRow.Add(_musicLike);
+            mBotRow.Add(_musicPrev); mBotRow.Add(_musicNext); mBotRow.Add(_musicLike);
             mContent.Add(mBotRow);
             _bodyMusic.Add(mContent);
 
@@ -455,49 +503,48 @@ namespace Xiaoqi.UI2
             float dockH = 36f * k;
             float dockT = height - 88f * k;
 
-            SetApprovedRect(_cardNext, width * .026f, height * .042f, 360f * k, 110f * k);
+            SetApprovedRect(_cardNext, width * .026f, height * .042f, 340f * k, 132f * k);
             // 音乐卡窄一点高一点，底边与输入框对齐
             SetApprovedRect(_cardMusic, width * .026f, dockT + dockH - 180f * k, 214f * k, 180f * k);
             if (_bodyMusic != null) { _bodyMusic.style.paddingTop = _bodyMusic.style.paddingBottom = _bodyMusic.style.paddingLeft = _bodyMusic.style.paddingRight = 0f; }
-            // 声浪 bar 与输入框同宽居中，不伸向左右卡片
+            // 声浪 bar 与输入框同宽居中，高度加高以完整展现动态轮廓波浪
             if (_spectrumRow != null)
             {
                 _spectrumRow.style.left = chatL;
                 _spectrumRow.style.right = StyleKeyword.Auto;
                 _spectrumRow.style.width = chatW;
                 _spectrumRow.style.bottom = height - dockT + 26f * k;
-                _spectrumRow.style.height = 46f * k;
+                _spectrumRow.style.height = 54f * k;
             }
             // 单行黑字回复紧贴输入框上方右对齐
             SetApprovedRect(_cardSay, chatL, dockT - 26f * k, chatW, 24f * k);
             if (_bodySay != null) { _bodySay.style.paddingTop = _bodySay.style.paddingBottom = _bodySay.style.paddingLeft = _bodySay.style.paddingRight = 0f; }
             SetApprovedRect(_chatDock, chatL, dockT, chatW, dockH);
             SetApprovedRect(_modeDock, width - 224f * k, dockT, 206f * k, dockH);
-            // V20 右下角：正在做的事胶囊位于模式条正上方，留出呼吸间距
-            if (_nextPill != null) SetApprovedRect(_nextPill, width - 224f * k, dockT - 42f * k, 206f * k, 30f * k);
-            // V20 签名更低更大气，水平居中，与回复之间留出声浪条空间
+            // V21 右下角：猫耳蝴蝶结飘带「正在」横幅位于模式条正上方
+            if (_nextPill != null) SetApprovedRect(_nextPill, width - 224f * k, dockT - 50f * k, 206f * k, 46f * k);
+            // V21 签名位于声浪正上方
             if (_plate != null)
             {
-                SetApprovedRect(_plate, (width - 350f * k) * 0.5f, height * .635f, 350f * k, 86f * k);
+                SetApprovedRect(_plate, (width - 350f * k) * 0.5f, height * .615f, 350f * k, 86f * k);
                 _plate.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(0f, AngleUnit.Degree));
             }
 
-            // V20 右上角：瘦长 Q 版探头竖卡（上）+ 电量试管（下）一上一下排列
+            // V21 右上角：慢慢来盖被子竖卡 + 电量试管（并排摆放，和 V21 预览一致）
             if (_remindPill != null)
             {
-                SetApprovedRect(_remindPill, width - 108f * k, height * .085f, 78f * k, 146f * k);
-                SetRadius(_remindPill, 14f * k);
-                _remindPill.style.paddingTop = 36f * k;
+                SetApprovedRect(_remindPill, width - 196f * k, height * .075f, 94f * k, 164f * k);
+                _remindPill.style.paddingTop = 44f * k;
                 foreach (var vl in _remindPill.Query<Label>().ToList()) vl.style.fontSize = 11.5f * k;
                 if (_chibiPeekImg != null)
                 {
-                    _chibiPeekImg.style.width = 76f * k; _chibiPeekImg.style.height = 60f * k;
-                    _chibiPeekImg.style.left = 1f * k; _chibiPeekImg.style.top = -36f * k;
+                    _chibiPeekImg.style.width = 86f * k; _chibiPeekImg.style.height = 68f * k;
+                    _chibiPeekImg.style.left = 4f * k; _chibiPeekImg.style.top = -22f * k;
                 }
             }
             if (_tokenCapsule != null)
             {
-                SetApprovedRect(_tokenCapsule, width - 96f * k, height * .085f + 174f * k, 56f * k, 148f * k);
+                SetApprovedRect(_tokenCapsule, width - 86f * k, height * .075f, 58f * k, 164f * k);
                 SetRadius(_tokenCapsule, 22f * k);
                 if (_tokStarImg != null)
                 {
@@ -544,7 +591,7 @@ namespace Xiaoqi.UI2
             if (_sayText != null) { _sayText.style.fontSize = 12.5f * k; _sayText.style.color = new Color(0.10f, 0.08f, 0.14f, 0.96f); _sayText.style.unityFontStyleAndWeight = FontStyle.Bold; }
             if (_locPill != null) { _locPill.style.color = Color.white; _locPill.style.fontSize = 10f * k; _locPill.style.whiteSpace = WhiteSpace.NoWrap; }
             if (_weatherPill != null) { _weatherPill.style.color = XqMoonStyle.Ink; _weatherPill.style.fontSize = 10f * k; _weatherPill.style.whiteSpace = WhiteSpace.NoWrap; }
-            SetRadius(_nextPill, 12f * k);
+            SetRadius(_nextPill, 0f);
             _bodyNext.style.paddingLeft = _bodyNext.style.paddingRight = 0f;
             _bodyNext.style.paddingTop = 0f; _bodyNext.style.paddingBottom = 0f;
             _nextTime.style.fontSize = _nextWhat.style.fontSize = 10f * k;
