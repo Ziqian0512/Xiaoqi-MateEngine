@@ -239,7 +239,7 @@ namespace Xiaoqi.UI2
                 _remindPill.Add(_chibiPeekImg);
             }
 
-            // V21 右下角：正在做的事使用猫耳蝴蝶结飘带装饰框 XqBannerNext，强制内层行 100% 宽度+单行省略防穿出边框
+            // V24 右上角：「正在」横幅隐藏时间与末尾地点后缀，允许两行居中换行不穿模
             _nextPill.RemoveFromHierarchy();
             _host.Add(_nextPill);
             _nextPill.style.position = Position.Absolute;
@@ -251,28 +251,38 @@ namespace Xiaoqi.UI2
                 _nextPill.style.backgroundSize = new BackgroundSize(Length.Percent(100f), Length.Percent(100f));
             }
             _nextPill.style.marginTop = 0f;
-            _nextPill.style.paddingTop = 22f; _nextPill.style.paddingBottom = 18f;
-            _nextPill.style.paddingLeft = _nextPill.style.paddingRight = 44f;
+            _nextPill.style.paddingTop = 24f; _nextPill.style.paddingBottom = 18f;
+            _nextPill.style.paddingLeft = _nextPill.style.paddingRight = 50f;
             _nextPill.style.justifyContent = Justify.Center;
             _nextPill.style.alignItems = Align.Center;
             _nextPill.style.overflow = Overflow.Hidden;
+            if (_nextTime != null) _nextTime.style.display = DisplayStyle.None;
             if (_nextPill.childCount > 0)
             {
                 var nextTop = _nextPill[0];
                 nextTop.style.width = Length.Percent(100f);
                 nextTop.style.overflow = Overflow.Hidden;
-                nextTop.style.justifyContent = Justify.FlexStart;
+                nextTop.style.justifyContent = Justify.Center;
+                nextTop.style.alignItems = Align.Center;
                 foreach (var ch in nextTop.Children())
                     if (ch is Label l) { l.style.flexShrink = 0f; l.style.minWidth = StyleKeyword.Auto; }
             }
             if (_nextWhat != null)
             {
-                _nextWhat.style.flexGrow = 1f;
+                _nextWhat.style.flexGrow = 0f;
                 _nextWhat.style.flexShrink = 1f;
                 _nextWhat.style.minWidth = 0f;
-                _nextWhat.style.whiteSpace = WhiteSpace.NoWrap;
+                _nextWhat.style.whiteSpace = WhiteSpace.Normal;
+                _nextWhat.style.unityTextAlign = TextAnchor.MiddleCenter;
                 _nextWhat.style.overflow = Overflow.Hidden;
-                _nextWhat.style.textOverflow = TextOverflow.Ellipsis;
+                _nextWhat.schedule.Execute(() => {
+                    var txt = _nextWhat.text;
+                    if (!string.IsNullOrEmpty(txt))
+                    {
+                        int dotIdx = txt.IndexOf(" · ");
+                        if (dotIdx > 0) _nextWhat.text = txt.Substring(0, dotIdx);
+                    }
+                }).Every(400);
             }
             _nextPill.Q("xq-old-schedule-progress")?.RemoveFromHierarchy();
 
@@ -323,7 +333,10 @@ namespace Xiaoqi.UI2
             _musicTitle.style.whiteSpace = WhiteSpace.NoWrap; _musicTitle.style.overflow = Overflow.Hidden; _musicTitle.style.textOverflow = TextOverflow.Ellipsis;
             _musicArtist.style.color = new Color(0.94f, 0.91f, 0.99f, 0.92f); _musicArtist.style.unityTextAlign = TextAnchor.MiddleLeft; _musicArtist.style.textShadow = mDrop;
             _musicArtist.style.whiteSpace = WhiteSpace.NoWrap; _musicArtist.style.overflow = Overflow.Hidden; _musicArtist.style.textOverflow = TextOverflow.Ellipsis;
-            _musicArtist.style.marginTop = 2f;
+            _musicArtist.style.marginTop = 2f; _musicArtist.style.minHeight = 14f;
+            _musicArtist.schedule.Execute(() => {
+                if (string.IsNullOrWhiteSpace(_musicArtist.text)) _musicArtist.text = "天宫祈 · 一起听";
+            }).Every(500);
             mTxtCol.Add(_musicTitle); mTxtCol.Add(_musicArtist);
             mContent.Add(mTxtCol);
 
@@ -463,29 +476,60 @@ namespace Xiaoqi.UI2
                 float rad = r.width * 0.5f;
                 float arcCy = r.height - rad;
 
-                // 单一封闭圆底波浪多边形（无凹多边形三角化锯齿）
-                void FillWave(Color col, float yOff, float ph)
+                // 上半矩形带（surfY..arcCy）分 12 段桃粉->柔紫顺滑渐变；下半圆弧（arcCy..bottom）单色柔紫封闭圆弧，既有渐变又零三角化锯齿
+                var topCol = new Color(1.00f, 0.82f, 0.90f, 0.94f);
+                var botCol = new Color(0.72f, 0.56f, 0.98f, 0.96f);
+
+                // 背面波浪
+                p.fillColor = new Color(0.78f, 0.66f, 0.98f, 0.50f);
+                p.BeginPath();
+                p.MoveTo(new Vector2(0f, arcCy));
+                for (int s = 0; s <= 14; s++)
                 {
-                    p.fillColor = col;
+                    float u = s / 14f;
+                    p.LineTo(new Vector2(r.width * u, surfY - 2.5f + Mathf.Sin(u * 4.5f - phase) * 2.8f));
+                }
+                p.LineTo(new Vector2(r.width, arcCy));
+                p.ClosePath(); p.Fill();
+
+                const int bands = 12;
+                for (int b = 0; b < bands; b++)
+                {
+                    float t0 = b / (float)bands;
+                    float t1 = (b + 1) / (float)bands;
+                    float y0 = Mathf.Lerp(surfY, arcCy, t0);
+                    float y1 = Mathf.Lerp(surfY, arcCy, t1) + 0.6f;
+                    p.fillColor = Color.Lerp(topCol, botCol, (t0 + t1) * 0.5f);
                     p.BeginPath();
-                    for (int s = 0; s <= 14; s++)
+                    if (b == 0)
                     {
-                        float u = s / 14f;
-                        float wy = surfY + yOff + Mathf.Sin(u * 4.5f + ph) * 2.8f;
-                        if (s == 0) p.MoveTo(new Vector2(0f, wy)); else p.LineTo(new Vector2(r.width * u, wy));
+                        for (int s = 0; s <= 14; s++)
+                        {
+                            float u = s / 14f;
+                            float wy = surfY + Mathf.Sin(u * 4.8f + phase) * 2.8f;
+                            if (s == 0) p.MoveTo(new Vector2(0f, wy)); else p.LineTo(new Vector2(r.width * u, wy));
+                        }
+                        p.LineTo(new Vector2(r.width, y1)); p.LineTo(new Vector2(0f, y1));
                     }
-                    for (int s = 0; s <= 16; s++)
+                    else
                     {
-                        float a = (s / 16f) * Mathf.PI;
-                        p.LineTo(new Vector2(rad + Mathf.Cos(a) * rad, arcCy + Mathf.Sin(a) * rad));
+                        p.MoveTo(new Vector2(0f, y0)); p.LineTo(new Vector2(r.width, y0));
+                        p.LineTo(new Vector2(r.width, y1)); p.LineTo(new Vector2(0f, y1));
                     }
-                    p.ClosePath();
-                    p.Fill();
+                    p.ClosePath(); p.Fill();
                 }
 
-                // 淡玻璃底色 + 背面波浪 + 主渐变粉紫波浪
-                FillWave(new Color(0.84f, 0.72f, 0.98f, 0.55f), -2f, -phase);
-                FillWave(new Color(0.99f, 0.80f, 0.91f, 0.92f), 0f, phase);
+                // 底部半圆弧单次封闭填充（与最末条带完全同色）
+                p.fillColor = botCol;
+                p.BeginPath();
+                p.MoveTo(new Vector2(0f, arcCy - 0.5f));
+                p.LineTo(new Vector2(r.width, arcCy - 0.5f));
+                for (int s = 0; s <= 16; s++)
+                {
+                    float a = (s / 16f) * Mathf.PI;
+                    p.LineTo(new Vector2(rad + Mathf.Cos(a) * rad, arcCy + Mathf.Sin(a) * rad));
+                }
+                p.ClosePath(); p.Fill();
             };
             tokTube.schedule.Execute(() => tokTube.MarkDirtyRepaint()).Every(42);
             _tokenCapsule.Add(tokTube);
@@ -518,6 +562,13 @@ namespace Xiaoqi.UI2
             _tokPctLbl.style.unityFontStyleAndWeight = FontStyle.Bold;
             tokTube.Add(_tokPctLbl);
             _host.Add(_tokenCapsule);
+
+            // 让所有新增近景悬浮卡片/贴纸也随鼠标移动呈现 3D 视差错层
+            AnimAdd(_nextPill, 1, new Vector2(10f, -6f));
+            AnimAdd(_remindPill, 2, new Vector2(12f, 6f));
+            AnimAdd(_tokenCapsule, 3, new Vector2(14f, 4f));
+            AnimAdd(_approvedDock, 4, new Vector2(-10f, 8f));
+            AnimAdd(_spectrumRow, 5, new Vector2(0f, 4f));
         }
 
         void PlaceApprovedClose(float width, float height)
@@ -546,8 +597,8 @@ namespace Xiaoqi.UI2
             if (_bodySay != null) { _bodySay.style.paddingTop = _bodySay.style.paddingBottom = _bodySay.style.paddingLeft = _bodySay.style.paddingRight = 0f; }
             SetApprovedRect(_chatDock, chatL, dockT, chatW, dockH);
             SetApprovedRect(_modeDock, width - 224f * k, dockT, 206f * k, dockH);
-            // V23 右上角置顶：「正在」猫耳蝴蝶结横幅放在右上角，盖被子竖卡与电量试管顺移至其下方
-            if (_nextPill != null) SetApprovedRect(_nextPill, width - 258f * k, height * .028f, 240f * k, 104f * k);
+            // V24 右上角置顶：「正在」猫耳蝴蝶结横幅加宽至 258x112 容纳两行居中活动文字
+            if (_nextPill != null) SetApprovedRect(_nextPill, width - 274f * k, height * .025f, 256f * k, 110f * k);
             // V21 签名位于声浪正上方
             if (_plate != null)
             {
@@ -587,12 +638,14 @@ namespace Xiaoqi.UI2
                 el.style.top = ly[idx % 4];
                 el.style.width = lw[idx % 4];
                 el.style.height = lh[idx % 4];
-                el.style.paddingTop = idx == 2 ? 12f * k : (idx == 3 ? 10f * k : 0f);
+                el.style.paddingTop = idx == 2 ? 16f * k : (idx == 3 ? 22f * k : 0f);
                 el.style.paddingBottom = (idx == 0 || idx == 1) ? 8f * k : 0f;
-                el.style.paddingLeft = idx == 3 ? 8f * k : 0f;
+                el.style.paddingLeft = idx == 3 ? 22f * k : 0f;
                 var lbl = el.Q<Label>();
                 if (lbl != null)
                 {
+                    lbl.style.width = Length.Percent(100f);
+                    lbl.style.unityTextAlign = TextAnchor.MiddleCenter;
                     lbl.style.marginTop = lbl.style.marginBottom = lbl.style.marginLeft = lbl.style.marginRight = 0f;
                     lbl.style.paddingTop = lbl.style.paddingBottom = lbl.style.paddingLeft = lbl.style.paddingRight = 0f;
                     lbl.style.fontSize = idx == 3 ? 16f * k : 11.5f * k;
