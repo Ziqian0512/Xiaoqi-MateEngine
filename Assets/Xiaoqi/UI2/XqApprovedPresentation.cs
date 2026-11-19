@@ -76,7 +76,7 @@ namespace Xiaoqi.UI2
     {
         XqVoiceTrace _voiceTrace;
         VisualElement _approvedDock, _approvedListen, _approvedQuiet, _tokenCapsule;
-        Label _approvedQuietLabel, _tokPctLbl;
+        Label _approvedQuietLabel, _tokPctLbl, _weatherPill;
         Image _chibiPeekImg, _tokStarImg;
         readonly System.Collections.Generic.List<Image> _badgeImgs = new System.Collections.Generic.List<Image>();
         Vector3 _approvedDown;
@@ -98,16 +98,32 @@ namespace Xiaoqi.UI2
                 _spectrumRow.SendToBack();
             }
 
-            // 左上时钟区：只留左上角一枚蝴蝶结，日期/地点/温度用高对比深紫底块
+            // 左上时钟区：放大蝴蝶结贴纸，日期地点与温度天气拆分成两个单行小胶囊并排
             XqMoonStyle.Clear(_cardNext); XqMoonStyle.Clear(_bodyNext);
-            XqMoonStyle.Sticker(_cardNext, "XqStickerRibbon", 32f, -10f, -10f);
-            _locPill.style.backgroundColor = new Color(0.24f, 0.18f, 0.42f, 0.90f);
+            XqMoonStyle.Sticker(_cardNext, "XqStickerRibbon", 56f, -18f, -16f);
+            _locPill.RemoveFromHierarchy();
+            var infoRow = new VisualElement { pickingMode = PickingMode.Ignore };
+            infoRow.style.flexDirection = FlexDirection.Row;
+            infoRow.style.alignItems = Align.Center;
+            infoRow.style.marginTop = 8f;
+            _locPill.style.backgroundColor = new Color(0.24f, 0.18f, 0.42f, 0.92f);
             SetAllBorder(_locPill, 1f, new Color(1f, 1f, 1f, 0.45f));
-            SetRadius(_locPill, 8f);
+            SetRadius(_locPill, 10f);
             _locPill.style.paddingLeft = _locPill.style.paddingRight = 10f;
             _locPill.style.paddingTop = _locPill.style.paddingBottom = 4f;
-            _locPill.style.alignSelf = Align.FlexStart;
-            _locPill.style.marginTop = 8f;
+            _locPill.style.marginTop = _locPill.style.marginBottom = 0f;
+            _locPill.style.marginRight = 6f;
+            _weatherPill = new Label("☁ 同步中") { pickingMode = PickingMode.Ignore };
+            _weatherPill.style.backgroundColor = new Color(0.97f, 0.94f, 1.00f, 0.92f);
+            SetAllBorder(_weatherPill, 1f, Color.white);
+            SetRadius(_weatherPill, 10f);
+            _weatherPill.style.paddingLeft = _weatherPill.style.paddingRight = 9f;
+            _weatherPill.style.paddingTop = _weatherPill.style.paddingBottom = 4f;
+            _weatherPill.style.color = XqMoonStyle.Ink;
+            _weatherPill.style.unityFontStyleAndWeight = FontStyle.Bold;
+            _weatherPill.style.whiteSpace = WhiteSpace.NoWrap;
+            infoRow.Add(_locPill); infoRow.Add(_weatherPill);
+            _bodyNext.Add(infoRow);
 
             // V20 右上角：慢慢来 Q 版探头竖卡（独立挂载到 _host）
             _remindPill.RemoveFromHierarchy();
@@ -165,18 +181,23 @@ namespace Xiaoqi.UI2
             _bodyMusic.Clear();
 
             var defaultCover = Resources.Load<Texture2D>("XqMusicCover");
-            var bgCover = new Image { image = defaultCover, scaleMode = ScaleMode.ScaleAndCrop, pickingMode = PickingMode.Ignore };
+            var bgCover = new VisualElement { pickingMode = PickingMode.Ignore };
             bgCover.style.position = Position.Absolute; bgCover.style.left = bgCover.style.top = bgCover.style.right = bgCover.style.bottom = 0f;
+            if (defaultCover != null) bgCover.style.backgroundImage = Background.FromTexture2D(defaultCover);
+            bgCover.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
             SetRadius(bgCover, 17f);
             _bodyMusic.Add(bgCover);
-            _musicCover.style.position = Position.Absolute; _musicCover.style.left = _musicCover.style.top = _musicCover.style.right = _musicCover.style.bottom = 0f;
-            _musicCover.scaleMode = ScaleMode.ScaleAndCrop;
-            SetRadius(_musicCover, 17f);
-            _bodyMusic.Add(_musicCover);
-            _musicCover.schedule.Execute(() => {
-                bool hasLive = XqMusicBridge.Cover != null;
-                _musicCover.style.display = hasLive ? DisplayStyle.Flex : DisplayStyle.None;
+            var liveCover = new VisualElement { pickingMode = PickingMode.Ignore };
+            liveCover.style.position = Position.Absolute; liveCover.style.left = liveCover.style.top = liveCover.style.right = liveCover.style.bottom = 0f;
+            liveCover.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
+            SetRadius(liveCover, 17f);
+            _bodyMusic.Add(liveCover);
+            liveCover.schedule.Execute(() => {
+                var cov = XqMusicBridge.Cover;
+                bool hasLive = cov != null;
+                liveCover.style.display = hasLive ? DisplayStyle.Flex : DisplayStyle.None;
                 bgCover.style.display = hasLive ? DisplayStyle.None : DisplayStyle.Flex;
+                if (hasLive) liveCover.style.backgroundImage = Background.FromTexture2D(cov);
             }).Every(500);
 
             var scrim = new VisualElement { pickingMode = PickingMode.Ignore };
@@ -256,7 +277,7 @@ namespace Xiaoqi.UI2
             if (_chatMicLbl != null) _chatMicLbl.style.color = XqMoonStyle.Ink;
             XqMoonStyle.Surface(_modeDock, 18f);
 
-            // V20 4 个互动：使用 4 套透明贴纸素材（粉心/磁带/蓝窗/弯月），左右各 2 个围绕小祈
+            // V20 4 个互动：直接以 4 张透明贴纸作为按钮本体（去矩形框），文字居中压在贴纸内，左右各 2 个围绕小祈
             _approvedDock = new VisualElement { name = "xq-close-interactions", pickingMode = PickingMode.Ignore };
             _approvedDock.style.position = Position.Absolute;
             _host.Add(_approvedDock);
@@ -269,14 +290,7 @@ namespace Xiaoqi.UI2
 
             string[] badgeTexNames = { "XqBadgeHeart", "XqBadgeCassette", "XqBadgeWindow", "XqBadgeMoon" };
             string[] badgeTexts = { "摸摸头", "听我说", "看我屏幕", "安静陪伴" };
-            Color[] badgeBg = {
-                new Color(1.00f, 0.92f, 0.96f, 0.95f),
-                new Color(0.94f, 0.90f, 1.00f, 0.95f),
-                new Color(0.90f, 0.96f, 1.00f, 0.95f),
-                new Color(1.00f, 0.97f, 0.88f, 0.95f),
-            };
-            float[] badgeRad = { 12f, 14f, 8f, 16f };
-            float[] badgeDeg = { -3.0f, 2.2f, 2.5f, -2.5f };
+            float[] badgeDeg = { -4.0f, 3.0f, 2.0f, -3.0f };
             _badgeImgs.Clear();
             int bi = 0;
             foreach (var control in _approvedDock.Children())
@@ -284,24 +298,19 @@ namespace Xiaoqi.UI2
                 XqMoonStyle.Clear(control);
                 control.Clear();
                 control.style.position = Position.Absolute;
-                control.style.flexDirection = FlexDirection.Row;
+                control.style.justifyContent = Justify.Center;
                 control.style.alignItems = Align.Center;
-                control.style.backgroundColor = badgeBg[bi % 4];
-                SetAllBorder(control, 1.3f, Color.white);
-                if (bi == 2) { control.style.borderLeftWidth = 3.5f; control.style.borderLeftColor = new Color(0.48f, 0.72f, 0.98f, 0.95f); }
-                if (bi == 3) { control.style.borderBottomWidth = 2.5f; control.style.borderBottomColor = new Color(0.92f, 0.78f, 0.52f, 0.90f); }
-                SetRadius(control, badgeRad[bi % 4]);
+                control.style.backgroundColor = Color.clear;
+                SetAllBorder(control, 0f, Color.clear);
+                SetRadius(control, 0f);
                 control.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(badgeDeg[bi % 4], AngleUnit.Degree));
-                control.style.paddingLeft = 8f; control.style.paddingRight = 12f;
-                control.style.paddingTop = control.style.paddingBottom = 4f;
+                control.style.paddingLeft = control.style.paddingRight = control.style.paddingTop = control.style.paddingBottom = 0f;
 
                 var bTex = Resources.Load<Texture2D>(badgeTexNames[bi % 4]);
                 if (bTex != null)
                 {
-                    var bImg = new Image { image = bTex, scaleMode = ScaleMode.ScaleToFit, pickingMode = PickingMode.Ignore };
-                    bImg.style.marginRight = 5f;
-                    control.Add(bImg);
-                    _badgeImgs.Add(bImg);
+                    control.style.backgroundImage = Background.FromTexture2D(bTex);
+                    control.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
                 }
 
                 Label lbl;
@@ -312,6 +321,8 @@ namespace Xiaoqi.UI2
                 lbl.pickingMode = PickingMode.Ignore;
                 lbl.style.color = XqMoonStyle.Ink;
                 lbl.style.unityFontStyleAndWeight = FontStyle.Bold;
+                lbl.style.unityTextAlign = TextAnchor.MiddleCenter;
+                lbl.style.textShadow = new TextShadow { offset = Vector2.zero, blurRadius = 4f, color = new Color(1f, 1f, 1f, 0.92f) };
                 control.Add(lbl);
                 bi++;
             }
@@ -357,8 +368,9 @@ namespace Xiaoqi.UI2
             float dockH = 36f * k;
             float dockT = height - 88f * k;
 
-            SetApprovedRect(_cardNext, width * .026f, height * .038f, 310f * k, 120f * k);
+            SetApprovedRect(_cardNext, width * .026f, height * .042f, 360f * k, 110f * k);
             SetApprovedRect(_cardMusic, width * .026f, height * .605f, 268f * k, 118f * k);
+            if (_bodyMusic != null) { _bodyMusic.style.paddingTop = _bodyMusic.style.paddingBottom = _bodyMusic.style.paddingLeft = _bodyMusic.style.paddingRight = 0f; }
             // 单行黑字回复紧贴输入框上方右对齐
             SetApprovedRect(_cardSay, chatL, dockT - 26f * k, chatW, 24f * k);
             if (_bodySay != null) { _bodySay.style.paddingTop = _bodySay.style.paddingBottom = _bodySay.style.paddingLeft = _bodySay.style.paddingRight = 0f; }
@@ -366,60 +378,66 @@ namespace Xiaoqi.UI2
             SetApprovedRect(_modeDock, width - 224f * k, dockT, 206f * k, dockH);
             // V20 右下角：正在做的事胶囊位于模式条正上方
             if (_nextPill != null) SetApprovedRect(_nextPill, width - 224f * k, dockT - 38f * k, 206f * k, 30f * k);
-            // V20 签名更低更大气，与回复之间留出声浪条空间
-            if (_plate != null) SetApprovedRect(_plate, (width - 310f * k) * 0.5f, height * .655f, 310f * k, 74f * k);
+            // V20 签名更低更大气，水平居中，与回复之间留出声浪条空间
+            if (_plate != null)
+            {
+                SetApprovedRect(_plate, (width - 350f * k) * 0.5f, height * .635f, 350f * k, 86f * k);
+                _plate.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(0f, AngleUnit.Degree));
+            }
 
-            // V20 右上角：慢慢来 Q 版探头竖卡 + TOKEN 能量柱并排放置
+            // V20 右上角：慢慢来 Q 版探头竖卡（上）+ TOKEN 能量柱（下）竖向一上一下排列
             if (_remindPill != null)
             {
-                SetApprovedRect(_remindPill, width - 196f * k, height * .065f, 112f * k, 148f * k);
+                SetApprovedRect(_remindPill, width - 134f * k, height * .085f, 108f * k, 134f * k);
                 SetRadius(_remindPill, 16f * k);
                 _remindPill.style.paddingTop = 44f * k;
                 var remLbl = _remindPill.Q<Label>();
                 if (remLbl != null) remLbl.style.fontSize = 11f * k;
                 if (_chibiPeekImg != null)
                 {
-                    _chibiPeekImg.style.width = 96f * k; _chibiPeekImg.style.height = 75f * k;
-                    _chibiPeekImg.style.left = 8f * k; _chibiPeekImg.style.top = -40f * k;
+                    _chibiPeekImg.style.width = 100f * k; _chibiPeekImg.style.height = 78f * k;
+                    _chibiPeekImg.style.left = 4f * k; _chibiPeekImg.style.top = -44f * k;
                 }
             }
             if (_tokenCapsule != null)
             {
-                SetApprovedRect(_tokenCapsule, width - 72f * k, height * .065f, 50f * k, 148f * k);
-                SetRadius(_tokenCapsule, 20f * k);
+                SetApprovedRect(_tokenCapsule, width - 108f * k, height * .085f + 168f * k, 56f * k, 142f * k);
+                SetRadius(_tokenCapsule, 22f * k);
                 if (_tokStarImg != null)
                 {
-                    _tokStarImg.style.width = 48f * k; _tokStarImg.style.height = 30f * k;
-                    _tokStarImg.style.left = 0f; _tokStarImg.style.top = -20f * k;
+                    _tokStarImg.style.width = 54f * k; _tokStarImg.style.height = 34f * k;
+                    _tokStarImg.style.left = 0f; _tokStarImg.style.top = -22f * k;
                 }
                 if (_tokPctLbl != null) { _tokPctLbl.style.fontSize = 10.5f * k; _tokPctLbl.style.color = Color.white; }
-                var trk = _tokenCapsule.Q<VisualElement>(className: null);
                 foreach (var child in _tokenCapsule.Children())
                 {
                     if (child is VisualElement && !(child is Label) && !(child is Image))
                     {
-                        SetRadius(child, 15f * k);
-                        if (child.childCount > 0) SetRadius(child[0], 15f * k);
+                        SetRadius(child, 16f * k);
+                        if (child.childCount > 0) SetRadius(child[0], 16f * k);
                     }
                 }
             }
 
-            // 左右各 2 个围绕小祈四散布局
+            // 左右各 2 个贴纸本体围绕小祈四散布局
             SetApprovedRect(_approvedDock, 0f, height * .22f, width, height * .42f);
-            float[] lx = { width * .235f, width * .205f, width * .685f, width * .715f };
-            float[] ly = { 8f * k, 118f * k, 0f, 108f * k };
+            float[] lx = { width * .195f, width * .175f, width * .695f, width * .725f };
+            float[] ly = { 4f * k, 108f * k, 0f, 106f * k };
+            float[] lw = { 92f * k, 100f * k, 106f * k, 90f * k };
+            float[] lh = { 78f * k, 68f * k, 74f * k, 92f * k };
             int idx = 0;
             foreach (var el in _approvedDock.Children())
             {
                 el.style.left = lx[idx % 4];
                 el.style.top = ly[idx % 4];
-                el.style.height = 38f * k;
-                el.style.width = StyleKeyword.Auto;
+                el.style.width = lw[idx % 4];
+                el.style.height = lh[idx % 4];
+                el.style.paddingTop = idx == 2 ? 12f * k : (idx == 3 ? 16f * k : 0f);
+                el.style.paddingLeft = idx == 3 ? 6f * k : 0f;
                 var lbl = el.Q<Label>();
-                if (lbl != null) lbl.style.fontSize = 11f * k;
+                if (lbl != null) lbl.style.fontSize = 11.5f * k;
                 idx++;
             }
-            foreach (var bImg in _badgeImgs) { bImg.style.width = 28f * k; bImg.style.height = 24f * k; }
 
             if (_clockBig != null) { _clockBig.style.fontSize = 42f * k; _clockBig.style.color = new Color(0.24f, 0.16f, 0.42f, 0.96f); _clockBig.style.unityFontStyleAndWeight = FontStyle.Bold; _clockBig.style.textShadow = new TextShadow { blurRadius = 8f, color = new Color(1f, 1f, 1f, .92f) }; }
             foreach (var label in _kickers) { label.style.fontSize = 10f * k; label.style.color = XqMoonStyle.Soft; label.style.unityFontStyleAndWeight = FontStyle.Normal; }
@@ -432,6 +450,7 @@ namespace Xiaoqi.UI2
             if (_musicLikeLbl != null) { _musicLikeLbl.style.color = new Color(1f, 0.78f, 0.90f, 1f); _musicLikeLbl.style.fontSize = 12f * k; }
             if (_sayText != null) { _sayText.style.fontSize = 12.5f * k; _sayText.style.color = new Color(0.10f, 0.08f, 0.14f, 0.96f); _sayText.style.unityFontStyleAndWeight = FontStyle.Bold; }
             if (_locPill != null) { _locPill.style.color = Color.white; _locPill.style.fontSize = 10f * k; _locPill.style.whiteSpace = WhiteSpace.NoWrap; }
+            if (_weatherPill != null) { _weatherPill.style.color = XqMoonStyle.Ink; _weatherPill.style.fontSize = 10f * k; _weatherPill.style.whiteSpace = WhiteSpace.NoWrap; }
             SetRadius(_nextPill, 12f * k);
             _bodyNext.style.paddingLeft = _bodyNext.style.paddingRight = 0f;
             _bodyNext.style.paddingTop = 0f; _bodyNext.style.paddingBottom = 0f;

@@ -99,7 +99,16 @@ namespace Xiaoqi.UI2
                 string description = weather != null ? (weather.SelectToken("desc")?.ToString() ?? "") : "";
                 string temperature = weather != null ? weather.SelectToken("temp")?.ToString() : null;
                 string info = string.IsNullOrEmpty(temperature) ? "天气暂未同步" : temperature + "°C " + description;
-                _locPill.text = DateTime.Now.ToString("yyyy.MM.dd ddd").ToUpperInvariant() + " · " + (string.IsNullOrEmpty(pl) ? "地点暂未同步" : pl) + "\n" + info;
+                string dateLoc = DateTime.Now.ToString("yyyy.MM.dd ddd").ToUpperInvariant() + " · " + (string.IsNullOrEmpty(pl) ? "地点暂未同步" : pl);
+                if (_weatherPill != null)
+                {
+                    _locPill.text = dateLoc;
+                    _weatherPill.text = "☁ " + info;
+                }
+                else
+                {
+                    _locPill.text = dateLoc + "\n" + info;
+                }
             }
             if (st == null) return;
             var bpmTok = st.SelectToken("me.bpm");
