@@ -109,7 +109,6 @@ namespace Xiaoqi.UI2
             _clockBig.style.unityFontStyleAndWeight = FontStyle.Bold;
             _clockBig.style.whiteSpace = WhiteSpace.NoWrap;
             _bodyNext.Add(_clockBig);
-            XqLiquidGlass.AddBreakoutSticker(_cardNext, "XqStickerRibbon", 48f, 42f, 22f, -10f, 10f);
 
             _locPill = new Label("正在同步日期、地点与天气…") { pickingMode = PickingMode.Ignore };
             _locPill.style.color = Rgb(106, 82, 162, 0.96f);
