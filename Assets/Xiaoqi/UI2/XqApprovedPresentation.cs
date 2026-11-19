@@ -676,14 +676,20 @@ namespace Xiaoqi.UI2
         static readonly int[] ApprovedPages = { 0, 1, 2, 5 };
         VisualElement _panoBg, _musicPageControls;
         Label _musicPageTitle, _musicPageArtist, _musicPageTime, _benchClockLbl, _benchMetaLine;
-        Image _musicPageCover;
+        Image _musicPageCover, _centerPortrait;
 
         void BuildApprovedRail()
         {
-            _rail = Box(64f * _k, PanH * _k, 32f * _k, new Color(.96f, .94f, 1f, .74f));
-            Abs(_rail, 6f * _k, 0, 64f * _k, PanH * _k); Border(_rail, 1.2f, new Color(1f, 1f, 1f, 0.90f));
-            _rail.style.alignItems = Align.Center; _rail.style.paddingTop = 22f * _k; _rail.style.paddingBottom = 18f * _k;
-            var logo = L("祈", 22f, XqMoonStyle.Soft, true); logo.style.marginBottom = 24f * _k; _rail.Add(logo);
+            // 纯白利落 2D 侧栏 + 紫墨描边（底部齿轮清晰可读）
+            _rail = Box(64f * _k, PanH * _k, 32f * _k, new Color(1f, 1f, 1f, 0.96f));
+            Abs(_rail, 6f * _k, 0, 64f * _k, PanH * _k); Border(_rail, 1.4f, new Color(0.76f, 0.70f, 0.92f, 0.95f));
+            _rail.style.alignItems = Align.Center; _rail.style.paddingTop = 20f * _k; _rail.style.paddingBottom = 18f * _k;
+            var logoRing = Box(38f * _k, 38f * _k, 19f * _k, new Color(0.95f, 0.92f, 1f, 1f));
+            Border(logoRing, 1.2f, new Color(0.68f, 0.60f, 0.88f, 0.9f));
+            logoRing.style.alignItems = Align.Center; logoRing.style.justifyContent = Justify.Center; logoRing.style.marginBottom = 22f * _k;
+            logoRing.Add(L("祈", 18f, Ink, true));
+            _rail.Add(logoRing);
+
             string[] labels = { "此刻", "手账", "记忆", "" };
             string[] icons = { "spark", "cal", "heart", "gear" };
             for (int n = 0; n < labels.Length; n++)
@@ -697,10 +703,10 @@ namespace Xiaoqi.UI2
                 var button = Box(46f * _k, 46f * _k, 14f * _k, Color.clear);
                 button.style.marginBottom = 8f * _k;
                 button.style.alignItems = Align.Center; button.style.justifyContent = Justify.Center;
-                var icon = new XqGlyph(icons[n], XqMoonStyle.Soft); icon.style.width = icon.style.height = 17f * _k; button.Add(icon);
+                var icon = new XqGlyph(icons[n], Ink); icon.style.width = icon.style.height = 17f * _k; button.Add(icon);
                 if (!string.IsNullOrEmpty(labels[n]))
                 {
-                    var label = L(labels[n], 8.5f, XqMoonStyle.Soft, false); label.style.marginTop = 2f * _k; button.Add(label);
+                    var label = L(labels[n], 8.5f, Ink2, false); label.style.marginTop = 2f * _k; button.Add(label);
                 }
                 _nav.Add(button); _navHover.Add(0f); _navGlyph.Add(icon); _rail.Add(button);
             }
@@ -712,49 +718,97 @@ namespace Xiaoqi.UI2
             float x = 78f * _k;
             _panel = new VisualElement { name = "xq-bench-panel", pickingMode = PickingMode.Ignore };
             Abs(_panel, x, 0, PanW * _k, PanH * _k);
-            _panel.style.backgroundColor = new Color(.97f, .95f, .99f, 1f);
+            _panel.style.backgroundColor = new Color(0.99f, 0.98f, 1.00f, 1f);
             Round(_panel, 24f * _k);
-            Border(_panel, 1.5f, new Color(1f, 1f, 1f, 0.90f));
+            Border(_panel, 1.6f, new Color(0.76f, 0.70f, 0.92f, 0.95f));
             _stage.Add(_panel);
 
-            // 全景小祈插画底版（铺满整个工作台，按当前页面自动切换室内/室外/夕阳全景）
-            _panoBg = new VisualElement { name = "xq-bench-pano", pickingMode = PickingMode.Ignore };
-            _panoBg.style.position = Position.Absolute;
-            _panoBg.style.left = _panoBg.style.top = _panoBg.style.right = _panoBg.style.bottom = 0f;
-            _panoBg.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
-            Round(_panoBg, 23f * _k);
-            _panel.Add(_panoBg);
+            // 2D 极浅奶油紫网格 + 几何线条 + 中央双圆环画布
+            var gridBg = new VisualElement { name = "xq-bench-2d-canvas", pickingMode = PickingMode.Ignore };
+            gridBg.style.position = Position.Absolute;
+            gridBg.style.left = gridBg.style.top = gridBg.style.right = gridBg.style.bottom = 0f;
+            gridBg.generateVisualContent += mgc =>
+            {
+                var r = gridBg.contentRect;
+                if (r.width < 40f || r.height < 40f) return;
+                var p = mgc.painter2D;
+                // 极浅方格底纹
+                p.strokeColor = new Color(0.84f, 0.79f, 0.95f, 0.32f);
+                p.lineWidth = 1f;
+                float step = 28f * _k;
+                for (float gx = step; gx < r.width - 12f; gx += step) { p.BeginPath(); p.MoveTo(new Vector2(gx, 16f)); p.LineTo(new Vector2(gx, r.height - 16f)); p.Stroke(); }
+                for (float gy = step; gy < r.height - 12f; gy += step) { p.BeginPath(); p.MoveTo(new Vector2(16f, gy)); p.LineTo(new Vector2(r.width - 16f, gy)); p.Stroke(); }
 
-            var panoVeil = new VisualElement { pickingMode = PickingMode.Ignore };
-            panoVeil.style.position = Position.Absolute;
-            panoVeil.style.left = panoVeil.style.top = panoVeil.style.right = panoVeil.style.bottom = 0f;
-            panoVeil.style.backgroundColor = new Color(0.98f, 0.96f, 1f, 0.14f);
-            Round(panoVeil, 23f * _k);
-            _panel.Add(panoVeil);
+                // 中央柔紫双圆环框（人物破框背景）
+                Vector2 c = new Vector2(r.width * 0.49f, r.height * 0.52f);
+                float rad1 = 176f * _k;
+                float rad2 = 188f * _k;
+                p.fillColor = new Color(0.94f, 0.91f, 0.99f, 0.52f);
+                p.BeginPath();
+                for (int i = 0; i <= 64; i++)
+                {
+                    float a = (i / 64f) * Mathf.PI * 2f;
+                    Vector2 pt = c + new Vector2(Mathf.Cos(a) * rad1, Mathf.Sin(a) * rad1);
+                    if (i == 0) p.MoveTo(pt); else p.LineTo(pt);
+                }
+                p.ClosePath(); p.Fill();
 
-            _header = new VisualElement { pickingMode = PickingMode.Ignore }; Abs(_header, 0, 0, PanW * _k, 76f * _k); _panel.Add(_header);
+                p.strokeColor = new Color(0.76f, 0.70f, 0.92f, 0.85f); p.lineWidth = 2.2f * _k;
+                p.BeginPath();
+                for (int i = 0; i <= 64; i++)
+                {
+                    float a = (i / 64f) * Mathf.PI * 2f;
+                    Vector2 pt = c + new Vector2(Mathf.Cos(a) * rad1, Mathf.Sin(a) * rad1);
+                    if (i == 0) p.MoveTo(pt); else p.LineTo(pt);
+                }
+                p.Stroke();
+
+                p.strokeColor = new Color(0.84f, 0.80f, 0.96f, 0.65f); p.lineWidth = 1.2f * _k;
+                p.BeginPath();
+                for (int i = 0; i <= 64; i++)
+                {
+                    float a = (i / 64f) * Mathf.PI * 2f;
+                    Vector2 pt = c + new Vector2(Mathf.Cos(a) * rad2, Mathf.Sin(a) * rad2);
+                    if (i == 0) p.MoveTo(pt); else p.LineTo(pt);
+                }
+                p.Stroke();
+
+                // 几条杂志风斜向装饰细线
+                p.strokeColor = new Color(0.76f, 0.70f, 0.92f, 0.45f); p.lineWidth = 1f;
+                p.BeginPath(); p.MoveTo(new Vector2(c.x - 240f * _k, 0f)); p.LineTo(new Vector2(c.x - 110f * _k, c.y - 110f * _k)); p.Stroke();
+                p.BeginPath(); p.MoveTo(new Vector2(c.x + 250f * _k, 0f)); p.LineTo(new Vector2(c.x + 120f * _k, c.y - 110f * _k)); p.Stroke();
+            };
+            _panel.Add(gridBg);
+
+            // 中央破框 2D 大立绘
+            _centerPortrait = new Image { image = Resources.Load<Texture2D>("XqBenchHero"), scaleMode = ScaleMode.ScaleToFit, pickingMode = PickingMode.Ignore };
+            Abs(_centerPortrait, (PanW * 0.49f - 172f) * _k, 68f * _k, 344f * _k, 492f * _k);
+            Round(_centerPortrait, 160f * _k);
+            _panel.Add(_centerPortrait);
+
+            _header = new VisualElement { pickingMode = PickingMode.Ignore }; Abs(_header, 0, 0, PanW * _k, 74f * _k); _panel.Add(_header);
             _topClock = L("", 16f, Ink, false); _topClock.style.display = DisplayStyle.None;
             _charTopText = L("", 10f, Ink2, false); _charTopText.style.display = DisplayStyle.None;
-            _metaLabel = L("", 9.5f, Ink2, false); Abs(_metaLabel, (PanW - 560f) * _k, 28f * _k, -1, -1); _header.Add(_metaLabel);
+            _metaLabel = L("", 9.5f, Ink2, false); _metaLabel.style.display = DisplayStyle.None;
 
-            var switcher = Box(220f * _k, 34f * _k, 17f * _k, new Color(1f, 1f, 1f, .76f));
+            var switcher = Box(220f * _k, 34f * _k, 17f * _k, Color.white);
             Abs(switcher, (PanW - 395f) * _k, 20f * _k, 220f * _k, 34f * _k);
-            Border(switcher, 1f, Color.white);
+            Border(switcher, 1.3f, new Color(0.74f, 0.68f, 0.90f, 0.95f));
             switcher.style.flexDirection = FlexDirection.Row; switcher.style.alignItems = Align.Center;
             _petModeBtn = ModePill("桌宠", false, Ink2, Color.clear); _closeModeBtn = ModePill("近景", false, Ink2, Color.clear);
             _benchModeTag = ModePill("工作台", true, Color.white, new Color(.48f, .38f, .86f));
             switcher.Add(_petModeBtn); switcher.Add(_closeModeBtn); switcher.Add(_benchModeTag); _header.Add(switcher);
 
-            _modeBtn = Box(96f * _k, 34f * _k, 17f * _k, new Color(1f, 1f, 1f, .76f));
+            _modeBtn = Box(96f * _k, 34f * _k, 17f * _k, Color.white);
             Abs(_modeBtn, (PanW - 164f) * _k, 20f * _k, 96f * _k, 34f * _k);
-            Border(_modeBtn, 1f, Color.white); _modeBtn.style.justifyContent = Justify.Center;
-            _modeBtnLabel = L(IsOfficeMode() ? "💼 办公模式" : "🏠 居家模式", 10f, Ink, false); _modeBtn.Add(_modeBtnLabel); _header.Add(_modeBtn);
+            Border(_modeBtn, 1.3f, new Color(0.74f, 0.68f, 0.90f, 0.95f)); _modeBtn.style.justifyContent = Justify.Center;
+            _modeBtnLabel = L(IsOfficeMode() ? "💼 办公" : "🏠 居家", 10.5f, Ink, true); _modeBtn.Add(_modeBtnLabel); _header.Add(_modeBtn);
 
-            _refreshBtn = Box(32f * _k, 32f * _k, 16f * _k, new Color(1f, 1f, 1f, .78f));
+            _refreshBtn = Box(32f * _k, 32f * _k, 16f * _k, Color.white);
             Abs(_refreshBtn, (PanW - 56f) * _k, 21f * _k, 32f * _k, 32f * _k);
-            Border(_refreshBtn, 1f, Color.white);
+            Border(_refreshBtn, 1.3f, new Color(0.74f, 0.68f, 0.90f, 0.95f));
             _refreshBtn.style.alignItems = Align.Center; _refreshBtn.style.justifyContent = Justify.Center;
-            _refreshBtn.Add(L("↻", 15f, Ink2, false)); _header.Add(_refreshBtn);
+            _refreshBtn.Add(L("↻", 15f, Ink, true)); _header.Add(_refreshBtn);
 
             _charBox = new VisualElement { pickingMode = PickingMode.Ignore }; _charBox.style.display = DisplayStyle.None;
             _nameplate = new VisualElement { pickingMode = PickingMode.Ignore }; _nameplate.style.display = DisplayStyle.None;
@@ -763,51 +817,39 @@ namespace Xiaoqi.UI2
             _bentoHost = new VisualElement { name = "xq-bento-host", pickingMode = PickingMode.Ignore };
             _panel.Add(_leftHost); _panel.Add(_bentoHost);
 
-            _offBar = Box(300f * _k, 30f * _k, 12f * _k, new Color(.96f, .91f, .96f, .90f));
+            _offBar = Box(300f * _k, 30f * _k, 12f * _k, new Color(.96f, .91f, .96f, .95f));
             Abs(_offBar, (PanW - 322f) * _k, (PanH - 39f) * _k, 300f * _k, 30f * _k); _offBar.style.flexDirection = FlexDirection.Row;
             _offBar.Add(L("接口暂不可用 · 显示缓存", 10f, Ink2, false));
             _offRetry = Box(42f * _k, 24f * _k, 10f * _k, Color.white); _offRetry.Add(L("重试", 10f, Ink, false)); _offBar.Add(_offRetry); _panel.Add(_offBar);
             _toast = L("", 11f, Color.white, false); _toast.style.display = DisplayStyle.None; _panel.Add(_toast);
         }
 
-        void UpdateBenchBackdrop()
-        {
-            if (_panoBg == null) return;
-            string bgName = _page == 1 ? "XqBgCampus" : (_page == 2 ? "XqBgSunset" : "XqBgDorm");
-            if (_page == 0)
-            {
-                var life = _bd?.Get("life");
-                string place = Str(life, "place.place") + Str(life, "place.doing");
-                if (place.Contains("路") || place.Contains("本部") || place.Contains("校园")) bgName = "XqBgCampus";
-            }
-            var tex = Resources.Load<Texture2D>(bgName);
-            if (tex != null) _panoBg.style.backgroundImage = Background.FromTexture2D(tex);
-        }
-
         void ApprovedContentLayout()
         {
-            UpdateBenchBackdrop();
             if (_charBox != null) _charBox.style.display = DisplayStyle.None;
+            bool settings = _page == 5;
+            if (_centerPortrait != null) _centerPortrait.style.display = settings ? DisplayStyle.None : DisplayStyle.Flex;
             _leftHost.style.display = DisplayStyle.Flex;
-            if (_page == 5)
+            if (settings)
             {
                 Abs(_leftHost, 28f * _k, 84f * _k, 460f * _k, 486f * _k);
                 Abs(_bentoHost, 514f * _k, 84f * _k, 476f * _k, 486f * _k);
             }
             else
             {
-                // 左右浮动半透明卡片，中间完全留白透出底层全景小祈
-                Abs(_leftHost, 28f * _k, 78f * _k, 324f * _k, (PanH - 96f) * _k);
-                Abs(_bentoHost, (PanW - 352f) * _k, 78f * _k, 326f * _k, (PanH - 96f) * _k);
+                Abs(_leftHost, 28f * _k, 76f * _k, 316f * _k, (PanH - 96f) * _k);
+                Abs(_bentoHost, (PanW - 344f) * _k, 76f * _k, 316f * _k, (PanH - 96f) * _k);
             }
         }
 
-        VisualElement GlassCard(VisualElement host, float pad = 16f)
+        VisualElement Card2D(VisualElement host, float pad = 14f)
         {
             var el = new VisualElement { pickingMode = PickingMode.Ignore };
-            el.style.backgroundColor = new Color(0.98f, 0.97f, 1.00f, 0.72f);
-            Border(el, 1.2f, new Color(1f, 1f, 1f, 0.92f));
-            Round(el, 18f * _k);
+            el.style.backgroundColor = Color.white;
+            Border(el, 1.4f, new Color(0.46f, 0.38f, 0.68f, 0.72f));
+            el.style.borderBottomWidth = 3f * _k;
+            el.style.borderBottomColor = new Color(0.76f, 0.70f, 0.92f, 0.95f);
+            Round(el, 14f * _k);
             el.style.paddingLeft = el.style.paddingRight = pad * _k;
             el.style.paddingTop = el.style.paddingBottom = (pad - 2f) * _k;
             el.style.marginBottom = 14f * _k;
@@ -815,106 +857,240 @@ namespace Xiaoqi.UI2
             return el;
         }
 
+        VisualElement RetroWin2D(VisualElement host, string title, Color barColor)
+        {
+            var win = new VisualElement { pickingMode = PickingMode.Ignore };
+            win.style.backgroundColor = Color.white;
+            Border(win, 1.4f, new Color(0.32f, 0.26f, 0.48f, 0.85f));
+            win.style.borderBottomWidth = 3f * _k;
+            win.style.borderBottomColor = new Color(0.76f, 0.70f, 0.92f, 0.95f);
+            Round(win, 10f * _k);
+            win.style.marginBottom = 14f * _k;
+
+            var bar = new VisualElement { pickingMode = PickingMode.Ignore };
+            bar.style.height = 24f * _k;
+            bar.style.backgroundColor = barColor;
+            bar.style.borderBottomWidth = 1.2f; bar.style.borderBottomColor = new Color(0.32f, 0.26f, 0.48f, 0.75f);
+            bar.style.borderTopLeftRadius = 9f * _k; bar.style.borderTopRightRadius = 9f * _k;
+            bar.style.flexDirection = FlexDirection.Row; bar.style.alignItems = Align.Center;
+            bar.style.justifyContent = Justify.SpaceBetween;
+            bar.style.paddingLeft = bar.style.paddingRight = 10f * _k;
+            bar.Add(L(title, 9.5f, Ink, true));
+            bar.Add(L("—  □  ×", 9.5f, Ink, true));
+            win.Add(bar);
+
+            var body = new VisualElement { pickingMode = PickingMode.Ignore };
+            body.style.paddingLeft = body.style.paddingRight = 14f * _k;
+            body.style.paddingTop = body.style.paddingBottom = 12f * _k;
+            win.Add(body);
+            host.Add(win);
+            return body;
+        }
+
+        VisualElement RingGauge2D(float size, int pct, Color ringCol, string topIcon, string bottomTxt)
+        {
+            var box = new VisualElement { pickingMode = PickingMode.Ignore };
+            box.style.width = size; box.style.height = size;
+            box.style.alignItems = Align.Center; box.style.justifyContent = Justify.Center;
+            box.generateVisualContent += mgc =>
+            {
+                var r = box.contentRect;
+                if (r.width < 12f) return;
+                var p = mgc.painter2D;
+                Vector2 c = new Vector2(r.width * 0.5f, r.height * 0.5f);
+                float rad = Mathf.Min(r.width, r.height) * 0.43f;
+                p.lineWidth = 7f * _k;
+                p.strokeColor = new Color(0.88f, 0.85f, 0.96f, 0.85f);
+                p.BeginPath();
+                for (int i = 0; i <= 48; i++)
+                {
+                    float a = (i / 48f) * Mathf.PI * 2f;
+                    Vector2 pt = c + new Vector2(Mathf.Cos(a) * rad, Mathf.Sin(a) * rad);
+                    if (i == 0) p.MoveTo(pt); else p.LineTo(pt);
+                }
+                p.Stroke();
+
+                int segs = Mathf.Max(2, Mathf.RoundToInt(48f * Mathf.Clamp01(pct / 100f)));
+                p.strokeColor = ringCol;
+                p.BeginPath();
+                for (int i = 0; i <= segs; i++)
+                {
+                    float a = -Mathf.PI * 0.5f + (i / 48f) * Mathf.PI * 2f;
+                    Vector2 pt = c + new Vector2(Mathf.Cos(a) * rad, Mathf.Sin(a) * rad);
+                    if (i == 0) p.MoveTo(pt); else p.LineTo(pt);
+                }
+                p.Stroke();
+            };
+            if (!string.IsNullOrEmpty(topIcon)) box.Add(L(topIcon, 11f, Ink, true));
+            box.Add(L(pct + "%", 16f, Ink, true));
+            if (!string.IsNullOrEmpty(bottomTxt)) box.Add(L(bottomTxt, 9.5f, Ink2, false));
+            return box;
+        }
+
         void BuildApprovedHome(bool loading)
         {
             var state = _bd.Get("state"); var life = _bd.Get("life");
-            // 左侧：极简大时钟 + 地点天气 + 一行状态胶囊（不放时间轴！）
-            _benchClockLbl = L(DateTime.Now.ToString("HH:mm"), 58f, new Color(0.18f, 0.14f, 0.30f, 0.96f), true);
-            _benchClockLbl.style.marginTop = 8f * _k;
-            _benchClockLbl.style.textShadow = new TextShadow { blurRadius = 10f, color = new Color(1f, 1f, 1f, 0.92f) };
+            // 左侧上：利落 2D 大时钟 + 图标天气地点
+            _benchClockLbl = L(DateTime.Now.ToString("HH:mm"), 58f, new Color(0.18f, 0.16f, 0.28f, 1f), true);
+            _benchClockLbl.style.marginTop = 10f * _k;
             _benchClockLbl.schedule.Execute(() => { if (_benchClockLbl != null) _benchClockLbl.text = DateTime.Now.ToString("HH:mm"); }).Every(1000);
             _leftHost.Add(_benchClockLbl);
 
             string place = Str(life, "place.place"); if (place.Length == 0) place = "薄扶林 · 宿舍";
-            string wDesc = Str(life, "weather.desc"); string wTemp = Str(life, "weather.temp");
-            string wStr = !string.IsNullOrEmpty(wTemp) ? wTemp + "°C " + wDesc : "阴";
-            _benchMetaLine = L(DateTime.Now.ToString("ddd MM/dd").ToUpperInvariant() + " · " + place + " · " + wStr, 11.5f, new Color(0.20f, 0.16f, 0.34f, 0.92f), true);
-            _benchMetaLine.style.textShadow = new TextShadow { blurRadius = 8f, color = Color.white };
-            _benchMetaLine.style.marginBottom = 14f * _k;
+            string wTemp = Str(life, "weather.temp");
+            _benchMetaLine = L("☁  " + (string.IsNullOrEmpty(wTemp) ? "16°C" : wTemp + "°C") + " · " + place, 12f, Ink2, true);
+            _benchMetaLine.style.marginTop = 4f * _k;
+            _benchMetaLine.style.marginBottom = 38f * _k;
             _leftHost.Add(_benchMetaLine);
 
-            int bpm = Mathf.RoundToInt(Num(state, "me.bpm", 71f));
+            // 左侧下：2 个图形化 2D 卡片（圆环元气进度 + 粉色心电波形卡）
+            int bpm = Mathf.RoundToInt(Num(state, "me.bpm", 66f));
             int energy = Mathf.RoundToInt(Num(state, "needs.energy", 0.80f) * (Num(state, "needs.energy", 0.80f) <= 1f ? 100f : 1f));
-            var vital = Box(-1, 32f * _k, 16f * _k, new Color(1f, 1f, 1f, 0.78f));
-            vital.style.alignSelf = Align.FlexStart;
-            vital.style.paddingLeft = vital.style.paddingRight = 14f * _k;
-            vital.style.justifyContent = Justify.Center;
-            Border(vital, 1.2f, Color.white);
-            vital.Add(L($"♥ {bpm} BPM  ·  ⚡ 元气 {energy}%", 10.5f, Ink, true));
-            _leftHost.Add(vital);
+            var statRow = new VisualElement { pickingMode = PickingMode.Ignore };
+            statRow.style.flexDirection = FlexDirection.Row;
 
-            // 右侧：最新一句话气泡 + 1大2小今日照片拼贴 + 底部迷你音乐条
-            var quoteCard = GlassCard(_bentoHost, 16f);
-            quoteCard.Add(L("❝ 小祈刚刚说：", 10f, Ink2, true));
+            var eCard = Card2D(statRow, 10f);
+            eCard.style.width = 138f * _k; eCard.style.height = 156f * _k;
+            eCard.style.marginRight = 12f * _k; eCard.style.alignItems = Align.Center; eCard.style.justifyContent = Justify.Center;
+            eCard.Add(RingGauge2D(112f * _k, energy, new Color(0.56f, 0.48f, 0.94f, 1f), "⚡", "元气"));
+
+            var hCard = Card2D(statRow, 10f);
+            hCard.style.width = 138f * _k; hCard.style.height = 156f * _k;
+            hCard.style.backgroundColor = new Color(1.00f, 0.92f, 0.95f, 1f);
+            hCard.style.alignItems = Align.Center; hCard.style.justifyContent = Justify.SpaceBetween;
+            var hTop = new VisualElement { pickingMode = PickingMode.Ignore };
+            hTop.style.width = Length.Percent(100); hTop.style.alignItems = Align.FlexEnd;
+            hTop.Add(L("♥", 13f, new Color(0.95f, 0.48f, 0.66f), true));
+            hCard.Add(hTop);
+            var ecg = new VisualElement { pickingMode = PickingMode.Ignore };
+            ecg.style.width = 112f * _k; ecg.style.height = 56f * _k;
+            ecg.generateVisualContent += mgc =>
+            {
+                var r = ecg.contentRect;
+                var p = mgc.painter2D;
+                p.strokeColor = new Color(0.94f, 0.46f, 0.66f, 1f);
+                p.lineWidth = 2.4f * _k;
+                float cy = r.height * 0.56f;
+                Vector2[] pts = {
+                    new Vector2(0f, cy), new Vector2(r.width * .24f, cy),
+                    new Vector2(r.width * .32f, cy - 10f * _k), new Vector2(r.width * .40f, cy + 12f * _k),
+                    new Vector2(r.width * .48f, cy - 26f * _k), new Vector2(r.width * .56f, cy + 20f * _k),
+                    new Vector2(r.width * .64f, cy - 8f * _k), new Vector2(r.width * .72f, cy),
+                    new Vector2(r.width, cy)
+                };
+                p.BeginPath();
+                for (int i = 0; i < pts.Length; i++) if (i == 0) p.MoveTo(pts[i]); else p.LineTo(pts[i]);
+                p.Stroke();
+            };
+            hCard.Add(ecg);
+            hCard.Add(L(bpm.ToString(), 22f, Ink, true));
+            _leftHost.Add(statRow);
+
+            // 右侧上：粉紫复古小窗「小祈刚刚说」
+            var quoteBody = RetroWin2D(_bentoHost, "小祈刚刚说", new Color(0.96f, 0.78f, 0.92f, 1f));
             string lastSay = Str(state, "last_reply");
             if (string.IsNullOrEmpty(lastSay)) lastSay = Str(state, "mood");
             if (string.IsNullOrEmpty(lastSay) || lastSay.Length < 4) lastSay = "今天阳光软绵绵的，想陪你一起发呆~";
-            var qTxt = WrapTxt(lastSay, 12.5f, Ink, true, 120);
-            qTxt.style.marginTop = 6f * _k;
-            quoteCard.Add(qTxt);
+            quoteBody.Add(WrapTxt(lastSay, 12f, Ink, true, 90));
 
-            var photoCard = GlassCard(_bentoHost, 14f);
-            photoCard.Add(L("今日照片", 11f, Ink, true));
-            var grid = new VisualElement { pickingMode = PickingMode.Ignore };
-            grid.style.flexDirection = FlexDirection.Row; grid.style.marginTop = 10f * _k;
-            var bigTile = MakePhotoTile("宿舍午后", "XqPhotoDorm", "", Color.white, 154f * _k, 174f * _k);
-            bigTile.style.marginRight = 8f * _k;
-            Click(bigTile, () => ShowPhotoPreview("宿舍午后", "XqPhotoDorm", "日常插画 · 静态展示素材", Color.white));
-            var rightCol = new VisualElement { pickingMode = PickingMode.Ignore };
-            var t1 = MakePhotoTile("认真记笔记", "XqPhotoStudy", "", Color.white, 130f * _k, 83f * _k);
-            t1.style.marginBottom = 8f * _k;
-            Click(t1, () => ShowPhotoPreview("认真记笔记", "XqPhotoStudy", "日常插画 · 静态展示素材", Color.white));
-            var t2 = MakePhotoTile("开心比耶", "XqPhotoPeace", "", Color.white, 130f * _k, 83f * _k);
-            Click(t2, () => ShowPhotoPreview("开心比耶", "XqPhotoPeace", "日常插画 · 静态展示素材", Color.white));
-            rightCol.Add(t1); rightCol.Add(t2);
-            grid.Add(bigTile); grid.Add(rightCol);
-            photoCard.Add(grid);
+            // 右侧中：1大2小 2D 拍立得照片拼贴（带胶带贴纸，纯视觉无文字挡图）
+            var pGrid = new VisualElement { pickingMode = PickingMode.Ignore };
+            pGrid.style.flexDirection = FlexDirection.Row; pGrid.style.marginBottom = 14f * _k;
+            VisualElement Polaroid(string title, string res, float w, float h)
+            {
+                var frame = new VisualElement { pickingMode = PickingMode.Position };
+                frame.style.width = w; frame.style.height = h;
+                frame.style.backgroundColor = Color.white;
+                Border(frame, 1.3f, new Color(0.46f, 0.38f, 0.68f, 0.75f));
+                frame.style.paddingLeft = frame.style.paddingRight = frame.style.paddingTop = 6f * _k;
+                frame.style.paddingBottom = 14f * _k;
+                var img = new Image { image = Resources.Load<Texture2D>(res), scaleMode = ScaleMode.ScaleAndCrop, pickingMode = PickingMode.Ignore };
+                img.style.width = img.style.height = Length.Percent(100);
+                frame.Add(img);
+                var tape = Box(28f * _k, 9f * _k, 2f * _k, new Color(0.94f, 0.88f, 0.72f, 0.88f));
+                Abs(tape, (w - 28f * _k) * 0.5f, -5f * _k, 28f * _k, 9f * _k);
+                frame.Add(tape);
+                Click(frame, () => ShowPhotoPreview(title, res, "日常插画 · 点击查看", Color.white));
+                return frame;
+            }
+            var bigPol = Polaroid("宿舍午后", "XqPhotoDorm", 156f * _k, 196f * _k);
+            bigPol.style.marginRight = 12f * _k;
+            bigPol.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(-1.5f, AngleUnit.Degree));
+            var rCol = new VisualElement { pickingMode = PickingMode.Ignore };
+            var pol1 = Polaroid("认真记笔记", "XqPhotoStudy", 122f * _k, 92f * _k);
+            pol1.style.marginBottom = 12f * _k;
+            pol1.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(1.5f, AngleUnit.Degree));
+            var pol2 = Polaroid("开心比耶", "XqPhotoPeace", 122f * _k, 92f * _k);
+            rCol.Add(pol1); rCol.Add(pol2);
+            pGrid.Add(bigPol); pGrid.Add(rCol);
+            _bentoHost.Add(pGrid);
 
-            // 底部迷你音乐条
-            var musicCard = GlassCard(_bentoHost, 12f);
-            musicCard.style.flexDirection = FlexDirection.Row; musicCard.style.alignItems = Align.Center;
-            musicCard.style.marginBottom = 0f;
-            var cov = Box(42f * _k, 42f * _k, 10f * _k, new Color(.54f, .44f, .86f, .25f));
-            cov.style.marginRight = 10f * _k; cov.style.flexShrink = 0f;
+            // 右侧下：2D 迷你音乐条（封面 + 波形线 + 深色矢量控制图标）
+            var mCard = Card2D(_bentoHost, 10f);
+            mCard.style.flexDirection = FlexDirection.Row; mCard.style.alignItems = Align.Center; mCard.style.marginBottom = 0f;
             var covImg = new Image { image = XqMusicBridge.Cover ?? Resources.Load<Texture2D>("XqMusicCover"), scaleMode = ScaleMode.ScaleAndCrop, pickingMode = PickingMode.Ignore };
-            covImg.style.width = covImg.style.height = Length.Percent(100); Round(covImg, 10f * _k); cov.Add(covImg);
-            var mInfo = new VisualElement { pickingMode = PickingMode.Ignore };
-            mInfo.style.flexGrow = 1f; mInfo.style.flexShrink = 1f; mInfo.style.overflow = Overflow.Hidden;
+            covImg.style.width = covImg.style.height = 46f * _k; Round(covImg, 8f * _k); covImg.style.marginRight = 10f * _k; covImg.style.flexShrink = 0f;
+            mCard.Add(covImg);
+            var mRight = new VisualElement { pickingMode = PickingMode.Ignore };
+            mRight.style.flexGrow = 1f; mRight.style.flexShrink = 1f;
             var nowM = XqMusicBridge.Current;
-            var mTitle = L(string.IsNullOrEmpty(nowM.title) ? "星夜的微光" : nowM.title, 11f, Ink, true);
+            var mTitle = L(string.IsNullOrEmpty(nowM.title) ? "星夜的微光" : nowM.title, 10.5f, Ink, true);
             mTitle.style.whiteSpace = WhiteSpace.NoWrap; mTitle.style.overflow = Overflow.Hidden; mTitle.style.textOverflow = TextOverflow.Ellipsis;
-            var mArt = L(string.IsNullOrEmpty(nowM.artist) ? "天宫祈 · 一起听" : nowM.artist, 9.5f, Ink2, false);
-            mInfo.Add(mTitle); mInfo.Add(mArt);
+            mRight.Add(mTitle);
+            var wave = new VisualElement { pickingMode = PickingMode.Ignore };
+            wave.style.height = 14f * _k; wave.style.marginTop = 3f * _k; wave.style.marginBottom = 3f * _k;
+            wave.generateVisualContent += mgc =>
+            {
+                var r = wave.contentRect;
+                var p = mgc.painter2D;
+                int bars = 26;
+                float step = r.width / bars;
+                for (int i = 0; i < bars; i++)
+                {
+                    float h = (0.25f + 0.75f * Mathf.Abs(Mathf.Sin(i * 0.7f))) * r.height;
+                    p.fillColor = i < 14 ? Ink : new Color(0.75f, 0.70f, 0.86f, 0.75f);
+                    float x = i * step;
+                    float y = (r.height - h) * 0.5f;
+                    p.BeginPath(); p.MoveTo(new Vector2(x, y)); p.LineTo(new Vector2(x + 2f, y));
+                    p.LineTo(new Vector2(x + 2f, y + h)); p.LineTo(new Vector2(x, y + h)); p.ClosePath(); p.Fill();
+                }
+            };
+            mRight.Add(wave);
             var ctrls = new VisualElement { pickingMode = PickingMode.Ignore };
-            ctrls.style.flexDirection = FlexDirection.Row; ctrls.style.alignItems = Align.Center; ctrls.style.flexShrink = 0f;
-            var bPrev = L("⏮", 12f, Ink, true); bPrev.style.marginRight = 8f * _k; bPrev.pickingMode = PickingMode.Position; Click(bPrev, () => XqMusicBridge.Prev());
-            var bPlay = L(XqMusicBridge.IsPlaying ? "⏸" : "▶", 14f, new Color(.44f, .32f, .84f), true); bPlay.style.marginRight = 8f * _k; bPlay.pickingMode = PickingMode.Position; Click(bPlay, () => XqMusicBridge.TogglePlay());
-            var bNext = L("⏭", 12f, Ink, true); bNext.pickingMode = PickingMode.Position; Click(bNext, () => XqMusicBridge.Next());
-            ctrls.Add(bPrev); ctrls.Add(bPlay); ctrls.Add(bNext);
-            musicCard.Add(cov); musicCard.Add(mInfo); musicCard.Add(ctrls);
-            musicCard.schedule.Execute(() => {
+            ctrls.style.flexDirection = FlexDirection.Row; ctrls.style.alignItems = Align.Center; ctrls.style.justifyContent = Justify.SpaceBetween;
+            var bPrev = Box(20f * _k, 18f * _k, 4f * _k, Color.clear);
+            bPrev.generateVisualContent += mgc => { var p = mgc.painter2D; p.fillColor = Ink; p.BeginPath(); p.MoveTo(new Vector2(3, 3)); p.LineTo(new Vector2(5, 3)); p.LineTo(new Vector2(5, 13)); p.LineTo(new Vector2(3, 13)); p.ClosePath(); p.Fill(); p.BeginPath(); p.MoveTo(new Vector2(6, 8)); p.LineTo(new Vector2(14, 3)); p.LineTo(new Vector2(14, 13)); p.ClosePath(); p.Fill(); };
+            Click(bPrev, () => XqMusicBridge.Prev());
+            var bPlay = L(XqMusicBridge.IsPlaying ? "❚❚" : "▶", 11f, Ink, true); bPlay.pickingMode = PickingMode.Position; Click(bPlay, () => XqMusicBridge.TogglePlay());
+            var bNext = Box(20f * _k, 18f * _k, 4f * _k, Color.clear);
+            bNext.generateVisualContent += mgc => { var p = mgc.painter2D; p.fillColor = Ink; p.BeginPath(); p.MoveTo(new Vector2(3, 3)); p.LineTo(new Vector2(11, 8)); p.LineTo(new Vector2(3, 13)); p.ClosePath(); p.Fill(); p.BeginPath(); p.MoveTo(new Vector2(12, 3)); p.LineTo(new Vector2(14, 3)); p.LineTo(new Vector2(14, 13)); p.LineTo(new Vector2(12, 13)); p.ClosePath(); p.Fill(); };
+            Click(bNext, () => XqMusicBridge.Next());
+            var bLike = L("♡", 12f, new Color(0.92f, 0.46f, 0.66f), true);
+            ctrls.Add(bPrev); ctrls.Add(bPlay); ctrls.Add(bNext); ctrls.Add(bLike);
+            mRight.Add(ctrls);
+            mCard.Add(mRight);
+            mCard.schedule.Execute(() => {
                 var c = XqMusicBridge.Current;
                 mTitle.text = string.IsNullOrEmpty(c.title) ? "星夜的微光" : c.title;
-                mArt.text = string.IsNullOrEmpty(c.artist) ? "天宫祈 · 一起听" : c.artist;
-                bPlay.text = XqMusicBridge.IsPlaying ? "⏸" : "▶";
+                bPlay.text = XqMusicBridge.IsPlaying ? "❚❚" : "▶";
                 if (XqMusicBridge.Cover != null) covImg.image = XqMusicBridge.Cover;
             }).Every(600);
         }
 
         void BuildApprovedLife(bool loading)
         {
-            _pgMax = 0; // 禁用外层 PagePoll 滚轮，让右侧 ScrollView 独立单层滚动
+            _pgMax = 0;
             var life = _bd.Get("life");
-            // 左侧上：深紫精致小月历卡片
+            // 左侧上：深紫 2D 小月历
             var cal = new VisualElement { pickingMode = PickingMode.Ignore };
-            cal.style.backgroundColor = new Color(0.20f, 0.18f, 0.30f, 0.88f);
-            Border(cal, 1.2f, new Color(1f, 1f, 1f, 0.45f));
-            Round(cal, 18f * _k);
+            cal.style.backgroundColor = new Color(0.20f, 0.18f, 0.30f, 1f);
+            Border(cal, 1.4f, new Color(0.46f, 0.38f, 0.68f, 0.85f));
+            Round(cal, 16f * _k);
             cal.style.paddingLeft = cal.style.paddingRight = 16f * _k;
             cal.style.paddingTop = cal.style.paddingBottom = 14f * _k;
-            cal.style.marginBottom = 14f * _k;
+            cal.style.marginBottom = 16f * _k;
             var now = DateTime.Now;
-            cal.Add(L(now.ToString("MMMM yyyy"), 14f, Color.white, true));
+            cal.Add(L(now.ToString("yyyy.MM"), 15f, Color.white, true));
             var wk = new VisualElement { pickingMode = PickingMode.Ignore };
             wk.style.flexDirection = FlexDirection.Row; wk.style.justifyContent = Justify.SpaceBetween;
             wk.style.marginTop = 10f * _k; wk.style.marginBottom = 6f * _k;
@@ -936,7 +1112,7 @@ namespace Xiaoqi.UI2
                     row.style.marginBottom = 3f * _k; cal.Add(row);
                 }
                 int dayNum = cell - firstDow + 1;
-                var cellEl = Box(36f * _k, 24f * _k, 12f * _k, dayNum == now.Day ? new Color(0.56f, 0.42f, 0.96f, 0.95f) : Color.clear);
+                var cellEl = Box(36f * _k, 24f * _k, 12f * _k, dayNum == now.Day ? new Color(0.58f, 0.44f, 0.98f, 1f) : Color.clear);
                 cellEl.style.alignItems = Align.Center; cellEl.style.justifyContent = Justify.Center;
                 if (dayNum >= 1) cellEl.Add(L(dayNum.ToString(), 10.5f, Color.white, dayNum == now.Day));
                 row.Add(cellEl);
@@ -944,22 +1120,25 @@ namespace Xiaoqi.UI2
             while (row != null && row.childCount < 7) row.Add(Box(36f * _k, 24f * _k, 0f, Color.clear));
             _leftHost.Add(cal);
 
-            // 左侧下：今日随笔卡片
-            var noteCard = GlassCard(_leftHost, 16f);
-            noteCard.Add(L("Diary Note · 今日随笔", 11.5f, Ink, true));
+            // 左侧下：复古小窗「Diary」
+            var dBody = RetroWin2D(_leftHost, "Diary · 今日随笔", new Color(0.84f, 0.90f, 1.00f, 1f));
             string diary = Str(life, "diary");
-            if (string.IsNullOrEmpty(diary)) diary = Str(life, "place.doing");
-            if (string.IsNullOrEmpty(diary)) diary = "今天也在认真生活，慢慢记录每个微小的瞬间~";
-            var dTxt = WrapTxt(diary, 11.5f, Ink2, false, 160);
+            if (string.IsNullOrEmpty(diary) || diary.Length < 4) diary = "晒着太阳慢慢收拾，记录今天平淡又可爱的小日常~";
+            dBody.Add(L("🐱 今日心情：晴朗舒展", 11f, new Color(0.46f, 0.36f, 0.82f), true));
+            var dTxt = WrapTxt(diary, 11.5f, Ink, false, 160);
             dTxt.style.marginTop = 8f * _k;
-            noteCard.Add(dTxt);
+            dBody.Add(dTxt);
 
-            // 右侧：唯一完整今日时间轴（独立单层 ScrollView）
-            var tlCard = GlassCard(_bentoHost, 16f);
-            tlCard.style.flexGrow = 1f; tlCard.style.marginBottom = 0f;
+            // 右侧：严格锁死高度的 2D 竖向圆点时间轴（绝不穿出底边！）
+            var tlCard = Card2D(_bentoHost, 16f);
+            tlCard.style.height = (PanH - 104f) * _k;
+            tlCard.style.marginBottom = 0f;
             tlCard.Add(L("今日时间轴", 14f, Ink, true));
+            var svWrap = new VisualElement { pickingMode = PickingMode.Ignore };
+            svWrap.style.flexGrow = 1f; svWrap.style.marginTop = 10f * _k;
+            svWrap.style.overflow = Overflow.Hidden;
             var sv = new ScrollView(ScrollViewMode.Vertical);
-            sv.style.flexGrow = 1f; sv.style.marginTop = 10f * _k;
+            sv.style.flexGrow = 1f; sv.style.maxHeight = (PanH - 172f) * _k;
             var segments = Tk(life, "segments") as JArray;
             if (segments == null || segments.Count == 0)
             {
@@ -973,84 +1152,96 @@ namespace Xiaoqi.UI2
                     int a = Mathf.RoundToInt(Num(segments[i], "a", 0));
                     int b = Mathf.RoundToInt(Num(segments[i], "b", a + 60));
                     bool active = nowMin >= a && nowMin < b;
-                    var item = Box(-1, 34f * _k, 17f * _k, active ? new Color(0.54f, 0.42f, 0.94f, 0.88f) : new Color(1f, 1f, 1f, 0.55f));
-                    item.style.flexDirection = FlexDirection.Row; item.style.alignItems = Align.Center;
-                    item.style.paddingLeft = item.style.paddingRight = 14f * _k;
-                    item.style.marginBottom = 8f * _k;
-                    string txt = (active ? "● " : "") + Str(segments[i], "start") + "  " + Str(segments[i], "name");
-                    var lbl = L(txt, 11f, active ? Color.white : Ink, active);
+                    string sName = Str(segments[i], "name");
+                    string icon = sName.Contains("睡") ? "🌙" : (sName.Contains("洗") || sName.Contains("醒") ? "☀️" : (sName.Contains("饭") || sName.Contains("吃") ? "🍚" : (sName.Contains("课") ? "🏫" : "📚")));
+                    var rItem = new VisualElement { pickingMode = PickingMode.Ignore };
+                    rItem.style.flexDirection = FlexDirection.Row; rItem.style.alignItems = Align.Center;
+                    rItem.style.marginBottom = 8f * _k;
+                    var dot = Box(10f * _k, 10f * _k, 5f * _k, active ? new Color(0.56f, 0.42f, 0.96f, 1f) : new Color(0.84f, 0.80f, 0.94f, 1f));
+                    dot.style.marginRight = 10f * _k; dot.style.flexShrink = 0f;
+                    rItem.Add(dot);
+                    var pill = Box(-1, 32f * _k, 16f * _k, active ? new Color(0.54f, 0.42f, 0.94f, 1f) : new Color(0.97f, 0.96f, 1f, 1f));
+                    pill.style.flexGrow = 1f; pill.style.flexShrink = 1f;
+                    pill.style.flexDirection = FlexDirection.Row; pill.style.alignItems = Align.Center;
+                    pill.style.paddingLeft = pill.style.paddingRight = 12f * _k;
+                    var lbl = L($"{icon}  {Str(segments[i], "start")}  {sName}", 10.5f, active ? Color.white : Ink, active);
                     lbl.style.whiteSpace = WhiteSpace.NoWrap; lbl.style.overflow = Overflow.Hidden; lbl.style.textOverflow = TextOverflow.Ellipsis;
-                    item.Add(lbl);
-                    sv.Add(item);
+                    pill.Add(lbl);
+                    rItem.Add(pill);
+                    sv.Add(rItem);
                 }
             }
-            tlCard.Add(sv);
+            svWrap.Add(sv); tlCard.Add(svWrap);
         }
 
         void BuildApprovedMemory(bool loading)
         {
             var memory = _bd.Get("memory"); var growth = _bd.Get("growth");
-            var bond = GlassCard(_leftHost, 18f);
-            bond.Add(L("羁绊与成长", 12f, Ink2, true));
+            var bond = Card2D(_leftHost, 18f);
+            bond.style.height = (PanH - 104f) * _k;
+            bond.style.justifyContent = Justify.SpaceBetween;
+            // 顶部撕页日历天数徽章
             string days = Str(growth, "days");
-            var bigDay = L("相伴第 " + (string.IsNullOrEmpty(days) ? "42" : days) + " 天", 24f, Ink, true);
-            bigDay.style.marginTop = 8f * _k; bigDay.style.marginBottom = 16f * _k;
-            bond.Add(bigDay);
+            var dayTag = Box(96f * _k, 52f * _k, 10f * _k, new Color(0.95f, 0.92f, 1f, 1f));
+            Border(dayTag, 1.3f, new Color(0.46f, 0.38f, 0.68f, 0.8f));
+            dayTag.style.alignItems = Align.Center; dayTag.style.justifyContent = Justify.Center;
+            dayTag.Add(L((string.IsNullOrEmpty(days) ? "42" : days) + " DAYS", 15f, Ink, true));
+            bond.Add(dayTag);
 
-            void AddBar(string title, int pct, Color fillCol)
-            {
-                var box = new VisualElement { pickingMode = PickingMode.Ignore };
-                box.style.backgroundColor = new Color(1f, 1f, 1f, 0.65f); Round(box, 12f * _k);
-                box.style.paddingLeft = box.style.paddingRight = 12f * _k;
-                box.style.paddingTop = box.style.paddingBottom = 10f * _k;
-                box.style.marginBottom = 10f * _k;
-                box.Add(L($"{title} {pct}%", 11f, Ink, true));
-                var trk = Box(-1, 8f * _k, 4f * _k, new Color(0.84f, 0.80f, 0.92f, 0.45f));
-                trk.style.marginTop = 6f * _k;
-                var fl = Box(-1, 8f * _k, 4f * _k, fillCol);
-                fl.style.width = Length.Percent(Mathf.Clamp(pct, 5, 100));
-                trk.Add(fl); box.Add(trk); bond.Add(box);
-            }
+            // 双圆环同心仪表（亲密 + 安全感）
             var st = _bd.Get("state");
             int closePct = Mathf.RoundToInt(Num(st, "closeness", 0.87f) * (Num(st, "closeness", 0.87f) <= 1f ? 100f : 1f));
             int secPct = Mathf.RoundToInt(Num(st, "security", 0.99f) * (Num(st, "security", 0.99f) <= 1f ? 100f : 1f));
-            AddBar("亲密度", closePct, new Color(0.98f, 0.64f, 0.78f, 0.95f));
-            AddBar("安全感", secPct, new Color(0.68f, 0.66f, 0.98f, 0.95f));
+            var rings = new VisualElement { pickingMode = PickingMode.Ignore };
+            rings.style.flexDirection = FlexDirection.Row; rings.style.justifyContent = Justify.SpaceAround;
+            rings.Add(RingGauge2D(118f * _k, closePct, new Color(0.96f, 0.56f, 0.74f, 1f), "♥", "亲密"));
+            rings.Add(RingGauge2D(118f * _k, secPct, new Color(0.62f, 0.54f, 0.96f, 1f), "🛡", "安全感"));
+            bond.Add(rings);
 
-            var stageRow = new VisualElement { pickingMode = PickingMode.Ignore };
-            stageRow.style.flexDirection = FlexDirection.Row; stageRow.style.alignItems = Align.Center;
-            stageRow.style.justifyContent = Justify.SpaceBetween; stageRow.style.marginTop = 6f * _k;
-            stageRow.Add(L("当前阶段", 11f, Ink2, false));
-            var stagePill = Box(-1, 24f * _k, 12f * _k, new Color(0.86f, 0.82f, 0.98f, 0.78f));
-            stagePill.style.paddingLeft = stagePill.style.paddingRight = 12f * _k; stagePill.style.justifyContent = Justify.Center;
-            stagePill.Add(L("✦ 默契同频", 10.5f, Ink, true));
-            stageRow.Add(stagePill); bond.Add(stageRow);
+            var stagePill = Box(-1, 34f * _k, 17f * _k, new Color(0.94f, 0.91f, 1f, 1f));
+            Border(stagePill, 1.2f, new Color(0.68f, 0.60f, 0.88f, 0.9f));
+            stagePill.style.alignItems = Align.Center; stagePill.style.justifyContent = Justify.Center;
+            stagePill.Add(L("✦  默契同频  ✦", 11.5f, Ink, true));
+            bond.Add(stagePill);
 
-            var rHead = L("小祈记得的你", 14f, Ink, true);
-            rHead.style.marginBottom = 10f * _k;
-            rHead.style.textShadow = new TextShadow { blurRadius = 8f, color = Color.white };
-            _bentoHost.Add(rHead);
-
+            // 右侧：3 张图形化 2D 贴纸记忆卡（短句摘要，不堆长规则）
             var files = Tk(memory, "files") as JArray;
             if (files == null || files.Count == 0)
             {
-                var empty = GlassCard(_bentoHost, 16f);
+                var empty = Card2D(_bentoHost, 16f);
                 empty.Add(WrapTxt(loading ? "正在同步记忆…" : "还没有记忆记录", 11.5f, Ink2, false, 100));
             }
             else
             {
+                Color[] pastel = {
+                    new Color(0.90f, 0.97f, 0.96f, 1f),
+                    new Color(0.93f, 0.92f, 1.00f, 1f),
+                    new Color(1.00f, 0.92f, 0.94f, 1f),
+                };
+                string[] memIcons = { "🍵", "🌙", "🎵" };
                 _pgMax = Mathf.Max(0, files.Count - 3); int begin = Mathf.Clamp(_pgOff, 0, _pgMax);
                 for (int i = begin; i < files.Count && i < begin + 3; i++)
                 {
-                    var note = GlassCard(_bentoHost, 14f);
-                    var top = new VisualElement { pickingMode = PickingMode.Ignore };
-                    top.style.flexDirection = FlexDirection.Row; top.style.justifyContent = Justify.SpaceBetween;
-                    top.Add(L("📌 " + CleanMemTag(Str(files[i], "file")), 10.5f, new Color(.48f, .36f, .82f), true));
-                    top.Add(L("★", 11f, new Color(.98f, .76f, .36f), true));
-                    note.Add(top);
-                    var body = WrapTxt(CleanMemBody(Str(files[i], "head"), Str(files[i], "body")), 11.5f, Ink, false, 120);
-                    body.style.marginTop = 6f * _k;
-                    note.Add(body);
+                    int ci = i - begin;
+                    var note = Card2D(_bentoHost, 12f);
+                    note.style.flexDirection = FlexDirection.Row; note.style.alignItems = Align.Center;
+                    note.style.marginBottom = 16f * _k;
+                    note.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(ci == 1 ? 1.5f : -1.5f, AngleUnit.Degree));
+                    var sq = Box(64f * _k, 64f * _k, 12f * _k, pastel[ci % 3]);
+                    Border(sq, 1.2f, new Color(0.46f, 0.38f, 0.68f, 0.65f));
+                    sq.style.alignItems = Align.Center; sq.style.justifyContent = Justify.Center;
+                    sq.style.marginRight = 14f * _k; sq.style.flexShrink = 0f;
+                    sq.Add(L(memIcons[ci % 3], 24f, Ink, true));
+                    note.Add(sq);
+                    var col = new VisualElement { pickingMode = PickingMode.Ignore };
+                    col.style.flexGrow = 1f; col.style.flexShrink = 1f;
+                    col.Add(L("📌 " + CleanMemTag(Str(files[i], "file")), 11f, new Color(.48f, .36f, .82f), true));
+                    var summary = CleanMemBody(Str(files[i], "head"), Str(files[i], "body"));
+                    if (summary.Length > 34) summary = summary.Substring(0, 34) + "…";
+                    var body = WrapTxt(summary, 11.5f, Ink, false, 60);
+                    body.style.marginTop = 4f * _k;
+                    col.Add(body);
+                    note.Add(col);
                 }
             }
         }
