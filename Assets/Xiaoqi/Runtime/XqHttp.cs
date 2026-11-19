@@ -28,6 +28,19 @@ public static class XqHttp
         UseProxy = false,
     });
 
+    public static async Task<byte[]> GetDirectAudio(string url, string token)
+    {
+        using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+        using (var msg = new HttpRequestMessage(HttpMethod.Get, url))
+        {
+            if (!string.IsNullOrEmpty(token)) msg.Headers.TryAddWithoutValidation("X-Token", token);
+            using (var response = await DirectClient.SendAsync(msg, cts.Token).ConfigureAwait(false))
+            {
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+            }
+        }
+    }
     public static bool IsDirectHost(string url)
     {
         Uri uri;

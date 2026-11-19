@@ -10,7 +10,7 @@ namespace Xiaoqi.UI2
 {
     /// <summary>
     /// V6 统一对话与语音客户端：
-    /// - 文本对话：优先请求 Brain /api/chat，离线或假数据时平滑回退本地小祈口吻回复
+    /// - 文本对话：请求 Brain /v1/chat/completions，失败时明确提示，不生成预设回复
     /// - 麦克风录音 + STT：支持按住热键或点击麦克风录音，编码 16kHz WAV 并预留 /api/voice/stt 接口
     /// - 逐字流式输出 + TTS 语音播报：支持 /api/voice/preview 音频拉取并在本地 AudioSource 播放
     /// </summary>
@@ -25,10 +25,19 @@ namespace Xiaoqi.UI2
         }
 
         [Serializable]
-        private class ChatReq { public string text; public string source; }
+        private class ChatMessage { public string role = "user"; public string content; }
 
         [Serializable]
-        private class ChatResp { public string reply; public string text; public string audio_url; }
+        private class ChatReq { public bool stream = false; public ChatMessage[] messages; }
+
+        [Serializable]
+        private class ChatChoice { public ChatMessage message; }
+
+        [Serializable]
+        private class ChatResp { public ChatChoice[] choices; }
+
+        [Serializable]
+        private class VoiceResp { public bool ok; public string url; }
 
         [Serializable]
         private class SttResp { public string text; public string transcript; }
@@ -52,6 +61,8 @@ namespace Xiaoqi.UI2
         public static bool IsRecording { get; private set; }
         public static bool IsThinking { get; private set; }
         public static bool IsStreaming { get; private set; }
+        public static bool IsRecognizing { get; private set; }
+        public static string Status { get; private set; } = "";
         public static bool IsPlayingTts { get { return _i != null && _i._audio != null && _i._audio.isPlaying; } }
         public static float TtsRemainingSec
         {
@@ -71,16 +82,7 @@ namespace Xiaoqi.UI2
         private float _recStartTime;
         private Coroutine _streamCo;
         private Coroutine _ttsCo;
-        private int _offlineIdx;
-
-        private static readonly string[] OfflineReplies =
-        {
-            "嗯哼？我在听呢，刚才还以为你在忙工作~",
-            "那我押零号大坝——水泥味，猜错可不准笑我哦~",
-            "收到收到！今天也要记得多喝点温水呀，我就在这儿陪着你。",
-            "哇，这个想法挺可爱的嘛，要不要我记到今天的手账里？",
-            "好呀好呀，随时喊我一声就行，我一直都在~"
-        };
+        private void Report(string message) { Status = message; NotifyChanged(); }
 
         public static void NotifyChanged()
         {
@@ -90,7 +92,8 @@ namespace Xiaoqi.UI2
 
         public void StartRecording()
         {
-            if (IsRecording) return;
+            if (IsRecording || IsRecognizing || IsThinking) return;
+            Status = "";
             IsRecording = true;
             _recStartTime = Time.unscaledTime;
             LiveTranscript = "正在聆听你的声音…";
@@ -105,13 +108,16 @@ namespace Xiaoqi.UI2
                 {
                     _micDevice = null;
                     _micClip = null;
-                    LiveTranscript = "正在聆听…（未检测到麦克风，松开将发送模拟语音）";
+                    IsRecording = false;
+                    Report("未检测到麦克风，未发送任何内容");
                 }
             }
             catch (Exception e)
             {
                 Debug.LogWarning("XQ_VOICE mic start: " + e.Message);
                 _micClip = null;
+                IsRecording = false;
+                Report("无法开始录音，请检查麦克风权限");
             }
             NotifyChanged();
         }
@@ -141,6 +147,8 @@ namespace Xiaoqi.UI2
 
         private IEnumerator ProcessSttAndSend(byte[] wav, float dur)
         {
+            if (wav == null) { Report("没有录到有效声音，请重试；未发送任何内容"); yield break; }
+            IsRecognizing = true;
             var cfg = XiaoqiRuntime.Config ?? XiaoqiConfig.LoadOrCreate();
             string server = (cfg != null ? cfg.server : "") ?? "";
             string recognized = null;
@@ -172,8 +180,11 @@ namespace Xiaoqi.UI2
 
             if (string.IsNullOrEmpty(recognized))
             {
-                recognized = string.Format("（语音 {0:0.0}s）小祈，今天过得怎么样？", dur);
+                IsRecognizing = false;
+                Report("语音识别未返回文字，请改用输入；未发送任何内容");
+                yield break;
             }
+            IsRecognizing = false;
             LiveTranscript = recognized;
             NotifyChanged();
             SendText(recognized, true);
@@ -182,6 +193,12 @@ namespace Xiaoqi.UI2
         public void SendText(string userText, bool fromVoice = false)
         {
             if (string.IsNullOrWhiteSpace(userText)) return;
+            if (IsThinking || IsStreaming || IsRecognizing) { Report("请等待当前回应完成"); return; }
+            Status = "";
+            LatestReplyFull = "";
+            LatestReplyVisible = "";
+            if (_audio != null) _audio.Stop();
+            if (_ttsCo != null) { StopCoroutine(_ttsCo); _ttsCo = null; }
             userText = userText.Trim();
             LiveTranscript = userText;
             IsThinking = true;
@@ -208,10 +225,10 @@ namespace Xiaoqi.UI2
 
             if (!string.IsNullOrEmpty(server))
             {
-                string chatUrl = server.TrimEnd('/') + "/api/chat";
-                string json = JsonUtility.ToJson(new ChatReq { text = userText, source = "desktop" });
+                string chatUrl = server.TrimEnd('/') + "/v1/chat/completions";
+                string json = JsonUtility.ToJson(new ChatReq { messages = new[] { new ChatMessage { content = userText } } });
                 XqHttp.Resp resp = default(XqHttp.Resp);
-                yield return XqHttp.PostJson(chatUrl, cfg != null ? cfg.token : "", json, 8, r => resp = r);
+                yield return XqHttp.PostJson(chatUrl, cfg != null ? cfg.token : "", json, 120, r => resp = r);
                 if (resp.ok && !string.IsNullOrEmpty(resp.text))
                 {
                     try
@@ -219,8 +236,8 @@ namespace Xiaoqi.UI2
                         var cr = JsonUtility.FromJson<ChatResp>(resp.text);
                         if (cr != null)
                         {
-                            reply = !string.IsNullOrEmpty(cr.reply) ? cr.reply : cr.text;
-                            audioUrl = cr.audio_url;
+                            if (cr.choices != null && cr.choices.Length > 0 && cr.choices[0].message != null)
+                                reply = cr.choices[0].message.content;
                         }
                     }
                     catch { }
@@ -229,8 +246,13 @@ namespace Xiaoqi.UI2
 
             if (string.IsNullOrEmpty(reply))
             {
-                reply = OfflineReplies[_offlineIdx % OfflineReplies.Length];
-                _offlineIdx++;
+                IsThinking = false;
+                if (turnIndex >= 0 && turnIndex < Turns.Count)
+                {
+                    var failed = Turns[turnIndex]; failed.replyText = "[未收到回复]"; Turns[turnIndex] = failed;
+                }
+                Report("未收到云端回复，请检查连接后重试");
+                yield break;
             }
 
             IsThinking = false;
@@ -284,14 +306,44 @@ namespace Xiaoqi.UI2
             string url = explicitAudioUrl;
             if (string.IsNullOrEmpty(url) && !string.IsNullOrEmpty(server))
             {
-                url = server.TrimEnd('/') + "/api/voice/preview?text=" + UnityWebRequest.EscapeURL(text ?? "");
+                XqHttp.Resp response = default(XqHttp.Resp);
+                string json = Newtonsoft.Json.JsonConvert.SerializeObject(new { text = text ?? "" });
+                yield return XqHttp.PostJson(server.TrimEnd('/') + "/api/voice/preview", cfg != null ? cfg.token : "", json, 190, r => response = r);
+                VoiceResp voice = null;
+                if (response.ok) { try { voice = JsonUtility.FromJson<VoiceResp>(response.text); } catch { } }
+                if (voice == null || !voice.ok || string.IsNullOrEmpty(voice.url))
+                { Report("文字回复已收到，语音合成失败"); yield break; }
+                url = voice.url;
             }
             if (string.IsNullOrEmpty(url)) yield break;
+            Uri resolved;
+            if (!Uri.TryCreate(new Uri(server.TrimEnd('/') + "/"), url, out resolved))
+            { Report("语音地址无效"); yield break; }
+            url = resolved.AbsoluteUri;
 
+            string cachedAudio = null;
+            if (XqHttp.IsDirectHost(url))
+            {
+                var download = XqHttp.GetDirectAudio(url, cfg != null ? cfg.token : "");
+                while (!download.IsCompleted) yield return null;
+                if (download.IsFaulted || download.IsCanceled)
+                {
+                    if (download.IsFaulted) Debug.LogWarning("XQ_VOICE audio: " + download.Exception.GetBaseException().Message);
+                    Report("文字回复已收到，语音下载失败"); yield break;
+                }
+                cachedAudio = Path.Combine(Application.temporaryCachePath, "xq-voice-" + Guid.NewGuid().ToString("N") + ".wav");
+                bool saved = false;
+                try { File.WriteAllBytes(cachedAudio, download.Result); saved = true; }
+                catch (Exception e) { Debug.LogWarning("XQ_VOICE cache: " + e.Message); }
+                if (!saved) { Report("语音缓存失败"); yield break; }
+                url = new Uri(cachedAudio).AbsoluteUri;
+            }
+            try
+            {
             using (var req = UnityWebRequestMultimedia.GetAudioClip(url, AudioType.WAV))
             {
                 if (cfg != null && !string.IsNullOrEmpty(cfg.token)) req.SetRequestHeader("X-Token", cfg.token);
-                req.timeout = 6;
+                req.timeout = 30;
                 yield return req.SendWebRequest();
                 if (req.result == UnityWebRequest.Result.Success)
                 {
@@ -304,7 +356,10 @@ namespace Xiaoqi.UI2
                         NotifyChanged();
                     }
                 }
+                else Report("文字回复已收到，语音下载失败");
             }
+            }
+            finally { if (cachedAudio != null && File.Exists(cachedAudio)) File.Delete(cachedAudio); }
         }
 
         private static byte[] EncodeWav(AudioClip clip, int sampleCount)

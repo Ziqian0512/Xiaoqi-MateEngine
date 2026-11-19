@@ -13,10 +13,11 @@ namespace Xiaoqi.UI2
     {
         public const int BarCount = 160;
         public static readonly float[] Bars = new float[BarCount];
-        public static string CurrentAudioTitle = "Baby you · Yuka (内置)";
+        public static string CurrentAudioTitle = "未检测到媒体窗口";
         public static string CurrentPlayerName = "等待媒体播放";
         public static bool IsSystemMediaDetected { get; private set; }
 
+        private static readonly float[] Spectrum = new float[256];
         private static float _nextScanAt;
         private static readonly string[] PlayerProcs =
         {
@@ -35,8 +36,8 @@ namespace Xiaoqi.UI2
                 ScanActivePlayer();
             }
 
-            bool active = IsSystemMediaDetected || XqMusicBridge.IsPlaying || XqVoiceChatClient.IsPlayingTts;
-            float t = Time.unscaledTime;
+            bool active = XqVoiceChatClient.IsPlayingTts;
+            if (active) AudioListener.GetSpectrumData(Spectrum, 0, FFTWindow.BlackmanHarris);
             for (int i = 0; i < BarCount; i++)
             {
                 float norm = i / (float)(BarCount - 1);
@@ -44,14 +45,11 @@ namespace Xiaoqi.UI2
                 float target;
                 if (active)
                 {
-                    float w1 = Mathf.Abs(Mathf.Sin(t * 4.2f + i * 0.47f));
-                    float w2 = Mathf.Abs(Mathf.Cos(t * 7.1f - i * 0.83f));
-                    float w3 = Mathf.Abs(Mathf.Sin(t * 2.3f + i * 0.21f));
-                    target = Mathf.Clamp01((0.16f + 0.52f * w1 + 0.32f * w2 * w3) * env);
+                    target = Mathf.Clamp01(Spectrum[Mathf.Min(i, 255)] * 30f);
                 }
                 else
                 {
-                    target = 0.06f + 0.04f * Mathf.Abs(Mathf.Sin(t * 1.1f + i * 0.3f));
+                    target = 0f;
                 }
                 Bars[i] = Mathf.Lerp(Bars[i], target, Mathf.Clamp01(dt * 12f));
             }
@@ -84,8 +82,8 @@ namespace Xiaoqi.UI2
 
             IsSystemMediaDetected = false;
             var trk = XqMusicBridge.Current;
-            CurrentAudioTitle = trk.title + " · " + trk.artist;
-            CurrentPlayerName = XqMusicBridge.IsPlaying ? "内置歌单" : "待机中";
+            CurrentAudioTitle = "未检测到媒体窗口";
+            CurrentPlayerName = "待机中";
         }
     }
 }

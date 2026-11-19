@@ -84,10 +84,11 @@ namespace Xiaoqi.UI2
             }
 
             bool active = XqVoiceChatClient.IsRecording
+                || XqVoiceChatClient.IsRecognizing
                 || XqVoiceChatClient.IsThinking
                 || XqVoiceChatClient.IsStreaming
                 || XqVoiceChatClient.IsPlayingTts
-                || (Time.unscaledTime - XqVoiceChatClient.LastInteractionAt < 9f && XqVoiceChatClient.Turns.Count > 0);
+                || (Time.unscaledTime - XqVoiceChatClient.LastInteractionAt < 9f && (XqVoiceChatClient.Turns.Count > 0 || !string.IsNullOrEmpty(XqVoiceChatClient.Status)));
 
             float targetAlpha = active ? 1f : 0f;
             _alpha = Mathf.MoveTowards(_alpha, targetAlpha, Time.unscaledDeltaTime * (active ? 8f : 2.2f));
@@ -159,7 +160,12 @@ namespace Xiaoqi.UI2
             if (_turnsBox == null) return;
             _turnsBox.Clear();
 
-            if (XqVoiceChatClient.IsRecording)
+            if (!string.IsNullOrEmpty(XqVoiceChatClient.Status) || XqVoiceChatClient.IsRecognizing)
+            {
+                _micPill.style.display = DisplayStyle.Flex;
+                _micLabel.text = XqVoiceChatClient.IsRecognizing ? "正在识别语音…" : XqVoiceChatClient.Status;
+            }
+            else if (XqVoiceChatClient.IsRecording)
             {
                 _micPill.style.display = DisplayStyle.Flex;
                 _micPill.style.backgroundColor = new Color(0.96f, 0.45f, 0.71f, 0.22f);

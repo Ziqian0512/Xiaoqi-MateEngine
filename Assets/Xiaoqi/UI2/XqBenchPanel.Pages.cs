@@ -17,7 +17,7 @@ namespace Xiaoqi.UI2
     /// </summary>
     public partial class XqBenchPanel
     {
-        static readonly string[] PageName = { "此刻首页", "生活手账", "日常相册", "成长轨迹", "歌单音乐", "偏好设置" };
+        static readonly string[] PageName = { "此刻首页", "生活手账", "日常相册", "成长轨迹", "陪伴控制", "偏好设置" };
         const string HomeToken = "hk-rpH2Hj8G0IHQBlrx";
         const string OfficeToken = "of-w0_ioGzw2HeX4OSe";
 
@@ -285,12 +285,12 @@ namespace Xiaoqi.UI2
             var trk = XqMusicBridge.Current;
             var mInfo = new VisualElement { pickingMode = PickingMode.Ignore };
             mInfo.style.flexShrink = 1f;
-            mInfo.Add(L(trk.title + " · 网易云", 11.5f, Ink, true));
+            mInfo.Add(L(trk.title, 11.5f, Ink, true));
             mInfo.Add(L(trk.artist, 9.5f, Ink2, false));
             var mBtn = Box(32f * _k, 32f * _k, 16f * _k, acc);
             mBtn.style.alignItems = Align.Center; mBtn.style.justifyContent = Justify.Center;
             mBtn.Add(L(XqMusicBridge.IsPlaying ? "||" : "▶", 12f, Color.white, true));
-            Click(mBtn, () => { XqMusicBridge.TogglePlay(); RenderPage(); });
+            mBtn.SetEnabled(false); mBtn.style.opacity = 0.4f;
             mCtrlRow.Add(mInfo); mCtrlRow.Add(mBtn);
             cMusic.Add(mCtrlRow);
 

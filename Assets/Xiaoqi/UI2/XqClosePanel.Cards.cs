@@ -251,8 +251,8 @@ namespace Xiaoqi.UI2
             mTimes.style.flexDirection = FlexDirection.Row;
             mTimes.style.justifyContent = Justify.SpaceBetween;
             mTimes.style.marginBottom = 6f;
-            var tL = new Label("0:50") { pickingMode = PickingMode.Ignore }; tL.style.color = ClInkSoft; _marks.Add(tL);
-            var tR = new Label("3:04") { pickingMode = PickingMode.Ignore }; tR.style.color = ClInkSoft; _marks.Add(tR);
+            var tL = new Label("--:--") { pickingMode = PickingMode.Ignore }; tL.style.color = ClInkSoft; _marks.Add(tL);
+            var tR = new Label("未接入播放") { pickingMode = PickingMode.Ignore }; tR.style.color = ClInkSoft; _marks.Add(tR);
             mTimes.Add(tL); mTimes.Add(tR);
             _bodyMusic.Add(mTimes);
 
@@ -268,6 +268,7 @@ namespace Xiaoqi.UI2
             _musicNext.RegisterCallback<ClickEvent>(e => { e.StopPropagation(); XqMusicBridge.Next(); RefreshMusicCard(); });
             _musicLike = MakeMusicBtn(XqMusicBridge.Current.liked ? "♥" : "♡", false, out _musicLikeLbl);
             _musicLike.RegisterCallback<ClickEvent>(e => { e.StopPropagation(); XqMusicBridge.ToggleLike(); RefreshMusicCard(); });
+            _musicPrev.SetEnabled(false); _musicPlay.SetEnabled(false); _musicNext.SetEnabled(false); _musicLike.SetEnabled(false);
             mCtrls.Add(_musicPrev); mCtrls.Add(_musicPlay); mCtrls.Add(_musicNext); mCtrls.Add(_musicLike);
             _bodyMusic.Add(mCtrls);
             Add("card-music", XqCloseLayout.MusicL, XqCloseLayout.MusicT, XqCloseLayout.MusicW, XqCloseLayout.MusicH);
@@ -382,7 +383,7 @@ namespace Xiaoqi.UI2
 
             // 四散在人物周围的 4 颗快捷表情按钮 + 无框颜文字（绝不与右侧卡片重叠）
             _exprBlush = MakeScatterExpr("🌸 脸红", 29f, 24f, -3f, () => TriggerExpr("害羞", 0.75f, 0.55f));
-            _exprHeart = MakeScatterExpr("🫶 比心", 26f, 48f, 2f, () => TriggerExpr("开心", 0.90f, 0.75f));
+            _exprHeart = MakeScatterExpr("☺ 开心", 26f, 48f, 2f, () => TriggerExpr("开心", 0.90f, 0.75f));
             _exprSleep = MakeScatterExpr("😪 打盹", 61f, 32f, 3f, () => TriggerExpr("困", 0.05f, 0.10f));
             _exprPose = MakeScatterExpr("✨ 换姿势", 61f, 48f, -2f, () => { Xiaoqi.Host.PetHost.I?.RunAction("pose_next"); });
 
@@ -428,9 +429,7 @@ namespace Xiaoqi.UI2
 
         static void TriggerExpr(string spike, float joy, float fun)
         {
-            Xiaoqi.Spike.XiaoqiFace.DebugSpike(spike);
-            if (Xiaoqi.Host.PetHost.I != null && Xiaoqi.Host.PetHost.I.Ready)
-                Xiaoqi.Host.PetHost.I.SetFace(new Xiaoqi.Host.FaceFrame { joy = joy, fun = fun, blink = 0.2f });
+            Xiaoqi.Spike.XiaoqiFace.React(joy, fun);
         }
 
         void ToggleFocusTimer()

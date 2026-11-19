@@ -84,6 +84,7 @@ namespace Xiaoqi.UI2
             RefreshSay();
             RefreshStateWidgets();
             StartEnter();
+            Xiaoqi.Spike.XiaoqiFace.React(0.25f, 0.1f);
             Pair("open");
         }
 

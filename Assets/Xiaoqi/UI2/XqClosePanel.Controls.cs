@@ -228,6 +228,7 @@ namespace Xiaoqi.UI2
             if (_chatInput == null) return;
             string txt = _chatInput.value;
             if (string.IsNullOrWhiteSpace(txt)) return;
+            if (XqVoiceChatClient.IsThinking || XqVoiceChatClient.IsStreaming || XqVoiceChatClient.IsRecognizing) return;
             _chatInput.value = "";
             XqVoiceChatClient.Ensure().SendText(txt, false);
         }
@@ -245,7 +246,11 @@ namespace Xiaoqi.UI2
 
             if (_sayText != null)
             {
-                if (XqVoiceChatClient.IsRecording)
+                if (!string.IsNullOrEmpty(XqVoiceChatClient.Status))
+                    _sayText.text = XqVoiceChatClient.Status;
+                else if (XqVoiceChatClient.IsRecognizing)
+                    _sayText.text = "正在识别语音…";
+                else if (XqVoiceChatClient.IsRecording)
                     _sayText.text = "● 正在听你说话：" + XqVoiceChatClient.LiveTranscript;
                 else if (!string.IsNullOrEmpty(XqVoiceChatClient.LatestReplyVisible))
                     _sayText.text = "“" + XqVoiceChatClient.LatestReplyVisible + (XqVoiceChatClient.IsStreaming ? "▍" : "”");

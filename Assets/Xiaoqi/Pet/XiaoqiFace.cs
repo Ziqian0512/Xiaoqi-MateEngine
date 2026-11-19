@@ -23,6 +23,30 @@ namespace Xiaoqi.Spike
         private float _yawnAt = -1f;
         private float _nextYawn;
 
+        private float _reactionAt = -100f;
+        private float _reactionJoy, _reactionFun;
+
+        // Short reactions share the existing face owner; repeated taps do not restart them.
+        public static void React(float joy, float fun)
+        {
+            if (_instance == null || _instance._cfg == null || _instance._asleep) return;
+            if (Time.unscaledTime - _instance._reactionAt < 1.6f) return;
+            _instance._reactionAt = Time.unscaledTime;
+            _instance._reactionJoy = Mathf.Clamp01(joy);
+            _instance._reactionFun = Mathf.Clamp01(fun);
+        }
+
+        private void ApplyReaction()
+        {
+            float age = Time.unscaledTime - _reactionAt;
+            if (age < 0f || age >= 1.6f) return;
+            float w = age < 0.22f ? Mathf.SmoothStep(0f, 1f, age / 0.22f)
+                : 1f - Mathf.SmoothStep(0f, 1f, (age - 0.65f) / 0.95f);
+            SetMax("Joy", _reactionJoy * w);
+            SetMax("Fun", _reactionFun * w);
+            if (age < 0.3f) SetMax("Blink", Mathf.Sin(age / 0.3f * Mathf.PI));
+        }
+
         private void Awake() { _instance = this; }
 
         public static string Readout()
@@ -104,7 +128,7 @@ namespace Xiaoqi.Spike
         {
             if (!XiaoqiRuntime.Config.emotion_line) return;
             if (PetHost.I == null || !PetHost.I.Ready) return;
-            if (_stage == null && string.IsNullOrEmpty(_debugBaseTop)) return;
+            if (_stage == null && string.IsNullOrEmpty(_debugBaseTop) && Time.unscaledTime - _reactionAt >= 1.6f) return;
 
             foreach (var k in Keys) _target[k] = 0f;
 
@@ -117,6 +141,7 @@ namespace Xiaoqi.Spike
                 ApplyBase();
                 ApplySpike();
                 ApplyBody();
+                ApplyReaction();
             }
 
             float dt = Time.unscaledDeltaTime;
@@ -136,7 +161,7 @@ namespace Xiaoqi.Spike
                 AddMap(_debugBaseTop, _debugBaseLevel * _cfg.face.base_gain, baseOnly: true);
                 return;
             }
-            var f = _stage.face;
+            var f = _stage != null ? _stage.face : null;
             if (f == null || string.IsNullOrEmpty(f.top) || f.level < _cfg.face.base_min_level) return;
             AddMap(f.top, f.level * _cfg.face.base_gain, baseOnly: true);
         }

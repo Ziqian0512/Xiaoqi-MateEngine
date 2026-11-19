@@ -117,9 +117,7 @@ namespace Xiaoqi.UI2
                 if (OverEl(_actPat))
                 {
                     _lastClickFrame = Time.frameCount;
-                    Xiaoqi.Spike.XiaoqiFace.DebugSpike("害羞");
-                    if (Xiaoqi.Host.PetHost.I != null && Xiaoqi.Host.PetHost.I.Ready)
-                        Xiaoqi.Host.PetHost.I.SetFace(new Xiaoqi.Host.FaceFrame { joy = 0.75f, fun = 0.55f, blink = 0.2f });
+                    Xiaoqi.Spike.XiaoqiFace.React(0.55f, 0.3f);
                     Focus(_actPat);
                     Pair("act pat");
                     return;

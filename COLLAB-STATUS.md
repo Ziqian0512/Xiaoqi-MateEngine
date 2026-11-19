@@ -30,3 +30,14 @@
 - **禁止在圆角 `VisualElement` 上设 `overflow = Overflow.Hidden`**：Unity 6 UI Toolkit 在透明桌面窗口下会触发圆角裁剪遮罩 Bug，导致整个卡片变成实心纯白块。
 - **禁止缩小 `MainCamera.rect`**：会导致透明窗口底部区域每帧不被清屏，产生叠纸牌残影拖尾。
 - **禁止用 `git checkout --` 清理 Unity 自动改写的资产**：`addressables_content_state.bin`、`ProjectSettings.asset`、`lilToonSetting.json`、`EditorUserSettings.asset` 勿强行还原，提交代码时只 `git add Assets/Xiaoqi/` 与文档即可。
+
+## 4. 2026-11-19 链路真实性与近景反馈第一轮
+- 聊天改接现有 `POST /v1/chat/completions`（非流式响应，客户端逐字呈现）；删除离线预设回复。发送新消息先清旧回复，忙碌时保留输入，防止并发轮次错位。
+- TTS 修正为 `POST /api/voice/preview` 后下载返回的 WAV；内网音频下载绕过系统代理。已实测本机 `127.0.0.1:8008/health` 在线（IndexTTS-2.5），云端语音合成返回真实 `/voice/preview-*.wav`。
+- 聊天端到端请求到达云端，但模型上游返回 **HTTP 402 Payment Required**（已只读核对 dspet-relay 日志）；需检查上游账户额度，尚未验收真实聊天成功。未修改或重启云端服务。
+- STT 尚无已确认可用的服务；删除无麦克风/识别失败后自动编造问题发送的行为，明确提示失败。语音识别仍待联调，不能视为已接通。
+- 音乐尚未接入真实播放源：移除内置模拟歌单与推进，禁用近景播放按钮、显示未接入；频谱仅使用本地实际音频输出（当前 TTS），外部播放器标题只作窗口元数据，不假装测得系统频谱。
+- “歌单音乐”导航改称“陪伴控制”，与现有 Brain 控制内容对应；相册与文字记忆拆分仍待办。
+- 近景进入、摸头、表情按钮复用现有表情控制器，增加短眨眼、渐入/停留/恢复和 1.6 秒防重复触发；原“比心”仅改变表情，改名“开心”。没有新增全身动作或单眼通道。
+- 尚需用户实际观感验收：表情幅度、眨眼速度、透明窗口命中、近景完整体验。单眼闭合虽有底层通道，未验证模型支持，本轮不启用。
+- 验证：Unity 6000.2.6f2 / XiaoqiBuild.Win64 最终构建成功并退出 0；robocopy 同步到 Xiaoqi-Tonight，退出码 3（成功），保留 xiaoqi_config.json。云端生成音频下载 HTTP 200，audio/wav，88108 字节，RIFF/WAVE 文件头通过。尚未完成窗口内听感与交互观感验收。
