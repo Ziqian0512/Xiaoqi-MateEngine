@@ -228,7 +228,7 @@ namespace Xiaoqi.UI2
             if (_chatInput == null) return;
             string txt = _chatInput.value;
             if (string.IsNullOrWhiteSpace(txt)) return;
-            if (XqVoiceChatClient.IsThinking || XqVoiceChatClient.IsStreaming || XqVoiceChatClient.IsRecognizing) return;
+            if (XqVoiceChatClient.IsThinking || XqVoiceChatClient.IsRecognizing || XqVoiceChatClient.IsRecording) return;
             _chatInput.value = "";
             XqVoiceChatClient.Ensure().SendText(txt, false);
         }
@@ -258,6 +258,11 @@ namespace Xiaoqi.UI2
                     _sayText.text = "小祈正在想怎么回你…";
             }
 
+            if (_sayText != null)
+            {
+                var config = XiaoqiRuntime.Config;
+                _sayText.style.display = (config == null || config.close_subtitles || !string.IsNullOrEmpty(XqVoiceChatClient.Status) || XqVoiceChatClient.IsThinking || XqVoiceChatClient.IsRecognizing || XqVoiceChatClient.IsRecording) ? DisplayStyle.Flex : DisplayStyle.None;
+            }
             if (_sayTtsLbl != null)
             {
                 _sayTtsLbl.text = XqVoiceChatClient.IsPlayingTts

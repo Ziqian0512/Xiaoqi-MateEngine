@@ -1,0 +1,67 @@
+$ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+[Console]::OutputEncoding = New-Object Text.UTF8Encoding($false)
+Add-Type -AssemblyName System.Runtime.WindowsRuntime
+$managerType = [Windows.Media.Control.GlobalSystemMediaTransportControlsSessionManager,Windows.Media.Control,ContentType=WindowsRuntime]
+$sessionType = [Windows.Media.Control.GlobalSystemMediaTransportControlsSession,Windows.Media.Control,ContentType=WindowsRuntime]
+$propertiesType = [Windows.Media.Control.GlobalSystemMediaTransportControlsSessionMediaProperties,Windows.Media.Control,ContentType=WindowsRuntime]
+$asTask = [System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object { $_.Name -eq 'AsTask' -and $_.IsGenericMethodDefinition -and $_.GetParameters().Count -eq 1 -and $_.GetParameters()[0].ParameterType.Name -eq 'IAsyncOperation`1' } | Select-Object -First 1
+function Await($operation, $type) {
+    $task = $asTask.MakeGenericMethod($type).Invoke($null, @($operation))
+    if (-not $task.Wait(6000)) { throw 'Media request timed out' }
+    return $task.Result
+}
+try { $manager = Await ($managerType::RequestAsync()) $managerType }
+catch { @{available=$false;error=$_.Exception.GetBaseException().Message} | ConvertTo-Json -Compress; exit 1 }
+$lastArtKey = ""
+while ($null -ne ($line = [Console]::ReadLine())) {
+    try {
+        $request = $line | ConvertFrom-Json
+        if ($request.command -eq 'exit') { break }
+        $session = $manager.GetCurrentSession()
+        if ($null -eq $session) { @{available=$false;error='No active media session'} | ConvertTo-Json -Compress; continue }
+        $info = $session.GetPlaybackInfo()
+        $controls = $info.Controls
+        $accepted = $null
+        if ($request.command -ne 'poll') {
+            if ($request.source -ne $session.SourceAppUserModelId) { throw 'Media session changed; retry after refresh' }
+            switch ($request.command) {
+                'toggle' { if (-not ($controls.IsPlayEnabled -or $controls.IsPauseEnabled)) { throw 'Playback control unavailable' }; $accepted = Await ($session.TryTogglePlayPauseAsync()) ([bool]) }
+                'pause' { if (-not $controls.IsPauseEnabled) { throw 'Pause unavailable' }; $accepted = Await ($session.TryPauseAsync()) ([bool]) }
+                'play' { if (-not $controls.IsPlayEnabled) { throw 'Play unavailable' }; $accepted = Await ($session.TryPlayAsync()) ([bool]) }
+                'next' { if (-not $controls.IsNextEnabled) { throw 'Next track unavailable' }; $accepted = Await ($session.TrySkipNextAsync()) ([bool]) }
+                'prev' { if (-not $controls.IsPreviousEnabled) { throw 'Previous track unavailable' }; $accepted = Await ($session.TrySkipPreviousAsync()) ([bool]) }
+                default { throw 'Unknown media command' }
+            }
+            if (-not $accepted) { throw 'Player declined the command' }
+            $info = $session.GetPlaybackInfo()
+        }
+        $properties = Await ($session.TryGetMediaPropertiesAsync()) $propertiesType
+        $timeline = $session.GetTimelineProperties()
+        $duration = [Math]::Max(0, ($timeline.EndTime - $timeline.StartTime).TotalSeconds)
+        $position = [Math]::Max(0, ($timeline.Position - $timeline.StartTime).TotalSeconds)
+        $playing = $info.PlaybackStatus.ToString() -eq 'Playing'
+        if ($playing -and $duration -gt 0) { $position += [Math]::Max(0, [Math]::Min($duration, ([DateTimeOffset]::Now - $timeline.LastUpdatedTime).TotalSeconds)) }
+        $artKey = $session.SourceAppUserModelId + '|' + $properties.Title + '|' + $properties.Artist
+        $coverChanged = $artKey -ne $lastArtKey
+        $cover = ''
+        if ($coverChanged -and $null -ne $properties.Thumbnail) {
+            try {
+                $streamType = [Windows.Storage.Streams.IRandomAccessStreamWithContentType,Windows.Storage.Streams,ContentType=WindowsRuntime]
+                $readerType = [Windows.Storage.Streams.DataReader,Windows.Storage.Streams,ContentType=WindowsRuntime]
+                $stream = Await ($properties.Thumbnail.OpenReadAsync()) $streamType
+                if ($stream.Size -gt 0 -and $stream.Size -le 524288) {
+                    $reader = $readerType::new($stream.GetInputStreamAt(0))
+                    $loaded = Await ($reader.LoadAsync([uint32]$stream.Size)) ([uint32])
+                    $bytes = New-Object byte[] $loaded
+                    $reader.ReadBytes($bytes)
+                    $cover = [Convert]::ToBase64String($bytes)
+                    try { ([IDisposable]$reader).Dispose() } catch { }
+                }
+                try { ([IDisposable]$stream).Dispose() } catch { }
+            } catch { $cover = '' }
+        }
+        $lastArtKey = $artKey
+        @{available=$true;source=$session.SourceAppUserModelId;title=$properties.Title;artist=$properties.Artist;duration=$duration;position=[Math]::Min($duration,$position);playing=$playing;canToggle=($info.Controls.IsPlayEnabled -or $info.Controls.IsPauseEnabled);canNext=$info.Controls.IsNextEnabled;canPrev=$info.Controls.IsPreviousEnabled;accepted=$accepted;coverChanged=$coverChanged;cover=$cover;error=''} | ConvertTo-Json -Compress
+    } catch { @{available=$false;error=$_.Exception.GetBaseException().Message} | ConvertTo-Json -Compress }
+}

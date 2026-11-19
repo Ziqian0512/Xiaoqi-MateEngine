@@ -109,6 +109,7 @@ namespace Xiaoqi.UI2
             Build(_root);
         }
 
+        void OnApplicationQuit() { XqMusicBridge.Shutdown(); }
         void OnDestroy()
         {
             if (_instance == this) _instance = null;

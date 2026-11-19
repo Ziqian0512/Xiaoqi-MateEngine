@@ -82,7 +82,40 @@ namespace Xiaoqi.UI2
         private float _recStartTime;
         private Coroutine _streamCo;
         private Coroutine _ttsCo;
+        public static bool ShouldAutoSpeak(XiaoqiConfig cfg, Xiaoqi.Mode.XqView view, bool quiet, float draw)
+        {
+            if (cfg == null || !cfg.voice_tts_auto || cfg.muted || quiet || !cfg.bubble) return false;
+            if (view == Xiaoqi.Mode.XqView.Close) return true;
+            float probability = Mathf.Clamp01(cfg.pet_voice_probability);
+            return view == Xiaoqi.Mode.XqView.Pet && (probability >= 1f || draw < probability);
+        }
+
+        private string _lastDeliveredText = "";
+        private float _lastDeliveredAt = -100f, _lastFeedVoiceAt = -100f;
+        public void SpeakFeed(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text) || IsThinking || IsRecording || IsRecognizing) return;
+            if (text == _lastDeliveredText && Time.unscaledTime - _lastDeliveredAt < 30f) return;
+            var cfg = XiaoqiRuntime.Config;
+            var view = Xiaoqi.Mode.XqMode.Current;
+            _lastDeliveredText = text; _lastDeliveredAt = Time.unscaledTime;
+            if (view == Xiaoqi.Mode.XqView.Pet && Time.unscaledTime - _lastFeedVoiceAt < 60f) return;
+            if (!ShouldAutoSpeak(cfg, view, XiaoqiRuntime.Dnd, UnityEngine.Random.value)) return;
+            if (view == Xiaoqi.Mode.XqView.Pet && UnityEngine.Random.value >= 0.35f) return;
+            if (IsPlayingTts || IsStreaming) return;
+            _lastFeedVoiceAt = Time.unscaledTime;
+            PlayTts(text);
+        }
+
         private void Report(string message) { Status = message; NotifyChanged(); }
+
+        private void Update()
+        {
+            var cfg = XiaoqiRuntime.Config;
+            if (_audio == null || !_audio.isPlaying || cfg == null) return;
+            if (cfg.muted || XiaoqiRuntime.Dnd || !cfg.bubble) { _audio.Stop(); NotifyChanged(); }
+            else _audio.volume = Mathf.Clamp01(cfg.volume);
+        }
 
         public static void NotifyChanged()
         {
@@ -193,8 +226,10 @@ namespace Xiaoqi.UI2
         public void SendText(string userText, bool fromVoice = false)
         {
             if (string.IsNullOrWhiteSpace(userText)) return;
-            if (IsThinking || IsStreaming || IsRecognizing) { Report("请等待当前回应完成"); return; }
+            if (IsThinking || IsRecognizing || IsRecording) { Report("请等待当前回应完成"); return; }
             Status = "";
+            if (_streamCo != null) { StopCoroutine(_streamCo); _streamCo = null; }
+            IsStreaming = false;
             LatestReplyFull = "";
             LatestReplyVisible = "";
             if (_audio != null) _audio.Stop();
@@ -264,7 +299,8 @@ namespace Xiaoqi.UI2
             }
             StartStream(reply);
 
-            if (cfg == null || cfg.voice_tts_auto)
+            _lastDeliveredText = reply; _lastDeliveredAt = Time.unscaledTime;
+            if (ShouldAutoSpeak(cfg, Xiaoqi.Mode.XqMode.Current, XiaoqiRuntime.Dnd, UnityEngine.Random.value))
             {
                 PlayTts(reply, audioUrl);
             }
@@ -294,7 +330,7 @@ namespace Xiaoqi.UI2
         public void PlayTts(string text, string explicitAudioUrl = null)
         {
             var cfg = XiaoqiRuntime.Config;
-            if (cfg != null && cfg.muted) return;
+            if (cfg == null || cfg.muted || XiaoqiRuntime.Dnd || !cfg.bubble) return;
             if (_ttsCo != null) StopCoroutine(_ttsCo);
             _ttsCo = StartCoroutine(FetchAndPlayTts(text, explicitAudioUrl));
         }
@@ -350,6 +386,7 @@ namespace Xiaoqi.UI2
                     var clip = DownloadHandlerAudioClip.GetContent(req);
                     if (clip != null && _audio != null)
                     {
+                        if (cfg.muted || XiaoqiRuntime.Dnd || !cfg.bubble) yield break;
                         _audio.volume = cfg != null ? Mathf.Clamp01(cfg.volume) : 1f;
                         _audio.clip = clip;
                         _audio.Play();

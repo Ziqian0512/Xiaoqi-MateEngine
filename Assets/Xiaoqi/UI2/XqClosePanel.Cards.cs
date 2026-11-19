@@ -25,7 +25,8 @@ namespace Xiaoqi.UI2
         readonly List<VisualElement> _spectrumBars = new List<VisualElement>();
 
         Label _clockBig, _locPill, _nextKicker, _nextTime, _nextWhat;
-        Label _musicTitle, _musicArtist, _musicPlayLbl, _musicLikeLbl;
+        Label _musicTitle, _musicArtist, _musicPlayLbl, _musicLikeLbl, _musicElapsed, _musicDuration;
+        Image _musicCover;
         Label _actPatLbl, _actScreenLbl, _actDanceLbl;
         Label _sayText, _sayTtsLbl, _sysAudioLbl;
         Label _tinyChip, _tinyArrow, _tinyBig, _tinySummary;
@@ -194,19 +195,9 @@ namespace Xiaoqi.UI2
             mArt.style.flexShrink = 0f;
             mArt.style.marginRight = 10f;
             mArt.style.alignItems = Align.Center; mArt.style.justifyContent = Justify.Center;
-            var coverTex = Resources.Load<Texture2D>("XqMusicCover");
-            if (coverTex != null)
-            {
-                var artImg = new Image { image = coverTex, scaleMode = ScaleMode.ScaleToFit, pickingMode = PickingMode.Ignore };
-                artImg.style.width = Length.Percent(100f); artImg.style.height = Length.Percent(100f);
-                mArt.Add(artImg);
-            }
-            else
-            {
-                mArt.style.backgroundColor = ClGlassLav;
-                SetRadius(mArt, 12f);
-                mArt.Add(new Label("♫") { pickingMode = PickingMode.Ignore });
-            }
+            _musicCover = new Image { scaleMode = ScaleMode.ScaleToFit, pickingMode = PickingMode.Ignore };
+            _musicCover.style.width = Length.Percent(100f); _musicCover.style.height = Length.Percent(100f);
+            mArt.Add(_musicCover);
             mTop.Add(mArt);
 
             var mInfo = new VisualElement { pickingMode = PickingMode.Ignore };
@@ -253,6 +244,7 @@ namespace Xiaoqi.UI2
             mTimes.style.marginBottom = 6f;
             var tL = new Label("--:--") { pickingMode = PickingMode.Ignore }; tL.style.color = ClInkSoft; _marks.Add(tL);
             var tR = new Label("未接入播放") { pickingMode = PickingMode.Ignore }; tR.style.color = ClInkSoft; _marks.Add(tR);
+            _musicElapsed = tL; _musicDuration = tR;
             mTimes.Add(tL); mTimes.Add(tR);
             _bodyMusic.Add(mTimes);
 
@@ -268,7 +260,7 @@ namespace Xiaoqi.UI2
             _musicNext.RegisterCallback<ClickEvent>(e => { e.StopPropagation(); XqMusicBridge.Next(); RefreshMusicCard(); });
             _musicLike = MakeMusicBtn(XqMusicBridge.Current.liked ? "♥" : "♡", false, out _musicLikeLbl);
             _musicLike.RegisterCallback<ClickEvent>(e => { e.StopPropagation(); XqMusicBridge.ToggleLike(); RefreshMusicCard(); });
-            _musicPrev.SetEnabled(false); _musicPlay.SetEnabled(false); _musicNext.SetEnabled(false); _musicLike.SetEnabled(false);
+            _musicLike.SetEnabled(false); _musicLike.tooltip = "收藏请在播放器中操作";
             mCtrls.Add(_musicPrev); mCtrls.Add(_musicPlay); mCtrls.Add(_musicNext); mCtrls.Add(_musicLike);
             _bodyMusic.Add(mCtrls);
             Add("card-music", XqCloseLayout.MusicL, XqCloseLayout.MusicT, XqCloseLayout.MusicW, XqCloseLayout.MusicH);
@@ -457,9 +449,14 @@ namespace Xiaoqi.UI2
             return b;
         }
 
+        static string tDuration() { return XqMusicBridge.Current.durationSec > 0f ? XqMusicBridge.Clock(XqMusicBridge.Current.durationSec) : "--:--"; }
         void RefreshMusicCard()
         {
             if (_musicTitle == null) return;
+            _musicPrev.SetEnabled(XqMusicBridge.CanPrev); _musicPlay.SetEnabled(XqMusicBridge.CanToggle); _musicNext.SetEnabled(XqMusicBridge.CanNext);
+            if (_musicCover != null) _musicCover.image = XqMusicBridge.Cover;
+            if (_musicElapsed != null) _musicElapsed.text = XqMusicBridge.Available ? XqMusicBridge.Clock(XqMusicBridge.PositionSec) : "--:--";
+            if (_musicDuration != null) _musicDuration.text = tDuration();
             var t = XqMusicBridge.Current;
             _musicTitle.text = t.title;
             if (_musicArtist != null) _musicArtist.text = t.artist;

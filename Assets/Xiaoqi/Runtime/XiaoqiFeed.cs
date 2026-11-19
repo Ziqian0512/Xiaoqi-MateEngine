@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -68,6 +68,7 @@ public class XiaoqiFeed : MonoBehaviour
                     var env = JsonUtility.FromJson<Envelope>(resp.text);
                     if (env != null)
                     {
+                        bool freshBatch = _since >= 0;
                         _since = env.last_id;
                         var allow = cfg.bubble && !XiaoqiRuntime.Dnd
                                     && (env.rules == null || env.rules.show_private_text);
@@ -80,6 +81,7 @@ public class XiaoqiFeed : MonoBehaviour
                                 {
                                     LatestSay = item.text;
                                     OnSay?.Invoke(item.text);
+                                    if (freshBatch && allow) Xiaoqi.UI2.XqVoiceChatClient.Ensure().SpeakFeed(item.text);
                                 }
                                 if (allow) Show(item.text, item.media);
                             }

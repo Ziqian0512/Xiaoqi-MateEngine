@@ -57,33 +57,9 @@ namespace Xiaoqi.UI2
 
         private static void ScanActivePlayer()
         {
-            try
-            {
-                for (int p = 0; p < PlayerProcs.Length; p++)
-                {
-                    var procs = Process.GetProcessesByName(PlayerProcs[p]);
-                    for (int i = 0; i < procs.Length; i++)
-                    {
-                        string title = procs[i].MainWindowTitle;
-                        if (string.IsNullOrWhiteSpace(title)) continue;
-                        if (title.Contains(" - ") || title.Contains("—") || title.Length > 3)
-                        {
-                            // 过滤纯播放器空标题
-                            if (string.Equals(title.Trim(), PlayerLabels[p], StringComparison.OrdinalIgnoreCase)) continue;
-                            CurrentAudioTitle = title.Trim();
-                            CurrentPlayerName = PlayerLabels[p];
-                            IsSystemMediaDetected = true;
-                            return;
-                        }
-                    }
-                }
-            }
-            catch { }
-
-            IsSystemMediaDetected = false;
-            var trk = XqMusicBridge.Current;
-            CurrentAudioTitle = "未检测到媒体窗口";
-            CurrentPlayerName = "待机中";
+            IsSystemMediaDetected = XqMusicBridge.Available;
+            CurrentAudioTitle = XqMusicBridge.Current.title;
+            CurrentPlayerName = XqMusicBridge.Available ? "系统媒体会话" : "等待播放器连接";
         }
     }
 }

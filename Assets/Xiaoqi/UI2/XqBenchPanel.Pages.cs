@@ -21,6 +21,9 @@ namespace Xiaoqi.UI2
         const string HomeToken = "hk-rpH2Hj8G0IHQBlrx";
         const string OfficeToken = "of-w0_ioGzw2HeX4OSe";
 
+        Label _benchMusicTitle, _benchMusicArtist, _benchMusicPlayLabel;
+        VisualElement _benchMusicButton, _benchMusicFill;
+        Image _benchMusicCover;
         int _page;
         int _pgOff;
         int _pgMax;
@@ -51,6 +54,19 @@ namespace Xiaoqi.UI2
             if (_bd != null) { _bd.Changed -= OnBenchData; _bd.Stop(); }
         }
 
+        void RefreshBenchMusic()
+        {
+            if (_page != 0 || _benchMusicTitle == null) return;
+            var track = XqMusicBridge.Current;
+            _benchMusicTitle.text = track.title;
+            _benchMusicArtist.text = track.artist;
+            _benchMusicButton.SetEnabled(XqMusicBridge.CanToggle);
+            _benchMusicButton.style.opacity = XqMusicBridge.CanToggle ? 1f : 0.4f;
+            _benchMusicPlayLabel.text = XqMusicBridge.IsPlaying ? "||" : "▶";
+            _benchMusicFill.style.width = Length.Percent(Mathf.Clamp01(XqMusicBridge.Progress) * 100f);
+            _benchMusicCover.image = XqMusicBridge.Cover;
+        }
+
         void OnBenchData()
         {
             if (!_shown || _bd == null) return;
@@ -60,6 +76,7 @@ namespace Xiaoqi.UI2
         void PageTick(float dt)
         {
             _pgFade = Mathf.MoveTowards(_pgFade, 1f, dt * 6f);
+            RefreshBenchMusic();
         }
 
         void SelectPage(int p)
@@ -268,14 +285,9 @@ namespace Xiaoqi.UI2
             var mCover = Box(-1, 118f * _k, 14f * _k, Rgb(236, 224, 255, 0.95f));
             Border(mCover, 1.5f * _k, Color.white);
             mCover.style.alignItems = Align.Center; mCover.style.justifyContent = Justify.Center;
-            var artTex = Resources.Load<Texture2D>("XqArtLogo");
-            if (artTex != null)
-            {
-                var img = new Image { image = artTex, scaleMode = ScaleMode.ScaleToFit, pickingMode = PickingMode.Ignore };
-                img.style.width = Length.Percent(88f); img.style.height = Length.Percent(82f);
-                mCover.Add(img);
-            }
-            else mCover.Add(L("♫ 网易云 · (>w<)♪", 13f, accDeep, true));
+            _benchMusicCover = new Image { scaleMode = ScaleMode.ScaleToFit, pickingMode = PickingMode.Ignore };
+            _benchMusicCover.style.width = Length.Percent(88f); _benchMusicCover.style.height = Length.Percent(82f);
+            mCover.Add(_benchMusicCover);
             cMusic.Add(mCover);
 
             var mCtrlRow = new VisualElement { pickingMode = PickingMode.Ignore };
@@ -285,18 +297,20 @@ namespace Xiaoqi.UI2
             var trk = XqMusicBridge.Current;
             var mInfo = new VisualElement { pickingMode = PickingMode.Ignore };
             mInfo.style.flexShrink = 1f;
-            mInfo.Add(L(trk.title, 11.5f, Ink, true));
-            mInfo.Add(L(trk.artist, 9.5f, Ink2, false));
+            _benchMusicTitle = L(trk.title, 11.5f, Ink, true); mInfo.Add(_benchMusicTitle);
+            _benchMusicArtist = L(trk.artist, 9.5f, Ink2, false); mInfo.Add(_benchMusicArtist);
             var mBtn = Box(32f * _k, 32f * _k, 16f * _k, acc);
             mBtn.style.alignItems = Align.Center; mBtn.style.justifyContent = Justify.Center;
-            mBtn.Add(L(XqMusicBridge.IsPlaying ? "||" : "▶", 12f, Color.white, true));
-            mBtn.SetEnabled(false); mBtn.style.opacity = 0.4f;
+            _benchMusicPlayLabel = L(XqMusicBridge.IsPlaying ? "||" : "▶", 12f, Color.white, true); mBtn.Add(_benchMusicPlayLabel);
+            _benchMusicButton = mBtn;
+            Click(mBtn, () => XqMusicBridge.TogglePlay());
             mCtrlRow.Add(mInfo); mCtrlRow.Add(mBtn);
             cMusic.Add(mCtrlRow);
 
             var mBar = Box(-1, 5f * _k, 2.5f * _k, Rgb(232, 224, 255, 0.9f));
             var mFill = Box(-1, 5f * _k, 2.5f * _k, acc);
             mFill.style.width = Length.Percent(Mathf.Clamp01(XqMusicBridge.Progress) * 100f);
+            _benchMusicFill = mFill;
             mBar.Add(mFill);
             cMusic.Add(mBar);
 
@@ -497,6 +511,19 @@ namespace Xiaoqi.UI2
                 XiaoqiRuntime.Config.voice_tts_auto = !XiaoqiRuntime.Config.voice_tts_auto;
                 XiaoqiConfig.Save(XiaoqiRuntime.Config);
                 RenderPage();
+            });
+            AddBenchSettingBtn(cRight, "桌宠回复播报概率：" + Mathf.RoundToInt((cfg != null ? cfg.pet_voice_probability : 0.35f) * 100f) + "%", () =>
+            {
+                if (XiaoqiRuntime.Config == null) return;
+                float value = XiaoqiRuntime.Config.pet_voice_probability;
+                XiaoqiRuntime.Config.pet_voice_probability = value < 0.1f ? 0.35f : value < 0.4f ? 0.65f : value < 0.9f ? 1f : 0f;
+                XiaoqiConfig.Save(XiaoqiRuntime.Config); RenderPage();
+            });
+            AddBenchSettingBtn(cRight, "近景字幕：" + ((cfg == null || cfg.close_subtitles) ? "显示" : "隐藏"), () =>
+            {
+                if (XiaoqiRuntime.Config == null) return;
+                XiaoqiRuntime.Config.close_subtitles = !XiaoqiRuntime.Config.close_subtitles;
+                XiaoqiConfig.Save(XiaoqiRuntime.Config); RenderPage();
             });
             AddBenchSettingBtn(cRight, "静音：" + ((cfg != null && cfg.muted) ? "已静音" : "正常发声"), () =>
             {

@@ -46,6 +46,8 @@ public class XiaoqiConfig
     public string voice_hotkey = "N";
     // XQ: V6 自动语音播报回复。
     public bool voice_tts_auto = true;
+    public float pet_voice_probability = 0.35f;
+    public bool close_subtitles = true;
     // XQ: V6 网易云音乐 API 地址（可选，如 http://127.0.0.1:3000）。
     public string netease_api = "";
 
@@ -158,6 +160,11 @@ public class XiaoqiConfig
                     cfg.netease_api = "";
                     dirty = true;
                 }
+                if (text.IndexOf("\"pet_voice_probability\"", StringComparison.Ordinal) < 0)
+                { cfg.pet_voice_probability = 0.35f; dirty = true; }
+                if (text.IndexOf("\"close_subtitles\"", StringComparison.Ordinal) < 0)
+                { cfg.close_subtitles = true; dirty = true; }
+                cfg.pet_voice_probability = Mathf.Clamp01(cfg.pet_voice_probability);
                 if (dirty) Save(cfg);
                 return cfg;
             }
