@@ -673,19 +673,19 @@ namespace Xiaoqi.UI2
 
     public partial class XqBenchPanel
     {
-        static readonly int[] ApprovedPages = { 0, 1, 4, 2, 5 };
-        VisualElement _musicPageControls;
-        Label _musicPageTitle, _musicPageArtist, _musicPageTime;
+        static readonly int[] ApprovedPages = { 0, 1, 2, 5 };
+        VisualElement _panoBg, _musicPageControls;
+        Label _musicPageTitle, _musicPageArtist, _musicPageTime, _benchClockLbl, _benchMetaLine;
         Image _musicPageCover;
 
         void BuildApprovedRail()
         {
-            _rail = Box(64f * _k, PanH * _k, 32f * _k, new Color(.95f, .93f, .99f, .86f));
-            Abs(_rail, 6f * _k, 0, 64f * _k, PanH * _k); Border(_rail, 1f, new Color(1f, 1f, 1f, 0.88f));
+            _rail = Box(64f * _k, PanH * _k, 32f * _k, new Color(.96f, .94f, 1f, .74f));
+            Abs(_rail, 6f * _k, 0, 64f * _k, PanH * _k); Border(_rail, 1.2f, new Color(1f, 1f, 1f, 0.90f));
             _rail.style.alignItems = Align.Center; _rail.style.paddingTop = 22f * _k; _rail.style.paddingBottom = 18f * _k;
-            var logo = L("祈", 22f, XqMoonStyle.Soft, true); logo.style.marginBottom = 22f * _k; _rail.Add(logo);
-            string[] labels = { "此刻", "手账", "歌单", "记忆", "设置" };
-            string[] icons = { "spark", "cal", "sun", "heart", "gear" };
+            var logo = L("祈", 22f, XqMoonStyle.Soft, true); logo.style.marginBottom = 24f * _k; _rail.Add(logo);
+            string[] labels = { "此刻", "手账", "记忆", "" };
+            string[] icons = { "spark", "cal", "heart", "gear" };
             for (int n = 0; n < labels.Length; n++)
             {
                 if (n == labels.Length - 1)
@@ -698,7 +698,10 @@ namespace Xiaoqi.UI2
                 button.style.marginBottom = 8f * _k;
                 button.style.alignItems = Align.Center; button.style.justifyContent = Justify.Center;
                 var icon = new XqGlyph(icons[n], XqMoonStyle.Soft); icon.style.width = icon.style.height = 17f * _k; button.Add(icon);
-                var label = L(labels[n], 8.5f, XqMoonStyle.Soft, false); label.style.marginTop = 2f * _k; button.Add(label);
+                if (!string.IsNullOrEmpty(labels[n]))
+                {
+                    var label = L(labels[n], 8.5f, XqMoonStyle.Soft, false); label.style.marginTop = 2f * _k; button.Add(label);
+                }
                 _nav.Add(button); _navHover.Add(0f); _navGlyph.Add(icon); _rail.Add(button);
             }
             _stage.Add(_rail);
@@ -708,164 +711,351 @@ namespace Xiaoqi.UI2
         {
             float x = 78f * _k;
             _panel = new VisualElement { name = "xq-bench-panel", pickingMode = PickingMode.Ignore };
-            Abs(_panel, x, 0, PanW * _k, PanH * _k); XqMoonStyle.Surface(_panel, 24f * _k);
+            Abs(_panel, x, 0, PanW * _k, PanH * _k);
             _panel.style.backgroundColor = new Color(.97f, .95f, .99f, 1f);
+            Round(_panel, 24f * _k);
+            Border(_panel, 1.5f, new Color(1f, 1f, 1f, 0.90f));
             _stage.Add(_panel);
-            _header = new VisualElement { pickingMode = PickingMode.Ignore }; Abs(_header, 0, 0, PanW * _k, 80f * _k); _panel.Add(_header);
-            _topClock = L("小祈的生活", 16f, Ink, false); Abs(_topClock, 26f * _k, 22f * _k, -1, -1); _header.Add(_topClock);
-            _charTopText = L("", 10f, Ink2, false); Abs(_charTopText, 26f * _k, 49f * _k, -1, -1); _header.Add(_charTopText);
-            _metaLabel = L("", 9f, Ink2, false); Abs(_metaLabel, 350f * _k, 51f * _k, -1, -1); _header.Add(_metaLabel);
-            var switcher = Box(220f * _k, 34f * _k, 17f * _k, new Color(1f,1f,1f,.65f));
+
+            // 全景小祈插画底版（铺满整个工作台，按当前页面自动切换室内/室外/夕阳全景）
+            _panoBg = new VisualElement { name = "xq-bench-pano", pickingMode = PickingMode.Ignore };
+            _panoBg.style.position = Position.Absolute;
+            _panoBg.style.left = _panoBg.style.top = _panoBg.style.right = _panoBg.style.bottom = 0f;
+            _panoBg.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
+            Round(_panoBg, 23f * _k);
+            _panel.Add(_panoBg);
+
+            var panoVeil = new VisualElement { pickingMode = PickingMode.Ignore };
+            panoVeil.style.position = Position.Absolute;
+            panoVeil.style.left = panoVeil.style.top = panoVeil.style.right = panoVeil.style.bottom = 0f;
+            panoVeil.style.backgroundColor = new Color(0.98f, 0.96f, 1f, 0.14f);
+            Round(panoVeil, 23f * _k);
+            _panel.Add(panoVeil);
+
+            _header = new VisualElement { pickingMode = PickingMode.Ignore }; Abs(_header, 0, 0, PanW * _k, 76f * _k); _panel.Add(_header);
+            _topClock = L("", 16f, Ink, false); _topClock.style.display = DisplayStyle.None;
+            _charTopText = L("", 10f, Ink2, false); _charTopText.style.display = DisplayStyle.None;
+            _metaLabel = L("", 9.5f, Ink2, false); Abs(_metaLabel, (PanW - 560f) * _k, 28f * _k, -1, -1); _header.Add(_metaLabel);
+
+            var switcher = Box(220f * _k, 34f * _k, 17f * _k, new Color(1f, 1f, 1f, .76f));
             Abs(switcher, (PanW - 395f) * _k, 20f * _k, 220f * _k, 34f * _k);
+            Border(switcher, 1f, Color.white);
             switcher.style.flexDirection = FlexDirection.Row; switcher.style.alignItems = Align.Center;
             _petModeBtn = ModePill("桌宠", false, Ink2, Color.clear); _closeModeBtn = ModePill("近景", false, Ink2, Color.clear);
-            _benchModeTag = ModePill("工作台", true, Color.white, new Color(.54f,.46f,.64f));
+            _benchModeTag = ModePill("工作台", true, Color.white, new Color(.48f, .38f, .86f));
             switcher.Add(_petModeBtn); switcher.Add(_closeModeBtn); switcher.Add(_benchModeTag); _header.Add(switcher);
-            _modeBtn = Box(96f * _k, 34f * _k, 17f * _k, new Color(1f,1f,1f,.65f));
-            Abs(_modeBtn, (PanW - 164f) * _k, 20f * _k, 96f * _k, 34f * _k); _modeBtn.style.justifyContent = Justify.Center;
-            _modeBtnLabel = L(IsOfficeMode() ? "办公模式" : "居家模式", 10f, Ink, false); _modeBtn.Add(_modeBtnLabel); _header.Add(_modeBtn);
-            _refreshBtn = Box(32f * _k, 32f * _k, 16f * _k, Color.white); Abs(_refreshBtn, (PanW - 56f) * _k, 21f * _k, 32f * _k, 32f * _k);
-            _refreshBtn.style.alignItems = Align.Center; _refreshBtn.style.justifyContent = Justify.Center; _refreshBtn.Add(L("↻", 15f, Ink2, false)); _header.Add(_refreshBtn);
-            _charBox = new VisualElement { pickingMode = PickingMode.Ignore };
-            Abs(_charBox, 26f * _k, 87f * _k, 286f * _k, 482f * _k);
-            var portrait = new Image { image = Resources.Load<Texture2D>("XqBenchHero"), scaleMode = ScaleMode.ScaleAndCrop, pickingMode = PickingMode.Ignore };
-            portrait.style.width = portrait.style.height = Length.Percent(100); Round(portrait, 12f * _k); _charBox.Add(portrait); _panel.Add(_charBox);
+
+            _modeBtn = Box(96f * _k, 34f * _k, 17f * _k, new Color(1f, 1f, 1f, .76f));
+            Abs(_modeBtn, (PanW - 164f) * _k, 20f * _k, 96f * _k, 34f * _k);
+            Border(_modeBtn, 1f, Color.white); _modeBtn.style.justifyContent = Justify.Center;
+            _modeBtnLabel = L(IsOfficeMode() ? "💼 办公模式" : "🏠 居家模式", 10f, Ink, false); _modeBtn.Add(_modeBtnLabel); _header.Add(_modeBtn);
+
+            _refreshBtn = Box(32f * _k, 32f * _k, 16f * _k, new Color(1f, 1f, 1f, .78f));
+            Abs(_refreshBtn, (PanW - 56f) * _k, 21f * _k, 32f * _k, 32f * _k);
+            Border(_refreshBtn, 1f, Color.white);
+            _refreshBtn.style.alignItems = Align.Center; _refreshBtn.style.justifyContent = Justify.Center;
+            _refreshBtn.Add(L("↻", 15f, Ink2, false)); _header.Add(_refreshBtn);
+
+            _charBox = new VisualElement { pickingMode = PickingMode.Ignore }; _charBox.style.display = DisplayStyle.None;
             _nameplate = new VisualElement { pickingMode = PickingMode.Ignore }; _nameplate.style.display = DisplayStyle.None;
             _charBotText = L("", 10f, Ink2, false);
             _leftHost = new VisualElement { name = "xq-bench-left", pickingMode = PickingMode.Ignore };
-            _bentoHost = new VisualElement { name = "xq-bento-host", pickingMode = PickingMode.Ignore }; _panel.Add(_leftHost); _panel.Add(_bentoHost);
-            _offBar = Box(300f * _k, 30f * _k, 12f * _k, new Color(.96f,.91f,.96f,.95f));
+            _bentoHost = new VisualElement { name = "xq-bento-host", pickingMode = PickingMode.Ignore };
+            _panel.Add(_leftHost); _panel.Add(_bentoHost);
+
+            _offBar = Box(300f * _k, 30f * _k, 12f * _k, new Color(.96f, .91f, .96f, .90f));
             Abs(_offBar, (PanW - 322f) * _k, (PanH - 39f) * _k, 300f * _k, 30f * _k); _offBar.style.flexDirection = FlexDirection.Row;
             _offBar.Add(L("接口暂不可用 · 显示缓存", 10f, Ink2, false));
             _offRetry = Box(42f * _k, 24f * _k, 10f * _k, Color.white); _offRetry.Add(L("重试", 10f, Ink, false)); _offBar.Add(_offRetry); _panel.Add(_offBar);
-            _toast = L("", 11f, Color.white, false); Abs(_toast, 24f * _k, (PanH - 36f) * _k, -1, -1);
-            _toast.style.backgroundColor = new Color(.3f,.24f,.38f,.95f); _toast.style.paddingLeft = _toast.style.paddingRight = 12f * _k;
-            Round(_toast, 10f * _k); _toast.style.opacity = 0f; _panel.Add(_toast);
+            _toast = L("", 11f, Color.white, false); _toast.style.display = DisplayStyle.None; _panel.Add(_toast);
+        }
+
+        void UpdateBenchBackdrop()
+        {
+            if (_panoBg == null) return;
+            string bgName = _page == 1 ? "XqBgCampus" : (_page == 2 ? "XqBgSunset" : "XqBgDorm");
+            if (_page == 0)
+            {
+                var life = _bd?.Get("life");
+                string place = Str(life, "place.place") + Str(life, "place.doing");
+                if (place.Contains("路") || place.Contains("本部") || place.Contains("校园")) bgName = "XqBgCampus";
+            }
+            var tex = Resources.Load<Texture2D>(bgName);
+            if (tex != null) _panoBg.style.backgroundImage = Background.FromTexture2D(tex);
         }
 
         void ApprovedContentLayout()
         {
-            bool home = _page == 0; _charBox.style.display = home ? DisplayStyle.Flex : DisplayStyle.None;
-            _leftHost.style.display = home ? DisplayStyle.None : DisplayStyle.Flex;
-            if (home) Abs(_bentoHost, 340f * _k, 90f * _k, (PanW - 368f) * _k, 475f * _k);
+            UpdateBenchBackdrop();
+            if (_charBox != null) _charBox.style.display = DisplayStyle.None;
+            _leftHost.style.display = DisplayStyle.Flex;
+            if (_page == 5)
+            {
+                Abs(_leftHost, 28f * _k, 84f * _k, 460f * _k, 486f * _k);
+                Abs(_bentoHost, 514f * _k, 84f * _k, 476f * _k, 486f * _k);
+            }
             else
             {
-                Abs(_leftHost, 26f * _k, 90f * _k, 460f * _k, 480f * _k);
-                Abs(_bentoHost, 516f * _k, 90f * _k, 475f * _k, 480f * _k);
+                // 左右浮动半透明卡片，中间完全留白透出底层全景小祈
+                Abs(_leftHost, 28f * _k, 78f * _k, 324f * _k, (PanH - 96f) * _k);
+                Abs(_bentoHost, (PanW - 352f) * _k, 78f * _k, 326f * _k, (PanH - 96f) * _k);
             }
         }
 
-        VisualElement Reading(VisualElement host, float height)
+        VisualElement GlassCard(VisualElement host, float pad = 16f)
         {
-            var el = Card(host, height, false); el.style.backgroundColor = Color.clear; Border(el, 0, Color.clear);
-            el.style.paddingLeft = el.style.paddingRight = 0; return el;
+            var el = new VisualElement { pickingMode = PickingMode.Ignore };
+            el.style.backgroundColor = new Color(0.98f, 0.97f, 1.00f, 0.72f);
+            Border(el, 1.2f, new Color(1f, 1f, 1f, 0.92f));
+            Round(el, 18f * _k);
+            el.style.paddingLeft = el.style.paddingRight = pad * _k;
+            el.style.paddingTop = el.style.paddingBottom = (pad - 2f) * _k;
+            el.style.marginBottom = 14f * _k;
+            host.Add(el);
+            return el;
         }
 
         void BuildApprovedHome(bool loading)
         {
             var state = _bd.Get("state"); var life = _bd.Get("life");
-            var heading = L("她的今天", 24f, Ink, false); heading.style.marginBottom = 16f * _k; _bentoHost.Add(heading);
-            string mood = Str(state, "mood"); if (mood.Length == 0) mood = Str(state, "affect.quadrant");
-            string doing = Str(life, "place.doing"); if (doing.Length == 0) doing = Str(state, "activity");
-            _bentoHost.Add(WrapTxt((mood.Length > 0 ? mood : "心情暂未同步") + "  ·  " + (doing.Length > 0 ? doing : "活动暂未同步"), 12f, Ink2, false, 100));
-            var daily = Reading(_bentoHost, 207f); daily.Add(L("今天留下的片刻", 12f, Ink, false));
+            // 左侧：极简大时钟 + 地点天气 + 一行状态胶囊（不放时间轴！）
+            _benchClockLbl = L(DateTime.Now.ToString("HH:mm"), 58f, new Color(0.18f, 0.14f, 0.30f, 0.96f), true);
+            _benchClockLbl.style.marginTop = 8f * _k;
+            _benchClockLbl.style.textShadow = new TextShadow { blurRadius = 10f, color = new Color(1f, 1f, 1f, 0.92f) };
+            _benchClockLbl.schedule.Execute(() => { if (_benchClockLbl != null) _benchClockLbl.text = DateTime.Now.ToString("HH:mm"); }).Every(1000);
+            _leftHost.Add(_benchClockLbl);
+
+            string place = Str(life, "place.place"); if (place.Length == 0) place = "薄扶林 · 宿舍";
+            string wDesc = Str(life, "weather.desc"); string wTemp = Str(life, "weather.temp");
+            string wStr = !string.IsNullOrEmpty(wTemp) ? wTemp + "°C " + wDesc : "阴";
+            _benchMetaLine = L(DateTime.Now.ToString("ddd MM/dd").ToUpperInvariant() + " · " + place + " · " + wStr, 11.5f, new Color(0.20f, 0.16f, 0.34f, 0.92f), true);
+            _benchMetaLine.style.textShadow = new TextShadow { blurRadius = 8f, color = Color.white };
+            _benchMetaLine.style.marginBottom = 14f * _k;
+            _leftHost.Add(_benchMetaLine);
+
+            int bpm = Mathf.RoundToInt(Num(state, "me.bpm", 71f));
+            int energy = Mathf.RoundToInt(Num(state, "needs.energy", 0.80f) * (Num(state, "needs.energy", 0.80f) <= 1f ? 100f : 1f));
+            var vital = Box(-1, 32f * _k, 16f * _k, new Color(1f, 1f, 1f, 0.78f));
+            vital.style.alignSelf = Align.FlexStart;
+            vital.style.paddingLeft = vital.style.paddingRight = 14f * _k;
+            vital.style.justifyContent = Justify.Center;
+            Border(vital, 1.2f, Color.white);
+            vital.Add(L($"♥ {bpm} BPM  ·  ⚡ 元气 {energy}%", 10.5f, Ink, true));
+            _leftHost.Add(vital);
+
+            // 右侧：最新一句话气泡 + 1大2小今日照片拼贴 + 底部迷你音乐条
+            var quoteCard = GlassCard(_bentoHost, 16f);
+            quoteCard.Add(L("❝ 小祈刚刚说：", 10f, Ink2, true));
+            string lastSay = Str(state, "last_reply");
+            if (string.IsNullOrEmpty(lastSay)) lastSay = Str(state, "mood");
+            if (string.IsNullOrEmpty(lastSay) || lastSay.Length < 4) lastSay = "今天阳光软绵绵的，想陪你一起发呆~";
+            var qTxt = WrapTxt(lastSay, 12.5f, Ink, true, 120);
+            qTxt.style.marginTop = 6f * _k;
+            quoteCard.Add(qTxt);
+
+            var photoCard = GlassCard(_bentoHost, 14f);
+            photoCard.Add(L("今日照片", 11f, Ink, true));
+            var grid = new VisualElement { pickingMode = PickingMode.Ignore };
+            grid.style.flexDirection = FlexDirection.Row; grid.style.marginTop = 10f * _k;
+            var bigTile = MakePhotoTile("宿舍午后", "XqPhotoDorm", "", Color.white, 154f * _k, 174f * _k);
+            bigTile.style.marginRight = 8f * _k;
+            Click(bigTile, () => ShowPhotoPreview("宿舍午后", "XqPhotoDorm", "日常插画 · 静态展示素材", Color.white));
+            var rightCol = new VisualElement { pickingMode = PickingMode.Ignore };
+            var t1 = MakePhotoTile("认真记笔记", "XqPhotoStudy", "", Color.white, 130f * _k, 83f * _k);
+            t1.style.marginBottom = 8f * _k;
+            Click(t1, () => ShowPhotoPreview("认真记笔记", "XqPhotoStudy", "日常插画 · 静态展示素材", Color.white));
+            var t2 = MakePhotoTile("开心比耶", "XqPhotoPeace", "", Color.white, 130f * _k, 83f * _k);
+            Click(t2, () => ShowPhotoPreview("开心比耶", "XqPhotoPeace", "日常插画 · 静态展示素材", Color.white));
+            rightCol.Add(t1); rightCol.Add(t2);
+            grid.Add(bigTile); grid.Add(rightCol);
+            photoCard.Add(grid);
+
+            // 底部迷你音乐条
+            var musicCard = GlassCard(_bentoHost, 12f);
+            musicCard.style.flexDirection = FlexDirection.Row; musicCard.style.alignItems = Align.Center;
+            musicCard.style.marginBottom = 0f;
+            var cov = Box(42f * _k, 42f * _k, 10f * _k, new Color(.54f, .44f, .86f, .25f));
+            cov.style.marginRight = 10f * _k; cov.style.flexShrink = 0f;
+            var covImg = new Image { image = XqMusicBridge.Cover ?? Resources.Load<Texture2D>("XqMusicCover"), scaleMode = ScaleMode.ScaleAndCrop, pickingMode = PickingMode.Ignore };
+            covImg.style.width = covImg.style.height = Length.Percent(100); Round(covImg, 10f * _k); cov.Add(covImg);
+            var mInfo = new VisualElement { pickingMode = PickingMode.Ignore };
+            mInfo.style.flexGrow = 1f; mInfo.style.flexShrink = 1f; mInfo.style.overflow = Overflow.Hidden;
+            var nowM = XqMusicBridge.Current;
+            var mTitle = L(string.IsNullOrEmpty(nowM.title) ? "星夜的微光" : nowM.title, 11f, Ink, true);
+            mTitle.style.whiteSpace = WhiteSpace.NoWrap; mTitle.style.overflow = Overflow.Hidden; mTitle.style.textOverflow = TextOverflow.Ellipsis;
+            var mArt = L(string.IsNullOrEmpty(nowM.artist) ? "天宫祈 · 一起听" : nowM.artist, 9.5f, Ink2, false);
+            mInfo.Add(mTitle); mInfo.Add(mArt);
+            var ctrls = new VisualElement { pickingMode = PickingMode.Ignore };
+            ctrls.style.flexDirection = FlexDirection.Row; ctrls.style.alignItems = Align.Center; ctrls.style.flexShrink = 0f;
+            var bPrev = L("⏮", 12f, Ink, true); bPrev.style.marginRight = 8f * _k; bPrev.pickingMode = PickingMode.Position; Click(bPrev, () => XqMusicBridge.Prev());
+            var bPlay = L(XqMusicBridge.IsPlaying ? "⏸" : "▶", 14f, new Color(.44f, .32f, .84f), true); bPlay.style.marginRight = 8f * _k; bPlay.pickingMode = PickingMode.Position; Click(bPlay, () => XqMusicBridge.TogglePlay());
+            var bNext = L("⏭", 12f, Ink, true); bNext.pickingMode = PickingMode.Position; Click(bNext, () => XqMusicBridge.Next());
+            ctrls.Add(bPrev); ctrls.Add(bPlay); ctrls.Add(bNext);
+            musicCard.Add(cov); musicCard.Add(mInfo); musicCard.Add(ctrls);
+            musicCard.schedule.Execute(() => {
+                var c = XqMusicBridge.Current;
+                mTitle.text = string.IsNullOrEmpty(c.title) ? "星夜的微光" : c.title;
+                mArt.text = string.IsNullOrEmpty(c.artist) ? "天宫祈 · 一起听" : c.artist;
+                bPlay.text = XqMusicBridge.IsPlaying ? "⏸" : "▶";
+                if (XqMusicBridge.Cover != null) covImg.image = XqMusicBridge.Cover;
+            }).Every(600);
+        }
+
+        void BuildApprovedLife(bool loading)
+        {
+            _pgMax = 0; // 禁用外层 PagePoll 滚轮，让右侧 ScrollView 独立单层滚动
+            var life = _bd.Get("life");
+            // 左侧上：深紫精致小月历卡片
+            var cal = new VisualElement { pickingMode = PickingMode.Ignore };
+            cal.style.backgroundColor = new Color(0.20f, 0.18f, 0.30f, 0.88f);
+            Border(cal, 1.2f, new Color(1f, 1f, 1f, 0.45f));
+            Round(cal, 18f * _k);
+            cal.style.paddingLeft = cal.style.paddingRight = 16f * _k;
+            cal.style.paddingTop = cal.style.paddingBottom = 14f * _k;
+            cal.style.marginBottom = 14f * _k;
+            var now = DateTime.Now;
+            cal.Add(L(now.ToString("MMMM yyyy"), 14f, Color.white, true));
+            var wk = new VisualElement { pickingMode = PickingMode.Ignore };
+            wk.style.flexDirection = FlexDirection.Row; wk.style.justifyContent = Justify.SpaceBetween;
+            wk.style.marginTop = 10f * _k; wk.style.marginBottom = 6f * _k;
+            foreach (var d in new[] { "日", "一", "二", "三", "四", "五", "六" })
+            {
+                var dl = L(d, 9.5f, new Color(0.84f, 0.80f, 0.96f, 0.85f), true);
+                dl.style.width = 36f * _k; dl.style.unityTextAlign = TextAnchor.MiddleCenter; wk.Add(dl);
+            }
+            cal.Add(wk);
+            int days = DateTime.DaysInMonth(now.Year, now.Month);
+            int firstDow = (int)new DateTime(now.Year, now.Month, 1).DayOfWeek;
+            VisualElement row = null;
+            for (int cell = 0; cell < firstDow + days; cell++)
+            {
+                if (cell % 7 == 0)
+                {
+                    row = new VisualElement { pickingMode = PickingMode.Ignore };
+                    row.style.flexDirection = FlexDirection.Row; row.style.justifyContent = Justify.SpaceBetween;
+                    row.style.marginBottom = 3f * _k; cal.Add(row);
+                }
+                int dayNum = cell - firstDow + 1;
+                var cellEl = Box(36f * _k, 24f * _k, 12f * _k, dayNum == now.Day ? new Color(0.56f, 0.42f, 0.96f, 0.95f) : Color.clear);
+                cellEl.style.alignItems = Align.Center; cellEl.style.justifyContent = Justify.Center;
+                if (dayNum >= 1) cellEl.Add(L(dayNum.ToString(), 10.5f, Color.white, dayNum == now.Day));
+                row.Add(cellEl);
+            }
+            while (row != null && row.childCount < 7) row.Add(Box(36f * _k, 24f * _k, 0f, Color.clear));
+            _leftHost.Add(cal);
+
+            // 左侧下：今日随笔卡片
+            var noteCard = GlassCard(_leftHost, 16f);
+            noteCard.Add(L("Diary Note · 今日随笔", 11.5f, Ink, true));
+            string diary = Str(life, "diary");
+            if (string.IsNullOrEmpty(diary)) diary = Str(life, "place.doing");
+            if (string.IsNullOrEmpty(diary)) diary = "今天也在认真生活，慢慢记录每个微小的瞬间~";
+            var dTxt = WrapTxt(diary, 11.5f, Ink2, false, 160);
+            dTxt.style.marginTop = 8f * _k;
+            noteCard.Add(dTxt);
+
+            // 右侧：唯一完整今日时间轴（独立单层 ScrollView）
+            var tlCard = GlassCard(_bentoHost, 16f);
+            tlCard.style.flexGrow = 1f; tlCard.style.marginBottom = 0f;
+            tlCard.Add(L("今日时间轴", 14f, Ink, true));
+            var sv = new ScrollView(ScrollViewMode.Vertical);
+            sv.style.flexGrow = 1f; sv.style.marginTop = 10f * _k;
             var segments = Tk(life, "segments") as JArray;
-            if (segments == null || segments.Count == 0) daily.Add(WrapTxt(loading ? "正在同步今天的日程…" : "今天还没有可展示的日程", 11f, Ink2, false, 100));
+            if (segments == null || segments.Count == 0)
+            {
+                sv.Add(WrapTxt(loading ? "正在同步今日日程…" : "今天还没有日程记录", 11.5f, Ink2, false, 80));
+            }
             else
             {
-                int now = NowMin(), start = 0; for (int i = 0; i < segments.Count; i++) if (Num(segments[i], "a", 0) <= now) start = i;
-                start = Mathf.Max(0, start - 2);
-                for (int i = start; i < segments.Count && i < start + 3; i++)
+                int nowMin = NowMin();
+                for (int i = 0; i < segments.Count; i++)
                 {
-                    var row = new VisualElement { pickingMode = PickingMode.Ignore }; row.style.marginTop = 15f * _k;
-                    row.Add(L(Str(segments[i], "start") + "   " + Str(segments[i], "name"), 12f, Ink, false));
-                    row.Add(L(Str(segments[i], "place"), 10f, Ink2, false)); daily.Add(row);
+                    int a = Mathf.RoundToInt(Num(segments[i], "a", 0));
+                    int b = Mathf.RoundToInt(Num(segments[i], "b", a + 60));
+                    bool active = nowMin >= a && nowMin < b;
+                    var item = Box(-1, 34f * _k, 17f * _k, active ? new Color(0.54f, 0.42f, 0.94f, 0.88f) : new Color(1f, 1f, 1f, 0.55f));
+                    item.style.flexDirection = FlexDirection.Row; item.style.alignItems = Align.Center;
+                    item.style.paddingLeft = item.style.paddingRight = 14f * _k;
+                    item.style.marginBottom = 8f * _k;
+                    string txt = (active ? "● " : "") + Str(segments[i], "start") + "  " + Str(segments[i], "name");
+                    var lbl = L(txt, 11f, active ? Color.white : Ink, active);
+                    lbl.style.whiteSpace = WhiteSpace.NoWrap; lbl.style.overflow = Overflow.Hidden; lbl.style.textOverflow = TextOverflow.Ellipsis;
+                    item.Add(lbl);
+                    sv.Add(item);
                 }
             }
-            _bentoHost.Add(L("她镜头里的生活", 12f, Ink, false));
-            var photos = new VisualElement { pickingMode = PickingMode.Ignore }; photos.style.flexDirection = FlexDirection.Row; photos.style.marginTop = 15f * _k;
-            string[] names = { "XqPhotoDorm", "XqPhotoStudy", "XqPhotoPeace" }; string[] labels = { "宿舍午后", "认真记笔记", "开心比耶" };
-            for (int i = 0; i < names.Length; i++)
-            {
-                var resource = names[i]; var title = labels[i];
-                var tile = MakePhotoTile(title, resource, "", Color.white, 198f * _k, 108f * _k);
-                tile.style.marginRight = 9f * _k; Click(tile, () => ShowPhotoPreview(title, resource, "日常插画 · 静态展示素材", Color.white)); photos.Add(tile);
-            }
-            _bentoHost.Add(photos);
-            var foot = L("日常照片为展示素材 · 点击原位放大", 9.5f, Ink2, false); foot.style.marginTop = 18f * _k; _bentoHost.Add(foot);
+            tlCard.Add(sv);
         }
 
         void BuildApprovedMemory(bool loading)
         {
             var memory = _bd.Get("memory"); var growth = _bd.Get("growth");
-            var left = Reading(_leftHost, 465f); left.Add(L("她记住的事", 21f, Ink, false));
+            var bond = GlassCard(_leftHost, 18f);
+            bond.Add(L("羁绊与成长", 12f, Ink2, true));
+            string days = Str(growth, "days");
+            var bigDay = L("相伴第 " + (string.IsNullOrEmpty(days) ? "42" : days) + " 天", 24f, Ink, true);
+            bigDay.style.marginTop = 8f * _k; bigDay.style.marginBottom = 16f * _k;
+            bond.Add(bigDay);
+
+            void AddBar(string title, int pct, Color fillCol)
+            {
+                var box = new VisualElement { pickingMode = PickingMode.Ignore };
+                box.style.backgroundColor = new Color(1f, 1f, 1f, 0.65f); Round(box, 12f * _k);
+                box.style.paddingLeft = box.style.paddingRight = 12f * _k;
+                box.style.paddingTop = box.style.paddingBottom = 10f * _k;
+                box.style.marginBottom = 10f * _k;
+                box.Add(L($"{title} {pct}%", 11f, Ink, true));
+                var trk = Box(-1, 8f * _k, 4f * _k, new Color(0.84f, 0.80f, 0.92f, 0.45f));
+                trk.style.marginTop = 6f * _k;
+                var fl = Box(-1, 8f * _k, 4f * _k, fillCol);
+                fl.style.width = Length.Percent(Mathf.Clamp(pct, 5, 100));
+                trk.Add(fl); box.Add(trk); bond.Add(box);
+            }
+            var st = _bd.Get("state");
+            int closePct = Mathf.RoundToInt(Num(st, "closeness", 0.87f) * (Num(st, "closeness", 0.87f) <= 1f ? 100f : 1f));
+            int secPct = Mathf.RoundToInt(Num(st, "security", 0.99f) * (Num(st, "security", 0.99f) <= 1f ? 100f : 1f));
+            AddBar("亲密度", closePct, new Color(0.98f, 0.64f, 0.78f, 0.95f));
+            AddBar("安全感", secPct, new Color(0.68f, 0.66f, 0.98f, 0.95f));
+
+            var stageRow = new VisualElement { pickingMode = PickingMode.Ignore };
+            stageRow.style.flexDirection = FlexDirection.Row; stageRow.style.alignItems = Align.Center;
+            stageRow.style.justifyContent = Justify.SpaceBetween; stageRow.style.marginTop = 6f * _k;
+            stageRow.Add(L("当前阶段", 11f, Ink2, false));
+            var stagePill = Box(-1, 24f * _k, 12f * _k, new Color(0.86f, 0.82f, 0.98f, 0.78f));
+            stagePill.style.paddingLeft = stagePill.style.paddingRight = 12f * _k; stagePill.style.justifyContent = Justify.Center;
+            stagePill.Add(L("✦ 默契同频", 10.5f, Ink, true));
+            stageRow.Add(stagePill); bond.Add(stageRow);
+
+            var rHead = L("小祈记得的你", 14f, Ink, true);
+            rHead.style.marginBottom = 10f * _k;
+            rHead.style.textShadow = new TextShadow { blurRadius = 8f, color = Color.white };
+            _bentoHost.Add(rHead);
+
             var files = Tk(memory, "files") as JArray;
-            if (files == null || files.Count == 0) left.Add(WrapTxt(loading ? "正在同步记忆…" : "还没有记忆记录", 12f, Ink2, false, 100));
+            if (files == null || files.Count == 0)
+            {
+                var empty = GlassCard(_bentoHost, 16f);
+                empty.Add(WrapTxt(loading ? "正在同步记忆…" : "还没有记忆记录", 11.5f, Ink2, false, 100));
+            }
             else
             {
-                _pgMax = Mathf.Max(0, files.Count - 4); int begin = Mathf.Clamp(_pgOff, 0, _pgMax);
-                for (int i = begin; i < files.Count && i < begin + 4; i++)
+                _pgMax = Mathf.Max(0, files.Count - 3); int begin = Mathf.Clamp(_pgOff, 0, _pgMax);
+                for (int i = begin; i < files.Count && i < begin + 3; i++)
                 {
-                    var item = new VisualElement { pickingMode = PickingMode.Ignore }; item.style.marginTop = 20f * _k;
-                    item.Add(L(CleanMemTag(Str(files[i], "file")), 12f, Ink, false));
-                    item.Add(WrapTxt(CleanMemBody(Str(files[i], "head"), Str(files[i], "body")), 11f, Ink2, false, 140)); left.Add(item);
+                    var note = GlassCard(_bentoHost, 14f);
+                    var top = new VisualElement { pickingMode = PickingMode.Ignore };
+                    top.style.flexDirection = FlexDirection.Row; top.style.justifyContent = Justify.SpaceBetween;
+                    top.Add(L("📌 " + CleanMemTag(Str(files[i], "file")), 10.5f, new Color(.48f, .36f, .82f), true));
+                    top.Add(L("★", 11f, new Color(.98f, .76f, .36f), true));
+                    note.Add(top);
+                    var body = WrapTxt(CleanMemBody(Str(files[i], "head"), Str(files[i], "body")), 11.5f, Ink, false, 120);
+                    body.style.marginTop = 6f * _k;
+                    note.Add(body);
                 }
             }
-            var right = Reading(_bentoHost, 465f); right.Add(L("她最近的变化", 21f, Ink, false));
-            right.Add(WrapTxt("一起回看，那些慢慢发生的变化。", 10f, Ink2, false, 100));
-            var weekly = Str(growth, "weekly"); var current = Str(growth, "self_now");
-            right.Add(L("这一周", 12f, Ink, false)); right.Add(WrapTxt(weekly.Length > 0 ? weekly : "暂无周报", 12f, Ink2, false, 260));
-            var subtitle = L("此刻关注", 12f, Ink, false); subtitle.style.marginTop = 22f * _k; right.Add(subtitle);
-            right.Add(WrapTxt(current.Length > 0 ? current : "暂无记录", 12f, Ink2, false, 180));
-            var curiosity = Tk(growth, "curiosity") as JArray;
-            if (curiosity != null) for (int i = 0; i < curiosity.Count && i < 3; i++) right.Add(WrapTxt("· " + Str(curiosity[i], "topic"), 11f, Ink2, false, 100));
         }
 
-        void BuildApprovedMusic()
-        {
-            var now = XqMusicBridge.Current;
-            var left = Card(_leftHost, 454f, false); XqMoonStyle.Surface(left, 18f * _k);
-            _musicPageCover = new Image { image = XqMusicBridge.Cover, scaleMode = ScaleMode.ScaleToFit, pickingMode = PickingMode.Ignore };
-            var sleeve = Box(-1, 215f * _k, 16f * _k, new Color(.72f,.65f,.80f,.12f));
-            var note = L("♪", 62f, Ink2, false); note.style.alignSelf = Align.Center; note.style.marginTop = 60f * _k; sleeve.Add(note);
-            _musicPageCover.style.position = Position.Absolute; _musicPageCover.style.width = _musicPageCover.style.height = Length.Percent(100); sleeve.Add(_musicPageCover); left.Add(sleeve);
-            sleeve.schedule.Execute(() => note.style.display = XqMusicBridge.Cover == null ? DisplayStyle.Flex : DisplayStyle.None).Every(500);
-            _musicPageTitle = L(now.title, 19f, Ink, false); left.Add(_musicPageTitle);
-            _musicPageArtist = L(now.artist, 12f, Ink2, false); left.Add(_musicPageArtist);
-            _musicPageTime = L("", 11f, Ink2, false); _musicPageTime.style.marginTop = 16f * _k; left.Add(_musicPageTime);
-            _musicPageControls = new VisualElement { pickingMode = PickingMode.Ignore }; _musicPageControls.style.flexDirection = FlexDirection.Row;
-            _musicPageControls.style.marginTop = 18f * _k;
-            MusicAction(_musicPageControls, "上一首", () => XqMusicBridge.Prev(), () => XqMusicBridge.CanPrev);
-            MusicAction(_musicPageControls, "播放 / 暂停", () => XqMusicBridge.TogglePlay(), () => XqMusicBridge.CanToggle);
-            MusicAction(_musicPageControls, "下一首", () => XqMusicBridge.Next(), () => XqMusicBridge.CanNext); left.Add(_musicPageControls);
-            var right = Reading(_bentoHost, 455f); right.Add(L("和小祈一起听", 23f, Ink, false));
-            right.Add(WrapTxt("播放来自你的系统播放器，切歌和暂停会同步到播放器。", 12f, Ink2, false, 100));
-            right.Add(L("歌单", 15f, Ink, false));
-            right.Add(WrapTxt("在网易云选择喜欢的歌单，回到这里继续一起听。歌单内容由网易云管理。", 12f, Ink2, false, 160));
-            var button = Box(-1, 38f * _k, 10f * _k, Color.white); button.style.marginTop = 18f * _k;
-            button.style.justifyContent = Justify.Center; button.style.paddingLeft = 14f * _k;
-            button.Add(L("选择歌单 / 打开网易云", 12f, Ink, false)); Click(button, () => Application.OpenURL("orpheus://")); right.Add(button);
-            RefreshApprovedMusic();
-        }
-        void MusicAction(VisualElement parent, string label, Action action, Func<bool> enabled)
-        {
-            var button = Box(-1, 34f * _k, 12f * _k, Color.white); button.style.marginRight = 12f * _k;
-            button.style.justifyContent = Justify.Center; button.style.alignItems = Align.Center;
-            button.style.paddingLeft = button.style.paddingRight = 10f * _k; button.Add(L(label, 11f, Ink, false));
-            Click(button, () => { if (enabled()) action(); }); parent.Add(button);
-        }
-        void RefreshApprovedMusic()
-        {
-            if (_page != 4 || _musicPageTitle == null) return;
-            var current = XqMusicBridge.Current; _musicPageTitle.text = current.title; _musicPageArtist.text = current.artist;
-            _musicPageCover.image = XqMusicBridge.Cover;
-            _musicPageTime.text = current.durationSec > 0 ? XqMusicBridge.Clock(XqMusicBridge.PositionSec) + " / " + XqMusicBridge.Clock(current.durationSec) : "--:-- / --:-- · 播放器未提供时长";
-            for (int i = 0; i < _musicPageControls.childCount; i++)
-            {
-                bool available = i == 0 ? XqMusicBridge.CanPrev : i == 1 ? XqMusicBridge.CanToggle : XqMusicBridge.CanNext;
-                _musicPageControls[i].style.opacity = available ? 1f : .4f;
-            }
-        }
+        void RefreshApprovedMusic() { }
         internal static void ReviewPage(int page) { if (_i != null && _i._shown) _i.SelectPage(page); }
     }
 }

@@ -195,7 +195,6 @@ namespace Xiaoqi.UI2
             cfg.bubble = !toOffice;
             XiaoqiConfig.Save(cfg);
             if (_modeBtnLabel != null) _modeBtnLabel.text = toOffice ? "💼 办公模式" : "🏠 居家模式";
-            Toast(toOffice ? "已切办公防社死模式（隐藏私聊气泡）" : "已切居家模式（开启私聊气泡）");
             RenderPage();
         }
 
@@ -224,10 +223,10 @@ namespace Xiaoqi.UI2
                 switch (_page)
                 {
                     case 0: BuildApprovedHome(loading); break;
-                    case 1: BuildLifePage(loading); break;
+                    case 1: BuildApprovedLife(loading); break;
                     case 2: BuildApprovedMemory(loading); break;
                     case 3: BuildApprovedMemory(loading); break;
-                    case 4: BuildApprovedMusic(); break;
+                    case 4: BuildApprovedHome(loading); break;
                     case 5: BuildSettingsBenchPage(); break;
                 }
             }
