@@ -125,29 +125,55 @@ namespace Xiaoqi.UI2
             infoRow.Add(_locPill); infoRow.Add(_weatherPill);
             _bodyNext.Add(infoRow);
 
-            // V20 右上角：慢慢来 Q 版探头竖卡（独立挂载到 _host）
+            // V20 右上角：慢慢来 Q 版探头竖卡（瘦长粉紫渐变 + 中文从右到左竖排）
             _remindPill.RemoveFromHierarchy();
             _host.Add(_remindPill);
+            _remindPill.Clear();
             _remindPill.style.position = Position.Absolute;
             _remindPill.style.backgroundImage = StyleKeyword.None;
-            _remindPill.style.backgroundColor = new Color(0.97f, 0.94f, 1.00f, 0.94f);
+            _remindPill.style.backgroundColor = Color.clear;
             SetAllBorder(_remindPill, 1.5f, Color.white);
-            SetRadius(_remindPill, 16f);
+            SetRadius(_remindPill, 14f);
             _remindPill.style.marginLeft = _remindPill.style.marginTop = 0f;
-            _remindPill.style.paddingLeft = _remindPill.style.paddingRight = 10f;
-            _remindPill.style.paddingBottom = 10f;
-            _remindPill.style.paddingTop = 44f;
+            _remindPill.style.paddingLeft = _remindPill.style.paddingRight = 6f;
+            _remindPill.style.paddingBottom = 8f;
+            _remindPill.style.paddingTop = 36f;
             _remindPill.style.justifyContent = Justify.Center;
             _remindPill.style.alignItems = Align.Center;
             _remindPill.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(0f, AngleUnit.Degree));
-            var remLbl = _remindPill.Q<Label>();
-            if (remLbl != null)
+            _remindPill.generateVisualContent += mgc =>
             {
-                remLbl.style.whiteSpace = WhiteSpace.Normal;
-                remLbl.style.unityTextAlign = TextAnchor.MiddleCenter;
-                remLbl.style.color = XqMoonStyle.Ink;
-                remLbl.style.unityFontStyleAndWeight = FontStyle.Bold;
+                var r = _remindPill.contentRect;
+                if (r.width < 4f || r.height < 4f) return;
+                var p = mgc.painter2D;
+                const int bands = 24;
+                for (int i = 0; i < bands; i++)
+                {
+                    float t = i / (float)(bands - 1);
+                    p.fillColor = Color.Lerp(new Color(1.00f, 0.90f, 0.96f, 0.95f), new Color(0.90f, 0.87f, 1.00f, 0.95f), t);
+                    float y0 = r.height * (i / (float)bands);
+                    float y1 = r.height * ((i + 1) / (float)bands) + 0.5f;
+                    p.BeginPath();
+                    p.MoveTo(new Vector2(0f, y0)); p.LineTo(new Vector2(r.width, y0));
+                    p.LineTo(new Vector2(r.width, y1)); p.LineTo(new Vector2(0f, y1));
+                    p.ClosePath(); p.Fill();
+                }
+            };
+            var vRow = new VisualElement { pickingMode = PickingMode.Ignore };
+            vRow.style.flexDirection = FlexDirection.Row;
+            vRow.style.justifyContent = Justify.Center;
+            vRow.style.alignItems = Align.FlexStart;
+            var vLeft = new Label("我\n在\n这\n里\n哦") { pickingMode = PickingMode.Ignore };
+            var vRight = new Label("慢\n慢\n来\n，") { pickingMode = PickingMode.Ignore };
+            foreach (var vl in new[] { vLeft, vRight })
+            {
+                vl.style.color = XqMoonStyle.Ink;
+                vl.style.unityFontStyleAndWeight = FontStyle.Bold;
+                vl.style.unityTextAlign = TextAnchor.UpperCenter;
             }
+            vRight.style.marginLeft = 5f;
+            vRow.Add(vLeft); vRow.Add(vRight);
+            _remindPill.Add(vRow);
             var chibiTex = Resources.Load<Texture2D>("XqChibiPeek");
             if (chibiTex != null)
             {
@@ -289,7 +315,7 @@ namespace Xiaoqi.UI2
             _approvedDock.Add(_approvedQuiet);
 
             string[] badgeTexNames = { "XqBadgeHeart", "XqBadgeCassette", "XqBadgeWindow", "XqBadgeMoon" };
-            string[] badgeTexts = { "摸摸头", "听我说", "看我屏幕", "安静陪伴" };
+            string[] badgeTexts = { "摸摸头", "听我说", "看我屏幕", "嘘" };
             float[] badgeDeg = { -4.0f, 3.0f, 2.0f, -3.0f };
             _badgeImgs.Clear();
             int bi = 0;
@@ -327,13 +353,13 @@ namespace Xiaoqi.UI2
                 bi++;
             }
 
-            // V20 右上角竖向 TOKEN 能量柱（顶部翅膀星星 XqStarTop + 柔紫粉渐变质感）
+            // V20 右上角竖向电量试管（顶部翅膀星星 + 粉紫渐变波浪液体 + 左侧刻度）
             _tokenCapsule = new VisualElement { name = "xq-token-capsule", pickingMode = PickingMode.Ignore };
             _tokenCapsule.style.position = Position.Absolute;
             _tokenCapsule.style.backgroundColor = new Color(1f, 1f, 1f, 0.94f);
             SetAllBorder(_tokenCapsule, 1.5f, new Color(0.84f, 0.78f, 0.96f, 0.95f));
-            _tokenCapsule.style.paddingLeft = _tokenCapsule.style.paddingRight = 5f;
-            _tokenCapsule.style.paddingTop = 10f; _tokenCapsule.style.paddingBottom = 5f;
+            _tokenCapsule.style.paddingLeft = _tokenCapsule.style.paddingRight = 6f;
+            _tokenCapsule.style.paddingTop = 10f; _tokenCapsule.style.paddingBottom = 6f;
             _tokenCapsule.style.alignItems = Align.Center;
             var starTex = Resources.Load<Texture2D>("XqStarTop");
             if (starTex != null)
@@ -342,21 +368,82 @@ namespace Xiaoqi.UI2
                 _tokStarImg.style.position = Position.Absolute;
                 _tokenCapsule.Add(_tokStarImg);
             }
-            var tokHead = new Label("TOKEN") { pickingMode = PickingMode.Ignore };
-            tokHead.style.color = new Color(0.42f, 0.34f, 0.68f, 1f); tokHead.style.unityFontStyleAndWeight = FontStyle.Bold;
+            var tokHead = new Label("电量") { pickingMode = PickingMode.Ignore };
+            tokHead.style.color = new Color(0.32f, 0.24f, 0.56f, 1f); tokHead.style.unityFontStyleAndWeight = FontStyle.Bold;
             tokHead.style.marginBottom = 4f; _marks.Add(tokHead);
-            var tokTrack = new VisualElement { pickingMode = PickingMode.Ignore };
-            tokTrack.style.width = Length.Percent(100f); tokTrack.style.flexGrow = 1f;
-            tokTrack.style.backgroundColor = new Color(0.24f, 0.20f, 0.38f, 0.90f);
-            tokTrack.style.justifyContent = Justify.FlexEnd; tokTrack.style.alignItems = Align.Center;
-            var tokFill = new VisualElement { pickingMode = PickingMode.Ignore };
-            tokFill.style.width = Length.Percent(100f); tokFill.style.height = Length.Percent(80f);
-            tokFill.style.backgroundColor = new Color(0.64f, 0.48f, 0.98f, 0.98f);
-            tokFill.style.alignItems = Align.Center; tokFill.style.paddingTop = 8f;
+            var tokTube = new VisualElement { pickingMode = PickingMode.Ignore };
+            tokTube.style.width = Length.Percent(100f); tokTube.style.flexGrow = 1f;
+            tokTube.style.backgroundColor = new Color(0.97f, 0.95f, 1f, 0.85f);
+            SetAllBorder(tokTube, 1f, new Color(0.76f, 0.68f, 0.94f, 0.85f));
+            tokTube.generateVisualContent += mgc =>
+            {
+                var r = tokTube.contentRect;
+                if (r.width < 8f || r.height < 16f) return;
+                var p = mgc.painter2D;
+                float fill = 0.80f;
+                float phase = Time.realtimeSinceStartup * 2.6f;
+                float surfY = r.height * (1f - fill);
+                // 背面浅紫水波峰
+                p.fillColor = new Color(0.76f, 0.62f, 0.98f, 0.55f);
+                p.BeginPath();
+                p.MoveTo(new Vector2(0f, r.height));
+                for (int s = 0; s <= 12; s++)
+                {
+                    float u = s / 12f;
+                    float wy = surfY - 2f + Mathf.Sin(u * 4.5f - phase) * 3.2f;
+                    p.LineTo(new Vector2(r.width * u, wy));
+                }
+                p.LineTo(new Vector2(r.width, r.height));
+                p.ClosePath(); p.Fill();
+
+                // 主液体：粉桃 -> 柔紫垂直渐变带 + 前景正弦波浪液面
+                const int bands = 20;
+                for (int b = 0; b < bands; b++)
+                {
+                    float t0 = b / (float)bands;
+                    float t1 = (b + 1) / (float)bands;
+                    float y0 = Mathf.Lerp(surfY, r.height, t0);
+                    float y1 = Mathf.Lerp(surfY, r.height, t1) + 0.6f;
+                    p.fillColor = Color.Lerp(new Color(1.00f, 0.84f, 0.92f, 0.96f), new Color(0.70f, 0.54f, 0.98f, 0.98f), (t0 + t1) * 0.5f);
+                    p.BeginPath();
+                    if (b == 0)
+                    {
+                        for (int s = 0; s <= 12; s++)
+                        {
+                            float u = s / 12f;
+                            float wy = surfY + Mathf.Sin(u * 4.8f + phase) * 3.2f;
+                            if (s == 0) p.MoveTo(new Vector2(0f, wy)); else p.LineTo(new Vector2(r.width * u, wy));
+                        }
+                        p.LineTo(new Vector2(r.width, y1)); p.LineTo(new Vector2(0f, y1));
+                    }
+                    else
+                    {
+                        p.MoveTo(new Vector2(0f, y0)); p.LineTo(new Vector2(r.width, y0));
+                        p.LineTo(new Vector2(r.width, y1)); p.LineTo(new Vector2(0f, y1));
+                    }
+                    p.ClosePath(); p.Fill();
+                }
+
+                // 左侧试管刻度线
+                p.strokeColor = new Color(0.46f, 0.36f, 0.72f, 0.72f);
+                p.lineWidth = 1.2f;
+                for (int t = 1; t <= 12; t++)
+                {
+                    float ty = r.height * (t / 13f);
+                    float len = (t % 3 == 0) ? 7f : 4f;
+                    p.BeginPath(); p.MoveTo(new Vector2(2f, ty)); p.LineTo(new Vector2(2f + len, ty)); p.Stroke();
+                }
+            };
+            tokTube.schedule.Execute(() => tokTube.MarkDirtyRepaint()).Every(42);
             _tokPctLbl = new Label("80%") { pickingMode = PickingMode.Ignore };
-            _tokPctLbl.style.color = Color.white; _tokPctLbl.style.unityFontStyleAndWeight = FontStyle.Bold;
-            tokFill.Add(_tokPctLbl); tokTrack.Add(tokFill);
-            _tokenCapsule.Add(tokHead); _tokenCapsule.Add(tokTrack);
+            _tokPctLbl.style.position = Position.Absolute;
+            _tokPctLbl.style.top = Length.Percent(24f);
+            _tokPctLbl.style.left = 0f; _tokPctLbl.style.right = 0f;
+            _tokPctLbl.style.unityTextAlign = TextAnchor.MiddleCenter;
+            _tokPctLbl.style.color = XqMoonStyle.Ink;
+            _tokPctLbl.style.unityFontStyleAndWeight = FontStyle.Bold;
+            tokTube.Add(_tokPctLbl);
+            _tokenCapsule.Add(tokHead); _tokenCapsule.Add(tokTube);
             _host.Add(_tokenCapsule);
         }
 
@@ -369,15 +456,25 @@ namespace Xiaoqi.UI2
             float dockT = height - 88f * k;
 
             SetApprovedRect(_cardNext, width * .026f, height * .042f, 360f * k, 110f * k);
-            SetApprovedRect(_cardMusic, width * .026f, height * .605f, 268f * k, 118f * k);
+            // 音乐卡窄一点高一点，底边与输入框对齐
+            SetApprovedRect(_cardMusic, width * .026f, dockT + dockH - 180f * k, 214f * k, 180f * k);
             if (_bodyMusic != null) { _bodyMusic.style.paddingTop = _bodyMusic.style.paddingBottom = _bodyMusic.style.paddingLeft = _bodyMusic.style.paddingRight = 0f; }
+            // 声浪 bar 与输入框同宽居中，不伸向左右卡片
+            if (_spectrumRow != null)
+            {
+                _spectrumRow.style.left = chatL;
+                _spectrumRow.style.right = StyleKeyword.Auto;
+                _spectrumRow.style.width = chatW;
+                _spectrumRow.style.bottom = height - dockT + 26f * k;
+                _spectrumRow.style.height = 46f * k;
+            }
             // 单行黑字回复紧贴输入框上方右对齐
             SetApprovedRect(_cardSay, chatL, dockT - 26f * k, chatW, 24f * k);
             if (_bodySay != null) { _bodySay.style.paddingTop = _bodySay.style.paddingBottom = _bodySay.style.paddingLeft = _bodySay.style.paddingRight = 0f; }
             SetApprovedRect(_chatDock, chatL, dockT, chatW, dockH);
             SetApprovedRect(_modeDock, width - 224f * k, dockT, 206f * k, dockH);
-            // V20 右下角：正在做的事胶囊位于模式条正上方
-            if (_nextPill != null) SetApprovedRect(_nextPill, width - 224f * k, dockT - 38f * k, 206f * k, 30f * k);
+            // V20 右下角：正在做的事胶囊位于模式条正上方，留出呼吸间距
+            if (_nextPill != null) SetApprovedRect(_nextPill, width - 224f * k, dockT - 42f * k, 206f * k, 30f * k);
             // V20 签名更低更大气，水平居中，与回复之间留出声浪条空间
             if (_plate != null)
             {
@@ -385,46 +482,42 @@ namespace Xiaoqi.UI2
                 _plate.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(0f, AngleUnit.Degree));
             }
 
-            // V20 右上角：慢慢来 Q 版探头竖卡（上）+ TOKEN 能量柱（下）竖向一上一下排列
+            // V20 右上角：瘦长 Q 版探头竖卡（上）+ 电量试管（下）一上一下排列
             if (_remindPill != null)
             {
-                SetApprovedRect(_remindPill, width - 134f * k, height * .085f, 108f * k, 134f * k);
-                SetRadius(_remindPill, 16f * k);
-                _remindPill.style.paddingTop = 44f * k;
-                var remLbl = _remindPill.Q<Label>();
-                if (remLbl != null) remLbl.style.fontSize = 11f * k;
+                SetApprovedRect(_remindPill, width - 108f * k, height * .085f, 78f * k, 146f * k);
+                SetRadius(_remindPill, 14f * k);
+                _remindPill.style.paddingTop = 36f * k;
+                foreach (var vl in _remindPill.Query<Label>().ToList()) vl.style.fontSize = 11.5f * k;
                 if (_chibiPeekImg != null)
                 {
-                    _chibiPeekImg.style.width = 100f * k; _chibiPeekImg.style.height = 78f * k;
-                    _chibiPeekImg.style.left = 4f * k; _chibiPeekImg.style.top = -44f * k;
+                    _chibiPeekImg.style.width = 76f * k; _chibiPeekImg.style.height = 60f * k;
+                    _chibiPeekImg.style.left = 1f * k; _chibiPeekImg.style.top = -36f * k;
                 }
             }
             if (_tokenCapsule != null)
             {
-                SetApprovedRect(_tokenCapsule, width - 108f * k, height * .085f + 168f * k, 56f * k, 142f * k);
+                SetApprovedRect(_tokenCapsule, width - 96f * k, height * .085f + 174f * k, 56f * k, 148f * k);
                 SetRadius(_tokenCapsule, 22f * k);
                 if (_tokStarImg != null)
                 {
                     _tokStarImg.style.width = 54f * k; _tokStarImg.style.height = 34f * k;
                     _tokStarImg.style.left = 0f; _tokStarImg.style.top = -22f * k;
                 }
-                if (_tokPctLbl != null) { _tokPctLbl.style.fontSize = 10.5f * k; _tokPctLbl.style.color = Color.white; }
+                if (_tokPctLbl != null) { _tokPctLbl.style.fontSize = 11f * k; _tokPctLbl.style.color = XqMoonStyle.Ink; }
                 foreach (var child in _tokenCapsule.Children())
                 {
                     if (child is VisualElement && !(child is Label) && !(child is Image))
-                    {
                         SetRadius(child, 16f * k);
-                        if (child.childCount > 0) SetRadius(child[0], 16f * k);
-                    }
                 }
             }
 
-            // 左右各 2 个贴纸本体围绕小祈四散布局
+            // 左右各 2 个贴纸本体围绕小祈四散布局（保持原始比例不压扁）
             SetApprovedRect(_approvedDock, 0f, height * .22f, width, height * .42f);
             float[] lx = { width * .195f, width * .175f, width * .695f, width * .725f };
             float[] ly = { 4f * k, 108f * k, 0f, 106f * k };
-            float[] lw = { 92f * k, 100f * k, 106f * k, 90f * k };
-            float[] lh = { 78f * k, 68f * k, 74f * k, 92f * k };
+            float[] lw = { 94f * k, 100f * k, 106f * k, 88f * k };
+            float[] lh = { 80f * k, 68f * k, 74f * k, 90f * k };
             int idx = 0;
             foreach (var el in _approvedDock.Children())
             {
@@ -432,10 +525,10 @@ namespace Xiaoqi.UI2
                 el.style.top = ly[idx % 4];
                 el.style.width = lw[idx % 4];
                 el.style.height = lh[idx % 4];
-                el.style.paddingTop = idx == 2 ? 12f * k : (idx == 3 ? 16f * k : 0f);
-                el.style.paddingLeft = idx == 3 ? 6f * k : 0f;
+                el.style.paddingTop = idx == 2 ? 12f * k : (idx == 3 ? 10f * k : 0f);
+                el.style.paddingLeft = idx == 3 ? 8f * k : 0f;
                 var lbl = el.Q<Label>();
-                if (lbl != null) lbl.style.fontSize = 11.5f * k;
+                if (lbl != null) lbl.style.fontSize = idx == 3 ? 16f * k : 11.5f * k;
                 idx++;
             }
 
