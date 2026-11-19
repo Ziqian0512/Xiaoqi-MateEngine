@@ -4,7 +4,7 @@ Status: opt-in Unity runtime sample. Existing default workbench remains availabl
 
 ## Open the shipped sample
 
-Close the current Xiaoqi instance first, then run:
+Close the current Xiaoqi instance first, then run (the launcher checks for an existing Xiaoqi process and refuses to create a second instance):
 
 `E:\dsh-pet-projects\Xiaoqi-Tonight\5-campus-preview.cmd`
 

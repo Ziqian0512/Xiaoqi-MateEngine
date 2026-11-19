@@ -85,3 +85,4 @@
 - 最终构建 build-campus-release.log 成功退出 0。最终运行检查：1920x1080 视口，舞台裁切恰为 1440x810，左右列不交叠；照片真实展开/关闭、手账→记忆→此刻往返检查通过，无新增页面异常。已有 localization/SteamDRM 警告未在此轮处理。
 - 成品已 robocopy 同步到 Xiaoqi-Tonight/Xiaoqi（退出码 3），保留配置。独立启动入口 E:\dsh-pet-projects\Xiaoqi-Tonight\5-campus-preview.cmd。正常显示只需要 preview 开关，不需要 capture 开关。时间、消息和当前媒体会随真实数据变化，布局/素材与截图一致。
 - 最终预览与几何报告：E:\dsh-pet-projects\design-previews\2026-11-19\campus-sample\final\campus-now-panel.png / campus-now-full.png / layout.json。复现操作、素材路径及约束见仓库 CAMPUS-PREVIEW.md。下一步由用户评审此刻页，再决定是否扩展其他页面。
+- 用户报告旧版桌宠叠出后，只读实测一度存在 G55/Build/Xiaoqi/Xiaoqi.exe（-deme-audit）及 Tonight 新版两个独立进程。本轮脚本未引用 G55，未能确认旧版启动来源；再次复查时均已退出，未自动重启。样片启动入口新增已有 Xiaoqi 进程检查，拒绝从该入口叠开实例。未修改或终止其他历史工程。此补充仅修改启动脚本与文档，Unity 代码及已验收预览保持不变。
