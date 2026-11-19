@@ -86,3 +86,14 @@
 - 成品已 robocopy 同步到 Xiaoqi-Tonight/Xiaoqi（退出码 3），保留配置。独立启动入口 E:\dsh-pet-projects\Xiaoqi-Tonight\5-campus-preview.cmd。正常显示只需要 preview 开关，不需要 capture 开关。时间、消息和当前媒体会随真实数据变化，布局/素材与截图一致。
 - 最终预览与几何报告：E:\dsh-pet-projects\design-previews\2026-11-19\campus-sample\final\campus-now-panel.png / campus-now-full.png / layout.json。复现操作、素材路径及约束见仓库 CAMPUS-PREVIEW.md。下一步由用户评审此刻页，再决定是否扩展其他页面。
 - 用户报告旧版桌宠叠出后，只读实测一度存在 G55/Build/Xiaoqi/Xiaoqi.exe（-deme-audit）及 Tonight 新版两个独立进程。本轮脚本未引用 G55，未能确认旧版启动来源；再次复查时均已退出，未自动重启。样片启动入口新增已有 Xiaoqi 进程检查，拒绝从该入口叠开实例。未修改或终止其他历史工程。此补充仅修改启动脚本与文档，Unity 代码及已验收预览保持不变。
+
+## 8. 2026-11-19 获批「软糖手账」三页实装
+- 根据用户最终确认稿替换默认工作台：此刻采用奶白探身；手账采用修正比例后的大画框版本（书页 720x378、人物框 500x535）；记忆采用玫瑰穿搭与相册。三页保留同一套雾蓝网格、纸张、挂件、蝴蝶结与独立表情小头像。
+- 预览与实机共用实际美术素材。装饰层以 2 倍尺寸烘焙，动态时间、日期、消息、生活状态、日程、日记、记忆、成长与播放器均由 Unity 原生控件呈现；演示文案没有烘入动态区域。原始排版、素材、导出脚本和构建说明已纳入 Assets/Xiaoqi/Editor/SweetNotebook 与 SWEET-NOTEBOOK.md，可复现。
+- 手账每次最多四条主线日程，支持日期/周切换、分页与全文弹层；历史通过既有只读日期接口获取，独立于当前缓存，并防止迟到响应覆盖新选择。记忆优先展示关于用户及相处默契的真实记录，长文本可展开；没有虚构关系百分比或同步条。
+- 播放器复用真实系统媒体桥，包含上一首、播放暂停、下一首及长曲名查看；评审未切歌或发送聊天。工具入口只在用户点击后打开既有老板控制台，没有联动启动老板项目或旧 G55 程序。近景与桌宠沿用现有代码路径。
+- Unity 6000.2.6f2 / XqSweetNotebookBuild.VerifyAndBuild -> XiaoqiBuild.Win64 最终成功退出 0，日志 sweet-notebook-build-ship.log。7 张运行纹理全部保留原始尺寸、NPOT=None、不压缩、关闭 mipmap；既有 11 项语音策略检查通过。
+- 最终真实运行视口 1920x1080，舞台 1440x810。11 项运行检查通过：三页命中区域、三页弹层、手账/记忆分页、进入手账、前一天真实数据读取、导航往返。时钟、日期标识、分页信息与人物框标题没有截断。电脑操作工具无法枚举本机透明 Unity 窗口，因此命中与操作使用生产相同坐标函数和动作处理器复验，尚未宣称完成所有操作系统鼠标实点验收。
+- 实机装饰层逐像素核对同源预览纹理，RGB 平均通道误差分别为 0.438 / 0.485 / 0.476（0-255）。这仅证明美术复现，动态真实文案与示例自然不同。三页与历史页实际截图、完整屏幕占位和原始报告位于 E:/dsh-pet-projects/design-previews/2026-11-19/sweet-notebook/runtime-final/；仓库保存无私人内容的 verification.json 汇总。
+- robocopy 同步至 Xiaoqi-Tonight/Xiaoqi，退出码 3；Assembly-CSharp.dll 哈希一致，xiaoqi_config.json 哈希仍为 DF05C28AF5A1F44E0D687F35198861D3404F03F6E888327CBBA50A6A1B2DF198。新增入口 E:/dsh-pet-projects/Xiaoqi-Tonight/6-sweet-notebook.cmd，带已有实例检查，不含假数据或评审开关。旧 Campus 样片仅通过显式开关保留。
+- 剩余验收：用户亲自体验鼠标点击、透明窗口边缘和实际屏幕阅读感受；既有 localization / SteamDRM 警告不属于本轮新增问题。未改变云端 Brain、QQ 服务或个人配置。

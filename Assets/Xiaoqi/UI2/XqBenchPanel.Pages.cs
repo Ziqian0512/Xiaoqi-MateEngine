@@ -75,6 +75,7 @@ namespace Xiaoqi.UI2
 
         void PageTick(float dt)
         {
+            if (SweetEnabled) { SweetTick(); return; }
             _pgFade = Mathf.MoveTowards(_pgFade, 1f, dt * 6f);
             RefreshBenchMusic();
             RefreshApprovedMusic();
@@ -96,6 +97,7 @@ namespace Xiaoqi.UI2
 
         void ApplyNavSel()
         {
+            if (SweetEnabled) return;
             Color acc, accDeep, glassBg, railBg, trackBg;
             ThemePalette(out acc, out accDeep, out glassBg, out railBg, out trackBg);
             for (int i = 0; i < _nav.Count; i++)
@@ -111,6 +113,7 @@ namespace Xiaoqi.UI2
 
         bool PagePoll(bool clickDown)
         {
+            if (SweetEnabled) return SweetPagePoll();
             if (!_shown || _host == null || _host.panel == null) return false;
             float sc = Input.mouseScrollDelta.y;
             if (_pgMax > 0 && Mathf.Abs(sc) > 0.01f && (OverEl(_bentoHost) || OverEl(_leftHost)))
@@ -203,6 +206,7 @@ namespace Xiaoqi.UI2
 
         void RenderPage()
         {
+            if (SweetEnabled) { RenderSweetPage(); return; }
             if (_bentoHost == null || _leftHost == null) return;
             _leftHost.Clear();
             _bentoHost.Clear();

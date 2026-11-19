@@ -1,0 +1,29 @@
+{
+  "runtimeChecks": 11,
+  "stage": [
+    1440,
+    810
+  ],
+  "viewport": [
+    1920,
+    1080
+  ],
+  "artworkComparison": [
+    {
+      "page": "now",
+      "meanChannelError": 0.43813763531926414,
+      "channelsOver16": 0.000849508270390791
+    },
+    {
+      "page": "journal",
+      "meanChannelError": 0.48468659799159997,
+      "channelsOver16": 0.0010327185993051836
+    },
+    {
+      "page": "memory",
+      "meanChannelError": 0.47554631822136184,
+      "channelsOver16": 0.001149673620593302
+    }
+  ],
+  "usesActualRuntime": true
+}

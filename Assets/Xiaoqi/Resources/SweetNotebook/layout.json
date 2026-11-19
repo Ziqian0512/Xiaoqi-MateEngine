@@ -1,0 +1,1024 @@
+{
+  "pages": [
+    {
+      "id": "now",
+      "labels": [
+        {
+          "key": "clock",
+          "x": 155,
+          "y": 225,
+          "w": 94.84375,
+          "h": 45,
+          "angle": 0,
+          "group": null,
+          "cssFont": 39,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "Georgia, serif",
+          "spacing": 0,
+          "lineHeight": 50.7,
+          "align": "start"
+        },
+        {
+          "key": "date",
+          "x": 267.84375,
+          "y": 228.5,
+          "w": 103.984375,
+          "h": 38,
+          "angle": 0,
+          "group": null,
+          "cssFont": 10,
+          "color": "rgb(147, 145, 168)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 19,
+          "align": "start"
+        },
+        {
+          "key": "quoteTitle",
+          "x": 182,
+          "y": 362,
+          "w": 345,
+          "h": 24,
+          "angle": 0,
+          "group": null,
+          "cssFont": 19,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 24.7,
+          "align": "start"
+        },
+        {
+          "key": "quote",
+          "x": 182,
+          "y": 400,
+          "w": 345,
+          "h": 60.78125,
+          "angle": 0,
+          "group": null,
+          "cssFont": 16,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 1,
+          "lineHeight": 30.4,
+          "align": "start"
+        },
+        {
+          "key": "mood",
+          "x": 201,
+          "y": 612,
+          "w": 268,
+          "h": 21,
+          "angle": -3.0000011085596214,
+          "group": {
+            "x": 180,
+            "y": 567,
+            "w": 310,
+            "h": 77
+          },
+          "cssFont": 15,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 19.5,
+          "align": "start"
+        },
+        {
+          "key": "song",
+          "x": 214,
+          "y": 695.8125,
+          "w": 125,
+          "h": 22,
+          "angle": 0,
+          "group": null,
+          "cssFont": 14,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 25.2,
+          "align": "start"
+        },
+        {
+          "key": "artist",
+          "x": 214,
+          "y": 728,
+          "w": 120,
+          "h": 13,
+          "angle": 0,
+          "group": null,
+          "cssFont": 10,
+          "color": "rgb(148, 147, 173)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 18,
+          "align": "start"
+        },
+        {
+          "key": "play",
+          "x": 379,
+          "y": 705,
+          "w": 32,
+          "h": 32,
+          "angle": 0,
+          "group": null,
+          "cssFont": 13,
+          "color": "rgb(255, 255, 255)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 16.900000000000002,
+          "align": "center"
+        },
+        {
+          "key": "prevLabel",
+          "x": 347,
+          "y": 703,
+          "w": 24,
+          "h": 36,
+          "angle": 0,
+          "group": null,
+          "cssFont": 21,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 27.3,
+          "align": "center"
+        },
+        {
+          "key": "nextLabel",
+          "x": 419,
+          "y": 703,
+          "w": 24,
+          "h": 36,
+          "angle": 0,
+          "group": null,
+          "cssFont": 21,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 27.3,
+          "align": "center"
+        }
+      ],
+      "sprites": [
+        {
+          "key": "chibi",
+          "x": 379,
+          "y": 501,
+          "w": 105,
+          "h": 85,
+          "angle": -3.0000011085596214,
+          "group": {
+            "x": 180,
+            "y": 567,
+            "w": 310,
+            "h": 77
+          },
+          "cssFont": 16,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 20.8,
+          "align": "start"
+        }
+      ],
+      "targets": [
+        {
+          "key": "letter",
+          "x": 153,
+          "y": 325,
+          "w": 403,
+          "h": 203
+        },
+        {
+          "key": "chibi",
+          "x": 373.4705810546875,
+          "y": 493.34515380859375,
+          "w": 109.3046875,
+          "h": 90.3787841796875
+        },
+        {
+          "key": "prev",
+          "x": 347,
+          "y": 703,
+          "w": 24,
+          "h": 36
+        },
+        {
+          "key": "play",
+          "x": 379,
+          "y": 705,
+          "w": 32,
+          "h": 32
+        },
+        {
+          "key": "next",
+          "x": 419,
+          "y": 703,
+          "w": 24,
+          "h": 36
+        },
+        {
+          "key": "player",
+          "x": 214,
+          "y": 695.8125,
+          "w": 125,
+          "h": 50.375
+        },
+        {
+          "key": "nav-now",
+          "x": 27.5,
+          "y": 117,
+          "w": 57,
+          "h": 64
+        },
+        {
+          "key": "nav-journal",
+          "x": 27.5,
+          "y": 197,
+          "w": 57,
+          "h": 64
+        },
+        {
+          "key": "nav-memory",
+          "x": 27.5,
+          "y": 277,
+          "w": 57,
+          "h": 64
+        },
+        {
+          "key": "tools",
+          "x": 27.5,
+          "y": 702,
+          "w": 57,
+          "h": 64
+        },
+        {
+          "key": "pet",
+          "x": 1212,
+          "y": 34,
+          "w": 58,
+          "h": 28
+        },
+        {
+          "key": "close",
+          "x": 1273,
+          "y": 34,
+          "w": 58,
+          "h": 28
+        }
+      ]
+    },
+    {
+      "id": "journal",
+      "labels": [
+        {
+          "key": "date",
+          "x": 176,
+          "y": 336,
+          "w": 312,
+          "h": 11,
+          "angle": 0,
+          "group": null,
+          "cssFont": 10,
+          "color": "rgb(133, 132, 168)",
+          "bold": false,
+          "italic": false,
+          "family": "Arial, sans-serif",
+          "spacing": 3,
+          "lineHeight": 13,
+          "align": "start"
+        },
+        {
+          "key": "diaryTitle",
+          "x": 176,
+          "y": 360,
+          "w": 312,
+          "h": 23,
+          "angle": 0,
+          "group": null,
+          "cssFont": 18,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 23.400000000000002,
+          "align": "start"
+        },
+        {
+          "key": "diary",
+          "x": 176,
+          "y": 405,
+          "w": 312,
+          "h": 96,
+          "angle": 0,
+          "group": null,
+          "cssFont": 16,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 1,
+          "lineHeight": 32,
+          "align": "start"
+        },
+        {
+          "key": "metaDate",
+          "x": 720,
+          "y": 222,
+          "w": 153,
+          "h": 24,
+          "angle": 0,
+          "group": null,
+          "cssFont": 21,
+          "color": "rgb(133, 129, 164)",
+          "bold": false,
+          "italic": false,
+          "family": "Georgia, serif",
+          "spacing": 3,
+          "lineHeight": 27.3,
+          "align": "start"
+        },
+        {
+          "key": "metaWeek",
+          "x": 720,
+          "y": 253,
+          "w": 153,
+          "h": 11,
+          "angle": 0,
+          "group": null,
+          "cssFont": 9,
+          "color": "rgb(157, 150, 175)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 1,
+          "lineHeight": 11.700000000000001,
+          "align": "start"
+        },
+        {
+          "key": "page",
+          "x": 535,
+          "y": 623,
+          "w": 66.78125,
+          "h": 16,
+          "angle": 0,
+          "group": null,
+          "cssFont": 9,
+          "color": "rgb(161, 160, 180)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 11.700000000000001,
+          "align": "start"
+        },
+        {
+          "key": "frameTitle",
+          "x": 932,
+          "y": 640,
+          "w": 84,
+          "h": 13,
+          "angle": 0,
+          "group": null,
+          "cssFont": 10,
+          "color": "rgb(155, 132, 153)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 2,
+          "lineHeight": 13,
+          "align": "start"
+        },
+        {
+          "key": "frameText",
+          "x": 932,
+          "y": 662,
+          "w": 444,
+          "h": 21,
+          "angle": 0,
+          "group": null,
+          "cssFont": 16,
+          "color": "rgb(119, 113, 142)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 1,
+          "lineHeight": 20.8,
+          "align": "start"
+        },
+        {
+          "key": "day0",
+          "x": 153,
+          "y": 212,
+          "w": 56,
+          "h": 62,
+          "angle": 0,
+          "group": null,
+          "cssFont": 19,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 24.7,
+          "align": "center"
+        },
+        {
+          "key": "day1",
+          "x": 217,
+          "y": 212,
+          "w": 56,
+          "h": 62,
+          "angle": 0,
+          "group": null,
+          "cssFont": 19,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 24.7,
+          "align": "center"
+        },
+        {
+          "key": "day2",
+          "x": 281,
+          "y": 212,
+          "w": 56,
+          "h": 62,
+          "angle": 0,
+          "group": null,
+          "cssFont": 19,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 24.7,
+          "align": "center"
+        },
+        {
+          "key": "day3",
+          "x": 345,
+          "y": 212,
+          "w": 56,
+          "h": 62,
+          "angle": 0,
+          "group": null,
+          "cssFont": 19,
+          "color": "rgb(255, 255, 255)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 24.7,
+          "align": "center"
+        },
+        {
+          "key": "day4",
+          "x": 409,
+          "y": 212,
+          "w": 56,
+          "h": 62,
+          "angle": 0,
+          "group": null,
+          "cssFont": 19,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 24.7,
+          "align": "center"
+        },
+        {
+          "key": "day5",
+          "x": 473,
+          "y": 212,
+          "w": 56,
+          "h": 62,
+          "angle": 0,
+          "group": null,
+          "cssFont": 19,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 24.7,
+          "align": "center"
+        },
+        {
+          "key": "day6",
+          "x": 537,
+          "y": 212,
+          "w": 56,
+          "h": 62,
+          "angle": 0,
+          "group": null,
+          "cssFont": 19,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 24.7,
+          "align": "center"
+        },
+        {
+          "key": "events",
+          "x": 535,
+          "y": 377,
+          "w": 314,
+          "h": 246,
+          "cssFont": 15,
+          "color": "rgb(62,60,89)",
+          "lineHeight": 23
+        }
+      ],
+      "sprites": [
+        {
+          "key": "chibi",
+          "x": 171,
+          "y": 554,
+          "w": 108,
+          "h": 87,
+          "angle": 0,
+          "group": null,
+          "cssFont": 16,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 20.8,
+          "align": "start"
+        },
+        {
+          "key": "wink",
+          "x": 1305,
+          "y": 650,
+          "w": 99,
+          "h": 80,
+          "angle": 4.999996052434918,
+          "group": {
+            "x": 1305,
+            "y": 650,
+            "w": 99,
+            "h": 80
+          },
+          "cssFont": 16,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 20.8,
+          "align": "start"
+        }
+      ],
+      "targets": [
+        {
+          "key": "day0",
+          "x": 153,
+          "y": 212,
+          "w": 56,
+          "h": 62
+        },
+        {
+          "key": "day1",
+          "x": 217,
+          "y": 212,
+          "w": 56,
+          "h": 62
+        },
+        {
+          "key": "day2",
+          "x": 281,
+          "y": 212,
+          "w": 56,
+          "h": 62
+        },
+        {
+          "key": "day3",
+          "x": 345,
+          "y": 212,
+          "w": 56,
+          "h": 62
+        },
+        {
+          "key": "day4",
+          "x": 409,
+          "y": 212,
+          "w": 56,
+          "h": 62
+        },
+        {
+          "key": "day5",
+          "x": 473,
+          "y": 212,
+          "w": 56,
+          "h": 62
+        },
+        {
+          "key": "day6",
+          "x": 537,
+          "y": 212,
+          "w": 56,
+          "h": 62
+        },
+        {
+          "key": "diary",
+          "x": 151,
+          "y": 303,
+          "w": 359,
+          "h": 376
+        },
+        {
+          "key": "next",
+          "x": 789.734375,
+          "y": 623,
+          "w": 59.265625,
+          "h": 16
+        },
+        {
+          "key": "portrait",
+          "x": 904,
+          "y": 170,
+          "w": 500,
+          "h": 535
+        },
+        {
+          "key": "chibi",
+          "x": 171,
+          "y": 554,
+          "w": 108,
+          "h": 87
+        },
+        {
+          "key": "wink",
+          "x": 1301.7021484375,
+          "y": 645.8380126953125,
+          "w": 105.595703125,
+          "h": 88.323974609375
+        },
+        {
+          "key": "nav-now",
+          "x": 27.5,
+          "y": 117,
+          "w": 57,
+          "h": 64
+        },
+        {
+          "key": "nav-journal",
+          "x": 27.5,
+          "y": 197,
+          "w": 57,
+          "h": 64
+        },
+        {
+          "key": "nav-memory",
+          "x": 27.5,
+          "y": 277,
+          "w": 57,
+          "h": 64
+        },
+        {
+          "key": "tools",
+          "x": 27.5,
+          "y": 702,
+          "w": 57,
+          "h": 64
+        },
+        {
+          "key": "pet",
+          "x": 1212,
+          "y": 34,
+          "w": 58,
+          "h": 28
+        },
+        {
+          "key": "close",
+          "x": 1273,
+          "y": 34,
+          "w": 58,
+          "h": 28
+        }
+      ]
+    },
+    {
+      "id": "memory",
+      "labels": [
+        {
+          "key": "oneTitle",
+          "x": 596,
+          "y": 290,
+          "w": 288,
+          "h": 21,
+          "angle": 0.9999993263990709,
+          "group": {
+            "x": 570,
+            "y": 240,
+            "w": 340,
+            "h": 178
+          },
+          "cssFont": 17,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 22.1,
+          "align": "start"
+        },
+        {
+          "key": "one",
+          "x": 596,
+          "y": 323,
+          "w": 288,
+          "h": 51,
+          "angle": 0.9999993263990709,
+          "group": {
+            "x": 570,
+            "y": 240,
+            "w": 340,
+            "h": 178
+          },
+          "cssFont": 15,
+          "color": "rgb(133, 128, 152)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 25.5,
+          "align": "start"
+        },
+        {
+          "key": "oneTag",
+          "x": 595,
+          "y": 228,
+          "w": 94,
+          "h": 29,
+          "angle": 0.9999993263990709,
+          "group": {
+            "x": 570,
+            "y": 240,
+            "w": 340,
+            "h": 178
+          },
+          "cssFont": 10,
+          "color": "rgb(104, 110, 151)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 2,
+          "lineHeight": 13,
+          "align": "start"
+        },
+        {
+          "key": "twoTitle",
+          "x": 991,
+          "y": 308,
+          "w": 303,
+          "h": 21,
+          "angle": -1.999999842926156,
+          "group": {
+            "x": 965,
+            "y": 258,
+            "w": 355,
+            "h": 178
+          },
+          "cssFont": 17,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 22.1,
+          "align": "start"
+        },
+        {
+          "key": "two",
+          "x": 991,
+          "y": 341,
+          "w": 303,
+          "h": 51,
+          "angle": -1.999999842926156,
+          "group": {
+            "x": 965,
+            "y": 258,
+            "w": 355,
+            "h": 178
+          },
+          "cssFont": 15,
+          "color": "rgb(133, 128, 152)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 25.5,
+          "align": "start"
+        },
+        {
+          "key": "twoTag",
+          "x": 990,
+          "y": 246,
+          "w": 94,
+          "h": 29,
+          "angle": -1.999999842926156,
+          "group": {
+            "x": 965,
+            "y": 258,
+            "w": 355,
+            "h": 178
+          },
+          "cssFont": 10,
+          "color": "rgb(104, 110, 151)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 2,
+          "lineHeight": 13,
+          "align": "start"
+        },
+        {
+          "key": "threeTitle",
+          "x": 636,
+          "y": 568,
+          "w": 333,
+          "h": 21,
+          "angle": -0.9999993263990709,
+          "group": {
+            "x": 610,
+            "y": 518,
+            "w": 385,
+            "h": 178
+          },
+          "cssFont": 17,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 22.1,
+          "align": "start"
+        },
+        {
+          "key": "three",
+          "x": 636,
+          "y": 601,
+          "w": 310,
+          "h": 51,
+          "angle": -0.9999993263990709,
+          "group": {
+            "x": 610,
+            "y": 518,
+            "w": 385,
+            "h": 178
+          },
+          "cssFont": 15,
+          "color": "rgb(133, 128, 152)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 25.5,
+          "align": "start"
+        }
+      ],
+      "sprites": [
+        {
+          "key": "chibi",
+          "x": 982,
+          "y": 539,
+          "w": 140,
+          "h": 113,
+          "angle": -0.9999993263990709,
+          "group": {
+            "x": 610,
+            "y": 518,
+            "w": 385,
+            "h": 178
+          },
+          "cssFont": 16,
+          "color": "rgb(62, 60, 89)",
+          "bold": false,
+          "italic": false,
+          "family": "\"Microsoft YaHei UI\", \"Microsoft YaHei\", sans-serif",
+          "spacing": 0,
+          "lineHeight": 20.8,
+          "align": "start"
+        }
+      ],
+      "targets": [
+        {
+          "key": "one",
+          "x": 568.47265625,
+          "y": 237.046630859375,
+          "w": 343.0546875,
+          "h": 183.90673828125
+        },
+        {
+          "key": "two",
+          "x": 962.0020751953125,
+          "y": 251.85955810546875,
+          "w": 360.995849609375,
+          "h": 190.2808837890625
+        },
+        {
+          "key": "three",
+          "x": 608.47607421875,
+          "y": 514.6539916992188,
+          "w": 388.0478515625,
+          "h": 184.6920166015625
+        },
+        {
+          "key": "photo",
+          "x": 148.82769775390625,
+          "y": 231.00927734375,
+          "w": 374.3446044921875,
+          "h": 415.9814453125
+        },
+        {
+          "key": "next",
+          "x": 1262,
+          "y": 161,
+          "w": 113,
+          "h": 36
+        },
+        {
+          "key": "chibi",
+          "x": 980.785888671875,
+          "y": 533.434326171875,
+          "w": 141.9508056640625,
+          "h": 115.42608642578125
+        },
+        {
+          "key": "nav-now",
+          "x": 27.5,
+          "y": 117,
+          "w": 57,
+          "h": 64
+        },
+        {
+          "key": "nav-journal",
+          "x": 27.5,
+          "y": 197,
+          "w": 57,
+          "h": 64
+        },
+        {
+          "key": "nav-memory",
+          "x": 27.5,
+          "y": 277,
+          "w": 57,
+          "h": 64
+        },
+        {
+          "key": "tools",
+          "x": 27.5,
+          "y": 702,
+          "w": 57,
+          "h": 64
+        },
+        {
+          "key": "pet",
+          "x": 1212,
+          "y": 34,
+          "w": 58,
+          "h": 28
+        },
+        {
+          "key": "close",
+          "x": 1273,
+          "y": 34,
+          "w": 58,
+          "h": 28
+        }
+      ]
+    }
+  ]
+}

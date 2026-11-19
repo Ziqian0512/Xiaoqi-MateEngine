@@ -144,6 +144,33 @@ namespace Xiaoqi.UI2
             _page = -1;
         }
 
+        // History is isolated from the live SWR cache. Never substitute today's data for a missing day.
+        public void FetchDay(string day, Action<JToken, JToken, bool> done)
+        {
+            DateTime parsed;
+            if (!DateTime.TryParseExact(day, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out parsed)) { done?.Invoke(null,null,true); return; }
+            StartCoroutine(FetchDayCo(day, done));
+        }
+        IEnumerator FetchDayCo(string day, Action<JToken, JToken, bool> done)
+        {
+            var cfg = XiaoqiRuntime.Config ?? XiaoqiConfig.LoadOrCreate();
+            string server = (cfg.server ?? "").TrimEnd('/');
+            if (server.Length == 0 || FakeDir() != null) { done?.Invoke(null,null,true); yield break; }
+            JToken life=null, diary=null; bool failed=false;
+            foreach (var key in new[]{"life","diary"})
+            {
+                XqHttp.Resp resp=default(XqHttp.Resp);
+                yield return XqHttp.Get(server+Paths[key]+"?day="+day,cfg.token,15,r=>resp=r);
+                JToken value=null;
+                if(resp.ok)try{value=JToken.Parse(resp.text);}catch(Exception){failed=true;}
+                else failed=true;
+                if(key=="life")life=value;else diary=value;
+                Debug.Log("XQ_SWEET_HISTORY key="+key+" day="+day+" ok="+(value!=null?"y":"n"));
+            }
+            done?.Invoke(life,diary,failed);
+        }
+
         public void TriggerBrainAction(string act, Action<string> cb)
         {
             if (!isActiveAndEnabled) { cb?.Invoke("不可用"); return; }

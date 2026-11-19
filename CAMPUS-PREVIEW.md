@@ -1,6 +1,6 @@
 # Campus Now sample — review and reproduction
 
-Status: opt-in Unity runtime sample. Existing default workbench remains available. Only the Now page is redesigned in this iteration; Life and Memory retain their existing content. Detailed settings open the existing browser console through the Tools entry.
+Status: historical opt-in Unity runtime sample. The default workbench is now the approved three-page Sweet Notebook design; see SWEET-NOTEBOOK.md. This Campus sample remains accessible only with its explicit flag. Only its Now page was redesigned; Life and Memory retain the previous content. Detailed settings open the existing browser console through the Tools entry.
 
 ## Open the shipped sample
 

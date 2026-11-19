@@ -92,7 +92,7 @@ namespace Xiaoqi.UI2
         static float RailW => CampusPreview ? 66f : 128f;
         const float PanW = LeftW + CharW + RightW; // 1020
         const float PanH = 620f, TopH = 76f, BotH = 96f, MidH = PanH - TopH - BotH; // 448
-        static float StageW => RailW + Gap + PanW; // 1112
+        static float StageW => SweetEnabled ? 1440f * PanH / 810f : RailW + Gap + PanW;
 
         struct Geo { public float a, ph, k, stageL, stageT, stageW, charCenterX; }
 
@@ -114,6 +114,7 @@ namespace Xiaoqi.UI2
 
         static float PanelPx(float W, float H)
         {
+            if (SweetEnabled) return Mathf.Min(810f, H * .90f, W * .94f * 810f / 1440f);
             if (CampusPreview) return Mathf.Min(810f, H * .90f, W * .94f * PanH / StageW);
             float ph = 0.76f * H;
             float stageW = ph * StageW / PanH;
@@ -256,7 +257,8 @@ namespace Xiaoqi.UI2
             _stage.style.transformOrigin = new TransformOrigin(Length.Percent(50), Length.Percent(50));
             _host.Add(_stage);
 
-            if (CampusPreview) { BuildCampusRail(); BuildCampusPanel(); }
+            if (SweetEnabled) BuildSweetShell();
+            else if (CampusPreview) { BuildCampusRail(); BuildCampusPanel(); }
             else { BuildApprovedRail(); BuildApprovedPanel(); }
 
             root.Add(_host);
@@ -271,8 +273,8 @@ namespace Xiaoqi.UI2
             if (_stage == null) return;
             float W, H; MonitorDims(out W, out H);
             var g = GeoOf(W, H);
-            _stage.style.left = g.stageL * H * _builtUpp;
-            _stage.style.top = g.stageT * H * _builtUpp;
+            _stage.style.left = (SweetEnabled ? Mathf.Round(g.stageL * H) : g.stageL * H) * _builtUpp;
+            _stage.style.top = (SweetEnabled ? Mathf.Round(g.stageT * H) : g.stageT * H) * _builtUpp;
             if (_shown)
             {
                 float frameBotScreenY = g.stageT + (PanH - BotH) * g.ph / PanH;
@@ -594,7 +596,7 @@ namespace Xiaoqi.UI2
 
         void UpdateParallax(float dt)
         {
-            if (CampusPreview) { _pxS = _pyS = 0f; return; }
+            if (SweetEnabled || CampusPreview) { _pxS = _pyS = 0f; return; }
             var c = XqModeConfig.I;
             if (!c.bench_parallax) { _pxS = Mathf.MoveTowards(_pxS, 0f, dt * 3f); _pyS = Mathf.MoveTowards(_pyS, 0f, dt * 3f); }
             else
@@ -632,6 +634,7 @@ namespace Xiaoqi.UI2
         }
         Action ApprovedAction(out VisualElement target)
         {
+            if (SweetEnabled) return SweetActionAt(XqPanelXf.FromScreen(_host.panel, Input.mousePosition),out target);
             target = null;
             if (OverEl(_petModeBtn)) { target = _petModeBtn; return () => XqMode.Set(XqView.Pet); }
             if (OverEl(_closeModeBtn)) { target = _closeModeBtn; return () => XqMode.Set(XqView.Close); }
@@ -649,6 +652,7 @@ namespace Xiaoqi.UI2
             if (modal != null)
             {
                 _approvedArm = null; _bdrag = false;
+                if (SweetEnabled) { SweetModalPoll(modal); return; }
                 if (Input.GetMouseButtonDown(0) && OverEl(modal)) { _approvedArmEl = modal; _approvedArmAt = Input.mousePosition; }
                 if (Input.GetMouseButtonUp(0) && _approvedArmEl == modal && OverEl(modal) && Vector2.Distance(_approvedArmAt, Input.mousePosition) <= 8f) DismissPhotoOverlay();
                 return;
