@@ -251,8 +251,8 @@ namespace Xiaoqi.UI2
                 _nextPill.style.backgroundSize = new BackgroundSize(Length.Percent(100f), Length.Percent(100f));
             }
             _nextPill.style.marginTop = 0f;
-            _nextPill.style.paddingTop = 12f; _nextPill.style.paddingBottom = 6f;
-            _nextPill.style.paddingLeft = _nextPill.style.paddingRight = 22f;
+            _nextPill.style.paddingTop = 22f; _nextPill.style.paddingBottom = 18f;
+            _nextPill.style.paddingLeft = _nextPill.style.paddingRight = 44f;
             _nextPill.style.justifyContent = Justify.Center;
             _nextPill.style.alignItems = Align.Center;
             _nextPill.style.overflow = Overflow.Hidden;
@@ -276,7 +276,7 @@ namespace Xiaoqi.UI2
             }
             _nextPill.Q("xq-old-schedule-progress")?.RemoveFromHierarchy();
 
-            // 音乐卡：高挑方正无白边毛刺 + 内容上提至 1/2 处 + 立体投影
+            // V23 音乐卡：紧凑方正，取消右侧大按钮，改为歌名/歌手在进度条上方，播放键居中并入底部控制行 (|< ▶ >| ♡)
             _cardMusic.Q("xq-soft-shadow")?.RemoveFromHierarchy();
             XqMoonStyle.Clear(_cardMusic);
             XqMoonStyle.Clear(_bodyMusic);
@@ -312,30 +312,23 @@ namespace Xiaoqi.UI2
             _bodyMusic.Add(scrim);
 
             var mContent = new VisualElement { pickingMode = PickingMode.Ignore };
-            mContent.style.flexGrow = 1f; mContent.style.justifyContent = Justify.Center;
+            mContent.style.flexGrow = 1f; mContent.style.justifyContent = Justify.FlexEnd;
             mContent.style.paddingLeft = mContent.style.paddingRight = 15f;
-            mContent.style.paddingTop = 36f; mContent.style.paddingBottom = 10f;
+            mContent.style.paddingTop = 12f; mContent.style.paddingBottom = 13f;
 
-            var mMidRow = new VisualElement { pickingMode = PickingMode.Ignore };
-            mMidRow.style.flexDirection = FlexDirection.Row; mMidRow.style.justifyContent = Justify.SpaceBetween; mMidRow.style.alignItems = Align.Center;
-            mMidRow.style.marginBottom = 18f;
-            var mTxtCol = new VisualElement { pickingMode = PickingMode.Ignore };
-            mTxtCol.style.flexGrow = 1f; mTxtCol.style.flexShrink = 1f; mTxtCol.style.overflow = Overflow.Hidden; mTxtCol.style.marginRight = 10f;
             var mDrop = new TextShadow { offset = new Vector2(0f, 1.5f), blurRadius = 4f, color = new Color(0.08f, 0.05f, 0.16f, 0.72f) };
+            var mTxtCol = new VisualElement { pickingMode = PickingMode.Ignore };
+            mTxtCol.style.marginBottom = 8f;
             _musicTitle.style.color = Color.white; _musicTitle.style.unityTextAlign = TextAnchor.MiddleLeft; _musicTitle.style.textShadow = mDrop;
             _musicTitle.style.whiteSpace = WhiteSpace.NoWrap; _musicTitle.style.overflow = Overflow.Hidden; _musicTitle.style.textOverflow = TextOverflow.Ellipsis;
             _musicArtist.style.color = new Color(0.94f, 0.91f, 0.99f, 0.92f); _musicArtist.style.unityTextAlign = TextAnchor.MiddleLeft; _musicArtist.style.textShadow = mDrop;
             _musicArtist.style.whiteSpace = WhiteSpace.NoWrap; _musicArtist.style.overflow = Overflow.Hidden; _musicArtist.style.textOverflow = TextOverflow.Ellipsis;
+            _musicArtist.style.marginTop = 2f;
             mTxtCol.Add(_musicTitle); mTxtCol.Add(_musicArtist);
-            _musicPlay.style.width = 36f; _musicPlay.style.height = 36f; SetRadius(_musicPlay, 11f);
-            _musicPlay.style.backgroundColor = new Color(1f, 1f, 1f, 0.97f); _musicPlay.style.flexShrink = 0f;
-            _musicPlay.style.borderBottomWidth = 3f; _musicPlay.style.borderBottomColor = new Color(0.76f, 0.70f, 0.92f, 0.92f);
-            _musicPlayLbl.style.color = XqMoonStyle.Ink;
-            mMidRow.Add(mTxtCol); mMidRow.Add(_musicPlay);
-            mContent.Add(mMidRow);
+            mContent.Add(mTxtCol);
 
             var barTrack = new VisualElement { pickingMode = PickingMode.Ignore };
-            barTrack.style.height = 4f; barTrack.style.marginBottom = 16f;
+            barTrack.style.height = 3.5f; barTrack.style.marginBottom = 10f;
             barTrack.style.backgroundColor = new Color(1f, 1f, 1f, 0.36f); SetRadius(barTrack, 2f);
             _musicFill.style.backgroundColor = Color.white; barTrack.Add(_musicFill);
             mContent.Add(barTrack);
@@ -347,29 +340,33 @@ namespace Xiaoqi.UI2
                 btn.style.backgroundColor = Color.clear; btn.style.width = 24f; btn.style.height = 24f;
                 var l = btn.Q<Label>(); if (l != null) l.style.display = DisplayStyle.None;
                 var ico = new VisualElement { pickingMode = PickingMode.Ignore };
-                ico.style.width = 16f; ico.style.height = 16f;
+                ico.style.width = 15f; ico.style.height = 15f;
                 ico.generateVisualContent += mgc =>
                 {
                     var p = mgc.painter2D;
                     p.fillColor = Color.white;
                     if (!isNext)
                     {
-                        p.BeginPath(); p.MoveTo(new Vector2(2f, 2f)); p.LineTo(new Vector2(4.4f, 2f)); p.LineTo(new Vector2(4.4f, 14f)); p.LineTo(new Vector2(2f, 14f)); p.ClosePath(); p.Fill();
-                        p.BeginPath(); p.MoveTo(new Vector2(5.2f, 8f)); p.LineTo(new Vector2(14f, 2.2f)); p.LineTo(new Vector2(14f, 13.8f)); p.ClosePath(); p.Fill();
+                        p.BeginPath(); p.MoveTo(new Vector2(2f, 2f)); p.LineTo(new Vector2(4.2f, 2f)); p.LineTo(new Vector2(4.2f, 13f)); p.LineTo(new Vector2(2f, 13f)); p.ClosePath(); p.Fill();
+                        p.BeginPath(); p.MoveTo(new Vector2(5f, 7.5f)); p.LineTo(new Vector2(13f, 2f)); p.LineTo(new Vector2(13f, 13f)); p.ClosePath(); p.Fill();
                     }
                     else
                     {
-                        p.BeginPath(); p.MoveTo(new Vector2(2f, 2.2f)); p.LineTo(new Vector2(10.8f, 8f)); p.LineTo(new Vector2(2f, 13.8f)); p.ClosePath(); p.Fill();
-                        p.BeginPath(); p.MoveTo(new Vector2(11.6f, 2f)); p.LineTo(new Vector2(14f, 2f)); p.LineTo(new Vector2(14f, 14f)); p.LineTo(new Vector2(11.6f, 14f)); p.ClosePath(); p.Fill();
+                        p.BeginPath(); p.MoveTo(new Vector2(2f, 2f)); p.LineTo(new Vector2(10f, 7.5f)); p.LineTo(new Vector2(2f, 13f)); p.ClosePath(); p.Fill();
+                        p.BeginPath(); p.MoveTo(new Vector2(10.8f, 2f)); p.LineTo(new Vector2(13f, 2f)); p.LineTo(new Vector2(13f, 13f)); p.LineTo(new Vector2(10.8f, 13f)); p.ClosePath(); p.Fill();
                     }
                 };
                 btn.Add(ico);
             }
             SetupTransportIcon(_musicPrev, false);
+            _musicPlay.style.width = 28f; _musicPlay.style.height = 28f; SetRadius(_musicPlay, 14f);
+            _musicPlay.style.backgroundColor = new Color(1f, 1f, 1f, 0.97f);
+            _musicPlay.style.borderBottomWidth = 2f; _musicPlay.style.borderBottomColor = new Color(0.76f, 0.70f, 0.92f, 0.90f);
+            _musicPlayLbl.style.color = XqMoonStyle.Ink;
             SetupTransportIcon(_musicNext, true);
             _musicLike.style.display = DisplayStyle.Flex; _musicLike.style.backgroundColor = Color.clear; _musicLike.style.width = 24f; _musicLike.style.height = 24f;
             if (_musicLikeLbl != null) { _musicLikeLbl.style.color = new Color(1f, 0.80f, 0.92f, 1f); _musicLikeLbl.style.textShadow = mDrop; }
-            mBotRow.Add(_musicPrev); mBotRow.Add(_musicNext); mBotRow.Add(_musicLike);
+            mBotRow.Add(_musicPrev); mBotRow.Add(_musicPlay); mBotRow.Add(_musicNext); mBotRow.Add(_musicLike);
             mContent.Add(mBotRow);
             _bodyMusic.Add(mContent);
 
@@ -532,8 +529,8 @@ namespace Xiaoqi.UI2
             float dockT = height - 88f * k;
 
             SetApprovedRect(_cardNext, width * .042f, height * .055f, 340f * k, 150f * k);
-            // 音乐卡拉高至 220x216
-            SetApprovedRect(_cardMusic, width * .026f, dockT + dockH - 216f * k, 220f * k, 216f * k);
+            // V23 音乐卡紧凑方正 214x176
+            SetApprovedRect(_cardMusic, width * .026f, dockT + dockH - 176f * k, 214f * k, 176f * k);
             if (_bodyMusic != null) { _bodyMusic.style.paddingTop = _bodyMusic.style.paddingBottom = _bodyMusic.style.paddingLeft = _bodyMusic.style.paddingRight = 0f; }
             // 声浪 bar 与输入框同宽居中，高度加高以完整展现动态轮廓波浪
             if (_spectrumRow != null)
@@ -549,8 +546,8 @@ namespace Xiaoqi.UI2
             if (_bodySay != null) { _bodySay.style.paddingTop = _bodySay.style.paddingBottom = _bodySay.style.paddingLeft = _bodySay.style.paddingRight = 0f; }
             SetApprovedRect(_chatDock, chatL, dockT, chatW, dockH);
             SetApprovedRect(_modeDock, width - 224f * k, dockT, 206f * k, dockH);
-            // V22 右下角：「正在」横幅大幅上移至 dockT - 82*k，拉开与模式条间距
-            if (_nextPill != null) SetApprovedRect(_nextPill, width - 254f * k, dockT - 82f * k, 236f * k, 48f * k);
+            // V23 右上角置顶：「正在」猫耳蝴蝶结横幅放在右上角，盖被子竖卡与电量试管顺移至其下方
+            if (_nextPill != null) SetApprovedRect(_nextPill, width - 258f * k, height * .028f, 240f * k, 104f * k);
             // V21 签名位于声浪正上方
             if (_plate != null)
             {
@@ -558,10 +555,10 @@ namespace Xiaoqi.UI2
                 _plate.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(0f, AngleUnit.Degree));
             }
 
-            // V21 右上角：慢慢来盖被子竖卡 + 电量试管（并排摆放，和 V21 预览一致）
+            // V23 右侧中上：慢慢来盖被子竖卡 + 电量试管下移至「正在」横幅下方
             if (_remindPill != null)
             {
-                SetApprovedRect(_remindPill, width - 196f * k, height * .075f, 94f * k, 164f * k);
+                SetApprovedRect(_remindPill, width - 196f * k, height * .205f, 94f * k, 164f * k);
                 _remindPill.style.paddingTop = 44f * k;
                 foreach (var vl in _remindPill.Query<Label>().ToList()) vl.style.fontSize = 11.5f * k;
                 if (_chibiPeekImg != null)
@@ -572,7 +569,7 @@ namespace Xiaoqi.UI2
             }
             if (_tokenCapsule != null)
             {
-                SetApprovedRect(_tokenCapsule, width - 92f * k, height * .045f, 64f * k, 244f * k);
+                SetApprovedRect(_tokenCapsule, width - 92f * k, height * .175f, 64f * k, 244f * k);
                 SetRadius(_tokenCapsule, 0f);
                 if (_tokPctLbl != null) { _tokPctLbl.style.fontSize = 11f * k; _tokPctLbl.style.color = XqMoonStyle.Ink; }
             }
