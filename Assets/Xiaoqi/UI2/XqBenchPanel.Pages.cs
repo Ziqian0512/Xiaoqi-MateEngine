@@ -17,7 +17,7 @@ namespace Xiaoqi.UI2
     /// </summary>
     public partial class XqBenchPanel
     {
-        static readonly string[] PageName = { "此刻首页", "生活手账", "日常相册", "成长轨迹", "陪伴控制", "偏好设置" };
+        static readonly string[] PageName = { "此刻首页", "生活手账", "记忆与成长", "记忆与成长", "歌单与播放器", "偏好设置" };
         const string HomeToken = "hk-rpH2Hj8G0IHQBlrx";
         const string OfficeToken = "of-w0_ioGzw2HeX4OSe";
 
@@ -77,6 +77,7 @@ namespace Xiaoqi.UI2
         {
             _pgFade = Mathf.MoveTowards(_pgFade, 1f, dt * 6f);
             RefreshBenchMusic();
+            RefreshApprovedMusic();
         }
 
         void SelectPage(int p)
@@ -98,12 +99,12 @@ namespace Xiaoqi.UI2
             ThemePalette(out acc, out accDeep, out glassBg, out railBg, out trackBg);
             for (int i = 0; i < _nav.Count; i++)
             {
-                bool on = i == _page;
-                _nav[i].style.backgroundColor = on ? accDeep : Rgb(244, 236, 255, 0.78f);
+                bool on = ApprovedPages[i] == _page;
+                _nav[i].style.backgroundColor = on ? Rgb(255,255,255,.72f) : Color.clear;
                 Border(_nav[i], 1.2f, on ? Color.white : Rgb(255, 255, 255, 0.85f));
-                if (i < _navGlyph.Count) { _navGlyph[i].Stroke = on ? Color.white : Ink2; _navGlyph[i].MarkDirtyRepaint(); }
+                if (i < _navGlyph.Count) { _navGlyph[i].Stroke = on ? Ink : Ink2; _navGlyph[i].MarkDirtyRepaint(); }
                 var lb = _nav[i].Q<Label>();
-                if (lb != null) { lb.style.color = on ? Color.white : Ink; lb.style.unityFontStyleAndWeight = on ? FontStyle.Bold : FontStyle.Normal; }
+                if (lb != null) { lb.style.color = on ? Ink : Ink2; lb.style.unityFontStyleAndWeight = on ? FontStyle.Bold : FontStyle.Normal; }
             }
         }
 
@@ -157,7 +158,7 @@ namespace Xiaoqi.UI2
 
         void RefreshCharBox()
         {
-            if (_topClock != null) _topClock.text = DateTime.Now.ToString("HH:mm");
+            if (_topClock != null) _topClock.text = "小祈的生活 / " + PageName[_page];
             if (_charTopText == null || _charBotText == null) return;
             var st = _bd != null ? _bd.Get("state") : null;
             var lf = _bd != null ? _bd.Get("life") : null;
@@ -209,6 +210,7 @@ namespace Xiaoqi.UI2
             _pgMax = 0;
             if (_bd == null) _bd = XqBenchData.Ensure();
 
+            ApprovedContentLayout();
             RefreshCharBox();
             bool loading = _bd.Loading(_page);
             string stampKey = XqBenchData.KeysOf(_page).Length > 0 ? XqBenchData.KeysOf(_page)[0] : "state";
@@ -221,11 +223,11 @@ namespace Xiaoqi.UI2
             {
                 switch (_page)
                 {
-                    case 0: BuildNowPage(loading); break;
+                    case 0: BuildApprovedHome(loading); break;
                     case 1: BuildLifePage(loading); break;
-                    case 2: BuildMemPage(loading); break;
-                    case 3: BuildGrowthPage(loading); break;
-                    case 4: BuildBrainPage(); break;
+                    case 2: BuildApprovedMemory(loading); break;
+                    case 3: BuildApprovedMemory(loading); break;
+                    case 4: BuildApprovedMusic(); break;
                     case 5: BuildSettingsBenchPage(); break;
                 }
             }
@@ -529,7 +531,6 @@ namespace Xiaoqi.UI2
             {
                 if (XiaoqiRuntime.Config == null) return;
                 XqSettingsApply.SetMuted(!XiaoqiRuntime.Config.muted);
-                XiaoqiRuntime.Config.muted = !XiaoqiRuntime.Config.muted;
                 XiaoqiConfig.Save(XiaoqiRuntime.Config);
                 RenderPage();
             });
@@ -543,7 +544,7 @@ namespace Xiaoqi.UI2
             row.style.alignItems = Align.Center;
             row.style.paddingLeft = row.style.paddingRight = 14f * _k;
             row.style.marginBottom = 10f * _k;
-            row.Add(L(label, 11f, Ink, true));
+            row.Add(L(label, 11f, Ink, false));
             Click(row, onClick);
             parent.Add(row);
         }
@@ -642,13 +643,13 @@ namespace Xiaoqi.UI2
             if (notes != null && notes.Count > 0)
             {
                 for (int i = 0; i < notes.Count && i < 2; i++)
-                    cNote.Add(WrapTxt("• " + Str(notes[i], "ts") + " " + Str(notes[i], "text"), 10.8f, Rgb(246, 232, 255, 0.92f), false, 46));
+                    cNote.Add(WrapTxt("• " + Str(notes[i], "ts") + " " + Str(notes[i], "text"), 10.8f, Ink2, false, 46));
             }
             else
             {
                 var w = Tk(lf, "weather");
                 string wx = w != null ? Str(w, "desc") + " " + Num(w, "temp", 0f).ToString("0.#") + "°C · 湿度 " + Num(w, "humidity", 0f).ToString("0") + "%" : "保持好心情";
-                cNote.Add(WrapTxt("此刻在：" + Str(lf, "place.doing") + "（" + wx + "）", 11f, Rgb(246, 232, 255, 0.92f), false, 52));
+                cNote.Add(WrapTxt("此刻在：" + Str(lf, "place.doing") + "（" + wx + "）", 11f, Ink2, false, 52));
             }
         }
 
@@ -928,6 +929,7 @@ namespace Xiaoqi.UI2
             s = Regex.Replace(s, @"\[([^\]]*)\]\([^)]*\)", "$1");
             s = s.Replace("**", "").Replace("`", "");
             s = Regex.Replace(s, @"(?m)^\s*[-*#]+\s*", "");
+            s = Regex.Replace(s, @"\s+(?:metadata|created|updated|source):[\s\S]*$", "", RegexOptions.IgnoreCase);
             s = Regex.Replace(s, @"\s+", " ").Trim();
             return s.Length > 0 ? s : "暂无详情";
         }
@@ -1025,7 +1027,7 @@ namespace Xiaoqi.UI2
             card.style.height = h * _k;
             card.style.marginBottom = 12f * _k;
             Round(card, 22f * _k);
-            card.style.backgroundColor = dark ? DarkCard : LilacCard;
+            card.style.backgroundColor = new Color(1f,1f,1f,.38f);
             Border(card, 1.3f, dark ? Rgb(255, 255, 255, 0.24f) : Color.white);
             card.style.paddingLeft = card.style.paddingRight = 14f * _k;
             card.style.paddingTop = card.style.paddingBottom = 12f * _k;

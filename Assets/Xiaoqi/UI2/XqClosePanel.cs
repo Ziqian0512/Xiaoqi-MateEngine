@@ -144,6 +144,7 @@ namespace Xiaoqi.UI2
             BuildButtons();
             BuildChatDock();
             BuildCards();
+            ApplyApprovedClose();
             _plate?.BringToFront();
             _modeDock?.BringToFront();
             _chatDock?.BringToFront();
@@ -210,6 +211,7 @@ namespace Xiaoqi.UI2
             PlaceButtons(uc);
             PlaceChatDock(ucard);
             PlaceCards(ucard);
+            PlaceApprovedClose(pw, ph);
         }
 
         static void PlaceOne(VisualElement el, float left, float top,

@@ -111,7 +111,7 @@ namespace Xiaoqi.UI2
             _bodyNext.Add(_clockBig);
             XqLiquidGlass.AddBreakoutSticker(_cardNext, "XqStickerRibbon", 48f, 42f, 22f, -10f, 10f);
 
-            _locPill = new Label(DateTime.Now.ToString("MM.dd ddd").ToUpperInvariant() + " · ☁ 17°C 薄扶林") { pickingMode = PickingMode.Ignore };
+            _locPill = new Label("正在同步日期、地点与天气…") { pickingMode = PickingMode.Ignore };
             _locPill.style.color = Rgb(106, 82, 162, 0.96f);
             _locPill.style.textShadow = clockHalo;
             _locPill.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -128,7 +128,7 @@ namespace Xiaoqi.UI2
             _remindPill.style.paddingLeft = 10f; _remindPill.style.paddingRight = 10f;
             _remindPill.style.paddingTop = 5f; _remindPill.style.paddingBottom = 5f;
             _remindPill.style.marginBottom = 7f;
-            var tipLbl = new Label("✦ 晚上风大别着凉哦 (｡･ω･｡)") { pickingMode = PickingMode.Ignore };
+            var tipLbl = new Label("✦ 慢慢来，我在这里哦 (｡･ω･｡)") { pickingMode = PickingMode.Ignore };
             tipLbl.style.color = ClInk;
             tipLbl.style.whiteSpace = WhiteSpace.NoWrap;
             tipLbl.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -163,7 +163,8 @@ namespace Xiaoqi.UI2
             nextTop.Add(_nextWhat);
             _nextPill.Add(nextTop);
 
-            var nextTrack = new VisualElement { pickingMode = PickingMode.Ignore };
+            var nextTrack = new VisualElement { name = "xq-old-schedule-progress", pickingMode = PickingMode.Ignore };
+            nextTrack.style.display = DisplayStyle.None;
             nextTrack.style.height = 4f;
             nextTrack.style.marginTop = 5f;
             nextTrack.style.backgroundColor = new Color(0.55f, 0.42f, 0.92f, 0.16f);
@@ -217,7 +218,7 @@ namespace Xiaoqi.UI2
             _kickers.Add(_musicArtist);
             mInfo.Add(_musicArtist);
 
-            var mSub = new Label("kawaii playlist ♡") { pickingMode = PickingMode.Ignore };
+            var mSub = new Label("LISTENING TOGETHER / 一起听") { pickingMode = PickingMode.Ignore };
             mSub.style.color = ClPink;
             mSub.style.marginTop = 3f;
             _marks.Add(mSub);
@@ -299,7 +300,7 @@ namespace Xiaoqi.UI2
             rpHead.Add(rpId); rpHead.Add(_sayTtsPill);
             _bodySay.Add(rpHead);
 
-            _sayText = new Label("“好呀好呀，随时喊我一声就行，我一直都在~ (^v^)♡”") { pickingMode = PickingMode.Ignore };
+            _sayText = new Label("等待新的消息…") { pickingMode = PickingMode.Ignore };
             _sayText.style.color = ClInk;
             _sayText.style.unityFontStyleAndWeight = FontStyle.Bold;
             _sayText.style.whiteSpace = WhiteSpace.Normal;
@@ -455,7 +456,7 @@ namespace Xiaoqi.UI2
             if (_musicTitle == null) return;
             _musicPrev.SetEnabled(XqMusicBridge.CanPrev); _musicPlay.SetEnabled(XqMusicBridge.CanToggle); _musicNext.SetEnabled(XqMusicBridge.CanNext);
             if (_musicCover != null) _musicCover.image = XqMusicBridge.Cover;
-            if (_musicElapsed != null) _musicElapsed.text = XqMusicBridge.Available ? XqMusicBridge.Clock(XqMusicBridge.PositionSec) : "--:--";
+            if (_musicElapsed != null) _musicElapsed.text = XqMusicBridge.Available && XqMusicBridge.Current.durationSec > 0f ? XqMusicBridge.Clock(XqMusicBridge.PositionSec) : "--:--";
             if (_musicDuration != null) _musicDuration.text = tDuration();
             var t = XqMusicBridge.Current;
             _musicTitle.text = t.title;

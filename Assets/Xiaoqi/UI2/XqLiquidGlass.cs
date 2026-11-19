@@ -99,7 +99,7 @@ namespace Xiaoqi.UI2
 
         static void AddSpecular(VisualElement el, float a)
         {
-            var line = new VisualElement { pickingMode = PickingMode.Ignore };
+            var line = new VisualElement { name = "xq-material-specular", pickingMode = PickingMode.Ignore };
             line.style.position = Position.Absolute;
             line.style.top = 1f; line.style.height = 1f;
             line.style.left = Length.Percent(12f); line.style.right = Length.Percent(12f);

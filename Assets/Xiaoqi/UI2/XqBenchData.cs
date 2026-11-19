@@ -51,9 +51,9 @@ namespace Xiaoqi.UI2
             {
                 case 0: return new[] { "state", "life" };
                 case 1: return new[] { "life", "diary", "today" };
-                case 2: return new[] { "memory", "today" };
+                case 2: return new[] { "memory", "today", "growth" };
                 case 3: return new[] { "growth" };
-                case 4: return new[] { "state" };
+                case 4: return new string[0];
             }
             return new string[0];
         }
@@ -116,7 +116,7 @@ namespace Xiaoqi.UI2
         {
             if (!isActiveAndEnabled) return;
             Stop();
-            if (page < 0 || page > 4) return;
+            if (page < 0 || page > 5) return;
             _page = page;
             foreach (var k in KeysOf(page)) Get(k);   // Stale-While-Revalidate：先把已有缓存秒刷进内存
             _loop = StartCoroutine(Loop(page));

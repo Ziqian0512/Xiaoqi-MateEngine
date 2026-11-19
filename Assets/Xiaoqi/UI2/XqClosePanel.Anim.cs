@@ -63,7 +63,7 @@ namespace Xiaoqi.UI2
 
         bool OverAnySelf()
         {
-            return OverEl(_modeDock) || OverEl(_chatDock) || OverEl(_plate) || OverEl(_btnPet) || OverEl(_btnBench)
+            return OverEl(_approvedDock) || OverEl(_modeDock) || OverEl(_chatDock) || OverEl(_plate) || OverEl(_btnPet) || OverEl(_btnBench)
                 || OverEl(_cardNext) || OverEl(_cardMusic) || OverEl(_actPat) || OverEl(_actScreen) || OverEl(_actDance)
                 || OverEl(_cardSay) || OverEl(_cardTiny) || OverEl(_cardEnergy) || OverEl(_ringFocus)
                 || OverEl(_exprBlush) || OverEl(_exprHeart) || OverEl(_exprSleep) || OverEl(_exprPose);
@@ -83,6 +83,7 @@ namespace Xiaoqi.UI2
         void TickPointer()
         {
             if (!_shown || _host == null || _host.panel == null) return;
+            if (_voiceTrace != null) _voiceTrace.MarkDirtyRepaint();
             if (_clockBig != null) _clockBig.text = DateTime.Now.ToString("HH:mm:ss");
             if (_musicFill != null) _musicFill.style.width = Length.Percent(Mathf.Clamp01(XqMusicBridge.Progress) * 100f);
             if (_sayTtsLbl != null && XqVoiceChatClient.IsPlayingTts)
@@ -110,10 +111,26 @@ namespace Xiaoqi.UI2
                 if (_tipBench != null) _tipBench.EnableInClassList("on", hb);
                 Debug.Log("XQ_CLOSE bench-hover=" + hb);
             }
-            if (Input.GetMouseButtonDown(0) && _lastClickFrame != Time.frameCount)
+            if (Input.GetMouseButtonDown(0))
+            {
+                _approvedDown = Input.mousePosition;
+                _approvedPressed = _host.panel.Pick(XqPanelXf.FromScreen(_host.panel, Input.mousePosition));
+            }
+            if (Input.GetMouseButtonUp(0) && _lastClickFrame != Time.frameCount && (Input.mousePosition - _approvedDown).sqrMagnitude < 64f
+                && _approvedPressed == _host.panel.Pick(XqPanelXf.FromScreen(_host.panel, Input.mousePosition)))
             {
                 if (OverEl(_btnPet)) { _lastClickFrame = Time.frameCount; Debug.Log("XQ_CLOSE btn pet"); Debug.Log("XQ_CLOSE exit by=btn"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet); return; }
                 if (OverEl(_btnBench) && Xiaoqi.Mode.XqMode.BenchAvailable) { _lastClickFrame = Time.frameCount; Debug.Log("XQ_CLOSE btn bench"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Bench); return; }
+                if (OverEl(_approvedListen))
+                {
+                    _lastClickFrame = Time.frameCount; var voice = XqVoiceChatClient.Ensure();
+                    if (XqVoiceChatClient.IsRecording) voice.StopRecordingAndSend(); else voice.StartRecording(); return;
+                }
+                if (OverEl(_approvedQuiet))
+                {
+                    _lastClickFrame = Time.frameCount; var config = XiaoqiRuntime.Config;
+                    if (config != null) { XqSettingsApply.SetMuted(!config.muted); XiaoqiConfig.Save(config); _approvedQuietLabel.text = config.muted ? "恢复声音" : "安静陪伴"; } return;
+                }
                 if (OverEl(_actPat))
                 {
                     _lastClickFrame = Time.frameCount;
@@ -301,11 +318,10 @@ namespace Xiaoqi.UI2
             {
                 var a = _anim[i];
                 if (a.el == null) continue;
-                float bob = Mathf.Sin(phase + a.order * XqCloseAnim.BobPhaseStep)
-                    * XqCloseAnim.BobAmp * _u;
+                float bob = 0f;
                 // 聚焦系数只作用在目标卡上（P2-5 的 1.04 倍）
                 float k = (a.el == _focusCard) ? _focusK : 1f;
-                float depth = (a.el == _modeDock || a.el == _chatDock) ? 0.35f : 1f;
+                float depth = (a.el == _modeDock || a.el == _chatDock) ? 0f : 0.3f;
                 a.el.style.opacity = 1f;
                 a.el.style.scale = new Scale(Vector3.one * k);
                 a.el.style.translate = new Translate(px * depth, bob + py * depth, 0f);

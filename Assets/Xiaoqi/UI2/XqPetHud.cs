@@ -822,6 +822,7 @@ namespace Xiaoqi.UI2
             var glass = new VisualElement();
             glass.AddToClassList("xq-glass");
             if (emph) glass.AddToClassList("xq-glass-emph");
+            XqMoonStyle.Surface(glass, emph ? 18f : 14f);
             var hi = new VisualElement();
             hi.AddToClassList("xq-hi");
             body.Add(glass);

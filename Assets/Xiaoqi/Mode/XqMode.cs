@@ -216,6 +216,7 @@ namespace Xiaoqi.Mode
             // Esc：近景 → 桌宠；工作台 → 近景（走 Unity 自己的输入，只有她拿着焦点时才算）
             if (!Busy && Input.GetKeyDown(KeyCode.Escape))
             {
+                if (Current == XqView.Bench && Xiaoqi.UI2.XqBenchPanel.DismissPhotoOverlay()) return;
                 if (Current == XqView.Close) Set(XqView.Pet);
                 else if (Current == XqView.Bench) Set(XqView.Close);
             }

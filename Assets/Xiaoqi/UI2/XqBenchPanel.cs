@@ -75,6 +75,11 @@ namespace Xiaoqi.UI2
                 acc = Rgb(114, 168, 255); accDeep = Rgb(92, 122, 242);
                 glassBg = Rgb(228, 236, 255); railBg = DarkDock; trackBg = Rgb(114, 168, 255, 0.24f);
             }
+            else if (th == "violet")
+            {
+                acc = Rgb(154, 133, 175); accDeep = Rgb(121, 101, 143);
+                glassBg = Rgb(242, 239, 247); railBg = DarkDock; trackBg = Rgb(154, 133, 175, .24f);
+            }
             else
             {
                 acc = Rgb(242, 114, 198); accDeep = Rgb(146, 98, 246);
@@ -83,7 +88,7 @@ namespace Xiaoqi.UI2
         }
 
         // 设计稿尺寸：76(左等高坞) + 16 + 1020(一体舞台: 左翼296 + 中央立绘窗280 + 右翼444) = 1112 x 620
-        const float RailW = 76f, Gap = 16f, LeftW = 296f, CharW = 280f, RightW = 444f;
+        const float RailW = 128f, Gap = 16f, LeftW = 296f, CharW = 280f, RightW = 444f;
         const float PanW = LeftW + CharW + RightW; // 1020
         const float PanH = 620f, TopH = 76f, BotH = 96f, MidH = PanH - TopH - BotH; // 448
         const float StageW = RailW + Gap + PanW; // 1112
@@ -249,8 +254,8 @@ namespace Xiaoqi.UI2
             _stage.style.transformOrigin = new TransformOrigin(Length.Percent(50), Length.Percent(50));
             _host.Add(_stage);
 
-            BuildRail();
-            BuildPanel();
+            BuildApprovedRail();
+            BuildApprovedPanel();
 
             root.Add(_host);
             ApplyStagePos();
@@ -551,8 +556,8 @@ namespace Xiaoqi.UI2
             {
                 float p = EaseOut((_t - 0.04f - n * 0.03f) / 0.35f);
                 _nav[n].style.opacity = p;
-                bool on = n == _page;
-                _nav[n].style.backgroundColor = on ? acc : Rgb(255, 255, 255, 0.07f + 0.12f * _navHover[n]);
+                bool on = ApprovedPages[n] == _page;
+                _nav[n].style.backgroundColor = on ? Rgb(255,255,255,.72f) : Rgb(255,255,255,.05f + .18f * _navHover[n]);
             }
             if (_bentoHost != null) _bentoHost.style.opacity = _pgFade;
             if (_leftHost != null) _leftHost.style.opacity = _pgFade;
@@ -614,87 +619,77 @@ namespace Xiaoqi.UI2
             el.style.scale = new Scale(new Vector3(0.95f, 0.95f, 1f));
         }
 
+        Action _approvedArm;
+        VisualElement _approvedArmEl;
+        Vector2 _approvedArmAt;
+        internal static bool DismissPhotoOverlay()
+        {
+            var modal = _i != null && _i._panel != null ? _i._panel.Q("xq-photo-modal") : null;
+            if (modal == null) return false; modal.RemoveFromHierarchy(); return true;
+        }
+        Action ApprovedAction(out VisualElement target)
+        {
+            target = null;
+            if (OverEl(_petModeBtn)) { target = _petModeBtn; return () => XqMode.Set(XqView.Pet); }
+            if (OverEl(_closeModeBtn)) { target = _closeModeBtn; return () => XqMode.Set(XqView.Close); }
+            if (OverEl(_refreshBtn)) { target = _refreshBtn; return () => { _bd?.Refresh(); Toast("正在同步…"); }; }
+            if (OverEl(_modeBtn)) { target = _modeBtn; return ToggleSceneMode; }
+            if (_bd != null && _bd.Offline(_page) && OverEl(_offRetry)) { target = _offRetry; return () => _bd.Refresh(); }
+            for (int i = 0; i < _nav.Count; i++) if (OverEl(_nav[i])) { target = _nav[i]; int page = ApprovedPages[i]; return () => SelectPage(page); }
+            for (int i = _pageClicks.Count - 1; i >= 0; i--) if (OverEl(_pageClicks[i].Key)) { target = _pageClicks[i].Key; return _pageClicks[i].Value; }
+            return null;
+        }
         void PollSelf()
         {
             if (_host == null || _host.panel == null || _exitT >= 0f) return;
+            var modal = _panel.Q("xq-photo-modal");
+            if (modal != null)
+            {
+                _approvedArm = null; _bdrag = false;
+                if (Input.GetMouseButtonDown(0) && OverEl(modal)) { _approvedArmEl = modal; _approvedArmAt = Input.mousePosition; }
+                if (Input.GetMouseButtonUp(0) && _approvedArmEl == modal && OverEl(modal) && Vector2.Distance(_approvedArmAt, Input.mousePosition) <= 8f) DismissPhotoOverlay();
+                return;
+            }
             float dt = Time.unscaledDeltaTime;
             for (int n = 0; n < _nav.Count; n++) _navHover[n] = Mathf.MoveTowards(_navHover[n], OverEl(_nav[n]) ? 1f : 0f, dt * 8f);
             UpdateParallax(dt);
-            if (XqMode.Busy) { _bdrag = false; return; }
-
-            bool down = Input.GetMouseButtonDown(0), held = Input.GetMouseButton(0);
-            if (PagePoll(down && _lastClickFrame != Time.frameCount)) { _lastClickFrame = Time.frameCount; return; }
-
-            if (down && _lastClickFrame != Time.frameCount)
+            if (XqMode.Busy) { _bdrag = false; _approvedArm = null; return; }
+            PagePoll(false);
+            bool down = Input.GetMouseButtonDown(0), held = Input.GetMouseButton(0), up = Input.GetMouseButtonUp(0);
+            if (down)
             {
-                if (OverEl(_petModeBtn)) { _lastClickFrame = Time.frameCount; PressVisual(_petModeBtn); XqMode.Set(XqView.Pet); return; }
-                if (OverEl(_closeModeBtn)) { _lastClickFrame = Time.frameCount; PressVisual(_closeModeBtn); XqMode.Set(XqView.Close); return; }
-                if (OverEl(_refreshBtn)) { _lastClickFrame = Time.frameCount; PressVisual(_refreshBtn); _bd?.Refresh(); Toast("正在同步最新状态…"); return; }
-                if (OverEl(_modeBtn)) { _lastClickFrame = Time.frameCount; PressVisual(_modeBtn); ToggleSceneMode(); return; }
-                if (_bd != null && _bd.Offline(_page) && OverEl(_offRetry)) { _lastClickFrame = Time.frameCount; PressVisual(_offRetry); _bd.Refresh(); return; }
-
-                for (int n = 0; n < _nav.Count; n++)
+                _approvedArmAt = Input.mousePosition;
+                _approvedArm = ApprovedAction(out _approvedArmEl);
+                if (_approvedArm != null) PressVisual(_approvedArmEl);
+                else if (OverEl(_rail) || OverEl(_header))
                 {
-                    if (OverEl(_nav[n]))
-                    {
-                        _lastClickFrame = Time.frameCount;
-                        PressVisual(_nav[n]);
-                        if (n == 5) SelectPage(5);
-                        else SelectPage(n);
-                        return;
-                    }
-                }
-
-                for (int i = _pageClicks.Count - 1; i >= 0; i--)
-                {
-                    var kv = _pageClicks[i];
-                    if (OverEl(kv.Key))
-                    {
-                        _lastClickFrame = Time.frameCount;
-                        PressVisual(kv.Key);
-                        try { kv.Value?.Invoke(); } catch (Exception e) { Debug.LogWarning("XQ_BENCH click: " + e.Message); }
-                        return;
-                    }
-                }
-
-                if (OverEl(_charBox) || OverEl(_nameplate))
-                {
-                    _lastClickFrame = Time.frameCount;
-                    PatInsideCharBox();
-                    return;
-                }
-
-                if (OverEl(_rail) || OverEl(_header))
-                {
-                    _lastClickFrame = Time.frameCount; _bdrag = true; _bdragMoved = false;
-                    float Hn = Mathf.Max(1f, Screen.height);
-                    _bdragMouse = new Vector2(Input.mousePosition.x / Hn, 1f - Input.mousePosition.y / Hn);
-                    float W0, H0; MonitorDims(out W0, out H0);
-                    var g0 = GeoOf(W0, H0);
-                    _bdragStage = new Vector2(g0.stageL, g0.stageT);
-                    return;
+                    _bdrag = true; _bdragMoved = false;
+                    float h = Mathf.Max(1f, Screen.height);
+                    _bdragMouse = new Vector2(Input.mousePosition.x / h, 1f - Input.mousePosition.y / h);
+                    float w0, h0; MonitorDims(out w0, out h0); var geometry = GeoOf(w0, h0);
+                    _bdragStage = new Vector2(geometry.stageL, geometry.stageT);
                 }
             }
-
-            if (_bdrag)
+            if (_bdrag && held)
             {
-                if (held)
+                float h = Mathf.Max(1f, Screen.height);
+                var pointer = new Vector2(Input.mousePosition.x / h, 1f - Input.mousePosition.y / h);
+                if ((pointer - _bdragMouse).magnitude * h > 4f) _bdragMoved = true;
+                if (_bdragMoved)
                 {
-                    float Hn = Mathf.Max(1f, Screen.height);
-                    var mn = new Vector2(Input.mousePosition.x / Hn, 1f - Input.mousePosition.y / Hn);
-                    if (!_bdragMoved && (mn - _bdragMouse).magnitude * Hn > 4f) _bdragMoved = true;
-                    if (_bdragMoved)
-                    {
-                        _sx = _bdragStage.x + (mn.x - _bdragMouse.x);
-                        _sy = _bdragStage.y + (mn.y - _bdragMouse.y);
-                        float W1, H1; MonitorDims(out W1, out H1);
-                        var g1 = GeoOf(W1, H1);
-                        _sx = g1.stageL; _sy = g1.stageT;
-                        ApplyStagePos();
-                        ApplyPet();
-                    }
+                    _sx = _bdragStage.x + pointer.x - _bdragMouse.x; _sy = _bdragStage.y + pointer.y - _bdragMouse.y;
+                    float w0, h0; MonitorDims(out w0, out h0); var geometry = GeoOf(w0, h0);
+                    _sx = geometry.stageL; _sy = geometry.stageT; ApplyStagePos();
                 }
-                else _bdrag = false;
+            }
+            if (up)
+            {
+                var action = _approvedArm; _approvedArm = null;
+                bool sameTarget = _approvedArmEl != null && _approvedArmEl.panel != null && OverEl(_approvedArmEl);
+                bool click = Vector2.Distance(_approvedArmAt, Input.mousePosition) <= 8f;
+                _bdrag = false;
+                if (action != null && sameTarget && click)
+                { try { action(); } catch (Exception e) { Debug.LogWarning("XQ_BENCH click: " + e.Message); } }
             }
         }
 

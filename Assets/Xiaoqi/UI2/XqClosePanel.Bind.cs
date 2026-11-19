@@ -93,7 +93,13 @@ namespace Xiaoqi.UI2
                 string pl = st != null ? st.SelectToken("me.place")?.ToString() : null;
                 if (string.IsNullOrEmpty(pl) && XiaoqiLink.Current != null)
                     pl = XiaoqiLink.Current.where == "dorm" ? "薄扶林 · 宿舍" : XiaoqiLink.Current.where;
-                _locPill.text = DateTime.Now.ToString("yyyy.MM.dd ddd").ToUpperInvariant() + " · ☁️ 17°C " + (!string.IsNullOrEmpty(pl) ? pl : "薄扶林");
+                var weather = st != null ? st.SelectToken("weather") : null;
+                var life = XqBenchData.Ensure().Get("life");
+                if (weather == null && life != null) weather = life.SelectToken("weather");
+                string description = weather != null ? (weather.SelectToken("desc")?.ToString() ?? "") : "";
+                string temperature = weather != null ? weather.SelectToken("temp")?.ToString() : null;
+                string info = string.IsNullOrEmpty(temperature) ? "天气暂未同步" : temperature + "°C " + description;
+                _locPill.text = DateTime.Now.ToString("yyyy.MM.dd ddd").ToUpperInvariant() + " · " + (string.IsNullOrEmpty(pl) ? "地点暂未同步" : pl) + "\n" + info;
             }
             if (st == null) return;
             var bpmTok = st.SelectToken("me.bpm");
