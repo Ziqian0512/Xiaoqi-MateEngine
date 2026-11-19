@@ -203,17 +203,22 @@ namespace Xiaoqi.UI2
 
             var mInfo = new VisualElement { pickingMode = PickingMode.Ignore };
             mInfo.style.flexGrow = 1f; mInfo.style.flexShrink = 1f;
+            mInfo.style.overflow = Overflow.Hidden;
             mInfo.style.justifyContent = Justify.Center;
             _musicTitle = new Label(XqMusicBridge.Current.title) { pickingMode = PickingMode.Ignore };
             _musicTitle.style.color = ClInk;
             _musicTitle.style.unityFontStyleAndWeight = FontStyle.Bold;
             _musicTitle.style.whiteSpace = WhiteSpace.NoWrap;
+            _musicTitle.style.overflow = Overflow.Hidden;
+            _musicTitle.style.textOverflow = TextOverflow.Ellipsis;
             _texts.Add(_musicTitle);
             mInfo.Add(_musicTitle);
 
             _musicArtist = new Label(XqMusicBridge.Current.artist) { pickingMode = PickingMode.Ignore };
             _musicArtist.style.color = ClInkSoft;
             _musicArtist.style.whiteSpace = WhiteSpace.NoWrap;
+            _musicArtist.style.overflow = Overflow.Hidden;
+            _musicArtist.style.textOverflow = TextOverflow.Ellipsis;
             _musicArtist.style.marginTop = 2f;
             _kickers.Add(_musicArtist);
             mInfo.Add(_musicArtist);

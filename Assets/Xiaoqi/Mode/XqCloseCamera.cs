@@ -64,8 +64,7 @@ namespace Xiaoqi.Mode
 
         private static void ApplyBenchViewport()
         {
-            // 保持主相机始终启用且全屏 (0,0,1,1) 以保证每帧清屏（不拖影）；工作台时仅将 cullingMask 设为 0（不渲染 3D 人物，照常清屏）
-            bool inBench = _benchBottomNorm > 0.005f;
+            // 始终保持主相机全屏 (0,0,1,1) 且不改 cullingMask，确保工作台切回桌宠/近景时 3D 本体永不丢失且全屏清屏
             var r = new Rect(0f, 0f, 1f, 1f);
             var h = Handler();
             var cam = h != null && h.MainCamera != null ? h.MainCamera : Camera.main;
@@ -74,7 +73,7 @@ namespace Xiaoqi.Mode
                 if (_origMask < 0) _origMask = cam.cullingMask;
                 cam.rect = r;
                 cam.enabled = true;
-                cam.cullingMask = inBench ? 0 : _origMask;
+                if (cam.cullingMask == 0 && _origMask > 0) cam.cullingMask = _origMask;
             }
         }
 
