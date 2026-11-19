@@ -44,6 +44,9 @@ namespace Xiaoqi.UI2
         /// <summary>最新一句 kind=said 的话（服务器写的是 said）；null 表示没有或没拿到。</summary>
         public string Say { get; private set; }
 
+        /// <summary>控制台 /api/state 实时快照（用于近景情绪曲线与脉搏）。</summary>
+        public Newtonsoft.Json.Linq.JToken State { get; private set; }
+
         /// <summary>day 与 feed 两者是否都拿到了。卡片用它区分「还没拿到」与「拿到了但没有」。</summary>
         public bool Ready { get; private set; }
 
@@ -52,6 +55,8 @@ namespace Xiaoqi.UI2
 
         bool _on;
         Coroutine _loop;
+        float _nextStateAt;
+        bool _dayBusy, _feedBusy, _stateBusy;
 
         public static XqCloseData Ensure()
         {
@@ -65,6 +70,9 @@ namespace Xiaoqi.UI2
         public void Begin()
         {
             if (!isActiveAndEnabled) return;   // 未启用就别把 _on 卡成 true
+            if (State == null && XqBenchData.Inst != null)
+                State = XqBenchData.Inst.Get("state");
+            if (State != null) { Ready = true; Fire(); }
             if (_on) return;
             _on = true;
             if (_loop != null) StopCoroutine(_loop);
@@ -88,10 +96,13 @@ namespace Xiaoqi.UI2
         {
             while (_on)
             {
-                yield return FetchDay();
-                yield return FetchFeed();
-                Ready = Day != null || Say != null;
-                Fire();
+                if (!_dayBusy) StartCoroutine(RunDay());
+                if (!_feedBusy) StartCoroutine(RunFeed());
+                if (!_stateBusy && Time.unscaledTime >= _nextStateAt)
+                {
+                    _nextStateAt = Time.unscaledTime + 15f;
+                    StartCoroutine(RunState());
+                }
 
                 float t = 0f;
                 while (_on && t < 3f)
@@ -100,6 +111,44 @@ namespace Xiaoqi.UI2
                     yield return null;
                 }
             }
+        }
+
+        IEnumerator RunDay()
+        {
+            _dayBusy = true;
+            try { yield return FetchDay(); }
+            finally { _dayBusy = false; }
+            Ready = Day != null || Say != null || State != null;
+            if (_on) Fire();
+        }
+
+        IEnumerator RunFeed()
+        {
+            _feedBusy = true;
+            try { yield return FetchFeed(); }
+            finally { _feedBusy = false; }
+            Ready = Day != null || Say != null || State != null;
+            if (_on) Fire();
+        }
+
+        IEnumerator RunState()
+        {
+            _stateBusy = true;
+            try { yield return FetchState(); }
+            finally { _stateBusy = false; }
+            Ready = Day != null || Say != null || State != null;
+            if (_on) Fire();
+        }
+
+        IEnumerator FetchState()
+        {
+            var url = Url("/api/state");
+            if (url == null) yield break;
+            XqHttp.Resp resp = default(XqHttp.Resp);
+            yield return XqHttp.Get(url, Token(), 5, r => resp = r);
+            if (!resp.ok) yield break;
+            try { State = Newtonsoft.Json.Linq.JToken.Parse(resp.text); }
+            catch (Exception) { }
         }
 
         void Fire()
@@ -121,10 +170,10 @@ namespace Xiaoqi.UI2
             return server + path;
         }
 
-        static void Auth(UnityWebRequest req)
+        static string Token()
         {
             var cfg = Cfg();
-            if (!string.IsNullOrEmpty(cfg.token)) req.SetRequestHeader("X-Token", cfg.token);
+            return cfg != null ? cfg.token : null;
         }
 
         // ---------------- day ----------------
@@ -146,20 +195,16 @@ namespace Xiaoqi.UI2
             var url = Url("/api/body/day");
             if (url == null) { Day = null; yield break; }
 
-            using (var req = UnityWebRequest.Get(url))
+            XqHttp.Resp resp = default(XqHttp.Resp);
+            yield return XqHttp.Get(url, Token(), 6, r => resp = r);
+            if (!resp.ok)
             {
-                Auth(req);
-                req.timeout = 6;
-                yield return req.SendWebRequest();
-                if (req.result != UnityWebRequest.Result.Success)
-                {
-                    Day = null;
-                    Debug.Log("XQ_CLOSE day fail: " + req.responseCode);
-                    yield break;
-                }
-                try { Day = JsonUtility.FromJson<XqCloseDay>(req.downloadHandler.text); }
-                catch (Exception e) { Day = null; Debug.Log("XQ_CLOSE day parse: " + e.Message); }
+                Day = null;
+                Debug.Log("XQ_CLOSE day fail: " + resp.code);
+                yield break;
             }
+            try { Day = JsonUtility.FromJson<XqCloseDay>(resp.text); }
+            catch (Exception e) { Day = null; Debug.Log("XQ_CLOSE day parse: " + e.Message); }
         }
 
         // ---------------- feed ----------------
@@ -200,22 +245,18 @@ namespace Xiaoqi.UI2
 
         IEnumerator Get(string url, Action<Envelope> done)
         {
-            using (var req = UnityWebRequest.Get(url))
+            XqHttp.Resp resp = default(XqHttp.Resp);
+            yield return XqHttp.Get(url, Token(), 6, r => resp = r);
+            if (!resp.ok)
             {
-                Auth(req);
-                req.timeout = 6;
-                yield return req.SendWebRequest();
-                if (req.result != UnityWebRequest.Result.Success)
-                {
-                    Debug.Log("XQ_CLOSE feed fail: " + req.responseCode);
-                    done(null);
-                    yield break;
-                }
-                Envelope env = null;
-                try { env = JsonUtility.FromJson<Envelope>(req.downloadHandler.text); }
-                catch (Exception e) { Debug.Log("XQ_CLOSE feed parse: " + e.Message); }
-                done(env);
+                Debug.Log("XQ_CLOSE feed fail: " + resp.code);
+                done(null);
+                yield break;
             }
+            Envelope env = null;
+            try { env = JsonUtility.FromJson<Envelope>(resp.text); }
+            catch (Exception e) { Debug.Log("XQ_CLOSE feed parse: " + e.Message); }
+            done(env);
         }
 
         public void Shot(string fileName, float delaySec = 0f)

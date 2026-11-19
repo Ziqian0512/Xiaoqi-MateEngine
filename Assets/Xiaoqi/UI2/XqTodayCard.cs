@@ -23,7 +23,7 @@ namespace Xiaoqi.UI2
         [Serializable] class Seg
         {
             public int a, b;
-            public string start, end, name, act, where;
+            public string start, end, name, act, where, layer;
         }
 
         public VisualElement Root { get; private set; }
@@ -139,22 +139,18 @@ namespace Xiaoqi.UI2
                 yield break;
             }
             var url = cfg.server.TrimEnd('/') + "/api/body/day";
-            using (var req = UnityWebRequest.Get(url))
+            XqHttp.Resp resp = default(XqHttp.Resp);
+            yield return XqHttp.Get(url, cfg.token, 6, r => resp = r);
+            if (!resp.ok)
             {
-                if (!string.IsNullOrEmpty(cfg.token)) req.SetRequestHeader("X-Token", cfg.token);
-                req.timeout = 6;
-                yield return req.SendWebRequest();
-                if (req.result != UnityWebRequest.Result.Success)
-                {
-                    Debug.Log("XQ_TODAY fail " + req.error);
-                    Apply(null);
-                    yield break;
-                }
-                DayData data = null;
-                try { data = JsonUtility.FromJson<DayData>(req.downloadHandler.text); }
-                catch (Exception e) { Debug.Log("XQ_TODAY parse " + e.Message); }
-                Apply(data);
+                Debug.Log("XQ_TODAY fail " + resp.error);
+                Apply(null);
+                yield break;
             }
+            DayData data = null;
+            try { data = JsonUtility.FromJson<DayData>(resp.text); }
+            catch (Exception e) { Debug.Log("XQ_TODAY parse " + e.Message); }
+            Apply(data);
         }
 
         void ShowPending()
@@ -182,8 +178,38 @@ namespace Xiaoqi.UI2
 
             _empty.style.display = DisplayStyle.None;
             int now = data.now_min;
+            int nowIdx = -1, lastPassed = 0;
+            for (int i = 0; i < data.segs.Length; i++)
+            {
+                var s = data.segs[i];
+                if (s == null) continue;
+                if (now > 0 && now >= s.a && now < s.b) { nowIdx = i; break; }
+                if (now <= 0 || s.a <= now) lastPassed = i;
+            }
+            if (nowIdx < 0) nowIdx = lastPassed;
+
+            var picks = new System.Collections.Generic.List<Seg>();
+            for (int j = nowIdx - 1; j >= 0; j--)
+            {
+                if (IsMainSeg(data.segs[j])) { picks.Add(data.segs[j]); break; }
+            }
+            if (nowIdx >= 0 && nowIdx < data.segs.Length && data.segs[nowIdx] != null)
+                picks.Add(data.segs[nowIdx]);
+            for (int j = nowIdx + 1; j < data.segs.Length && picks.Count < 4; j++)
+            {
+                if (IsMainSeg(data.segs[j])) picks.Add(data.segs[j]);
+            }
+            if (picks.Count < 2 && nowIdx + 1 < data.segs.Length && data.segs[nowIdx + 1] != null)
+                picks.Add(data.segs[nowIdx + 1]);
+
             Seg upcoming = null;
             foreach (var s in data.segs)
+            {
+                if (s != null && now > 0 && s.a > now && IsMainSeg(s)) { upcoming = s; break; }
+            }
+            if (upcoming == null && nowIdx + 1 < data.segs.Length) upcoming = data.segs[nowIdx + 1];
+
+            foreach (var s in picks)
             {
                 if (s == null) continue;
                 var row = new VisualElement { pickingMode = PickingMode.Ignore };
@@ -192,7 +218,6 @@ namespace Xiaoqi.UI2
                 bool current = now > 0 && now >= s.a && now < s.b;
                 if (past) row.AddToClassList("xq-past");
                 if (current) row.AddToClassList("xq-now");
-                if (upcoming == null && now > 0 && s.a > now) upcoming = s;
 
                 var time = new Label(When(s));
                 time.AddToClassList("xq-today-time");
@@ -220,6 +245,16 @@ namespace Xiaoqi.UI2
             if (!string.IsNullOrEmpty(s.start) && !string.IsNullOrEmpty(s.end)) return s.start + "–" + s.end;
             if (!string.IsNullOrEmpty(s.start)) return s.start;
             return s.end ?? "";
+        }
+
+        static bool IsMainSeg(Seg s)
+        {
+            if (s == null) return false;
+            if (s.layer == "fill") return false;
+            if (s.act == "空闲" || s.act == "填充" || s.act == "走路") return false;
+            string w = What(s);
+            if (w.Contains("在宿舍待着") || w.Contains("在宿舍磨蹭")) return false;
+            return true;
         }
 
         static string What(Seg s)

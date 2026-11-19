@@ -22,6 +22,10 @@ GameObject:
   - component: {fileID: 2617007623148043790}
   - component: {fileID: 1999659183344035918}
   - component: {fileID: 2267339139724597221}
+  - component: {fileID: 472158000223362998}
+  - component: {fileID: 7406650370340086168}
+  - component: {fileID: 7370999743383826406}
+  - component: {fileID: 3795270883545258990}
   - component: {fileID: 1117346983376931598}
   - component: {fileID: 2785170503361536077}
   - component: {fileID: 8422286727865382117}
@@ -206,6 +210,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07a348c3e54003443983a52ab5377dd6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.PetPat
+--- !u!114 &472158000223362998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f90456d0cdfa664f81504c43709bb1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.IdleDirector
+--- !u!114 &7406650370340086168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f07ec082d461aa44fbac132c5413c87d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.BodyDirector
+--- !u!114 &7370999743383826406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 997212d304f1cf94ba07064688bd09c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.XqHoverReact
+--- !u!114 &3795270883545258990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2951097807610194432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4570fed83cd50949822d8e3a11b8bcf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Xiaoqi.Spike.XqStageBody
 --- !u!114 &1117346983376931598
 MonoBehaviour:
   m_ObjectHideFlags: 0

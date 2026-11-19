@@ -175,10 +175,14 @@ namespace Xiaoqi.UI2
             // XQ: B1 第二轮 #13 设置页先处理指针（点页外关页并吞掉那一下；点页内也不再当成点她），
             // 且设置页开着/刚关掉的那几帧一律挡拖动——以前它和这里各自设挡板，这里每帧把它改回 false。
             bool setConsumed = XqSettingsPanel.HandlePointer();
-            bool over = Hit(_sample) || (_hud != null && _hud.OverChromeNow()) || XqSettingsPanel.OpenNow || XqSettingsPanel.Swallow || XqBenchPanel.IsShown; // XQ: G74 工作台开着整个窗口都挡 ME 的拖动（她的拖动由工作台自己处理）
+            bool over = Hit(_sample) || (_hud != null && _hud.OverChromeNow()) || XqVoiceOverlay.OverNow || XqSettingsPanel.OpenNow || XqSettingsPanel.Swallow || XqBenchPanel.IsShown || XqClosePanel.IsShown || Xiaoqi.Mode.XqCloseCamera.IsActive; // XQ: G74 近景/工作台开着整个窗口都挡 ME 的拖动
             PetHost.I?.SetUiBlocksMovement(over);
             GuardWindowDrag(over);
+            XqMusicBridge.Tick(Time.unscaledDeltaTime);
+            XqSysAudioBridge.Tick(Time.unscaledDeltaTime);
+            XqVoiceOverlay.Poll(_root);
             XqBenchPanel.Poll(); // XQ: G74 工作台指针每帧轮询（以前挂在 UI 调度器里，高刷新率下会漏掉按下那一帧）
+            XqClosePanel.Poll();
             if (!setConsumed && !XqBenchPanel.IsShown) _hud?.HandlePointer(this);
         }
 
@@ -341,7 +345,8 @@ namespace Xiaoqi.UI2
                 if (s.StartsWith(a1)) return Normalize(s.Substring(a1.Length));
                 if (s.StartsWith(a2)) return Normalize(s.Substring(a2.Length));
             }
-            return "pink";
+            var cfg = XiaoqiRuntime.Config ?? XiaoqiConfig.LoadOrCreate();
+            return Normalize((cfg != null && !string.IsNullOrEmpty(cfg.theme)) ? cfg.theme : "violet");
         }
 
         static string Normalize(string theme)

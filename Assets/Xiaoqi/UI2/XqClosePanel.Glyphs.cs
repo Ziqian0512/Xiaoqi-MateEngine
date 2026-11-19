@@ -10,28 +10,9 @@ namespace Xiaoqi.UI2
     /// </summary>
     public partial class XqClosePanel
     {
-        /// <summary>⑥ 占位圆环：白色底圈 + 一段灰色进度，写死 40%，不接倒计时。</summary>
+        /// <summary>⑥ 右下脉搏与精力胶囊自绘层（背景已在 _bodyRing 完成）。</summary>
         void DrawRing(MeshGenerationContext ctx)
         {
-            if (_ringFocus == null) return;
-            float w = _ringFocus.contentRect.width;
-            float h = _ringFocus.contentRect.height;
-            if (w < 8f || h < 8f) return;
-            var p = ctx.painter2D;
-            var c = new Vector2(w * 0.5f, h * 0.5f);
-            float stroke = Mathf.Max(3f, w * 0.085f);
-            float rad = Mathf.Min(w, h) * 0.5f - stroke;
-            p.lineWidth = stroke;
-
-            p.strokeColor = new Color(1f, 1f, 1f, 0.6f);
-            p.BeginPath();
-            p.Arc(c, rad, Angle.Degrees(0f), Angle.Degrees(359f));
-            p.Stroke();
-
-            p.strokeColor = new Color(0.62f, 0.58f, 0.70f, 0.6f);
-            p.BeginPath();
-            p.Arc(c, rad, Angle.Degrees(-90f), Angle.Degrees(-90f + 360f * 0.4f));
-            p.Stroke();
         }
 
         /// <summary>自绘元素的尺寸与字号跟 u 走。</summary>
@@ -39,24 +20,38 @@ namespace Xiaoqi.UI2
         {
             if (_energyArc != null)
             {
-                float d = XqCloseLayout.EnergyArc * u;
+                float d = 18f * u;
                 _energyArc.style.width = d;
                 _energyArc.style.height = d;
                 _energyArc.MarkDirtyRepaint();
             }
-            if (_ringWord != null) _ringWord.style.fontSize = XqCloseLayout.CardTextFont * u;
-            if (_ringFocus != null) _ringFocus.MarkDirtyRepaint();
+            if (_tinySpark != null)
+            {
+                _tinySpark.style.width = 96f * u;
+                _tinySpark.style.height = 24f * u;
+                _tinySpark.MarkDirtyRepaint();
+            }
+            if (_ringWord != null) _ringWord.style.fontSize = 10f * u;
         }
 
-        /// <summary>⑤ 的小折线（占位）。值写死在 TinyDemo。</summary>
+        /// <summary>⑤ 情绪与想念折线（支持动态替换数组）。</summary>
         sealed class XqMiniLine : VisualElement
         {
-            readonly float[] _v;
+            float[] _v;
             public XqMiniLine(float[] values)
             {
                 _v = values;
                 pickingMode = PickingMode.Ignore;
                 generateVisualContent += Draw;
+            }
+
+            public void SetValues(float[] values)
+            {
+                if (values != null && values.Length >= 2)
+                {
+                    _v = values;
+                    MarkDirtyRepaint();
+                }
             }
 
             void Draw(MeshGenerationContext ctx)

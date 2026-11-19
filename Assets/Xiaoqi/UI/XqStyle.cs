@@ -62,7 +62,8 @@ namespace Xiaoqi.UI
 
         private static string ReadTheme()
         {
-            string t = "pink";
+            string t = "violet";
+            bool explicitArg = false;
             try
             {
                 var a = System.Environment.GetCommandLineArgs();
@@ -75,8 +76,18 @@ namespace Xiaoqi.UI
                     if (v == null) continue;
                     v = v.Trim().ToLowerInvariant();
                     if (v == "blue" || v == "xq-theme-blue") t = "blue";
+                    else if (v == "pink" || v == "xq-theme-pink") t = "pink";
                     else if (v == "violet" || v == "purple" || v == "xq-theme-violet") t = "violet";
+                    explicitArg = true;
                     break;
+                }
+                if (!explicitArg)
+                {
+                    var cfg = XiaoqiRuntime.Config ?? XiaoqiConfig.LoadOrCreate();
+                    var cv = (cfg != null && !string.IsNullOrEmpty(cfg.theme)) ? cfg.theme.Trim().ToLowerInvariant() : "";
+                    if (cv == "blue" || cv == "xq-theme-blue") t = "blue";
+                    else if (cv == "pink" || cv == "xq-theme-pink") t = "pink";
+                    else if (cv == "violet" || cv == "purple" || cv == "xq-theme-violet") t = "violet";
                 }
             }
             catch (System.Exception) { }

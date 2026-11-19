@@ -59,39 +59,35 @@ public class XiaoqiFeed : MonoBehaviour
             var cfg = XiaoqiRuntime.Config ?? XiaoqiConfig.LoadOrCreate();
             var baseUrl = (cfg.server ?? "").TrimEnd('/') + "/api/body/feed";
             var url = _since < 0 ? baseUrl : baseUrl + "?since=" + _since;
-            using (var req = UnityWebRequest.Get(url))
+            XqHttp.Resp resp = default(XqHttp.Resp);
+            yield return XqHttp.Get(url, cfg.token, 5, r => resp = r);
+            if (resp.ok)
             {
-                if (!string.IsNullOrEmpty(cfg.token)) req.SetRequestHeader("X-Token", cfg.token);
-                req.timeout = 5;
-                yield return req.SendWebRequest();
-                if (req.result == UnityWebRequest.Result.Success)
+                try
                 {
-                    try
+                    var env = JsonUtility.FromJson<Envelope>(resp.text);
+                    if (env != null)
                     {
-                        var env = JsonUtility.FromJson<Envelope>(req.downloadHandler.text);
-                        if (env != null)
-                        {
-                            _since = env.last_id;
-                            var allow = cfg.bubble && !XiaoqiRuntime.Dnd
-                                        && (env.rules == null || env.rules.show_private_text);
-                            if (env.items != null)
-                                foreach (var item in env.items)
+                        _since = env.last_id;
+                        var allow = cfg.bubble && !XiaoqiRuntime.Dnd
+                                    && (env.rules == null || env.rules.show_private_text);
+                        if (env.items != null)
+                            foreach (var item in env.items)
+                            {
+                                if (string.IsNullOrEmpty(item.text)) continue;
+                                if (!string.IsNullOrEmpty(item.scope) && item.scope != "private") continue;
+                                if (item.kind == "said" || item.kind == "say") // 服务器 body_log 里她说的话是 said；say 留作兼容
                                 {
-                                    if (string.IsNullOrEmpty(item.text)) continue;
-                                    if (!string.IsNullOrEmpty(item.scope) && item.scope != "private") continue;
-                                    if (item.kind == "said" || item.kind == "say") // 服务器 body_log 里她说的话是 said；say 留作兼容
-                                    {
-                                        LatestSay = item.text;
-                                        OnSay?.Invoke(item.text);
-                                    }
-                                    if (allow) Show(item.text, item.media);
+                                    LatestSay = item.text;
+                                    OnSay?.Invoke(item.text);
                                 }
-                        }
+                                if (allow) Show(item.text, item.media);
+                            }
                     }
-                    catch (Exception e)
-                    {
-                        Debug.LogWarning("XiaoqiFeed parse: " + e.Message);
-                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning("XiaoqiFeed parse: " + e.Message);
                 }
             }
             yield return new WaitForSeconds(3f);

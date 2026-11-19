@@ -498,30 +498,20 @@ namespace Xiaoqi.UI2
             _c1.Add(new KeyValuePair<VisualElement, Action>(stat, () => { Close("action"); _openToday?.Invoke(); }));
             _l1Box.Add(stat);
 
-            // 形态切换（桌宠/近景/工作台）只放右下方钮，菜单里不再放（主人 11-16 定）
-
-            _l1Box.Add(Row("sun", "今天", () => { Close("action"); _openToday?.Invoke(); }));
-            // W3：桌宠态要有可靠的工作台入口（右下方钮要先点开再点，闲置还会淡隐）
-            if (Xiaoqi.Mode.XqMode.BenchAvailable)
-                _l1Box.Add(Row("win", "工作台", () =>
-                {
-                    Close("action");
-                    bool ok = Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Bench);
-                    Debug.Log("XQ_MENU2 bench-click set=" + ok + " cur=" + Xiaoqi.Mode.XqMode.Current + " busy=" + Xiaoqi.Mode.XqMode.Busy);
-                }));
-            else
-                _l1Box.Add(Gray("win", "工作台", "还没开放"));
-            _l1Box.Add(Gray("chat", "说句话", "还没开通"));
+            // 形态切换只放悬浮入口，今天由左键点她直接触发，避免右键菜单冗余堆砌
+            _l1Box.Add(Row("chat", "陪我看屏幕", () =>
+            {
+                Close("action");
+                var host = XqCloseData.Ensure();
+                XqScreenCompanion.PushNow(host, msg => Xiaoqi.Spike.PetBubble.Enqueue(msg, ""));
+            }));
             _l1Box.Add(SubRow("spark", "让她…", "doing"));
             string quietWord = XiaoqiRuntime.Dnd ? "安静一会 · 安静中" : "安静一会";
             _l1Box.Add(SubRow("moon", quietWord, "quiet"));
-            _l1Box.Add(Gray("live", "直播间", "还在做"));
             var sep = new VisualElement { pickingMode = PickingMode.Ignore };
             sep.AddToClassList("xq-msep");
             _l1Box.Add(sep);
-            var setRow = SubRow("gear", "设置", "settings");   // W5：不再关菜单弹大框，展开二级（6 个分类）
-            setRow.AddToClassList("xq-mrow-set");
-            _l1Box.Add(setRow);
+            _l1Box.Add(Row("gear", "偏好设置", () => { Close("settings"); XqSettingsPanel.Open(); }));
 
             _cur = _c2;
             _setRowEls.Clear();

@@ -71,6 +71,10 @@ namespace Xiaoqi.UI2
         {
             if (!_built && !Build()) return;
             _shown = true;
+            _host.RemoveFromClassList("xq-theme-pink");
+            _host.RemoveFromClassList("xq-theme-blue");
+            _host.RemoveFromClassList("xq-theme-violet");
+            _host.AddToClassList(ThemeClass(XqUi2Sample.CurrentTheme));
             _host.style.display = DisplayStyle.Flex;
             Place();
             BindData();
@@ -78,6 +82,7 @@ namespace Xiaoqi.UI2
             RefreshNext();
             RefreshEnergy(XiaoqiLink.Current);
             RefreshSay();
+            RefreshStateWidgets();
             StartEnter();
             Pair("open");
         }
@@ -134,10 +139,13 @@ namespace Xiaoqi.UI2
             _host.AddToClassList(ThemeClass(ThemeFromArgs()));
             _host.RegisterCallback<GeometryChangedEvent>(OnHostGeometryChanged);
 
-            BuildRail();
             BuildPlate();
             BuildButtons();
+            BuildChatDock();
             BuildCards();
+            _plate?.BringToFront();
+            _modeDock?.BringToFront();
+            _chatDock?.BringToFront();
             AnimRegister();
             WireRail();
 
@@ -175,16 +183,19 @@ namespace Xiaoqi.UI2
             // 控件（左栏/名牌/方钮）面板单位上限 1.3，卡片 1.6：位置仍按屏幕百分比，只是尺寸不再随屏高倍增。
             float uc = Mathf.Min(u, 1.3f);
             float ucard = Mathf.Min(u, 1.6f);
-            PlaceOne(_rail, XqCloseLayout.RailL, XqCloseLayout.RailT,
-                XqCloseLayout.RailW, XqCloseLayout.RailH, pw, ph, uc);
             PlaceOne(_plate, XqCloseLayout.PlateL, XqCloseLayout.PlateT,
                 XqCloseLayout.PlateW, XqCloseLayout.PlateH, pw, ph, uc);
-            PlaceOne(_btnPet, XqCloseLayout.BtnPetL, XqCloseLayout.BtnTop,
-                XqCloseLayout.BtnSize, XqCloseLayout.BtnSize, pw, ph, uc);
-            PlaceOne(_btnBench, XqCloseLayout.BtnBenchL, XqCloseLayout.BtnTop,
-                XqCloseLayout.BtnSize, XqCloseLayout.BtnSize, pw, ph, uc);
+            if (_plate != null) _plate.style.left = (pw - XqCloseLayout.PlateW * uc) * 0.5f;
+            PlaceOne(_modeDock, XqCloseLayout.BtnPetL, XqCloseLayout.BtnTop,
+                206f, 36f, pw, ph, uc);
+            if (_modeDock != null) _modeDock.style.left = pw - 206f * uc - 0.038f * pw;
+            PlaceOne(_chatDock, XqCloseLayout.ChatL, XqCloseLayout.ChatT,
+                XqCloseLayout.ChatW, XqCloseLayout.ChatH, pw, ph, ucard);
+            if (_chatDock != null) _chatDock.style.left = (pw - XqCloseLayout.ChatW * ucard) * 0.5f;
             PlaceOne(_cardNext, XqCloseLayout.NextL, XqCloseLayout.NextT,
                 XqCloseLayout.NextW, XqCloseLayout.NextH, pw, ph, ucard);
+            PlaceOne(_cardMusic, XqCloseLayout.MusicL, XqCloseLayout.MusicT,
+                XqCloseLayout.MusicW, XqCloseLayout.MusicH, pw, ph, ucard);
             PlaceOne(_cardEnergy, XqCloseLayout.EnergyL, XqCloseLayout.EnergyT,
                 XqCloseLayout.EnergyW, XqCloseLayout.EnergyH, pw, ph, ucard);
             PlaceOne(_cardSay, XqCloseLayout.SayL, XqCloseLayout.SayT,
@@ -192,11 +203,11 @@ namespace Xiaoqi.UI2
             PlaceOne(_cardTiny, XqCloseLayout.TinyL, XqCloseLayout.TinyT,
                 XqCloseLayout.TinyW, XqCloseLayout.TinyH, pw, ph, ucard);
             PlaceOne(_ringFocus, XqCloseLayout.RingL, XqCloseLayout.RingT,
-                XqCloseLayout.RingSize, XqCloseLayout.RingSize, pw, ph, ucard);
+                XqCloseLayout.RingW, XqCloseLayout.RingH, pw, ph, ucard);
 
-            PlaceRail(uc);
             PlacePlate(uc);
             PlaceButtons(uc);
+            PlaceChatDock(ucard);
             PlaceCards(ucard);
         }
 
@@ -269,7 +280,8 @@ namespace Xiaoqi.UI2
                 if (s.StartsWith("-xq-theme=")) return s.Substring("-xq-theme=".Length);
                 if (s.StartsWith("--xq-theme=")) return s.Substring("--xq-theme=".Length);
             }
-            return "pink";
+            var cfg = XiaoqiRuntime.Config ?? XiaoqiConfig.LoadOrCreate();
+            return (cfg != null && !string.IsNullOrEmpty(cfg.theme)) ? cfg.theme : "violet";
         }
 
         static void Pair(string what)

@@ -56,10 +56,17 @@ namespace Xiaoqi.UI2
             return _inst != null && _inst._shown && _inst.OverAnySelf();
         }
 
+        public static void Poll()
+        {
+            if (_inst != null && _inst._shown) _inst.TickPointer();
+        }
+
         bool OverAnySelf()
         {
-            return OverEl(_rail) || OverEl(_plate) || OverEl(_btnPet) || OverEl(_btnBench)
-                || OverEl(_cardNext) || OverEl(_cardEnergy) || OverEl(_cardSay) || OverEl(_cardTiny) || OverEl(_ringFocus);
+            return OverEl(_modeDock) || OverEl(_chatDock) || OverEl(_plate) || OverEl(_btnPet) || OverEl(_btnBench)
+                || OverEl(_cardNext) || OverEl(_cardMusic) || OverEl(_actPat) || OverEl(_actScreen) || OverEl(_actDance)
+                || OverEl(_cardSay) || OverEl(_cardTiny) || OverEl(_cardEnergy) || OverEl(_ringFocus)
+                || OverEl(_exprBlush) || OverEl(_exprHeart) || OverEl(_exprSleep) || OverEl(_exprPose);
         }
 
         bool OverEl(VisualElement el)
@@ -76,6 +83,26 @@ namespace Xiaoqi.UI2
         void TickPointer()
         {
             if (!_shown || _host == null || _host.panel == null) return;
+            if (_clockBig != null) _clockBig.text = DateTime.Now.ToString("HH:mm:ss");
+            if (_musicFill != null) _musicFill.style.width = Length.Percent(Mathf.Clamp01(XqMusicBridge.Progress) * 100f);
+            if (_sayTtsLbl != null && XqVoiceChatClient.IsPlayingTts)
+                _sayTtsLbl.text = string.Format("♪ {0:0.0}s", XqVoiceChatClient.TtsRemainingSec);
+            if (_sysAudioLbl != null)
+                _sysAudioLbl.text = "♫ 系统音频：" + XqSysAudioBridge.CurrentAudioTitle + " (" + XqSysAudioBridge.CurrentPlayerName + ")";
+            for (int i = 0; i < _spectrumBars.Count && i < XqSysAudioBridge.BarCount; i++)
+                _spectrumBars[i].style.height = Length.Percent(Mathf.Clamp(XqSysAudioBridge.Bars[i], 0.05f, 1f) * 100f);
+            if (_focusRunning)
+            {
+                _focusRemainSec = Mathf.Max(0f, _focusRemainSec - Time.unscaledDeltaTime);
+                int sec = Mathf.CeilToInt(_focusRemainSec);
+                if (_focusTimeLbl != null) _focusTimeLbl.text = string.Format("{0:00}:{1:00}", sec / 60, sec % 60);
+                if (_focusRemainSec <= 0f)
+                {
+                    _focusRunning = false;
+                    if (_focusBtnLbl != null) _focusBtnLbl.text = "▶ 再来一轮";
+                    XqVoiceChatClient.Ensure().SendText("我们一起专注完 25 分钟啦！", false);
+                }
+            }
             bool hb = OverEl(_btnBench);
             if (hb != _benchHover)
             {
@@ -87,11 +114,51 @@ namespace Xiaoqi.UI2
             {
                 if (OverEl(_btnPet)) { _lastClickFrame = Time.frameCount; Debug.Log("XQ_CLOSE btn pet"); Debug.Log("XQ_CLOSE exit by=btn"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet); return; }
                 if (OverEl(_btnBench) && Xiaoqi.Mode.XqMode.BenchAvailable) { _lastClickFrame = Time.frameCount; Debug.Log("XQ_CLOSE btn bench"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Bench); return; }
-                if (OverEl(_ringFocus)) { _lastClickFrame = Time.frameCount; Pair("ring placeholder"); return; }
+                if (OverEl(_actPat))
+                {
+                    _lastClickFrame = Time.frameCount;
+                    Xiaoqi.Spike.XiaoqiFace.DebugSpike("害羞");
+                    if (Xiaoqi.Host.PetHost.I != null && Xiaoqi.Host.PetHost.I.Ready)
+                        Xiaoqi.Host.PetHost.I.SetFace(new Xiaoqi.Host.FaceFrame { joy = 0.75f, fun = 0.55f, blink = 0.2f });
+                    Focus(_actPat);
+                    Pair("act pat");
+                    return;
+                }
+                if (OverEl(_actScreen))
+                {
+                    _lastClickFrame = Time.frameCount;
+                    XqScreenCompanion.PushNow(_data, msg => Xiaoqi.Spike.PetBubble.Enqueue(msg, ""));
+                    Focus(_actScreen);
+                    Pair("act screen");
+                    return;
+                }
+                if (OverEl(_actDance))
+                {
+                    _lastClickFrame = Time.frameCount;
+                    var host = Xiaoqi.Host.PetHost.I;
+                    if (host != null && host.Ready)
+                    {
+                        if (host.Dances != null && host.Dances.Count > 0 && !host.IsDancing) host.PlayDance(host.Dances[0]);
+                        else host.RunAction("pose_next");
+                    }
+                    Focus(_actDance);
+                    Pair("act dance");
+                    return;
+                }
+                if (OverEl(_ringFocus))
+                {
+                    _lastClickFrame = Time.frameCount;
+                    Xiaoqi.Spike.XiaoqiFace.DebugSpike("开心");
+                    if (Xiaoqi.Host.PetHost.I != null && Xiaoqi.Host.PetHost.I.Ready)
+                        Xiaoqi.Host.PetHost.I.SetFace(new Xiaoqi.Host.FaceFrame { joy = 0.8f, fun = 0.5f });
+                    Focus(_ringFocus);
+                    Pair("ring pulse-pat");
+                    return;
+                }
                 if (OverEl(DotByWord("♥"))) { _lastClickFrame = Time.frameCount; Pair("rail pet"); Debug.Log("XQ_CLOSE exit by=rail"); Xiaoqi.Mode.XqMode.Set(Xiaoqi.Mode.XqView.Pet); return; }
                 if (OverEl(DotByWord("今"))) { _lastClickFrame = Time.frameCount; Focus(_cardNext); return; }
                 if (OverEl(DotByWord("话"))) { _lastClickFrame = Time.frameCount; Focus(_cardSay); return; }
-                if (OverEl(DotByWord("待"))) { _lastClickFrame = Time.frameCount; Pair("todo placeholder"); return; }
+                if (OverEl(DotByWord("情"))) { _lastClickFrame = Time.frameCount; Focus(_cardTiny); return; }
                 if (OverEl(DotByWord("设"))) { _lastClickFrame = Time.frameCount; OpenSettingsOnce(); return; }
             }
         }
@@ -105,15 +172,15 @@ namespace Xiaoqi.UI2
         /// <summary>按 §4 的表登记 7 个有位移的元素，再挂上两个方钮（无位移）。</summary>
         void AnimRegister()
         {
-            AnimAdd(_rail, 0, XqCloseAnim.Offsets[0]);
             AnimAdd(_cardNext, 1, XqCloseAnim.Offsets[1]);
+            AnimAdd(_cardMusic, 2, XqCloseAnim.Offsets[2]);
             AnimAdd(_cardEnergy, 2, XqCloseAnim.Offsets[2]);
             AnimAdd(_cardSay, 3, XqCloseAnim.Offsets[3]);
             AnimAdd(_cardTiny, 4, XqCloseAnim.Offsets[4]);
             AnimAdd(_ringFocus, 5, XqCloseAnim.Offsets[5]);
             AnimAdd(_plate, 6, XqCloseAnim.Offsets[6]);
-            AnimAdd(_btnPet, 6, Vector2.zero);
-            AnimAdd(_btnBench, 6, Vector2.zero);
+            AnimAdd(_modeDock, 6, Vector2.zero);
+            AnimAdd(_chatDock, 6, Vector2.zero);
         }
 
         void StartEnter()
@@ -165,7 +232,7 @@ namespace Xiaoqi.UI2
             if (_animMode == 0) return;
             if (_host == null || _host.panel == null) return;
 
-            TickPointer();
+            XqLiquidGlass.Tick(Time.unscaledTime);
             _animT += Time.unscaledDeltaTime;
 
             if (_animMode == 1)
@@ -216,21 +283,22 @@ namespace Xiaoqi.UI2
                 var a = _anim[i];
                 if (a.el == null) continue;
                 float p = Mathf.Clamp01((t - XqCloseAnim.Start(a.order)) / XqCloseAnim.EnterDur);
-                float e = XqCloseAnim.Enter(p);
-                float op = XqCloseAnim.EnterFade > 0f
-                    ? Mathf.Clamp01(p / XqCloseAnim.EnterFade) : 1f;
-                a.el.style.opacity = op;
-                a.el.style.scale = new Scale(Vector3.one
-                    * Mathf.Lerp(XqCloseAnim.EnterScaleFrom, 1f, e));
-                Vector2 v = a.off * ((1f - e) * _u);
-                a.el.style.translate = new Translate(v.x, v.y, 0f);
+                float e = 0.5f - 0.5f * Mathf.Cos(p * Mathf.PI);
+                a.el.style.opacity = e;
+                a.el.style.scale = new Scale(Vector3.one);
+                float dy = (1f - e) * 8f * _u;
+                a.el.style.translate = new Translate(0f, dy, 0f);
             }
         }
 
-        /// <summary>到位后的 7 秒上下浮动。相位按出场顺序错开，免得整块界面齐步走。</summary>
+        /// <summary>到位后的慢呼吸浮动 + 轻微鼠标反向 3D 视差（让近景卡片与 3D 小祈产生破屏立体错层）。</summary>
         void ApplyBob()
         {
             float phase = Time.unscaledTime * (Mathf.PI * 2f / XqCloseAnim.BobPeriod);
+            float mx = Mathf.Clamp((Input.mousePosition.x / Mathf.Max(1f, Screen.width) - 0.5f) * 2f, -1f, 1f);
+            float my = Mathf.Clamp((Input.mousePosition.y / Mathf.Max(1f, Screen.height) - 0.5f) * 2f, -1f, 1f);
+            float px = -mx * 5.5f * _u;
+            float py = my * 3.2f * _u;
             for (int i = 0; i < _anim.Count; i++)
             {
                 var a = _anim[i];
@@ -239,9 +307,10 @@ namespace Xiaoqi.UI2
                     * XqCloseAnim.BobAmp * _u;
                 // 聚焦系数只作用在目标卡上（P2-5 的 1.04 倍）
                 float k = (a.el == _focusCard) ? _focusK : 1f;
+                float depth = (a.el == _modeDock || a.el == _chatDock) ? 0.35f : 1f;
                 a.el.style.opacity = 1f;
                 a.el.style.scale = new Scale(Vector3.one * k);
-                a.el.style.translate = new Translate(0f, bob, 0f);
+                a.el.style.translate = new Translate(px * depth, bob + py * depth, 0f);
             }
         }
 

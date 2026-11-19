@@ -48,6 +48,9 @@ public class XqFullscreenHide : MonoBehaviour
         if (h != null) h._nextCheck = 0f; // 下一帧就处理，不等 1 秒
     }
 
+    static UniWindowController.HitTestType _savedHitTest = UniWindowController.HitTestType.Opacity;
+    static bool _hasSavedHitTest;
+
     bool _hidden;
     IntPtr _benchHwnd;
     float _nextCheck;
@@ -67,6 +70,7 @@ public class XqFullscreenHide : MonoBehaviour
             if (!_hidden) HideSelf();
             return;
         }
+        if (Xiaoqi.Mode.XqCloseCamera.IsActive && !_hidden) return;
         var cfg = XiaoqiRuntime.Config;
         if (cfg != null && !cfg.hide_on_fullscreen)
         {
@@ -104,7 +108,22 @@ public class XqFullscreenHide : MonoBehaviour
     static void SetHitTest(bool on)
     {
         var uw = UnityEngine.Object.FindFirstObjectByType<UniWindowController>();
-        if (uw != null) uw.isHitTestEnabled = on;
+        if (uw == null) return;
+        if (!on)
+        {
+            if (uw.hitTestType != UniWindowController.HitTestType.None)
+            {
+                _savedHitTest = uw.hitTestType;
+                _hasSavedHitTest = true;
+            }
+            uw.hitTestType = UniWindowController.HitTestType.None;
+            uw.isHitTestEnabled = false;
+        }
+        else
+        {
+            if (_hasSavedHitTest) uw.hitTestType = _savedHitTest;
+            uw.isHitTestEnabled = true;
+        }
     }
 
     bool ForegroundIsFullscreen()

@@ -197,6 +197,7 @@ namespace Xiaoqi.UI2
             _panel.AddToClassList("xq-st-panel");
             _panel.AddToClassList("xq-st-card");
             _panel.style.width = CardW;
+            _panel.style.height = 380f;
             _panel.AddToClassList(ThemeClass(cfg != null ? cfg.theme : "pink"));
             var shadow = new VisualElement { pickingMode = PickingMode.Ignore };
             shadow.AddToClassList("xq-shadow");
@@ -218,6 +219,11 @@ namespace Xiaoqi.UI2
             _hTabs = tabHost;
             head.Add(tabHost);
             frame.Add(head);
+            var pageScroll = new ScrollView(ScrollViewMode.Vertical) { pickingMode = PickingMode.Position };
+            pageScroll.style.flexGrow = 1f;
+            pageScroll.style.flexShrink = 1f;
+            pageScroll.verticalScrollerVisibility = ScrollerVisibility.Auto;
+            pageScroll.horizontalScrollerVisibility = ScrollerVisibility.Hidden;
             var pageHost = new VisualElement { pickingMode = PickingMode.Ignore };
             pageHost.AddToClassList("xq-st-pages");
 
@@ -239,7 +245,8 @@ namespace Xiaoqi.UI2
                 pageHost.Add(p);
             }
 
-            frame.Add(pageHost);
+            pageScroll.Add(pageHost);
+            frame.Add(pageScroll);
             _panel.Add(shadow);
             _panel.Add(glass);
             _panel.Add(hi);
@@ -306,16 +313,7 @@ namespace Xiaoqi.UI2
                 cfg != null ? cfg.window_sit : (PetHost.I != null && PetHost.I.WindowSitEnabled),
                 v => Bind(XqSettingsApply.SetWindowSit, (c, x) => c.window_sit = x, "window_sit", v)));
 
-            // 2 坐姿高度微调：ME 无对应字段，整行灰掉，只存盘不连宿主
-            var sit = XqSettingsRows.Slider("坐姿高度微调", -50f, 50f,
-                cfg != null ? cfg.sit_offset : 0f, null, 0f);
-            sit.OnCommit = () => Bind<float>(null, (c, v) => c.sit_offset = v, "sit_offset", sit.Value);
-            sit.Root.SetEnabled(false);
-            sit.Root.AddToClassList("xq-st-row-off");
-            XqSettingsRows.Hint(sit.Root, "暂未接入");
-            page.Add(sit.Root);
-
-            // 3 看向鼠标（开）
+            // 2 看向鼠标（开）
             page.Add(XqSettingsRows.Toggle("看向鼠标",
                 cfg == null || cfg.look_at_mouse,
                 v => Bind(XqSettingsApply.SetLookAtMouse,
@@ -475,6 +473,26 @@ namespace Xiaoqi.UI2
             vol.Refresh();
             vol.OnCommit = () => XqSettingsApply.CommitVolume(vol.Value / 100f);
             page.Add(vol.Root);
+
+            // 3 V6 按住说话热键 & 自动语音回复
+            var hotkeys = new[] { "N", "V", "B", "Space" };
+            int hkIdx = Array.IndexOf(hotkeys, cfg != null && !string.IsNullOrEmpty(cfg.voice_hotkey) ? cfg.voice_hotkey : "N");
+            if (hkIdx < 0) hkIdx = 0;
+            page.Add(XqSettingsRows.Dropdown("按住说话热键", hotkeys, hkIdx, idx =>
+            {
+                if (XiaoqiRuntime.Config == null || idx < 0 || idx >= hotkeys.Length) return;
+                XiaoqiRuntime.Config.voice_hotkey = hotkeys[idx];
+                XiaoqiConfig.Save(XiaoqiRuntime.Config);
+            }));
+
+            page.Add(XqSettingsRows.Toggle("自动语音回复",
+                cfg == null || cfg.voice_tts_auto,
+                v =>
+                {
+                    if (XiaoqiRuntime.Config == null) return;
+                    XiaoqiRuntime.Config.voice_tts_auto = v;
+                    XiaoqiConfig.Save(XiaoqiRuntime.Config);
+                }));
 
             // 打开面板时按 cfg 应用一次，避免别人改过 AudioListener 后这里显示与听感不一致
             XqSettingsApply.ApplyVolume();
@@ -707,18 +725,18 @@ namespace Xiaoqi.UI2
             if (_panel == null || _host == null || _panel.panel == null) return;
             if (_cascade) return;
             _placed = true;
-            _placedH = Hei(_panel, 420f);
-            // XQ: B1 第二轮 #14/#15 设置页紧凑、固定在她所在显示器的可用区里：高 = 可用区高 62%（夹 440~600×DPI），
-            // 优先放在她身体外侧（哪边空间够放哪边，不压人），两边都放不下才放可用区居中；永远不出可用区，不被裁。
+            _placedH = 380f;
+            // V6：固定紧凑高度 380px，垂直贴近小祈身体中心，切页签永不跳动。
             var body = XqBodyAnchor.Stable();
             var bc = body.height >= 8f ? body.center : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
             var wa = XqMonitor.WorkArea(bc);
             float dpi = XqMonitor.UiScale(bc);
             float upp = Mathf.Max(0.01f, XqPanelXf.UnitsPerPx(_panel.panel));
-            float h = Mathf.Min(_placedH / upp, wa.height - 24f);   // 卡高 = 内容高（面板单位 → 屏幕像素）
+            float h = Mathf.Min(_placedH / upp, wa.height - 24f);
             float w = Mathf.Min(CardW / upp, wa.width - 24f);
             const float gap = 16f;
-            float cx, cy = Mathf.Clamp(wa.center.y, wa.yMin + h * 0.5f + 12f, wa.yMax - h * 0.5f - 12f);
+            float targetY = body.height >= 8f ? body.center.y : wa.center.y;
+            float cx, cy = Mathf.Clamp(targetY, wa.yMin + h * 0.5f + 12f, wa.yMax - h * 0.5f - 12f);
             string side;
             float roomL = body.height >= 8f ? body.xMin - wa.xMin : 0f;
             float roomR = body.height >= 8f ? wa.xMax - body.xMax : 0f;
@@ -745,7 +763,7 @@ namespace Xiaoqi.UI2
         void Tick()
         {
             if (!IsOpen || _panel == null || _panel.panel == null) return;
-            if (!_cascade && (!_placed || Mathf.Abs(Hei(_panel, 420f) - _placedH) > 2f)) Place();   // 独立卡：内容高变了（换分类）就重新居中
+            if (!_cascade && !_placed) Place();   // V6：固定高度 380px，首次放置后不再随页签跳动
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 bool wasCascade = _cascade;

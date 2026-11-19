@@ -135,6 +135,14 @@ namespace Xiaoqi.UI2
             Root.Add(_gate);
             _today = new XqTodayCard();
             _today.Build(Root);
+            Xiaoqi.Mode.XqMode.OnModeChanged += (from, to) =>
+            {
+                if (to != Xiaoqi.Mode.XqView.Pet)
+                {
+                    if (_today != null && _today.IsOpen) _today.Close();
+                    XqGlassMenu.CloseCurrent("mode");
+                }
+            };
             if (XqGlassMenu.Enabled)
             {
                 try
@@ -188,6 +196,14 @@ namespace Xiaoqi.UI2
             var picked = Root.panel.Pick(XqPanelXf.FromScreen(Root.panel, Input.mousePosition));
             UpdatePts(Root.panel);
             _hostForToday = host;
+            if ((Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+                && Mathf.Abs(Input.mouseScrollDelta.y) > 0.01f && PetHost.I != null && OnBody())
+            {
+                float next = Mathf.Clamp(PetHost.I.Size + Input.mouseScrollDelta.y * 0.08f, 0.5f, 2f);
+                PetHost.I.Size = next;
+                PetHost.I.SaveSettings();
+                NoteOperation();
+            }
             if (_glass != null)
             {
                 bool overChrome = BlocksChrome(picked);
@@ -227,7 +243,6 @@ namespace Xiaoqi.UI2
                 bool click = Time.unscaledTime - _armAt <= 0.35f && moved <= 8f;
                 if (!click) return;
                 if (_today.IsOpen) _today.Close();
-                else _today.Open(host);
             }
         }
 

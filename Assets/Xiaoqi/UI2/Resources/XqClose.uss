@@ -6,40 +6,40 @@
 
 .xq-cl-rail {
     position: absolute;
-    background-color: rgba(255, 255, 255, 0.78);
-    border-width: 1px;
-    border-color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(24, 16, 38, 0.94);
+    border-width: 1.5px;
+    border-color: rgba(255, 255, 255, 0.28);
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
 }
 
 .xq-cl-dot {
     position: relative;
     border-radius: 999px;
-    background-color: rgba(255, 255, 255, 0.88);
+    background-color: rgba(255, 255, 255, 0.10);
     border-width: 1px;
-    border-color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.20);
     align-items: center;
     justify-content: center;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     flex-shrink: 0;
 }
 
 .xq-cl-dot.on {
-    background-color: var(--xq-accent, #FF8FB8);
-    border-color: rgba(255, 255, 255, 0.95);
+    background-color: rgb(224, 86, 202);
+    border-color: rgba(255, 255, 255, 0.92);
 }
 
 .xq-cl-dot.off {
-    opacity: 0.45;
+    opacity: 0.82;
 }
 
 .xq-cl-dot-word {
     font-size: 16px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
-    color: var(--xq-ink, #3B2F55);
+    color: rgb(242, 228, 255);
 }
 
 .xq-cl-dot.on .xq-cl-dot-word {
@@ -48,36 +48,36 @@
 
 .xq-cl-plate {
     position: absolute;
-    background-color: rgba(255, 255, 255, 0.78);
-    border-width: 1px;
-    border-color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(22, 14, 36, 0.95);
+    border-width: 2px;
+    border-color: rgb(244, 102, 205);
     border-radius: 999px;
     align-items: center;
     justify-content: center;
 }
 
 .xq-cl-plate-text {
-    font-size: 17px;
+    font-size: 15px;
     -unity-font-style: bold;
-    color: var(--xq-ink, #3B2F55);
+    color: rgb(255, 255, 255);
     -unity-text-align: middle-center;
     white-space: nowrap;
 }
 
 .xq-cl-btn {
     position: absolute;
-    background-color: rgba(255, 255, 255, 0.78);
-    border-width: 1px;
-    border-color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(22, 14, 36, 0.93);
+    border-width: 1.5px;
+    border-color: rgba(255, 255, 255, 0.34);
     align-items: center;
     justify-content: center;
 }
 
 .xq-cl-btn-word {
-    font-size: 15px;
+    font-size: 13px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
-    color: var(--xq-ink, #3B2F55);
+    color: rgb(245, 234, 255);
     white-space: nowrap;
 }
 

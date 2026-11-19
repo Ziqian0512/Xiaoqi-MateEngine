@@ -390,18 +390,14 @@ namespace Xiaoqi.Spike
             }
             var cfg = XiaoqiRuntime.Config;
             var url = (cfg.server ?? "").TrimEnd('/') + "/api/body/day";
-            using (var req = UnityWebRequest.Get(url))
+            XqHttp.Resp resp = default(XqHttp.Resp);
+            yield return XqHttp.Get(url, cfg.token, 6, r => resp = r);
+            if (resp.ok)
             {
-                if (!string.IsNullOrEmpty(cfg.token)) req.SetRequestHeader("X-Token", cfg.token);
-                req.timeout = 6;
-                yield return req.SendWebRequest();
-                if (req.result == UnityWebRequest.Result.Success)
-                {
-                    try { _data = JsonUtility.FromJson<DayData>(req.downloadHandler.text); _error = null; }
-                    catch (Exception e) { _error = e.Message; }
-                }
-                else _error = "连不上";
+                try { _data = JsonUtility.FromJson<DayData>(resp.text); _error = null; }
+                catch (Exception e) { _error = e.Message; }
             }
+            else _error = "连不上";
             Refresh();
         }
     }

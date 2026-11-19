@@ -24,6 +24,7 @@ namespace Xiaoqi.UI2
         bool _stageSub;
         int _saySeq = -1;
         int _dataShotIdx;
+        string _lastDataLog;
         VisualElement _focusCard;
         float _focusT = 1f;
         bool _focusOn;
@@ -69,12 +70,74 @@ namespace Xiaoqi.UI2
                 RefreshSay();
                 RefreshNext();
                 RefreshEnergy(XiaoqiLink.Current);
-                Pair("data next=" + (_nextTime != null && _nextTime.style.display == DisplayStyle.Flex ? _nextTime.text + " " : "") + (_nextWhat != null ? _nextWhat.text : "")
+                RefreshStateWidgets();
+                string sum = "data next=" + (_nextTime != null && _nextTime.style.display == DisplayStyle.Flex ? _nextTime.text + " " : "") + (_nextWhat != null ? _nextWhat.text : "")
                     + " | energy=" + (_energyWord != null ? _energyWord.text : "")
-                    + " | say=" + (_sayText != null ? _sayText.text : ""));
-                if (_data != null && _shown) _data.Shot("data-" + (++_dataShotIdx) + ".png", 0.35f);
+                    + " | say=" + (_sayText != null ? _sayText.text : "");
+                if (sum != _lastDataLog)
+                {
+                    _lastDataLog = sum;
+                    Pair(sum);
+                    if (_data != null && _shown) _data.Shot("data-" + (++_dataShotIdx) + ".png", 0.35f);
+                }
             }
             catch (Exception e) { Debug.LogWarning("XQ_CLOSE refresh: " + e.Message); }
+        }
+
+        void RefreshStateWidgets()
+        {
+            if (_clockBig != null) _clockBig.text = DateTime.Now.ToString("HH:mm:ss");
+            var st = _data != null ? _data.State : null;
+            if (_locPill != null)
+            {
+                string pl = st != null ? st.SelectToken("me.place")?.ToString() : null;
+                if (string.IsNullOrEmpty(pl) && XiaoqiLink.Current != null)
+                    pl = XiaoqiLink.Current.where == "dorm" ? "薄扶林 · 宿舍" : XiaoqiLink.Current.where;
+                _locPill.text = DateTime.Now.ToString("yyyy.MM.dd ddd").ToUpperInvariant() + " · ☁️ 17°C " + (!string.IsNullOrEmpty(pl) ? pl : "薄扶林");
+            }
+            if (st == null) return;
+            var bpmTok = st.SelectToken("me.bpm");
+            int bpm = bpmTok != null ? (int)bpmTok : 0;
+            string quad = st.SelectToken("affect.quadrant")?.ToString() ?? "";
+            if (_ringWord != null && bpm > 0)
+                _ringWord.text = "♥ 实时心跳 " + bpm + " BPM";
+
+            var cl = st.SelectToken("closeness");
+            var sec = st.SelectToken("security");
+            var topK = st.SelectToken("top_dim.k")?.ToString() ?? "";
+            var topV = st.SelectToken("top_dim.v");
+            if (_tinyChip != null && cl != null)
+                _tinyChip.text = "⚡ 今日元气电量 · " + Mathf.RoundToInt((float)cl) + "%";
+            if (_tinyBig != null && cl != null)
+            {
+                int pct = Mathf.RoundToInt((float)cl);
+                _tinyBig.text = pct + "%";
+                if (_energyArc != null) { _energyArc.Amount = Mathf.Clamp01(pct / 100f); _energyArc.MarkDirtyRepaint(); }
+            }
+            if (_tinySummary != null && cl != null)
+                _tinySummary.text = "💖 " + (quad.Length > 0 ? quad : "黏人") + "象限 · 亲密 " + Mathf.RoundToInt((float)cl) + "%";
+            if (_tinySummary != null)
+            {
+                string s1 = sec != null ? "安全感 " + Mathf.RoundToInt((float)sec) + "%" : "";
+                string s2 = topK.Length > 0 && topV != null ? topK + " " + Mathf.RoundToInt((float)topV) + "%" : "";
+                if (s2 == s1) s2 = "";
+                string sum = string.Join(" · ", new[] { s1, s2 }).Trim(' ', '·');
+                if (!string.IsNullOrEmpty(sum)) _tinySummary.text = "♡ " + sum;
+            }
+            if (_tinySpark != null && topK.Length > 0)
+            {
+                var arr = st.SelectToken("needs_series." + topK) as Newtonsoft.Json.Linq.JArray;
+                if (arr != null && arr.Count >= 2)
+                {
+                    var vals = new float[arr.Count];
+                    for (int i = 0; i < arr.Count; i++)
+                    {
+                        var pt = arr[i] as Newtonsoft.Json.Linq.JArray;
+                        vals[i] = pt != null && pt.Count >= 2 ? Mathf.Clamp01((float)pt[1] / 100f) : 0.5f;
+                    }
+                    _tinySpark.SetValues(vals);
+                }
+            }
         }
 
         void OnStage(StageData s)
@@ -124,7 +187,7 @@ namespace Xiaoqi.UI2
             _nextTime.style.display = has && !string.IsNullOrEmpty(when) ? DisplayStyle.Flex : DisplayStyle.None;
             _nextTime.text = has ? (when ?? "") : "";
             _nextWhat.text = has ? (string.IsNullOrEmpty(what) ? "今天没有更多安排" : what) : "还没有";
-            SetGray(_nextWhat, !has);
+            _nextWhat.style.color = has ? ClInk : ClInkSoft;
         }
 
         // ---------------- ③ 精力 ----------------
@@ -134,20 +197,21 @@ namespace Xiaoqi.UI2
             if (_energyWord == null || _energyArc == null) return;
             string word = null;
             float amount = -1f;
+            float stVal = 0f;
             var b = (s != null && s.body != null) ? s.body : (_data != null && _data.Day != null ? _data.Day.body : null);
             if (b != null)
             {
-                // 量纲沿用 XqPetHud：假数据里 stamina / sleepy 是 0–100
-                float st = Mathf.Clamp(b.stamina, 0f, 100f);
-                amount = st / 100f;
+                stVal = Mathf.Clamp(b.stamina, 0f, 100f);
+                amount = stVal / 100f;
                 if (b.sleepy >= 70f) word = "有点困";
-                else if (st <= 35f) word = "累了";
+                else if (stVal <= 35f) word = "累了";
                 else word = "精神";
             }
-            _energyWord.text = word ?? "还没有";
-            SetGray(_energyWord, word == null);
+            _energyWord.text = word != null ? ("⚡ 精力 " + Mathf.RoundToInt(stVal) + "% · " + word) : "⚡ 精力 · 还没有";
             _energyArc.Amount = amount;
             _energyArc.MarkDirtyRepaint();
+            if (_staminaFill != null && b != null)
+                _staminaFill.style.width = Length.Percent(stVal);
         }
 
         // ---------------- ④ 她说 ----------------
@@ -156,6 +220,9 @@ namespace Xiaoqi.UI2
         {
             if (_sayText == null) return;
             string say = _data != null ? _data.Say : null;
+            if (string.IsNullOrEmpty(say) && _data != null && _data.State != null)
+                say = _data.State.SelectToken("me.say")?.ToString();
+            if (string.IsNullOrEmpty(say)) say = XiaoqiFeed.LatestSay;
             bool has = !string.IsNullOrEmpty(say);
             _sayText.text = has ? say : "还没有";
             SetGray(_sayText, !has);
@@ -188,7 +255,7 @@ namespace Xiaoqi.UI2
             });
             DotClick("今", () => Focus(_cardNext));
             DotClick("话", () => Focus(_cardSay));
-            DotClick("待", () => Pair("todo placeholder"));
+            DotClick("情", () => Focus(_cardTiny));
             DotClick("设", OpenSettingsOnce);
         }
 

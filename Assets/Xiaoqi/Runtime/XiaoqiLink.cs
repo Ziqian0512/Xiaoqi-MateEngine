@@ -60,27 +60,22 @@ public class XiaoqiLink : MonoBehaviour
             var url = (cfg.server ?? "").TrimEnd('/') + "/api/body/stage";
             if (!string.IsNullOrEmpty(url))
             {
-                using (var req = UnityWebRequest.Get(url))
+                XqHttp.Resp resp = default(XqHttp.Resp);
+                yield return XqHttp.Get(url, cfg.token, 5, r => resp = r);
+                if (resp.ok)
                 {
-                    if (!string.IsNullOrEmpty(cfg.token))
-                        req.SetRequestHeader("X-Token", cfg.token);
-                    req.timeout = 5;
-                    yield return req.SendWebRequest();
-                    if (req.result == UnityWebRequest.Result.Success)
+                    try
                     {
-                        try
+                        var data = JsonUtility.FromJson<StageData>(resp.text);
+                        if (data != null)
                         {
-                            var data = JsonUtility.FromJson<StageData>(req.downloadHandler.text);
-                            if (data != null)
-                            {
-                                Current = data;
-                                OnStage?.Invoke(data);
-                            }
+                            Current = data;
+                            OnStage?.Invoke(data);
                         }
-                        catch (Exception e)
-                        {
-                            Debug.LogWarning("XiaoqiLink parse: " + e.Message);
-                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogWarning("XiaoqiLink parse: " + e.Message);
                     }
                 }
             }

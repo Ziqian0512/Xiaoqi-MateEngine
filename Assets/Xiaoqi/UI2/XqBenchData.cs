@@ -44,43 +44,56 @@ namespace Xiaoqi.UI2
             { "growth", "/api/growth" },
         };
 
-        /// <summary>每页要的接口（页号 1=她 2=生活 3=记忆 4=成长）。</summary>
+        /// <summary>每页要的接口（页号 0=此刻 1=手账 2=记忆 3=成长 4=Brain轻控）。</summary>
         public static string[] KeysOf(int page)
         {
             switch (page)
             {
-                case 1: return new[] { "state", "life" };
-                case 2: return new[] { "life", "diary", "library", "pools", "about" };
-                case 3: return new[] { "memory", "today" };
-                case 4: return new[] { "growth" };
+                case 0: return new[] { "state", "life" };
+                case 1: return new[] { "life", "diary", "today" };
+                case 2: return new[] { "memory", "today" };
+                case 3: return new[] { "growth" };
+                case 4: return new[] { "state" };
             }
             return new string[0];
         }
 
         /// <summary>刷新间隔（秒）；0 = 只在进页 / 点重试时取一次。</summary>
-        static float EveryOf(int page) { return (page == 1 || page == 2) ? 60f : 0f; }
+        static float EveryOf(int page) { return (page == 0 || page == 1) ? 60f : 0f; }
 
         readonly Dictionary<string, JToken> _data = new Dictionary<string, JToken>();
         readonly Dictionary<string, DateTime> _stamp = new Dictionary<string, DateTime>();
         readonly Dictionary<string, bool> _fail = new Dictionary<string, bool>();
+        readonly HashSet<string> _inflight = new HashSet<string>();
         Coroutine _loop;
-        int _page;
+        int _page = -1;
         string _fakeDir;
         bool _fakeChecked;
+        bool _prefetched;
 
         public static string CacheDir { get { return Path.Combine(Application.dataPath, "..", "xq_bench_cache"); } }
 
         // ---------------- 对外 ----------------
 
-        /// <summary>该页是否有接口最近一次失败（没试过算没失败）。</summary>
-        public bool Offline(int page)
+        public bool Loading(int page)
         {
             foreach (var k in KeysOf(page))
+                if (_inflight.Contains(k)) return true;
+            return false;
+        }
+
+        /// <summary>该页是否全部接口都失败且没有缓存。</summary>
+        public bool Offline(int page)
+        {
+            var keys = KeysOf(page);
+            if (keys.Length == 0) return false;
+            bool anyFail = false;
+            foreach (var k in keys)
             {
                 bool f;
-                if (_fail.TryGetValue(k, out f) && f) return true;
+                if (_fail.TryGetValue(k, out f) && f) anyFail = true;
             }
-            return false;
+            return anyFail;
         }
 
         /// <summary>取某接口的最新内容；没有就读磁盘缓存；都没有返回 null。</summary>
@@ -103,45 +116,91 @@ namespace Xiaoqi.UI2
         {
             if (!isActiveAndEnabled) return;
             Stop();
-            if (page < 1 || page > 4) return;
+            if (page < 0 || page > 4) return;
             _page = page;
+            foreach (var k in KeysOf(page)) Get(k);   // Stale-While-Revalidate：先把已有缓存秒刷进内存
             _loop = StartCoroutine(Loop(page));
+        }
+
+        public void PrefetchAll()
+        {
+            if (!isActiveAndEnabled || _prefetched) return;
+            _prefetched = true;
+            string[] all = { "state", "life", "diary", "today", "memory", "growth" };
+            foreach (var k in all) Get(k);
+            for (int i = 0; i < all.Length; i++)
+                StartCoroutine(FetchOne(_page, all[i]));
         }
 
         public void Refresh()
         {
-            if (_page >= 1) Open(_page);
+            if (_page >= 0) Open(_page);
         }
 
         public void Stop()
         {
             if (_loop != null) StopCoroutine(_loop);
             _loop = null;
-            _page = 0;
+            _page = -1;
+        }
+
+        public void TriggerBrainAction(string act, Action<string> cb)
+        {
+            if (!isActiveAndEnabled) { cb?.Invoke("不可用"); return; }
+            StartCoroutine(BrainActionCo(act, cb));
+        }
+
+        IEnumerator BrainActionCo(string act, Action<string> cb)
+        {
+            var cfg = XiaoqiRuntime.Config ?? XiaoqiConfig.LoadOrCreate();
+            string server = cfg != null ? (cfg.server ?? "").TrimEnd('/') : "";
+            if (string.IsNullOrEmpty(server)) { cb?.Invoke("未配服务器"); yield break; }
+            XqHttp.Resp resp = default(XqHttp.Resp);
+            yield return XqHttp.PostJson(server + "/api/self/run", cfg.token, "{\"action\":\"" + act + "\"}", 6, r => resp = r);
+            if (resp.ok)
+            {
+                Debug.Log("XQ_BRAIN action=" + act + " ok");
+                cb?.Invoke("已排队：" + act);
+            }
+            else
+            {
+                Debug.Log("XQ_BRAIN action=" + act + " code=" + resp.code);
+                cb?.Invoke("触发失败 " + resp.code);
+            }
         }
 
         void OnDisable() { if (_loop != null) StopCoroutine(_loop); _loop = null; }
 
-        // ---------------- 取数 ----------------
+        // ---------------- 并发取数 ----------------
 
         IEnumerator Loop(int page)
         {
             float every = EveryOf(page);
             while (_page == page)
             {
-                bool refused = false;
-                foreach (var key in KeysOf(page))
-                {
-                    if (refused) { SetFail(key, true); continue; }   // 前一个已经连不上，别再各等 5 秒
-                    bool conn = false;
-                    yield return Fetch(key, r => conn = r);
-                    refused = conn;
-                }
+                var keys = KeysOf(page);
+                for (int i = 0; i < keys.Length; i++)
+                    StartCoroutine(FetchOne(page, keys[i]));
                 Fire();
                 if (every <= 0f) yield break;
                 float t = 0f;
                 while (_page == page && t < every) { t += Time.unscaledDeltaTime; yield return null; }
             }
+        }
+
+        IEnumerator FetchOne(int page, string key)
+        {
+            if (!_inflight.Add(key)) yield break;
+            try
+            {
+                bool unused = false;
+                yield return Fetch(key, r => unused = r);
+            }
+            finally
+            {
+                _inflight.Remove(key);
+            }
+            if (_page == page || (_page >= 0 && Array.IndexOf(KeysOf(_page), key) >= 0)) Fire();
         }
 
         void Fire()
@@ -191,25 +250,20 @@ namespace Xiaoqi.UI2
             }
 
             string url = server + Paths[key];
-            using (var req = UnityWebRequest.Get(url))
+            int timeout = 15;
+            XqHttp.Resp resp = default(XqHttp.Resp);
+            yield return XqHttp.Get(url, cfg.token, timeout, r => resp = r);
+            if (resp.ok)
             {
-                req.timeout = (key == "memory" || key == "library" || key == "pools" || key == "diary") ? 10 : 5;
-                if (!string.IsNullOrEmpty(cfg.token)) req.SetRequestHeader("X-Token", cfg.token);
-                yield return req.SendWebRequest();
-                bool ok = req.result == UnityWebRequest.Result.Success && req.responseCode == 200;
-                if (ok)
-                {
-                    Accept(key, req.downloadHandler.text, true, t0, "net");
-                    connFail(false);
-                }
-                else
-                {
-                    SetFail(key, true);
-                    bool conn = req.result == UnityWebRequest.Result.ConnectionError;
-                    Debug.Log("XQ_BENCHDATA fetch key=" + key + " ok=n result=" + req.result + " code=" + req.responseCode
-                        + " ms=" + ((Time.realtimeSinceStartup - t0) * 1000f).ToString("0"));
-                    connFail(conn);
-                }
+                Accept(key, resp.text, true, t0, "net");
+                connFail(false);
+            }
+            else
+            {
+                SetFail(key, true);
+                Debug.Log("XQ_BENCHDATA fetch key=" + key + " ok=n code=" + resp.code + " err=" + resp.error
+                    + " ms=" + ((Time.realtimeSinceStartup - t0) * 1000f).ToString("0"));
+                connFail(resp.connError);
             }
         }
 

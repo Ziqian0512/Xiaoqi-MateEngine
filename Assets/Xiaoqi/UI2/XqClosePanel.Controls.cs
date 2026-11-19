@@ -6,112 +6,259 @@ using Xiaoqi.Mode;
 namespace Xiaoqi.UI2
 {
     /// <summary>
-    /// XqClosePanel 的 3a 控件部分：① 竖栏、⑦ 名牌、⑧⑨ 两个方钮，以及脸区禁区自检。
-    /// 与 XqClosePanel.cs 是同一个 partial 类，拆开只为单文件不超 300 行。
+    /// V13 近景控件部分：
+    /// - 前景环绕艺术字贴图（Resources/XqArtLogo.png：AMAMIYA Inori ✦）
+    /// - 左下统一蓝紫粉毛玻璃形态切换坞（桌宠 / 近景 / 工作台 / ⚙）
+    /// - 正底加长 Search 风格对话条（渐变图标 + 输入框 + 语音 + 发送）
     /// </summary>
     public partial class XqClosePanel
     {
-        /// <summary>① 左侧竖栏：顶部 ♥ 回桌宠，下面 4 个圆（今天 / 她说过的话 / 待办 / 设置）。</summary>
-        void BuildRail()
-        {
-            _rail = new VisualElement { name = "xq-close-rail", pickingMode = PickingMode.Position };
-            _rail.AddToClassList("xq-cl-rail");
-            Add("rail", XqCloseLayout.RailL, XqCloseLayout.RailT,
-                XqCloseLayout.RailW, XqCloseLayout.RailH);
+        VisualElement _modeDock, _btnSet;
+        VisualElement _chatDock, _chatInputBox, _chatMicBtn, _chatSendBtn;
+        TextField _chatInput;
+        Label _chatMicLbl, _chatSendLbl;
+        bool _chatHooked;
 
-            Dot("♥", "on");     // 回桌宠：当前所在的视图
-            Dot("今", "off");
-            Dot("话", "off");
-            Dot("待", "off");
-            Dot("设", "off");
+        void BuildRail() { }
 
-            _host.Add(_rail);
-        }
-
-        void Dot(string word, string state)
-        {
-            var dot = new VisualElement { pickingMode = PickingMode.Ignore };
-            dot.AddToClassList("xq-cl-dot");
-            if (!string.IsNullOrEmpty(state)) dot.AddToClassList(state);
-            var label = new Label(word) { pickingMode = PickingMode.Ignore };
-            label.AddToClassList("xq-cl-dot-word");
-            dot.Add(label);
-            _rail.Add(dot);
-        }
-
-        /// <summary>⑦ 名牌：「小祈 · 自己人」。固定文案，不由数值推出，不写认识几天。</summary>
+        /// <summary>⑦ 前景环绕艺术字贴图（无框，AMAMIYA Inori ✦）。</summary>
         void BuildPlate()
         {
-            _plate = new VisualElement { name = "xq-close-plate", pickingMode = PickingMode.Position };
-            _plate.AddToClassList("xq-cl-plate");
-            var text = new Label("小祈 · 自己人") { pickingMode = PickingMode.Ignore };
-            text.AddToClassList("xq-cl-plate-text");
-            _plate.Add(text);
-            Add("plate", XqCloseLayout.PlateL, XqCloseLayout.PlateT,
-                XqCloseLayout.PlateW, XqCloseLayout.PlateH);
+            _plate = new VisualElement { name = "xq-close-plate", pickingMode = PickingMode.Ignore };
+            _plate.style.alignItems = Align.Center;
+            _plate.style.justifyContent = Justify.Center;
+            _plate.style.backgroundColor = Color.clear;
+            _plate.style.rotate = new UnityEngine.UIElements.Rotate(new Angle(-2f, AngleUnit.Degree));
+
+            var tex = Resources.Load<Texture2D>("XqArtLogo");
+            if (tex != null)
+            {
+                var img = new Image { image = tex, scaleMode = ScaleMode.ScaleToFit, pickingMode = PickingMode.Ignore };
+                img.style.width = Length.Percent(100f);
+                img.style.height = Length.Percent(100f);
+                _plate.Add(img);
+            }
+            else
+            {
+                var fb = new Label("AMAMIYA Inori ✦") { pickingMode = PickingMode.Ignore };
+                fb.style.color = new Color(0.45f, 0.25f, 0.88f, 1f);
+                fb.style.unityFontStyleAndWeight = FontStyle.Bold;
+                fb.style.fontSize = 24f;
+                _plate.Add(fb);
+            }
+
+            Add("plate", XqCloseLayout.PlateL, XqCloseLayout.PlateT, XqCloseLayout.PlateW, XqCloseLayout.PlateH);
             _host.Add(_plate);
         }
 
-        /// <summary>⑧⑨ 右下两个方钮：左「桌宠」可点回桌宠，右「工作台」灰着、悬停「还没开放」。</summary>
+        /// <summary>⑧⑨ 右下角统一三态切换胶囊（与工作台/桌宠一致）：🐾 桌宠 | ✦ 近景(高亮) | 📱 工作台。</summary>
         void BuildButtons()
         {
-            _btnPet = new VisualElement { name = "xq-close-btn-pet", pickingMode = PickingMode.Position };
-            _btnPet.AddToClassList("xq-cl-btn");
-            AddText(_btnPet, "桌宠");
-            Add("btn-pet", XqCloseLayout.BtnPetL, XqCloseLayout.BtnTop,
-                XqCloseLayout.BtnSize, XqCloseLayout.BtnSize);
+            _modeDock = new VisualElement { name = "xq-close-mode-dock", pickingMode = PickingMode.Position };
+            _modeDock.style.flexDirection = FlexDirection.Row;
+            _modeDock.style.alignItems = Align.Center;
+            _modeDock.style.justifyContent = Justify.SpaceBetween;
+            _modeDock.style.backgroundColor = new Color(0.99f, 0.98f, 1f, 0.92f);
+            _modeDock.style.paddingLeft = 4f;
+            _modeDock.style.paddingRight = 4f;
+            _modeDock.style.paddingTop = 4f;
+            _modeDock.style.paddingBottom = 4f;
+            SetAllBorder(_modeDock, 1f, new Color(0.88f, 0.82f, 0.99f, 0.96f));
+            SetRadius(_modeDock, 18f);
+
+            _btnPet = MakeModePill("🐾 桌宠", false);
+            _btnPet.name = "xq-close-btn-pet";
             _btnPet.RegisterCallback<ClickEvent>(e =>
             {
-                try
-                {
-                    e.StopPropagation();
-                    if (_lastClickFrame == Time.frameCount) return;
-                    _lastClickFrame = Time.frameCount;
-                    Debug.Log("XQ_CLOSE btn pet");
-                    Debug.Log("XQ_CLOSE exit by=btn");
-                    XqMode.Set(XqView.Pet);
-                }
-                catch (Exception ex) { Debug.LogWarning("XQ_CLOSE btn pet: " + ex.Message); }
+                e.StopPropagation();
+                if (_lastClickFrame == Time.frameCount) return;
+                _lastClickFrame = Time.frameCount;
+                XqMode.Set(XqView.Pet);
             });
 
-            _btnBench = new VisualElement { name = "xq-close-btn-bench", pickingMode = PickingMode.Position };
-            _btnBench.AddToClassList("xq-cl-btn");
-            // XQ: B1 第二轮 #20 工作台开着（-xq-bench / xq_mode.json bench_enabled）就不灰、可点；没开才灰置「还没开放」
+            var btnClose = MakeModePill("✦ 近景", true);
+
+            _btnBench = MakeModePill("📱 工作台", false);
+            _btnBench.name = "xq-close-btn-bench";
             bool benchOn = XqMode.BenchAvailable;
-            if (!benchOn) _btnBench.AddToClassList("off");
-            AddText(_btnBench, "工作台");
-            Add("btn-bench", XqCloseLayout.BtnBenchL, XqCloseLayout.BtnTop,
-                XqCloseLayout.BtnSize, XqCloseLayout.BtnSize);
-            // 悬停提示：沿用 XqPetHud 的 EnableInClassList 写法，不做新机制
+            if (!benchOn) _btnBench.style.opacity = 0.45f;
             _tipBench = new Label(benchOn ? "打开工作台" : "还没开放") { pickingMode = PickingMode.Ignore };
             _tipBench.AddToClassList("xq-cl-tip");
             _btnBench.Add(_tipBench);
             _btnBench.RegisterCallback<ClickEvent>(e =>
             {
-                try
-                {
-                    e.StopPropagation();
-                    if (!XqMode.BenchAvailable) return;
-                    if (_lastClickFrame == Time.frameCount) return;
-                    _lastClickFrame = Time.frameCount;
-                    Debug.Log("XQ_CLOSE btn bench");
-                    XqMode.Set(XqView.Bench);
-                }
-                catch (Exception ex) { Debug.LogWarning("XQ_CLOSE btn bench: " + ex.Message); }
-            });
-            _btnBench.RegisterCallback<MouseEnterEvent>(_ =>
-            {
-                try { _tipBench.EnableInClassList("on", true); }
-                catch (Exception ex) { Debug.LogWarning("XQ_CLOSE tip: " + ex.Message); }
-            });
-            _btnBench.RegisterCallback<MouseLeaveEvent>(_ =>
-            {
-                try { _tipBench.EnableInClassList("on", false); }
-                catch (Exception ex) { Debug.LogWarning("XQ_CLOSE tip: " + ex.Message); }
+                e.StopPropagation();
+                if (!XqMode.BenchAvailable) return;
+                if (_lastClickFrame == Time.frameCount) return;
+                _lastClickFrame = Time.frameCount;
+                XqMode.Set(XqView.Bench);
             });
 
-            _host.Add(_btnPet);
-            _host.Add(_btnBench);
+            _modeDock.Add(_btnPet);
+            _modeDock.Add(btnClose);
+            _modeDock.Add(_btnBench);
+
+            Add("mode-dock", XqCloseLayout.BtnPetL, XqCloseLayout.BtnTop, 206f, 36f);
+            XqLiquidGlass.ApplyAcrylicB(_modeDock);
+            _host.Add(_modeDock);
+        }
+
+        static VisualElement MakeModePill(string label, bool active)
+        {
+            var btn = new VisualElement { name = "xq-mode-pill", pickingMode = PickingMode.Position };
+            btn.style.paddingLeft = 9f;
+            btn.style.paddingRight = 9f;
+            btn.style.height = 26f;
+            btn.style.alignItems = Align.Center;
+            btn.style.justifyContent = Justify.Center;
+            SetRadius(btn, 13f);
+            btn.style.backgroundColor = active
+                ? new Color(0.58f, 0.42f, 0.96f, 0.96f)
+                : Color.clear;
+            var lbl = new Label(label) { pickingMode = PickingMode.Ignore };
+            lbl.AddToClassList("xq-cl-btn-word");
+            lbl.style.color = active ? Color.white : new Color(0.36f, 0.28f, 0.56f, 0.92f);
+            lbl.style.unityFontStyleAndWeight = active ? FontStyle.Bold : FontStyle.Normal;
+            lbl.style.fontSize = 10.5f;
+            btn.Add(lbl);
+            return btn;
+        }
+
+        /// <summary>正底加长 Search 风格对话条（单条清爽，回复走肩侧独立气泡）。</summary>
+        void BuildChatDock()
+        {
+            XqVoiceChatClient.Ensure();
+            _chatDock = new VisualElement { name = "xq-close-chat-dock", pickingMode = PickingMode.Position };
+            _chatDock.style.flexDirection = FlexDirection.Row;
+            _chatDock.style.alignItems = Align.Center;
+            _chatDock.style.backgroundColor = new Color(0.99f, 0.98f, 1f, 0.92f);
+            _chatDock.style.paddingLeft = 8f;
+            _chatDock.style.paddingRight = 6f;
+            _chatDock.style.paddingTop = 3f;
+            _chatDock.style.paddingBottom = 3f;
+            SetAllBorder(_chatDock, 1f, new Color(0.88f, 0.82f, 0.99f, 0.96f));
+            SetRadius(_chatDock, 14f);
+
+            var lead = new VisualElement { pickingMode = PickingMode.Ignore };
+            lead.style.width = 28f; lead.style.height = 28f;
+            lead.style.alignItems = Align.Center; lead.style.justifyContent = Justify.Center;
+            lead.style.marginRight = 8f;
+            lead.style.backgroundColor = new Color(0.68f, 0.45f, 0.96f, 0.95f);
+            SetRadius(lead, 10f);
+            var leadLbl = new Label("💬") { pickingMode = PickingMode.Ignore };
+            leadLbl.style.color = Color.white;
+            leadLbl.style.fontSize = 13f;
+            lead.Add(leadLbl);
+            _chatDock.Add(lead);
+
+            _chatInput = new TextField { pickingMode = PickingMode.Position };
+            _chatInput.value = "";
+            _chatInput.style.color = new Color(0.27f, 0.19f, 0.45f, 1f);
+            _chatInput.style.flexGrow = 1f;
+            _chatInput.style.flexShrink = 1f;
+            _chatInput.style.backgroundColor = Color.clear;
+            _chatInput.style.borderLeftWidth = 0;
+            _chatInput.style.borderRightWidth = 0;
+            _chatInput.style.borderTopWidth = 0;
+            _chatInput.style.borderBottomWidth = 0;
+            _chatInput.RegisterCallback<KeyDownEvent>(e =>
+            {
+                if (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter)
+                {
+                    e.StopPropagation();
+                    SubmitChatInput();
+                }
+            });
+            _chatDock.Add(_chatInput);
+
+            _chatMicBtn = new VisualElement { pickingMode = PickingMode.Position };
+            _chatMicBtn.style.backgroundColor = new Color(0.94f, 0.90f, 1f, 0.95f);
+            _chatMicBtn.style.paddingLeft = 10f;
+            _chatMicBtn.style.paddingRight = 10f;
+            _chatMicBtn.style.paddingTop = 5f;
+            _chatMicBtn.style.paddingBottom = 5f;
+            _chatMicBtn.style.marginRight = 6f;
+            SetRadius(_chatMicBtn, 10f);
+            _chatMicLbl = new Label("语音") { pickingMode = PickingMode.Ignore };
+            _chatMicLbl.style.color = new Color(0.36f, 0.24f, 0.62f, 1f);
+            _chatMicLbl.style.unityFontStyleAndWeight = FontStyle.Bold;
+            _chatMicBtn.Add(_chatMicLbl);
+            _chatMicBtn.RegisterCallback<ClickEvent>(e =>
+            {
+                e.StopPropagation();
+                var vc = XqVoiceChatClient.Ensure();
+                if (XqVoiceChatClient.IsRecording) vc.StopRecordingAndSend();
+                else vc.StartRecording();
+                RefreshChatDock();
+            });
+            _chatDock.Add(_chatMicBtn);
+
+            _chatSendBtn = new VisualElement { pickingMode = PickingMode.Position };
+            _chatSendBtn.style.backgroundColor = new Color(0.62f, 0.42f, 0.96f, 0.96f);
+            _chatSendBtn.style.paddingLeft = 14f;
+            _chatSendBtn.style.paddingRight = 14f;
+            _chatSendBtn.style.paddingTop = 5f;
+            _chatSendBtn.style.paddingBottom = 5f;
+            SetRadius(_chatSendBtn, 10f);
+            _chatSendLbl = new Label("发送") { pickingMode = PickingMode.Ignore };
+            _chatSendLbl.style.color = Color.white;
+            _chatSendLbl.style.unityFontStyleAndWeight = FontStyle.Bold;
+            _chatSendBtn.Add(_chatSendLbl);
+            _chatSendBtn.RegisterCallback<ClickEvent>(e =>
+            {
+                e.StopPropagation();
+                SubmitChatInput();
+            });
+            _chatDock.Add(_chatSendBtn);
+
+            Add("chat-dock", XqCloseLayout.ChatL, XqCloseLayout.ChatT, XqCloseLayout.ChatW, XqCloseLayout.ChatH);
+            XqLiquidGlass.ApplyAcrylicB(_chatDock);
+            _host.Add(_chatDock);
+
+            if (!_chatHooked)
+            {
+                _chatHooked = true;
+                XqVoiceChatClient.OnChanged += RefreshChatDock;
+            }
+            RefreshChatDock();
+        }
+
+        void SubmitChatInput()
+        {
+            if (_chatInput == null) return;
+            string txt = _chatInput.value;
+            if (string.IsNullOrWhiteSpace(txt)) return;
+            _chatInput.value = "";
+            XqVoiceChatClient.Ensure().SendText(txt, false);
+        }
+
+        void RefreshChatDock()
+        {
+            if (_chatMicBtn != null)
+            {
+                _chatMicBtn.style.backgroundColor = XqVoiceChatClient.IsRecording
+                    ? new Color(0.96f, 0.42f, 0.72f, 0.30f)
+                    : new Color(0.94f, 0.90f, 1f, 0.98f);
+                if (_chatMicLbl != null)
+                    _chatMicLbl.text = XqVoiceChatClient.IsRecording ? "录音中…" : "语音";
+            }
+
+            if (_sayText != null)
+            {
+                if (XqVoiceChatClient.IsRecording)
+                    _sayText.text = "● 正在听你说话：" + XqVoiceChatClient.LiveTranscript;
+                else if (!string.IsNullOrEmpty(XqVoiceChatClient.LatestReplyVisible))
+                    _sayText.text = "“" + XqVoiceChatClient.LatestReplyVisible + (XqVoiceChatClient.IsStreaming ? "▍" : "”");
+                else if (XqVoiceChatClient.IsThinking)
+                    _sayText.text = "小祈正在想怎么回你…";
+            }
+
+            if (_sayTtsLbl != null)
+            {
+                _sayTtsLbl.text = XqVoiceChatClient.IsPlayingTts
+                    ? string.Format("♪ {0:0.0}s", XqVoiceChatClient.TtsRemainingSec)
+                    : "♪ 播报";
+            }
         }
 
         static void AddText(VisualElement parent, string word)
@@ -121,12 +268,6 @@ namespace Xiaoqi.UI2
             parent.Add(label);
         }
 
-        // ---------------- 脸区禁区 ----------------
-
-        /// <summary>
-        /// Build 时对每个登记过的元素算一遍「屏幕比例矩形」，压到脸区禁区就写日志。
-        /// 用比例而不是像素：§3.1 的禁区本身就是按屏幕百分比定义的，换分辨率结论不变。
-        /// </summary>
         void AssertFaceZone()
         {
             foreach (var s in _slots)
@@ -138,11 +279,6 @@ namespace Xiaoqi.UI2
                 else
                     Debug.Log("XQ_CLOSE ok " + s.name + " rect=" + Fmt(n));
             }
-            var tip = XqCloseLayout.TipNear(XqCloseLayout.BtnBenchL);
-            if (XqCloseLayout.InFaceZone(tip))
-                Debug.LogWarning("XQ_CLOSE violate tip-bench rect=" + Fmt(tip));
-            else
-                Debug.Log("XQ_CLOSE ok tip-bench rect=" + Fmt(tip));
         }
 
         static string Fmt(Rect r)
@@ -151,43 +287,36 @@ namespace Xiaoqi.UI2
                 + r.width.ToString("0.000") + "x" + r.height.ToString("0.000");
         }
 
-        // ---------------- 圆角与字号（随 u 变，尺寸在 Place() 里） ----------------
+        void PlaceRail(float u) { }
 
-        void PlaceRail(float u)
-        {
-            if (_rail == null) return;
-            SetRadius(_rail, XqCloseLayout.RailR * u);
-            _rail.style.paddingTop = XqCloseLayout.RailPad * u;
-            foreach (var dot in _rail.Children())
-            {
-                float d = XqCloseLayout.DotSize * u;
-                dot.style.width = d;
-                dot.style.height = d;
-                dot.style.marginBottom = XqCloseLayout.DotGap * u;
-                var word = dot.Q(className: "xq-cl-dot-word");
-                if (word != null) word.style.fontSize = XqCloseLayout.DotFont * u;
-            }
-        }
-
-        void PlacePlate(float u)
-        {
-            if (_plate == null) return;
-            SetRadius(_plate, XqCloseLayout.PlateH * 0.5f * u);
-            var t = _plate.Q(className: "xq-cl-plate-text");
-            if (t != null) t.style.fontSize = XqCloseLayout.PlateFont * u;
-        }
+        void PlacePlate(float u) { }
 
         void PlaceButtons(float u)
         {
-            for (int i = 0; i < 2; i++)
+            if (_modeDock != null)
             {
-                var btn = i == 0 ? _btnPet : _btnBench;
-                if (btn == null) continue;
-                SetRadius(btn, XqCloseLayout.BtnR * u);
-                var w = btn.Q(className: "xq-cl-btn-word");
-                if (w != null) w.style.fontSize = XqCloseLayout.BtnFont * u;
+                SetRadius(_modeDock, 18f * u);
+                foreach (var child in _modeDock.Children())
+                {
+                    if (child.name != "xq-mode-pill" && child.name != "xq-close-btn-pet" && child.name != "xq-close-btn-bench") continue;
+                    child.style.height = 26f * u;
+                    child.style.paddingLeft = 9f * u;
+                    child.style.paddingRight = 9f * u;
+                    SetRadius(child, 13f * u);
+                    var w = child.Q(className: "xq-cl-btn-word");
+                    if (w != null) w.style.fontSize = 10.5f * u;
+                }
             }
-            if (_tipBench != null) _tipBench.style.fontSize = XqCloseLayout.BtnFont * u;
+            if (_tipBench != null) _tipBench.style.fontSize = 11f * u;
+        }
+
+        void PlaceChatDock(float u)
+        {
+            if (_chatDock == null) return;
+            SetRadius(_chatDock, 16f * u);
+            if (_chatMicLbl != null) _chatMicLbl.style.fontSize = 10.5f * u;
+            if (_chatSendLbl != null) _chatSendLbl.style.fontSize = 11f * u;
+            if (_chatInput != null) _chatInput.style.fontSize = 11.5f * u;
         }
 
         static void SetRadius(VisualElement el, float r)

@@ -47,6 +47,34 @@ namespace Xiaoqi.Mode
             {
                 TickTilt();
                 TickEyeAlign();
+                if (_benchBottomNorm > 0.005f) ApplyBenchViewport();
+            }
+        }
+
+        static float _benchBottomNorm;
+
+        /// <summary>V13 工作台物理裁剪底边：把 3D 主相机视口底边抬高到相框下沿，彻底杜绝腿脚穿出面板。</summary>
+        public static void SetBenchViewportBottom(float bottomNorm)
+        {
+            _benchBottomNorm = Mathf.Clamp(bottomNorm, 0f, 0.55f);
+            ApplyBenchViewport();
+        }
+
+        static int _origMask = -1;
+
+        private static void ApplyBenchViewport()
+        {
+            // 保持主相机始终启用且全屏 (0,0,1,1) 以保证每帧清屏（不拖影）；工作台时仅将 cullingMask 设为 0（不渲染 3D 人物，照常清屏）
+            bool inBench = _benchBottomNorm > 0.005f;
+            var r = new Rect(0f, 0f, 1f, 1f);
+            var h = Handler();
+            var cam = h != null && h.MainCamera != null ? h.MainCamera : Camera.main;
+            if (cam != null)
+            {
+                if (_origMask < 0) _origMask = cam.cullingMask;
+                cam.rect = r;
+                cam.enabled = true;
+                cam.cullingMask = inBench ? 0 : _origMask;
             }
         }
 
@@ -278,19 +306,20 @@ namespace Xiaoqi.Mode
                 TargetVx = vx; TargetVy = vy;
                 _benchFrac = bodyFrac; _win = 2.6f;
                 _enterAt = Time.unscaledTime - 0.6f; // 已经在大屏里，不用等淡入
-                if (h.avatarAnimator != null)   // W3：工作台里她固定一个乖巧站姿，不做随机待机
+                if (h.avatarAnimator != null)   // W3：工作台里她固定一个乖巧站姿，恢复正常眨眼速率
                 {
                     h.avatarAnimator.SetFloat("IdleIndex", 0f);
-                    h.avatarAnimator.speed = 0.05f;
+                    h.avatarAnimator.speed = 1f;
                 }
             }
             else
             {
+                SetBenchViewportBottom(0f);
                 h.TargetZoom = c.close_zoom > 0f ? c.close_zoom : 0f;
                 h.YOffset = c.close_yoffset;
                 TargetVx = CloseVx; TargetVy = CloseVy;
                 _benchFrac = 0f; _win = 1.6f;
-                if (h.avatarAnimator != null) h.avatarAnimator.speed = 0.15f;
+                if (h.avatarAnimator != null) h.avatarAnimator.speed = 1f;
                 ResetTilt(h.avatarAnimator);
                 _enterAt = Time.unscaledTime;
             }
@@ -334,7 +363,7 @@ namespace Xiaoqi.Mode
                     a.SetBool("isBigScreen", false);
                     a.SetFloat("IdleIndex", 0f);
                     a.Play("Idle", 0, 0.55f);
-                    a.speed = 0.15f;
+                    a.speed = 1f;
                     a.Update(0f);
                     var cam = h.MainCamera != null ? h.MainCamera : Camera.main;
                     var head = a.GetBoneTransform(h.attachBone);
@@ -363,6 +392,7 @@ namespace Xiaoqi.Mode
                 LogEyes(h);
                 _active = false;
                 _benchFrac = 0f; _win = 1.6f;
+                SetBenchViewportBottom(0f);
                 _xShift = 0f;
                 if (h.avatarAnimator != null) h.avatarAnimator.speed = 1f;
                 h.ToggleBigScreenFromUI();

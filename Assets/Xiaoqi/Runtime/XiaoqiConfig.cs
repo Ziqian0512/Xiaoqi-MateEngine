@@ -42,6 +42,12 @@ public class XiaoqiConfig
     public bool dance_on_music = false;
     // XQ: P1-5 坐在窗口上（PetHost.WindowSitEnabled）。默认开。
     public bool window_sit = true;
+    // XQ: V6 按住说话快捷键（N / V / B / Space）。
+    public string voice_hotkey = "N";
+    // XQ: V6 自动语音播报回复。
+    public bool voice_tts_auto = true;
+    // XQ: V6 网易云音乐 API 地址（可选，如 http://127.0.0.1:3000）。
+    public string netease_api = "";
 
     public static void Save(XiaoqiConfig cfg)
     {
@@ -135,6 +141,21 @@ public class XiaoqiConfig
                 if (text.IndexOf("\"window_sit\"", StringComparison.Ordinal) < 0)
                 {
                     cfg.window_sit = true;
+                    dirty = true;
+                }
+                if (text.IndexOf("\"voice_hotkey\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.voice_hotkey = "N";
+                    dirty = true;
+                }
+                if (text.IndexOf("\"voice_tts_auto\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.voice_tts_auto = true;
+                    dirty = true;
+                }
+                if (text.IndexOf("\"netease_api\"", StringComparison.Ordinal) < 0)
+                {
+                    cfg.netease_api = "";
                     dirty = true;
                 }
                 if (dirty) Save(cfg);

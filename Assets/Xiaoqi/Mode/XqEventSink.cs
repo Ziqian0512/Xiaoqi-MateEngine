@@ -69,24 +69,16 @@ namespace Xiaoqi.Mode
 
             foreach (var ev in batch)
             {
-                var body = Encoding.UTF8.GetBytes(JsonUtility.ToJson(ev));
-                using (var req = new UnityWebRequest(server + "/api/body/event", "POST"))
+                XqHttp.Resp resp = default(XqHttp.Resp);
+                yield return XqHttp.PostJson(server + "/api/body/event", cfg.token, JsonUtility.ToJson(ev), 5, r => resp = r);
+                if (resp.code == 404)
                 {
-                    req.uploadHandler = new UploadHandlerRaw(body);
-                    req.downloadHandler = new DownloadHandlerBuffer();
-                    req.SetRequestHeader("Content-Type", "application/json");
-                    if (!string.IsNullOrEmpty(cfg.token)) req.SetRequestHeader("X-Token", cfg.token);
-                    req.timeout = 5;
-                    yield return req.SendWebRequest();
-                    if (req.responseCode == 404)
-                    {
-                        _disabled = true;
-                        Debug.Log("XQ_EVENT server has no /api/body/event (404), local log only");
-                        break;
-                    }
-                    if (req.result != UnityWebRequest.Result.Success)
-                        Debug.Log("XQ_EVENT drop " + ev.kind + " code=" + req.responseCode); // 静默丢弃，不重试
+                    _disabled = true;
+                    Debug.Log("XQ_EVENT server has no /api/body/event (404), local log only");
+                    break;
                 }
+                if (!resp.ok)
+                    Debug.Log("XQ_EVENT drop " + ev.kind + " code=" + resp.code); // 静默丢弃，不重试
             }
             _sending = false;
         }
