@@ -275,14 +275,6 @@ namespace Xiaoqi.UI2
                 _nextWhat.style.whiteSpace = WhiteSpace.Normal;
                 _nextWhat.style.unityTextAlign = TextAnchor.MiddleCenter;
                 _nextWhat.style.overflow = Overflow.Hidden;
-                _nextWhat.schedule.Execute(() => {
-                    var txt = _nextWhat.text;
-                    if (!string.IsNullOrEmpty(txt))
-                    {
-                        int dotIdx = txt.IndexOf(" · ");
-                        if (dotIdx > 0) _nextWhat.text = txt.Substring(0, dotIdx);
-                    }
-                }).Every(400);
             }
             _nextPill.Q("xq-old-schedule-progress")?.RemoveFromHierarchy();
 
@@ -334,9 +326,6 @@ namespace Xiaoqi.UI2
             _musicArtist.style.color = new Color(0.94f, 0.91f, 0.99f, 0.92f); _musicArtist.style.unityTextAlign = TextAnchor.MiddleLeft; _musicArtist.style.textShadow = mDrop;
             _musicArtist.style.whiteSpace = WhiteSpace.NoWrap; _musicArtist.style.overflow = Overflow.Hidden; _musicArtist.style.textOverflow = TextOverflow.Ellipsis;
             _musicArtist.style.marginTop = 2f; _musicArtist.style.minHeight = 14f;
-            _musicArtist.schedule.Execute(() => {
-                if (string.IsNullOrWhiteSpace(_musicArtist.text)) _musicArtist.text = "天宫祈 · 一起听";
-            }).Every(500);
             mTxtCol.Add(_musicTitle); mTxtCol.Add(_musicArtist);
             mContent.Add(mTxtCol);
 

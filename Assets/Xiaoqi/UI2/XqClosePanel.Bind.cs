@@ -193,15 +193,14 @@ namespace Xiaoqi.UI2
                 {
                     when = seg.start;
                     what = XqCloseDay.What(seg);
-                    string pl = XqCloseDay.Place(seg.where);
-                    if (!string.IsNullOrEmpty(pl)) what = string.IsNullOrEmpty(what) ? pl : what + " · " + pl;
+                    if (string.IsNullOrEmpty(what)) what = XqCloseDay.Place(seg.where);
                 }
             }
 
-            bool has = !string.IsNullOrEmpty(when) || !string.IsNullOrEmpty(what);
-            _nextTime.style.display = has && !string.IsNullOrEmpty(when) ? DisplayStyle.Flex : DisplayStyle.None;
-            _nextTime.text = has ? (when ?? "") : "";
-            _nextWhat.text = has ? (string.IsNullOrEmpty(what) ? "今天没有更多安排" : what) : "还没有";
+            bool has = !string.IsNullOrEmpty(what);
+            _nextTime.style.display = DisplayStyle.None;
+            _nextTime.text = "";
+            _nextWhat.text = has ? what : "还没有";
             _nextWhat.style.color = has ? ClInk : ClInkSoft;
         }
 

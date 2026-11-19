@@ -312,8 +312,8 @@ namespace Xiaoqi.UI2
             float phase = Time.unscaledTime * (Mathf.PI * 2f / XqCloseAnim.BobPeriod);
             float mx = Mathf.Clamp((Input.mousePosition.x / Mathf.Max(1f, Screen.width) - 0.5f) * 2f, -1f, 1f);
             float my = Mathf.Clamp((Input.mousePosition.y / Mathf.Max(1f, Screen.height) - 0.5f) * 2f, -1f, 1f);
-            float px = -mx * 5.5f * _u;
-            float py = my * 3.2f * _u;
+            float px = -mx * 18f * _u;
+            float py = my * 11f * _u;
             for (int i = 0; i < _anim.Count; i++)
             {
                 var a = _anim[i];
@@ -321,7 +321,7 @@ namespace Xiaoqi.UI2
                 float bob = 0f;
                 // 聚焦系数只作用在目标卡上（P2-5 的 1.04 倍）
                 float k = (a.el == _focusCard) ? _focusK : 1f;
-                float depth = (a.el == _modeDock || a.el == _chatDock) ? 0f : 0.3f;
+                float depth = (a.el == _modeDock || a.el == _chatDock) ? 0f : (0.55f + 0.08f * a.order);
                 a.el.style.opacity = 1f;
                 a.el.style.scale = new Scale(Vector3.one * k);
                 a.el.style.translate = new Translate(px * depth, bob + py * depth, 0f);
