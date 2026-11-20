@@ -269,7 +269,7 @@ namespace Xiaoqi.UI2
         void OnSay(string text)
         {
             if (string.IsNullOrEmpty(text)) return;
-            if (XiaoqiRuntime.Config != null && !XiaoqiRuntime.Config.bubble) return;
+            if (XiaoqiRuntime.Config != null && XiaoqiRuntime.Config.office_mode) return;
             if (XiaoqiRuntime.IsQuiet()) return;
             XqVoiceOverlay.ShowFeed(text);
             _say = text;

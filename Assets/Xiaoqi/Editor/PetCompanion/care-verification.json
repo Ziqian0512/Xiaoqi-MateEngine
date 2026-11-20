@@ -1,0 +1,20 @@
+{
+  "checks": 57,
+  "passed": true,
+  "viewport": [
+    1905,
+    1080
+  ],
+  "modeSwitches": true,
+  "translucentBlack": true,
+  "threeMessages": true,
+  "roleBorders": true,
+  "wrapWithoutEllipsis": true,
+  "idle8s": true,
+  "fullLongText": true,
+  "settingsOpaque": true,
+  "settingsNavigation": true,
+  "consolePolicyReadOnly": true,
+  "physicalKeyboardAndMicrophoneNotSimulated": true,
+  "sampleMessagesOnly": true
+}

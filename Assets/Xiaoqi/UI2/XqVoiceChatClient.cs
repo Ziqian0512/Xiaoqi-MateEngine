@@ -93,6 +93,13 @@ namespace Xiaoqi.UI2
         public static float LastInteractionAt { get; private set; } = -999f;
 
         public static event Action OnChanged;
+        public static event Action<long,bool,string> OnMessage;
+        static long _messageId;
+        long _activeReplyId;
+        public static bool IsPreparingTts { get; private set; }
+        public static float LastChatSuccessAt { get; private set; } = -999;
+        public static float LastSttSuccessAt { get; private set; } = -999;
+        public static float LastTtsSuccessAt { get; private set; } = -999;
 
         private AudioSource _audio;
         private AudioClip _micClip;
@@ -102,10 +109,9 @@ namespace Xiaoqi.UI2
         private Coroutine _ttsCo;
         public static bool ShouldAutoSpeak(XiaoqiConfig cfg, Xiaoqi.Mode.XqView view, bool quiet, float draw)
         {
-            if (cfg == null || !cfg.voice_tts_auto || cfg.muted || quiet || cfg.office_mode) return false;
+            if (cfg == null || cfg.muted || quiet || cfg.office_mode) return false;
             if (view == Xiaoqi.Mode.XqView.Close) return true;
-            float probability = Mathf.Clamp01(cfg.pet_voice_probability);
-            return view == Xiaoqi.Mode.XqView.Pet && (probability >= 1f || draw < probability);
+            return view == Xiaoqi.Mode.XqView.Pet && XqConsoleVoicePolicy.ShouldSpeak(draw);
         }
 
         private string _lastDeliveredText = "";
@@ -117,10 +123,8 @@ namespace Xiaoqi.UI2
             var cfg = XiaoqiRuntime.Config;
             var view = Xiaoqi.Mode.XqMode.Current;
             _lastDeliveredText = text; _lastDeliveredAt = Time.unscaledTime;
-            if (view == Xiaoqi.Mode.XqView.Pet && Time.unscaledTime - _lastFeedVoiceAt < 60f) return;
             if (!ShouldAutoSpeak(cfg, view, XiaoqiRuntime.Dnd, UnityEngine.Random.value)) return;
-            if (view == Xiaoqi.Mode.XqView.Pet && UnityEngine.Random.value >= 0.35f) return;
-            if (IsPlayingTts || IsStreaming) return;
+            if (IsPlayingTts || IsStreaming || IsPreparingTts) return;
             _lastFeedVoiceAt = Time.unscaledTime;
             PlayTts(text);
         }
@@ -129,8 +133,10 @@ namespace Xiaoqi.UI2
 
         private void Update()
         {
+            XqCompanionUsage.Poll();
             if(IsRecording&&Time.unscaledTime-_recStartTime>=19.8f)StopRecordingAndSend();
             var cfg = XiaoqiRuntime.Config;
+            if (cfg!=null && (cfg.muted || XiaoqiRuntime.Dnd || cfg.office_mode) && IsPreparingTts) StopSpeech();
             if (_audio == null || !_audio.isPlaying || cfg == null) return;
             if (cfg.muted || XiaoqiRuntime.Dnd || cfg.office_mode) { _audio.Stop(); NotifyChanged(); }
             else _audio.volume = Mathf.Clamp01(cfg.volume);
@@ -145,8 +151,7 @@ namespace Xiaoqi.UI2
         public void StartRecording()
         {
             if (IsRecording || IsRecognizing || IsThinking) return;
-            if(_audio!=null)_audio.Stop();
-            if(_ttsCo!=null){StopCoroutine(_ttsCo);_ttsCo=null;}
+            StopSpeech();
             Status = "";
             IsRecording = true;
             _recStartTime = Time.unscaledTime;
@@ -246,10 +251,11 @@ namespace Xiaoqi.UI2
             if (string.IsNullOrEmpty(recognized))
             {
                 IsRecognizing = false;
-                Report("语音识别未返回文字，请改用输入；未发送任何内容");
+                Report("没有识别到文字，本次未发送。请按住 Ctrl+N 再试一次。");
                 yield break;
             }
             IsRecognizing = false;
+            LastSttSuccessAt=Time.unscaledTime;
             LiveTranscript = recognized;
             NotifyChanged();
             SendText(recognized, true);
@@ -260,13 +266,12 @@ namespace Xiaoqi.UI2
             if (string.IsNullOrWhiteSpace(userText)) return;
             if (IsThinking || IsRecognizing || IsRecording) { Report("请等待当前回应完成"); return; }
             Status = "";
-            if (_streamCo != null) { StopCoroutine(_streamCo); _streamCo = null; }
+            if (_streamCo != null) { StopCoroutine(_streamCo); _streamCo = null; if(IsStreaming&&!string.IsNullOrEmpty(LatestReplyFull))OnMessage?.Invoke(_activeReplyId,true,LatestReplyFull); }
             IsStreaming = false;
             LatestReplyFull = "";
             LatestReplyVisible = "";
             LatestUsage = null;
-            if (_audio != null) _audio.Stop();
-            if (_ttsCo != null) { StopCoroutine(_ttsCo); _ttsCo = null; }
+            StopSpeech();
             userText = userText.Trim();
             LiveTranscript = userText;
             IsThinking = true;
@@ -280,11 +285,13 @@ namespace Xiaoqi.UI2
             };
             Turns.Add(turn);
             if (Turns.Count > 4) Turns.RemoveAt(0);
+            long userId=++_messageId, replyId=++_messageId;
+            OnMessage?.Invoke(userId,false,userText);
             NotifyChanged();
-            StartCoroutine(RequestReply(userText, Turns.Count - 1));
+            StartCoroutine(RequestReply(userText, Turns.Count - 1,replyId));
         }
 
-        private IEnumerator RequestReply(string userText, int turnIndex)
+        private IEnumerator RequestReply(string userText, int turnIndex,long replyId)
         {
             var cfg = XiaoqiRuntime.Config ?? XiaoqiConfig.LoadOrCreate();
             string server = (cfg != null ? cfg.server : "") ?? "";
@@ -331,7 +338,8 @@ namespace Xiaoqi.UI2
                 t.replyText = reply;
                 Turns[turnIndex] = t;
             }
-            StartStream(reply);
+            LastChatSuccessAt=Time.unscaledTime;
+            StartStream(reply,replyId);
 
             _lastDeliveredText = reply; _lastDeliveredAt = Time.unscaledTime;
             if (ShouldAutoSpeak(cfg, Xiaoqi.Mode.XqMode.Current, XiaoqiRuntime.Dnd, UnityEngine.Random.value))
@@ -340,20 +348,22 @@ namespace Xiaoqi.UI2
             }
         }
 
-        private void StartStream(string full)
+        private void StartStream(string full,long replyId)
         {
+            _activeReplyId=replyId;
             LatestReplyFull = full ?? "";
             LatestReplyVisible = "";
             if (_streamCo != null) StopCoroutine(_streamCo);
-            _streamCo = StartCoroutine(StreamCharacters(LatestReplyFull));
+            _streamCo = StartCoroutine(StreamCharacters(LatestReplyFull,replyId));
         }
 
-        private IEnumerator StreamCharacters(string full)
+        private IEnumerator StreamCharacters(string full,long replyId)
         {
             IsStreaming = true;
             for (int i = 1; i <= full.Length; i++)
             {
                 LatestReplyVisible = full.Substring(0, i);
+                OnMessage?.Invoke(replyId,true,LatestReplyVisible);
                 NotifyChanged();
                 yield return new WaitForSecondsRealtime(0.032f);
             }
@@ -365,8 +375,21 @@ namespace Xiaoqi.UI2
         {
             var cfg = XiaoqiRuntime.Config;
             if (cfg == null || cfg.muted || XiaoqiRuntime.Dnd || cfg.office_mode) return;
-            if (_ttsCo != null) StopCoroutine(_ttsCo);
-            _ttsCo = StartCoroutine(FetchAndPlayTts(text, explicitAudioUrl));
+            StopSpeech();
+            _ttsCo = StartCoroutine(PrepareSpeech(text, explicitAudioUrl));
+        }
+
+        void StopSpeech()
+        {
+            if (_audio!=null) _audio.Stop();
+            if (_ttsCo!=null) { StopCoroutine(_ttsCo); _ttsCo=null; }
+            IsPreparingTts=false;
+        }
+        IEnumerator PrepareSpeech(string text,string url)
+        {
+            IsPreparingTts=true;NotifyChanged();
+            try { yield return FetchAndPlayTts(text,url); }
+            finally { IsPreparingTts=false;_ttsCo=null;NotifyChanged(); }
         }
 
         private IEnumerator FetchAndPlayTts(string text, string explicitAudioUrl)
@@ -424,6 +447,7 @@ namespace Xiaoqi.UI2
                         _audio.volume = cfg != null ? Mathf.Clamp01(cfg.volume) : 1f;
                         _audio.clip = clip;
                         _audio.Play();
+                        LastTtsSuccessAt=Time.unscaledTime;
                         NotifyChanged();
                     }
                 }

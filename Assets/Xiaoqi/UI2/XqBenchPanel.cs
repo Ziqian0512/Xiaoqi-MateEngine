@@ -647,6 +647,7 @@ namespace Xiaoqi.UI2
         }
         void PollSelf()
         {
+            if(XqSettingsPanel.OpenNow||XqSettingsPanel.Swallow){_approvedArm=null;_bdrag=false;return;}
             if (_host == null || _host.panel == null || _exitT >= 0f) return;
             var modal = _panel.Q("xq-photo-modal");
             if (modal != null)

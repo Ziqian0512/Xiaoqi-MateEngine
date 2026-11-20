@@ -19,7 +19,7 @@ namespace Xiaoqi.UI2
         Hook _callback;IntPtr _hook;bool _captured,_cancelled,_owns;volatile bool _enabled;int _commands;XqView _mode;
         public static bool Available=>_instance!=null&&_instance._hook!=IntPtr.Zero;
         public static void Ensure(){if(_instance!=null||Application.platform!=RuntimePlatform.WindowsPlayer)return;var go=new GameObject("XqGlobalVoiceKey");DontDestroyOnLoad(go);_instance=go.AddComponent<XqGlobalVoiceKey>();}
-        void Awake(){_callback=Intercept;_hook=SetWindowsHookEx(13,_callback,GetModuleHandle(null),0);Debug.Log("XQ_VOICE_KEY Ctrl+N "+(_hook!=IntPtr.Zero?"ready":"unavailable error="+Marshal.GetLastWin32Error()));if(_hook==IntPtr.Zero)XqVoiceOverlay.Notice("Ctrl+N 未能启用，请使用麦克风按钮。");}
+        void Awake(){_callback=Intercept;_hook=SetWindowsHookEx(13,_callback,GetModuleHandle(null),0);Debug.Log("XQ_VOICE_KEY Ctrl+N "+(_hook!=IntPtr.Zero?"ready":"unavailable error="+Marshal.GetLastWin32Error()));if(_hook==IntPtr.Zero)XqVoiceOverlay.Notice("Ctrl+N 未能启用，请在偏好设置中检查快捷键状态。");}
         void Queue(int c){int old;do{old=_commands;}while(Interlocked.CompareExchange(ref _commands,old|c,old)!=old);}
         public static bool MatchesChord(uint key,bool control,bool alt,bool shift,bool win)=>key==0x4e&&control&&!alt&&!shift&&!win;
         IntPtr Intercept(int code,IntPtr message,IntPtr data)

@@ -44,10 +44,20 @@ namespace Xiaoqi.UI2
             }
             XqMode.Set(XqView.Pet);yield return new WaitForSecondsRealtime(5);
             report["petControls"]=XqVoiceOverlay.ReviewBounds();yield return Capture("pet-idle");
-            XqVoiceOverlay.OpenTyping();yield return new WaitForSecondsRealtime(.5f);yield return Capture("pet-typing");
-            foreach(var sub in new[]{"talk","doing","position","quiet","dance"})
+            XqVoiceOverlay.ReviewMessages();yield return new WaitForSecondsRealtime(.7f);report["sampleMessages"]=XqVoiceOverlay.ReviewBounds();yield return Capture("pet-messages");
+            yield return new WaitForSecondsRealtime(8.1f);report["afterIdle"]=XqVoiceOverlay.ReviewBounds();
+            XqVoiceOverlay.ReviewMessages(true);yield return new WaitForSecondsRealtime(.6f);report["longMessage"]=XqVoiceOverlay.ReviewBounds();yield return Capture("pet-long");XqVoiceOverlay.ReviewScrollBottom();yield return new WaitForSecondsRealtime(.3f);report["longMessageBottom"]=XqVoiceOverlay.ReviewBounds();XqVoiceOverlay.ReviewClear();
+            XqVoiceOverlay.ReviewModes();yield return new WaitForSecondsRealtime(.5f);yield return Capture("pet-modes");XqVoiceOverlay.ReviewClear();
+            foreach(var sub in new[]{"doing","position","quiet","dance"})
             {XqGlassMenu.ReviewMenu(sub);yield return new WaitForSecondsRealtime(.6f);report["menu-"+sub]=XqGlassMenu.ReviewBounds();yield return Capture("menu-"+sub);}
-            XqGlassMenu.CloseCurrent("review");XqMode.Set(XqView.Close);yield return new WaitForSecondsRealtime(4);
+            XqGlassMenu.CloseCurrent("review");
+            for(int page=0;page<4;page++){XqSettingsPanel.ReviewOpen(page);yield return new WaitForSecondsRealtime(.7f);report["settings-"+page]=XqSettingsPanel.Review();yield return Capture("settings-"+page);}
+            var navigation=new JObject();foreach(var label in XqSettingsPanel.PageNames){navigation[label]=XqSettingsPanel.ReviewActivate(label);yield return new WaitForSecondsRealtime(.2f);}report["settingsNavigation"]=navigation;
+            navigation["about"]=XqSettingsPanel.ReviewActivate("关于与许可");yield return new WaitForSecondsRealtime(.2f);navigation["back"]=XqSettingsPanel.ReviewActivate("‹ 返回");yield return new WaitForSecondsRealtime(.2f);
+            foreach(int page in new[]{0,2,3}){XqSettingsPanel.ReviewOpen(page,"",true);yield return new WaitForSecondsRealtime(.5f);report["settings-advanced-"+page]=XqSettingsPanel.Review();yield return Capture("settings-advanced-"+page);XqSettingsPanel.ReviewScrollBottom();yield return new WaitForSecondsRealtime(.3f);report["settings-advanced-bottom-"+page]=XqSettingsPanel.Review();yield return Capture("settings-advanced-bottom-"+page);}
+            foreach(var sub in new[]{"privacy","about"}){XqSettingsPanel.ReviewOpen(3,sub);yield return new WaitForSecondsRealtime(.5f);report["settings-"+sub]=XqSettingsPanel.Review();yield return Capture("settings-"+sub);}
+            XqSettingsPanel.CloseIfOpen();XqMode.Set(XqView.Close);yield return new WaitForSecondsRealtime(4);
+            report["sampleHistoryOnly"]=true;report["consoleVoiceRule"]=XqConsoleVoicePolicy.Summary;
             File.WriteAllText(Path.Combine(_dir,"report.json"),report.ToString());
             Debug.Log("XQ_COMPANION_REVIEW complete");Destroy(gameObject);
         }
@@ -64,11 +74,11 @@ namespace Xiaoqi.UI2
             // UI Toolkit can still have queued work referring to its last target.
             yield return null;yield return new WaitForEndOfFrame();yield return null;yield return new WaitForEndOfFrame();
             rt.Release();Destroy(rt);
-            if(name=="close")
+            if(name=="close"||name=="pet-messages"||name=="settings-1")
             {
                 yield return new WaitForEndOfFrame();
                 var frame=ScreenCapture.CaptureScreenshotAsTexture();
-                if(frame!=null){File.WriteAllBytes(Path.Combine(_dir,"close-frame.png"),frame.EncodeToPNG());Destroy(frame);}
+                if(frame!=null){File.WriteAllBytes(Path.Combine(_dir,name+"-frame.png"),frame.EncodeToPNG());Destroy(frame);}
             }
         }
     }

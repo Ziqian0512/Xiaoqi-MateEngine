@@ -70,7 +70,7 @@ public class XiaoqiFeed : MonoBehaviour
                     {
                         bool freshBatch = _since >= 0;
                         _since = env.last_id;
-                        var allow = cfg.bubble && !XiaoqiRuntime.Dnd
+                        var allow = !cfg.office_mode && !XiaoqiRuntime.Dnd
                                     && (env.rules == null || env.rules.show_private_text);
                         if (env.items != null)
                             foreach (var item in env.items)
@@ -80,10 +80,10 @@ public class XiaoqiFeed : MonoBehaviour
                                 if (item.kind == "said" || item.kind == "say") // 服务器 body_log 里她说的话是 said；say 留作兼容
                                 {
                                     LatestSay = item.text;
-                                    OnSay?.Invoke(item.text);
+                                    if(freshBatch && allow) OnSay?.Invoke(item.text);
                                     if (freshBatch && allow) Xiaoqi.UI2.XqVoiceChatClient.Ensure().SpeakFeed(item.text);
                                 }
-                                if (allow) Show(item.text, item.media);
+                                if (freshBatch && allow && Xiaoqi.Mode.XqMode.Current!=Xiaoqi.Mode.XqView.Pet) Show(item.text, item.media);
                             }
                     }
                 }

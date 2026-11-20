@@ -34,39 +34,7 @@ public class XiaoqiSettings : MonoBehaviour
 
     public static void Open()
     {
-        // XQ: P1-5 新设置页。默认关，WB 验证后再翻 settings_v2 的默认值。
-        var cfg2 = XiaoqiRuntime.Config;
-        bool v2 = (cfg2 != null && cfg2.settings_v2)
-                  || System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-settings-v2") >= 0;
-        if (v2) { Xiaoqi.UI2.XqSettingsPanel.Open(); return; }
-        if (_instance == null) _instance = FindFirstObjectByType<XiaoqiSettings>(FindObjectsInactive.Include);
-        if (_instance == null) { Debug.Log("XQ_SET no instance"); return; }
-        _open = true;
-        _instance._go.SetActive(true);
-        _instance.Rebuild();
-        if (Array.IndexOf(Environment.GetCommandLineArgs(), "-debug-settings") >= 0)
-        {
-            var dbg = new GameObject("Dbg", typeof(RectTransform));
-            dbg.transform.SetParent(_instance._canvas.transform, false);
-            var rt = (RectTransform)dbg.transform;
-            rt.anchorMin = new Vector2(0.1f, 0.1f);
-            rt.anchorMax = new Vector2(0.4f, 0.4f);
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
-            var img = dbg.AddComponent<UnityEngine.UI.Image>();
-            img.color = Color.red;
-
-            var dbg2 = new GameObject("DbgCard", typeof(RectTransform));
-            dbg2.transform.SetParent(_instance._card, false);
-            var rt2 = (RectTransform)dbg2.transform;
-            rt2.anchorMin = rt2.anchorMax = new Vector2(0.5f, 0.5f);
-            rt2.sizeDelta = new Vector2(80f, 80f);
-            dbg2.AddComponent<UnityEngine.UI.Image>().color = Color.green;
-        }
-        Debug.Log("XQ_SET open active=" + _instance._go.activeInHierarchy + " card=" + _instance._card.rect
-                  + " pos=" + _instance._card.anchoredPosition
-                  + " canvas=" + ((RectTransform)_instance._canvas.transform).rect
-                  + " scale=" + _instance._canvas.scaleFactor);
+        Xiaoqi.UI2.XqSettingsPanel.Open();
     }
 
     public void Close()

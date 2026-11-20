@@ -25,8 +25,11 @@ namespace Xiaoqi.UI2
             try
             {
                 var cfg=XiaoqiRuntime.Config;if(cfg==null||string.IsNullOrEmpty(cfg.server))yield break;
+                string server=cfg.server,token=cfg.token;
                 XqHttp.Resp response=default(XqHttp.Resp);
-                yield return XqHttp.Get(cfg.server.TrimEnd('/')+"/api/budget",cfg.token,8,r=>response=r);
+                yield return XqHttp.Get(server.TrimEnd('/')+"/api/budget",token,8,r=>response=r);
+                if(cfg.server!=server||cfg.token!=token)yield break;
+                XqConsoleVoicePolicy.Accept(response.ok?response.text:"",cfg);
                 long? total=null;
                 if(response.ok){try{total=(long?)JObject.Parse(response.text).SelectToken("usage.tokens");}catch{}}
                 TodayTokens=total.HasValue&&total.Value>=0?total:null;

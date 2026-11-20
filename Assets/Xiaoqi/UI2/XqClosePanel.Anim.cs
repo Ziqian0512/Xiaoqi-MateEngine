@@ -58,6 +58,7 @@ namespace Xiaoqi.UI2
 
         public static void Poll()
         {
+            if(XqSettingsPanel.OpenNow||XqSettingsPanel.Swallow){if(_inst!=null)_inst._compPressed=null;return;}
             if (_inst != null && _inst._shown) _inst.TickPointer();
         }
 
