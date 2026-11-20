@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Xiaoqi.Host;
+using XqStyle = Xiaoqi.UI.XqStyle;
+using XqUi = Xiaoqi.UI.XqUi;
 
 namespace Xiaoqi.Spike
 {
@@ -49,28 +51,29 @@ namespace Xiaoqi.Spike
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 310;
 
-            var panel = new GameObject("PetBubble");
+            var panel = new GameObject("PetBubble", typeof(RectTransform));
             panel.transform.SetParent(go.transform, false);
-            var img = panel.AddComponent<Image>();
-            img.color = new Color(1f, 1f, 1f, 0.94f);
             _panel = panel.GetComponent<RectTransform>();
-            _panel.sizeDelta = new Vector2(320f, 70f);
+            _panel.sizeDelta = new Vector2(XqStyle.Fr(XqStyle.BubbleW), XqStyle.Fr(XqStyle.BubbleH));
             _panel.pivot = new Vector2(0.5f, 0f);
+            // 主题 E：和启动卡、卡片同一套表面——暖白底 + 1px 粉描边 + 柔和投影（不是纯白方块）。
+            XqUi.Surface(_panel, _panel.sizeDelta.x, _panel.sizeDelta.y, XqStyle.Fr(XqStyle.BubbleRadius),
+                XqStyle.BubbleFill, XqStyle.SurfaceLine, true);
 
-            var t = new GameObject("Text");
+            var t = new GameObject("Text", typeof(RectTransform));
             t.transform.SetParent(panel.transform, false);
             _text = t.AddComponent<Text>();
-            _text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            _text.fontSize = 15;
-            _text.color = new Color(0.15f, 0.15f, 0.18f);
+            _text.font = XqUi.Font;
+            _text.fontSize = Mathf.RoundToInt(XqStyle.FontBody * XqStyle.Scale);
+            _text.color = XqStyle.BubbleText;
             _text.alignment = TextAnchor.MiddleLeft;
             _text.horizontalOverflow = HorizontalWrapMode.Wrap;
             _text.verticalOverflow = VerticalWrapMode.Truncate;
             var rt = _text.rectTransform;
             rt.anchorMin = Vector2.zero;
             rt.anchorMax = Vector2.one;
-            rt.offsetMin = new Vector2(12, 8);
-            rt.offsetMax = new Vector2(-12, -8);
+            rt.offsetMin = new Vector2(XqStyle.Fr(XqStyle.BubblePadX), XqStyle.Fr(XqStyle.BubblePadY));
+            rt.offsetMax = new Vector2(-XqStyle.Fr(XqStyle.BubblePadX), -XqStyle.Fr(XqStyle.BubblePadY));
             panel.SetActive(false);
         }
 
@@ -116,6 +119,9 @@ namespace Xiaoqi.Spike
             float sec = Mathf.Clamp(_current.text.Length * _cfg.bubble.per_char_sec,
                 _cfg.bubble.min_sec, _cfg.bubble.max_sec);
             _hideAt = Time.unscaledTime + sec + 0.4f;
+            Debug.Log("XQ_BUBBLE show w=" + _panel.sizeDelta.x.ToString("0.0")
+                      + " h=" + _panel.sizeDelta.y.ToString("0.0")
+                      + " r=" + XqStyle.Fr(XqStyle.BubbleRadius).ToString("0.0"));
         }
 
         private bool IsVoice(string media)

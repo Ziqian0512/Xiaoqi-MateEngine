@@ -932,7 +932,9 @@ namespace Xiaoqi.UI
 
         private IEnumerator ShotRoutine()
         {
-            yield return new WaitForSecondsRealtime(0.9f);
+            yield return new WaitForSecondsRealtime(0.35f);
+            Shot("00-start");
+            yield return new WaitForSecondsRealtime(0.55f);
             Shot("01-menu-right");
             yield return new WaitForSecondsRealtime(0.3f);
 
@@ -981,6 +983,11 @@ namespace Xiaoqi.UI
             yield return new WaitForSecondsRealtime(0.3f);
             XiaoqiAbout.Hide();
             yield return new WaitForSecondsRealtime(0.4f);
+
+            Xiaoqi.Spike.PetBubble.Enqueue("这是一条语音测试。", "voice");
+            yield return new WaitForSecondsRealtime(0.9f);
+            Shot("08-bubble");
+            yield return new WaitForSecondsRealtime(0.3f);
 
             Debug.Log("XQ_SHOT done");
             Application.Quit();

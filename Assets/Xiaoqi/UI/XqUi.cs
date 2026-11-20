@@ -603,6 +603,44 @@ tex.Apply();
             skin.Shadow.sprite = Shadow(XqStyle.Fr(XqStyle.CardRadiusLg));
         }
 
+        /// <summary>
+        /// 主题 E：浮在桌面上的「表面」（启动卡 / 气泡）= 柔和投影 + 圆角填充 + 1px 描边，
+        /// 和主题 D 的卡面同一套零件，只是底色走暖白（不是纯白）、半径与内边距由调用方给。
+        /// </summary>
+        public static CardSkin Surface(RectTransform root, float w, float h, float radiusPx,
+            Color fill, Color line, bool raycast)
+        {
+            var skin = new CardSkin { Root = root };
+
+            var shadowRt = Node(root, "Shadow");
+            shadowRt.anchorMin = Vector2.zero;
+            shadowRt.anchorMax = Vector2.one;
+            shadowRt.offsetMin = new Vector2(-XqStyle.Fr(XqStyle.ShadowSpread),
+                -XqStyle.Fr(XqStyle.ShadowSpread) - XqStyle.Fr(XqStyle.ShadowOffsetY));
+            shadowRt.offsetMax = new Vector2(XqStyle.Fr(XqStyle.ShadowSpread),
+                XqStyle.Fr(XqStyle.ShadowSpread) - XqStyle.Fr(XqStyle.ShadowOffsetY));
+            shadowRt.SetAsFirstSibling();
+            var shadow = Panel(shadowRt, Shadow(radiusPx), XqStyle.ShadowSoft);
+            shadow.type = Image.Type.Sliced;
+            shadow.raycastTarget = false;
+
+            var bgRt = Node(root, "Bg");
+            bgRt.anchorMin = Vector2.zero;
+            bgRt.anchorMax = Vector2.one;
+            bgRt.offsetMin = Vector2.zero;
+            bgRt.offsetMax = Vector2.zero;
+            bgRt.SetSiblingIndex(1);
+            int iw = Mathf.Max(8, Mathf.RoundToInt(w));
+            int ih = Mathf.Max(8, Mathf.RoundToInt(h));
+            var bg = Panel(bgRt, Rounded(iw, ih, radiusPx, fill, line, XqStyle.SurfaceStroke), Color.white);
+            bg.type = Image.Type.Simple;
+            bg.raycastTarget = raycast;
+
+            skin.Bg = bg;
+            skin.Shadow = shadow;
+            return skin;
+        }
+
         /// <summary>标题区：左标题 + 右关闭 × + 底部 1px 分隔线。返回内容区要往下让出的高度。</summary>
         public static float CardHeader(RectTransform card, string title, Action onClose)
         {

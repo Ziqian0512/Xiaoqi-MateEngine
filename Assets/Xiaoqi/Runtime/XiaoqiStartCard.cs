@@ -3,6 +3,8 @@ using System.Collections;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using XqStyle = Xiaoqi.UI.XqStyle;
+using XqUi = Xiaoqi.UI.XqUi;
 
 public class XiaoqiStartCard : MonoBehaviour
 {
@@ -24,6 +26,7 @@ public class XiaoqiStartCard : MonoBehaviour
     private CanvasGroup _group;
     private GameObject _canvasGo;
     private Text _status;
+    private Image _dot;
     private bool _done;
     private float _start;
 
@@ -64,43 +67,57 @@ public class XiaoqiStartCard : MonoBehaviour
         _group.alpha = 0f;
         _group.blocksRaycasts = false;
 
-        var panel = new GameObject("Card");
+        var panel = new GameObject("Card", typeof(RectTransform));
         panel.transform.SetParent(canvasGo.transform, false);
-        var bg = panel.AddComponent<Image>();
-        bg.sprite = Xiaoqi.UI.XqUi.Pill(240, 64, Xiaoqi.UI.XqStyle.PinkFill, Xiaoqi.UI.XqStyle.PinkLine);
-        bg.type = Image.Type.Simple;
-        bg.color = Color.white;
         var rt = panel.GetComponent<RectTransform>();
         rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
         rt.pivot = new Vector2(0.5f, 1f);
-        rt.sizeDelta = new Vector2(240, 64);
-        rt.anchoredPosition = new Vector2(0, -80);
+        float w = XqStyle.Fr(XqStyle.StartCardW);
+        float h = XqStyle.Fr(XqStyle.StartCardH);
+        rt.sizeDelta = new Vector2(w, h);
+        rt.anchoredPosition = new Vector2(0f, -XqStyle.Fr(XqStyle.StartCardTopY));
+        XqUi.Surface(rt, w, h, XqStyle.Fr(XqStyle.SurfaceRadius),
+            XqStyle.SurfaceFill, XqStyle.SurfaceLine, false);
 
-        var title = new GameObject("Name");
-        title.transform.SetParent(panel.transform, false);
-        var t = title.AddComponent<Text>();
-        t.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        t.fontSize = 16;
-        t.color = Xiaoqi.UI.XqStyle.Ink;
-        t.text = _brand.name;
-        var trt = title.GetComponent<RectTransform>();
-        trt.anchorMin = new Vector2(0f, 0.5f);
-        trt.anchorMax = new Vector2(1f, 1f);
-        trt.offsetMin = new Vector2(20, 0);
-        trt.offsetMax = new Vector2(-12, -14);
+        // 标题：左上 17/Ink，和卡片的标题层级一致。
+        var title = XqUi.Label(panel.transform, _brand.name, XqStyle.FontStartTitle,
+            XqStyle.StartTitleText, TextAnchor.MiddleLeft, XqStyle.StartTitleH);
+        var trt = title.rectTransform;
+        trt.anchorMin = trt.anchorMax = new Vector2(0f, 1f);
+        trt.pivot = new Vector2(0f, 1f);
+        trt.sizeDelta = new Vector2(w - XqStyle.Fr(XqStyle.StartCardPadX * 2f), XqStyle.Fr(XqStyle.StartTitleH));
+        trt.anchoredPosition = new Vector2(XqStyle.Fr(XqStyle.StartCardPadX), -XqStyle.Fr(XqStyle.StartCardPadTop));
 
-        var status = new GameObject("Status");
-        status.transform.SetParent(panel.transform, false);
-        _status = status.AddComponent<Text>();
-        _status.font = t.font;
-        _status.fontSize = 12;
-        _status.color = Xiaoqi.UI.XqStyle.InkSoft;
-        _status.text = _brand.waking;
-        var srt = status.GetComponent<RectTransform>();
+        // 状态行：6px 状态点 + 12/InkSoft 文字，贴卡底。
+        var row = XqUi.Node(panel.transform, "StatusRow");
+        row.anchorMin = new Vector2(0f, 0f);
+        row.anchorMax = new Vector2(1f, 0f);
+        row.pivot = new Vector2(0f, 0f);
+        row.offsetMin = new Vector2(XqStyle.Fr(XqStyle.StartCardPadX), XqStyle.Fr(XqStyle.StartCardPadBottom));
+        row.offsetMax = new Vector2(-XqStyle.Fr(XqStyle.StartCardPadX),
+            XqStyle.Fr(XqStyle.StartCardPadBottom + XqStyle.StartStatusH));
+
+        int d = Mathf.Max(4, XqStyle.Px(XqStyle.StartDotSize));
+        var dotRt = XqUi.Node(row, "Dot");
+        dotRt.anchorMin = dotRt.anchorMax = new Vector2(0f, 0.5f);
+        dotRt.pivot = new Vector2(0f, 0.5f);
+        dotRt.sizeDelta = new Vector2(d, d);
+        dotRt.anchoredPosition = Vector2.zero;
+        _dot = XqUi.Panel(dotRt, XqUi.Rounded(d, d, d * 0.5f, Color.white, Color.white, 0f),
+            XqStyle.StartDotWaking);
+        _dot.type = Image.Type.Simple;
+        _dot.raycastTarget = false;
+
+        _status = XqUi.Label(row, _brand.waking, XqStyle.FontStartStatus,
+            XqStyle.StartStatusText, TextAnchor.MiddleLeft, XqStyle.StartStatusH);
+        var srt = _status.rectTransform;
         srt.anchorMin = new Vector2(0f, 0f);
-        srt.anchorMax = new Vector2(1f, 0.5f);
-        srt.offsetMin = new Vector2(20, 12);
-        srt.offsetMax = new Vector2(-12, 0);
+        srt.anchorMax = new Vector2(1f, 1f);
+        srt.offsetMin = new Vector2(d + XqStyle.Fr(XqStyle.StartDotGap), 0f);
+        srt.offsetMax = Vector2.zero;
+
+        Debug.Log("XQ_START card w=" + w.ToString("0.0") + " h=" + h.ToString("0.0")
+                  + " r=" + XqStyle.Fr(XqStyle.SurfaceRadius).ToString("0.0") + " dot=" + d);
     }
 
     private IEnumerator Run()
@@ -111,6 +128,7 @@ public class XiaoqiStartCard : MonoBehaviour
             if (XiaoqiLink.Current != null)
             {
                 _status.text = _brand.ok;
+                if (_dot != null) _dot.color = XqStyle.StartDotOk;
                 Debug.Log("XQ_START waking→ok " + (Time.unscaledTime - _start).ToString("0.0") + "s");
                 yield return new WaitForSecondsRealtime(_brand.ok_hold);
                 yield return Fade(1f, 0f, _brand.fade_out);
@@ -121,6 +139,7 @@ public class XiaoqiStartCard : MonoBehaviour
             yield return null;
         }
         _status.text = _brand.offline;
+        if (_dot != null) _dot.color = XqStyle.StartDotOffline;
         yield return new WaitForSecondsRealtime(_brand.offline_hold);
         yield return Fade(1f, 0f, _brand.fade_out);
         if (_canvasGo != null) Destroy(_canvasGo);

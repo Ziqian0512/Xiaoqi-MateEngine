@@ -100,6 +100,42 @@ namespace Xiaoqi.UI
         public const float CardMaxH = 820f;
         public const int FontCardSection = 12;
 
+        // 主题 E：浮在桌面上的两块「表面」——启动卡与气泡。和卡面同一套圆角 / 1px 描边 / 柔和投影，
+        // 底色换成暖白（比 Paper 纯白低一档亮度，落在壁纸上不刺眼）。
+        public static readonly Color SurfaceFill = Hex("FCF7F5");
+        public static readonly Color SurfaceFillSoft = Hex("FDF9F8");
+        public static readonly Color SurfaceLine = PinkGuide;
+        public const float SurfaceRadius = 18f;
+        public const float SurfaceStroke = 1f;
+
+        // 启动卡：标题 17/Ink + 状态行 12/InkSoft + 6px 状态点。
+        public static readonly Color StartTitleText = Ink;
+        public static readonly Color StartStatusText = InkSoft;
+        public static readonly Color StartDotWaking = PinkLine;
+        public static readonly Color StartDotOk = PinkStrong;
+        public static readonly Color StartDotOffline = TextDisabled;
+        public const float StartCardW = 248f;
+        public const float StartCardH = 78f;
+        public const float StartCardTopY = 44f; // 让出设置卡顶部（约 140px），离线时启动卡不压在卡上
+        public const float StartCardPadX = 20f;
+        public const float StartCardPadTop = 14f;
+        public const float StartCardPadBottom = 15f;
+        public const float StartTitleH = 22f;
+        public const float StartStatusH = 16f;
+        public const float StartDotSize = 6f;
+        public const float StartDotGap = 8f;
+        public const int FontStartTitle = 17;
+        public const int FontStartStatus = 12;
+
+        // 气泡：同一套表面，底色再亮一档；正文 14/Ink，内边距 14×10。
+        public static readonly Color BubbleFill = SurfaceFillSoft;
+        public static readonly Color BubbleText = TextPrimary;
+        public const float BubbleW = 320f;
+        public const float BubbleH = 70f;
+        public const float BubbleRadius = 16f;
+        public const float BubblePadX = 14f;
+        public const float BubblePadY = 10f;
+
         public const float InSec = 0.18f;
         public const float OutSec = 0.12f;
         public const float HoverSec = 0.10f;
