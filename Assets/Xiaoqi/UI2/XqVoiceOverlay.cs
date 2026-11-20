@@ -1,262 +1,93 @@
 using System;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Xiaoqi.Mode;
-
 namespace Xiaoqi.UI2
 {
-    /// <summary>
-    /// V6 桌宠态按住热键实时语音对话叠层（默认按住 N 键）：
-    /// - 在桌宠头顶上方浮出梦幻蓝紫粉半透明毛玻璃对话流
-    /// - 实时显示你说的话（上）与小祈的回复（下），最多保留最近 4 轮
-    /// - 松开热键后自动发送并逐字流式回复 + 播放 TTS，静置 9 秒后优雅淡出
-    /// </summary>
+    // Approved desktop layout. One owner for voice state, reply and quiet badge.
     public static class XqVoiceOverlay
     {
-        [DllImport("user32.dll")]
-        private static extern short GetAsyncKeyState(int vKey);
-
-        private static VisualElement _box;
-        private static VisualElement _micPill;
-        private static Label _micLabel;
-        private static VisualElement _turnsBox;
-        private static VisualElement _hintPill;
-        private static Label _hintLabel;
-        private static bool _hooked;
-        private static bool _keyWasDown;
-        private static float _alpha;
-
+        static VisualElement _root,_dock,_tools,_status,_reply,_failure,_typing,_modes,_badge;
+        static Label _stateText,_replyText,_errorText,_failureTitle;
+        static ScrollView _replyScroll;static TextField _input;
+        static readonly Dictionary<string,VisualElement> Hits=new Dictionary<string,VisualElement>();
+        static readonly Dictionary<string,Action> Actions=new Dictionary<string,Action>();
+        static float _nearAt=-100,_noticeAt=-100,_feedAt=-100,_recordAt;
+        static string _notice="",_feed="",_pressed,_heldOrigin;static Vector2 _down;
+        static bool _expanded,_typeOpen,_modeOpen,_replyOpen,_pointerRecording;static XqView _lastMode;
+        static readonly Color Ink=new Color(.34f,.30f,.41f),Soft=new Color(.58f,.51f,.65f);
+        static bool Visible(VisualElement e){for(var n=e;n!=null;n=n.parent)if(!n.visible||n.resolvedStyle.display==DisplayStyle.None)return false;return e!=null;}
+        static void Display(VisualElement e,bool on){e.style.display=on?DisplayStyle.Flex:DisplayStyle.None;}
+        static bool Contains(VisualElement e,Vector2 p)=>Visible(e)&&e.enabledInHierarchy&&e.worldBound.Contains(p);
         public static bool OverNow
         {
-            get
-            {
-                if (_box == null || _box.panel == null || _box.style.display == DisplayStyle.None || _alpha < 0.05f) return false;
-                var picked = _box.panel.Pick(XqPanelXf.FromScreen(_box.panel, Input.mousePosition));
-                for (var e = picked; e != null; e = e.parent) if (e == _box) return true;
-                return false;
-            }
+            get{if(!Visible(_root)||_root.panel==null)return false;var p=XqPanelXf.FromScreen(_root.panel,Input.mousePosition);foreach(var e in Hits.Values)if(Contains(e,p))return true;return Contains(_typing,p)||Contains(_reply,p)||Contains(_failure,p)||Contains(_status,p);}
         }
-
-        private static int HotkeyVk()
+        public static bool Consumed{get;private set;}
+        public static void ShowFeed(string text){if(string.IsNullOrWhiteSpace(text))return;_feed=text;_feedAt=Time.unscaledTime;_replyOpen=false;}
+        public static void Notice(string text){_notice=text??"";_noticeAt=Time.unscaledTime;}
+        public static void OpenTyping(){_typeOpen=true;_expanded=true;_nearAt=Time.unscaledTime;_input?.schedule.Execute(()=>_input.Focus());XqGlassMenu.CloseCurrent("typing");}
+        public static void BeginVoice(){XqGlassMenu.CloseCurrent("voice");_recordAt=Time.unscaledTime;XqVoiceChatClient.Ensure().StartRecording();}
+        public static void BeginMenuVoice(){if(XqVoiceChatClient.IsRecording||XqVoiceChatClient.IsRecognizing||XqVoiceChatClient.IsThinking)return;BeginVoice();_pointerRecording=XqVoiceChatClient.IsRecording;_heldOrigin="menu";}
+        public static void CancelPointerRecording(){if(_pointerRecording)XqVoiceChatClient.Ensure().CancelRecording();_pointerRecording=false;_pressed=null;_heldOrigin=null;}
+        static VisualElement Node(VisualElement parent,string name,bool card=false){var e=new VisualElement{name="pet-"+name,pickingMode=PickingMode.Ignore};e.style.position=Position.Absolute;parent.Add(e);if(card)Surface(e);return e;}
+        internal static void Surface(VisualElement e){e.style.backgroundColor=new Color(.988f,.98f,1f,.98f);Radius(e,16);e.style.borderTopColor=e.style.borderRightColor=e.style.borderBottomColor=e.style.borderLeftColor=new Color(.86f,.83f,.90f);e.style.borderTopWidth=e.style.borderRightWidth=e.style.borderBottomWidth=e.style.borderLeftWidth=1;}
+        static void Radius(VisualElement e,float r){e.style.borderTopLeftRadius=e.style.borderTopRightRadius=e.style.borderBottomLeftRadius=e.style.borderBottomRightRadius=r;}
+        static Label Text(VisualElement parent,string name,string value,float size)
         {
-            var cfg = XiaoqiRuntime.Config;
-            string hk = cfg != null && !string.IsNullOrEmpty(cfg.voice_hotkey) ? cfg.voice_hotkey.Trim().ToUpperInvariant() : "N";
-            if (hk == "SPACE") return 0x20;
-            if (hk.Length == 1 && hk[0] >= 'A' && hk[0] <= 'Z') return (int)hk[0];
-            return 0x4E; // 'N'
+            var l=new Label(value){name="pet-"+name,pickingMode=PickingMode.Ignore,enableRichText=false};l.style.color=Ink;l.style.fontSize=size;l.style.unityFontStyleAndWeight=FontStyle.Normal;
+            l.style.marginLeft=l.style.marginTop=l.style.marginRight=l.style.marginBottom=0;l.style.paddingLeft=l.style.paddingTop=l.style.paddingRight=l.style.paddingBottom=0;parent.Add(l);return l;
         }
-
-        private static string HotkeyName()
+        static VisualElement Button(VisualElement parent,string id,string text,Action action)
         {
-            var cfg = XiaoqiRuntime.Config;
-            return cfg != null && !string.IsNullOrEmpty(cfg.voice_hotkey) ? cfg.voice_hotkey.Trim().ToUpperInvariant() : "N";
+            var e=Node(parent,id);e.pickingMode=PickingMode.Position;Radius(e,11);var l=Text(e,id+"-text",text,14);l.style.unityTextAlign=TextAnchor.MiddleCenter;l.style.flexGrow=1;
+            e.RegisterCallback<PointerEnterEvent>(_=>e.style.backgroundColor=new Color(.93f,.90f,.96f));e.RegisterCallback<PointerLeaveEvent>(_=>e.style.backgroundColor=Color.clear);Hits[id]=e;Actions[id]=action;return e;
         }
-
-        public static void Poll(VisualElement root)
+        static void Icon(VisualElement parent,string key){var icon=new XqGlyph(key,Soft){pickingMode=PickingMode.Ignore};parent.Add(icon);icon.style.position=Position.Absolute;icon.style.left=8;icon.style.top=7;icon.style.width=20;icon.style.height=20;}
+        static void Build(VisualElement parent)
         {
-            if (root == null || root.panel == null) return;
-            XqVoiceChatClient.Ensure();
-            EnsureBuilt(root);
-
-            if (XqMode.Current != XqView.Pet)
-            {
-                if (_keyWasDown)
-                {
-                    _keyWasDown = false;
-                    XqVoiceChatClient.Ensure().StopRecordingAndSend();
-                }
-                _box.style.display = DisplayStyle.None;
-                return;
-            }
-
-            // 监听全局/窗口热键（避免在输入框打字时误触发）
-            bool keyDown = (GetAsyncKeyState(HotkeyVk()) & 0x8000) != 0;
-            if (keyDown && !_keyWasDown)
-            {
-                _keyWasDown = true;
-                XqVoiceChatClient.Ensure().StartRecording();
-            }
-            else if (!keyDown && _keyWasDown)
-            {
-                _keyWasDown = false;
-                XqVoiceChatClient.Ensure().StopRecordingAndSend();
-            }
-
-            bool active = XqVoiceChatClient.IsRecording
-                || XqVoiceChatClient.IsRecognizing
-                || XqVoiceChatClient.IsThinking
-                || XqVoiceChatClient.IsStreaming
-                || XqVoiceChatClient.IsPlayingTts
-                || (Time.unscaledTime - XqVoiceChatClient.LastInteractionAt < 9f && (XqVoiceChatClient.Turns.Count > 0 || !string.IsNullOrEmpty(XqVoiceChatClient.Status)));
-
-            float targetAlpha = active ? 1f : 0f;
-            _alpha = Mathf.MoveTowards(_alpha, targetAlpha, Time.unscaledDeltaTime * (active ? 8f : 2.2f));
-            if (_alpha <= 0.01f)
-            {
-                _box.style.display = DisplayStyle.None;
-                return;
-            }
-
-            _box.style.display = DisplayStyle.Flex;
-            _box.style.opacity = _alpha;
-            PlaceAbovePet();
+            if(_root!=null&&_root.parent==parent)return;Hits.Clear();Actions.Clear();_root=Node(parent,"companion");_root.style.left=_root.style.top=0;_root.style.right=_root.style.bottom=0;
+            if(Application.platform==RuntimePlatform.WindowsPlayer)_root.style.unityFont=Font.CreateDynamicFontFromOSFont(new[]{"Microsoft YaHei UI","Microsoft YaHei"},14);
+            _dock=Node(_root,"dock");var anchor=Button(_dock,"anchor","",()=>{_expanded=!_expanded;_nearAt=Time.unscaledTime;});Surface(anchor);anchor.tooltip="展开互动";Icon(anchor,"pet");
+            _badge=Node(anchor,"quiet-badge");_badge.style.backgroundColor=Soft;Radius(_badge,9);Text(_badge,"moon","☾",12).style.color=Color.white;
+            _tools=Node(_dock,"tools",true);Button(_tools,"type","✎",OpenTyping).tooltip="打字聊天";Button(_tools,"mic","",()=>{}).tooltip="按住说话 · Ctrl+N";Icon(Hits["mic"],"mic");Button(_tools,"shape","",()=>{_modeOpen=!_modeOpen;_nearAt=Time.unscaledTime;}).tooltip="选择形态";Icon(Hits["shape"],"expand");
+            _status=Node(_root,"status",true);_stateText=Text(_status,"state","",13);
+            _reply=Node(_root,"reply",true);Text(_reply,"reply-name","小祈",11).style.color=Soft;_replyScroll=new ScrollView();_replyScroll.style.marginTop=7;_replyScroll.horizontalScrollerVisibility=ScrollerVisibility.Hidden;_replyScroll.verticalScrollerVisibility=ScrollerVisibility.Auto;_reply.Add(_replyScroll);_replyText=Text(_replyScroll.contentContainer,"reply-text","",14);_replyText.style.whiteSpace=WhiteSpace.Normal;Button(_reply,"reply-more","展开这条回复 ↗",()=>_replyOpen=!_replyOpen);
+            _failure=Node(_root,"failure",true);_failureTitle=Text(_failure,"failure-title","没听清这一次",13);_errorText=Text(_failure,"error","",11);_errorText.style.whiteSpace=WhiteSpace.Normal;_errorText.style.color=Soft;Button(_failure,"retry","再说一次",BeginVoice);Button(_failure,"error-type","改用打字",()=>{_notice="";OpenTyping();});
+            _typing=Node(_root,"typing",true);Text(_typing,"typing-title","和小祈说句话",11).style.color=Soft;_input=new TextField{name="pet-input",isDelayed=false};_input.style.position=Position.Absolute;_input.style.fontSize=13;_input.textEdition.placeholder="慢慢说，我在。";_input.textEdition.hidePlaceholderOnFocus=true;_typing.Add(_input);var entry=_input.Q(className:"unity-text-field__input");if(entry!=null){entry.style.backgroundColor=new Color(.95f,.93f,.97f);entry.style.color=Ink;Radius(entry,9);entry.style.borderTopWidth=entry.style.borderRightWidth=entry.style.borderBottomWidth=entry.style.borderLeftWidth=0;} _input.RegisterCallback<KeyDownEvent>(e=>{if(e.keyCode==KeyCode.Return||e.keyCode==KeyCode.KeypadEnter){Send();e.StopPropagation();}});Button(_typing,"send","↑",Send);
+            _modes=Node(_root,"modes",true);foreach(var view in new[]{XqView.Pet,XqView.Close,XqView.Bench}){var v=view;Button(_modes,"mode-"+v,v==XqView.Pet?"桌宠 ✓":v==XqView.Close?"近景":"工作台",()=>{_modeOpen=false;XqMode.Set(v);});}
         }
-
-        private static void EnsureBuilt(VisualElement root)
+        static void Send(){if(_input==null||string.IsNullOrWhiteSpace(_input.value))return;if(XqVoiceChatClient.IsThinking||XqVoiceChatClient.IsRecognizing||XqVoiceChatClient.IsRecording){Notice("正在处理上一条内容，请稍等。");return;}var value=_input.value;_input.value="";_typeOpen=false;_replyOpen=false;XqVoiceChatClient.Ensure().SendText(value);}
+        internal static Newtonsoft.Json.Linq.JObject ReviewBounds()
         {
-            if (_box != null && _box.parent == root) return;
-            _box = new VisualElement { name = "xq-voice-overlay", pickingMode = PickingMode.Ignore };
-            _box.style.position = Position.Absolute;
-            _box.style.width = 336f;
-            _box.style.backgroundColor = Color.clear;
-            _box.style.display = DisplayStyle.None;
-
-            _micPill = new VisualElement { pickingMode = PickingMode.Ignore };
-            _micPill.style.flexDirection = FlexDirection.Row;
-            _micPill.style.alignItems = Align.Center;
-            _micPill.style.paddingLeft = 10f;
-            _micPill.style.paddingRight = 10f;
-            _micPill.style.paddingTop = 5f;
-            _micPill.style.paddingBottom = 5f;
-            _micPill.style.marginBottom = 8f;
-            _micPill.style.borderTopLeftRadius = 12f;
-            _micPill.style.borderTopRightRadius = 12f;
-            _micPill.style.borderBottomLeftRadius = 12f;
-            _micPill.style.borderBottomRightRadius = 12f;
-            _micPill.style.alignSelf = Align.FlexEnd;
-            _micPill.style.backgroundColor = new Color(0.55f, 0.36f, 0.96f, 0.14f);
-
-            _micLabel = new Label("🎙️ 按住 " + HotkeyName() + " 说话…");
-            _micLabel.style.fontSize = 12f;
-            _micLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-            _micLabel.style.color = new Color(0.42f, 0.22f, 0.72f, 1f);
-            _micPill.Add(_micLabel);
-            _box.Add(_micPill);
-
-            _turnsBox = new VisualElement { pickingMode = PickingMode.Ignore };
-            _box.Add(_turnsBox);
-
-            _hintPill = new VisualElement { pickingMode = PickingMode.Ignore };
-            _hintPill.style.marginTop = 6f;
-            _hintLabel = new Label("松开自动发送 · 按住 " + HotkeyName() + " 继续说");
-            _hintLabel.style.fontSize = 10f;
-            _hintLabel.style.color = new Color(0.45f, 0.38f, 0.60f, 0.85f);
-            _hintPill.Add(_hintLabel);
-            _box.Add(_hintPill);
-
-            root.Add(_box);
-
-            if (!_hooked)
-            {
-                _hooked = true;
-                XqVoiceChatClient.OnChanged += RefreshTurns;
-            }
-            RefreshTurns();
+            var report=new Newtonsoft.Json.Linq.JObject();foreach(var kv in Hits){var r=kv.Value.worldBound;report[kv.Key]=new Newtonsoft.Json.Linq.JArray(r.x,r.y,r.width,r.height);}
+            report["globalHotkeyInstalled"]=XqGlobalVoiceKey.Available;report["oldHeadLabelSuppressed"]=true;return report;
         }
-
-        private static void RefreshTurns()
+        static void Rect(VisualElement e,float x,float y,float w,float h,float u){e.style.left=x;e.style.top=y;e.style.width=w*u;e.style.height=h*u;}
+        static void Pad(VisualElement e,float amount,float u){e.style.paddingLeft=e.style.paddingRight=e.style.paddingTop=e.style.paddingBottom=amount*u;}
+        public static void Poll(VisualElement parent)
         {
-            if (_turnsBox == null) return;
-            _turnsBox.Clear();
-
-            if (!string.IsNullOrEmpty(XqVoiceChatClient.Status) || XqVoiceChatClient.IsRecognizing)
-            {
-                _micPill.style.display = DisplayStyle.Flex;
-                _micLabel.text = XqVoiceChatClient.IsRecognizing ? "正在识别语音…" : XqVoiceChatClient.Status;
-            }
-            else if (XqVoiceChatClient.IsRecording)
-            {
-                _micPill.style.display = DisplayStyle.Flex;
-                _micPill.style.backgroundColor = new Color(0.96f, 0.45f, 0.71f, 0.22f);
-                _micLabel.text = "● 正在听你说话：" + XqVoiceChatClient.LiveTranscript;
-                _micLabel.style.color = new Color(0.75f, 0.18f, 0.50f, 1f);
-            }
-            else if (XqVoiceChatClient.IsPlayingTts)
-            {
-                _micPill.style.display = DisplayStyle.Flex;
-                _micPill.style.backgroundColor = new Color(0.55f, 0.36f, 0.96f, 0.16f);
-                _micLabel.text = string.Format("🔊 语音播放中 {0:0.0}s", XqVoiceChatClient.TtsRemainingSec);
-                _micLabel.style.color = new Color(0.42f, 0.22f, 0.72f, 1f);
-            }
-            else
-            {
-                _micPill.style.display = DisplayStyle.None;
-            }
-
-            var turns = XqVoiceChatClient.Turns;
-            int start = Mathf.Max(0, turns.Count - 2);
-            for (int i = start; i < turns.Count; i++)
-            {
-                var t = turns[i];
-                bool isLast = (i == turns.Count - 1);
-                var wrap = new VisualElement { pickingMode = PickingMode.Ignore };
-                wrap.style.flexDirection = FlexDirection.Column;
-                wrap.style.marginBottom = isLast ? 0f : 8f;
-
-                // 用户气泡：靠右整齐柔紫气泡
-                var uBubble = new VisualElement { pickingMode = PickingMode.Ignore };
-                uBubble.style.alignSelf = Align.FlexEnd;
-                uBubble.style.width = Length.Percent(88f);
-                uBubble.style.paddingLeft = 12f; uBubble.style.paddingRight = 12f;
-                uBubble.style.paddingTop = 6f; uBubble.style.paddingBottom = 6f;
-                uBubble.style.marginBottom = 5f;
-                uBubble.style.borderTopLeftRadius = 12f; uBubble.style.borderTopRightRadius = 12f;
-                uBubble.style.borderBottomLeftRadius = 12f; uBubble.style.borderBottomRightRadius = 4f;
-                uBubble.style.backgroundColor = new Color(0.55f, 0.36f, 0.96f, isLast ? 0.92f : 0.72f);
-                var u = new Label(t.userText);
-                u.style.fontSize = 12f;
-                u.style.whiteSpace = WhiteSpace.Normal;
-                u.style.color = Color.white;
-                u.style.unityFontStyleAndWeight = FontStyle.Bold;
-                uBubble.Add(u);
-                wrap.Add(uBubble);
-
-                string replyShown = (isLast && XqVoiceChatClient.IsStreaming && !string.IsNullOrEmpty(XqVoiceChatClient.LatestReplyVisible))
-                    ? XqVoiceChatClient.LatestReplyVisible
-                    : t.replyText;
-
-                // 小祈回复气泡：靠左整齐粉白气泡
-                var rBubble = new VisualElement { pickingMode = PickingMode.Ignore };
-                rBubble.style.alignSelf = Align.FlexStart;
-                rBubble.style.width = Length.Percent(88f);
-                rBubble.style.paddingLeft = 12f; rBubble.style.paddingRight = 12f;
-                rBubble.style.paddingTop = 7f; rBubble.style.paddingBottom = 7f;
-                rBubble.style.borderTopLeftRadius = 12f; rBubble.style.borderTopRightRadius = 12f;
-                rBubble.style.borderBottomRightRadius = 12f; rBubble.style.borderBottomLeftRadius = 4f;
-                rBubble.style.backgroundColor = new Color(1f, 0.96f, 0.99f, isLast ? 0.95f : 0.74f);
-                var r = new Label(replyShown);
-                r.style.fontSize = 13f;
-                r.style.unityFontStyleAndWeight = FontStyle.Bold;
-                r.style.whiteSpace = WhiteSpace.Normal;
-                r.style.color = new Color(0.18f, 0.11f, 0.30f, 1f);
-                rBubble.Add(r);
-                wrap.Add(rBubble);
-
-                _turnsBox.Add(wrap);
-            }
-
-            if (_hintPill != null) _hintPill.style.display = DisplayStyle.None;
-        }
-
-        private static void PlaceAbovePet()
-        {
-            if (_box == null || _box.panel == null) return;
-            var body = XqBodyAnchor.Stable();
-            var bc = body.height >= 8f ? body.center : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
-            var wa = XqMonitor.WorkArea(bc);
-            float upp = Mathf.Max(0.01f, XqPanelXf.UnitsPerPx(_box.panel));
-            float wPx = 336f / upp;
-            float hPx = (!float.IsNaN(_box.resolvedStyle.height) && _box.resolvedStyle.height > 20f ? _box.resolvedStyle.height : 160f) / upp;
-
-            float cx = body.height >= 8f ? body.center.x : wa.center.x;
-            float topTarget = body.height >= 8f ? body.yMax + 14f + hPx : wa.center.y + 120f;
-            cx = Mathf.Clamp(cx, wa.xMin + wPx * 0.5f + 12f, wa.xMax - wPx * 0.5f - 12f);
-            topTarget = Mathf.Clamp(topTarget, wa.yMin + hPx + 12f, wa.yMax - 12f);
-
-            var p = XqPanelXf.FromScreen(_box.panel, new Vector2(cx - wPx * 0.5f, topTarget));
-            _box.style.left = p.x;
-            _box.style.top = p.y;
+            Consumed=false;XqGlobalVoiceKey.Ensure();Build(parent);var mode=XqMode.Current;
+            if(_lastMode!=mode){if(_pointerRecording)XqVoiceChatClient.Ensure().CancelRecording();_pointerRecording=false;_pressed=null;_typeOpen=false;_modeOpen=false;_lastMode=mode;}
+            bool on=mode==XqView.Pet&&!XqGlassMenu.IsOpen&&!XqSettingsPanel.OpenNow;Display(_root,on);if(!on)return;
+            float u=Mathf.Max(.01f,XqPanelXf.UnitsPerPx(parent.panel));var body=XqBodyAnchor.Stable();if(body.height<8)return;
+            var a=XqPanelXf.FromScreen(parent.panel,new Vector2(body.xMin,body.yMax));var b=XqPanelXf.FromScreen(parent.panel,new Vector2(body.xMax,body.yMin));var wa=XqMonitor.WorkArea(body.center);var lt=XqPanelXf.FromScreen(parent.panel,new Vector2(wa.xMin,wa.yMax));var rb=XqPanelXf.FromScreen(parent.panel,new Vector2(wa.xMax,wa.yMin));float minX=lt.x+12*u,maxX=rb.x-12*u,minY=lt.y+12*u,maxY=rb.y-12*u;
+            bool flip=b.x+174*u>maxX;float dx=Mathf.Clamp(flip?a.x-177*u:b.x+14*u,minX,Mathf.Max(minX,maxX-163*u)),dy=Mathf.Clamp(a.y+(b.y-a.y)*.52f,minY,maxY-40*u);var pointer=XqPanelXf.FromScreen(parent.panel,Input.mousePosition);var near=new UnityEngine.Rect(a.x-48*u,a.y-30*u,b.x-a.x+96*u,b.y-a.y+60*u);
+            if(near.Contains(pointer)||OverNow)_nearAt=Time.unscaledTime;if(Time.unscaledTime-_nearAt>3&&!_modeOpen&&!_typeOpen&&!_pointerRecording)_expanded=false;else if(near.Contains(pointer))_expanded=true;
+            Rect(_dock,dx,dy,163,40,u);Rect(Hits["anchor"],flip?127*u:0,0,36,36,u);Rect(_badge,21*u,-5*u,18,18,u);Display(_badge,XiaoqiRuntime.Dnd||XiaoqiRuntime.Config.muted);Rect(_tools,flip?0:43*u,0,120,36,u);Display(_tools,_expanded);foreach(var id in new[]{"type","mic","shape"})Rect(Hits[id],(id=="type"?3:id=="mic"?42:81)*u,3*u,33,30,u);
+            bool rec=XqVoiceChatClient.IsRecording,busy=XqVoiceChatClient.IsRecognizing||XqVoiceChatClient.IsThinking;bool notice=Time.unscaledTime-_noticeAt<6&&!string.IsNullOrEmpty(_notice);bool failed=!rec&&!busy&&!XqVoiceChatClient.IsStreaming&&!string.IsNullOrEmpty(XqVoiceChatClient.Status)&&Time.unscaledTime-XqVoiceChatClient.LastInteractionAt<9;
+            string reply=XqVoiceChatClient.LatestReplyVisible;bool recent=Time.unscaledTime-XqVoiceChatClient.LastInteractionAt<9||XqVoiceChatClient.IsPlayingTts||_replyOpen;if(!recent||string.IsNullOrEmpty(reply)){reply=_feed;recent=Time.unscaledTime-_feedAt<7||_replyOpen;}
+            float sx=Mathf.Clamp(dx+(flip?-42*u:0),minX,Mathf.Max(minX,maxX-218*u));Display(_status,rec||busy);Rect(_status,sx,Mathf.Max(minY,dy-54*u),184,42,u);Pad(_status,12,u);_stateText.text=rec?"● 在听你说 · "+Mathf.Max(0,Time.unscaledTime-_recordAt).ToString("00")+"s":XqVoiceChatClient.IsRecognizing?"正在识别…":"在想怎么说";_stateText.style.fontSize=13*u;
+            Display(_reply,!rec&&!busy&&!failed&&!notice&&!_typeOpen&&recent&&!string.IsNullOrEmpty(reply)&&XiaoqiRuntime.Config.bubble&&!XiaoqiRuntime.Config.office_mode);float rh=_replyOpen?268:148;Rect(_reply,Mathf.Clamp(a.x-148*u,minX,Mathf.Max(minX,maxX-258*u)),Mathf.Clamp(a.y-(rh+12)*u,minY,Mathf.Max(minY,maxY-rh*u)),258,rh,u);Pad(_reply,16,u);_replyText.text=reply;_replyText.style.fontSize=14*u;_replyScroll.style.height=(_replyOpen?190:72)*u;Rect(Hits["reply-more"],16*u,(rh-30)*u,220,22,u);
+            Display(_failure,(failed||notice)&&!rec&&!busy&&!_typeOpen);Rect(_failure,sx,Mathf.Clamp(dy+52*u,minY,Mathf.Max(minY,maxY-132*u)),218,132,u);Pad(_failure,14,u);_failureTitle.text=notice?"小提示":"操作未完成";_errorText.text=notice?_notice:XqVoiceChatClient.Status.Contains("识别")||XqVoiceChatClient.Status.Contains("文字")?"未识别到文字，本次未发送。":"请检查服务或设备后重试。";_failure.tooltip=notice?_notice:XqVoiceChatClient.Status;_errorText.style.fontSize=11*u;_errorText.style.marginTop=8*u;Rect(Hits["retry"],12*u,83*u,92,34,u);Rect(Hits["error-type"],110*u,83*u,94,34,u);
+            Display(_typing,_typeOpen);Rect(_typing,Mathf.Clamp(dx,minX,Mathf.Max(minX,maxX-286*u)),Mathf.Clamp(dy+52*u,minY,Mathf.Max(minY,maxY-108*u)),286,108,u);Pad(_typing,14,u);Rect(_input,12*u,38*u,220,42,u);Rect(Hits["send"],241*u,42*u,32,34,u);
+            Display(_modes,_modeOpen);Rect(_modes,Mathf.Clamp(dx,minX,Mathf.Max(minX,maxX-116*u)),Mathf.Clamp(dy+50*u,minY,Mathf.Max(minY,maxY-132*u)),116,132,u);int i=0;foreach(var v in new[]{XqView.Pet,XqView.Close,XqView.Bench})Rect(Hits["mode-"+v],6*u,(6+40*i++)*u,104,38,u);
+            Hits["mode-"+XqView.Bench].SetEnabled(XqMode.BenchAvailable);
+            string hit=null;foreach(var kv in Hits)if(Contains(kv.Value,pointer))hit=kv.Key;
+            if(Input.GetKeyDown(KeyCode.Escape)){_typeOpen=_modeOpen=_replyOpen=false;if(_pointerRecording)XqVoiceChatClient.Ensure().CancelRecording();_pointerRecording=false;_pressed=null;}
+            if(Input.GetMouseButtonDown(0)){_pressed=hit;_down=Input.mousePosition;if(hit!=null)Consumed=true;if((hit=="mic"||hit=="retry")&&!rec&&!busy){BeginVoice();_pointerRecording=XqVoiceChatClient.IsRecording;_heldOrigin=hit;if(!_pointerRecording)_pressed=null;}if(hit==null&&!Contains(_typing,pointer)&&!Contains(_modes,pointer)){_modeOpen=false;_typeOpen=false;}}
+            if(Input.GetMouseButtonUp(0)){if(_pointerRecording){if(hit==_heldOrigin||_heldOrigin=="menu"||_heldOrigin=="retry")XqVoiceChatClient.Ensure().StopRecordingAndSend();else XqVoiceChatClient.Ensure().CancelRecording();_pointerRecording=false;_heldOrigin=null;Consumed=true;}else if(_pressed!=null&&_pressed==hit&&Vector2.Distance(_down,Input.mousePosition)<=8){Actions[hit]();Consumed=true;}_pressed=null;}
         }
     }
 }

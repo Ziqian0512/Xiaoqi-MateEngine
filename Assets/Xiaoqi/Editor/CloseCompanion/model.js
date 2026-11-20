@@ -47,6 +47,16 @@ try{
  vrm.update(0);renderer.render(scene,camera);
  window.modelFacts={source:'Tonight/Xiaoqi/XiaoqiData/16.vrm',renderer:'Three.js preview, not Unity',eyeTarget:[.5,.43],verticalSpan:span};
  window.modelReady=true;
+ window.setAvatarView=view=>{
+  const pet=view==='pet',s=pet?1.58*height/364:span;
+  camera.left=-s*aspect/2;camera.right=s*aspect/2;camera.top=s/2;camera.bottom=-s/2;camera.updateProjectionMatrix();
+  const box=new THREE.Box3().setFromObject(vrm.scene),mid=box.getCenter(new THREE.Vector3());
+  const x=pet?mid.x-(1620/width-.5)*s*aspect:eyeWorld.x;
+  const y=pet?mid.y+(824/height-.5)*s:centerY;
+  camera.position.set(x,y,3);camera.lookAt(x,y,0);renderer.render(scene,camera);
+  window.modelFacts={...window.modelFacts,previewView:view,verticalSpan:s,petHeight:pet?364:null};
+ };
+ window.setAvatarView(window.previewView||'close');
  window.previewExpression=kind=>{
   const em=vrm.expressionManager;if(!em)return;
   for(const name of ['happy','joy','blink','blinkLeft','blinkRight'])try{em.setValue(name,0);}catch{}

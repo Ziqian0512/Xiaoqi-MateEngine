@@ -22,11 +22,21 @@ public static class XqVoicePolicyChecks
         Check(!XqVoiceChatClient.ShouldAutoSpeak(cfg, XqView.Close, true, 0f), "quiet wins");
         cfg.muted = true;
         Check(!XqVoiceChatClient.ShouldAutoSpeak(cfg, XqView.Close, false, 0f), "mute wins");
-        cfg.muted = false; cfg.bubble = false;
+        cfg.muted = false; cfg.bubble = false; cfg.office_mode = true;
         Check(!XqVoiceChatClient.ShouldAutoSpeak(cfg, XqView.Close, false, 0f), "office wins");
-        cfg.bubble = true; cfg.voice_tts_auto = false;
+        cfg.bubble = true; cfg.office_mode = false; cfg.voice_tts_auto = false;
         Check(!XqVoiceChatClient.ShouldAutoSpeak(cfg, XqView.Close, false, 0f), "auto master switch");
-        Debug.Log("XQ_VOICE_POLICY checks=11 passed");
+        cfg.voice_tts_auto=true;cfg.bubble=false;
+        Check(XqVoiceChatClient.ShouldAutoSpeak(cfg,XqView.Close,false,.9f),"hidden text does not mute close");
+        cfg.office_mode=true;
+        Check(!XqVoiceChatClient.ShouldAutoSpeak(cfg,XqView.Close,false,0f),"office remains silent independently");
+        Debug.Log("XQ_VOICE_POLICY checks=13 passed");
+        Check(XqGlobalVoiceKey.MatchesChord(0x4e,true,false,false,false),"Ctrl+N accepted");
+        Check(!XqGlobalVoiceKey.MatchesChord(0x4e,false,false,false,false),"plain N untouched");
+        Check(!XqGlobalVoiceKey.MatchesChord(0x4e,true,false,true,false),"Ctrl+Shift+N untouched");
+        Check(!XqGlobalVoiceKey.MatchesChord(0x4e,true,true,false,false),"Ctrl+Alt+N untouched");
+        Check(!XqGlobalVoiceKey.MatchesChord(0x56,true,false,false,false),"other shortcut untouched");
+        Debug.Log("XQ_VOICE_KEY checks=5 passed");
         XiaoqiBuild.Win64();
     }
 }

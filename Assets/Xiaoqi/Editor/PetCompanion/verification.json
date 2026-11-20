@@ -1,0 +1,77 @@
+{
+  "date": "2026-11-20",
+  "viewport": [
+    1920,
+    1080
+  ],
+  "compactViewport": [
+    1366,
+    768
+  ],
+  "policyChecks": 13,
+  "hotkeyChordChecks": 5,
+  "usageChecks": 7,
+  "checks": {
+    "transparentHost": true,
+    "centerHasNoAction": true,
+    "cameraRectFull": true,
+    "switchBench": true,
+    "switchPet": true,
+    "switchClose": true,
+    "close-hit-pat": true,
+    "close-hit-listen": true,
+    "close-hit-quiet": true,
+    "close-hit-screen": true,
+    "close-hit-usage": true,
+    "close-hit-prev": true,
+    "close-hit-play": true,
+    "close-hit-next": true,
+    "close-hit-music-details": true,
+    "close-hit-modes": true,
+    "close-hit-reply": true,
+    "compact-hit-pat": true,
+    "compact-hit-listen": true,
+    "compact-hit-quiet": true,
+    "compact-hit-screen": true,
+    "compact-hit-usage": true,
+    "compact-hit-prev": true,
+    "compact-hit-play": true,
+    "compact-hit-next": true,
+    "compact-hit-music-details": true,
+    "compact-hit-modes": true,
+    "compact-hit-reply": true,
+    "globalHotkeyInstalled": true,
+    "menu-talk": true,
+    "menu-talk-separate": true,
+    "menu-doing": true,
+    "menu-doing-separate": true,
+    "menu-position": true,
+    "menu-position-separate": true,
+    "menu-quiet": true,
+    "menu-quiet-separate": true,
+    "menu-dance": true,
+    "menu-dance-separate": true,
+    "centerUiTransparent": true,
+    "frameCornerTransparent": true,
+    "realModelRendered": true
+  },
+  "passed": true,
+  "counts": {
+    "centerUi": {
+      "n": 0,
+      "max": 0
+    },
+    "frameCorner": {
+      "n": 0,
+      "max": 0
+    },
+    "model": {
+      "n": 172525,
+      "max": 255
+    }
+  },
+  "limits": [
+    "Source and native renderer checks do not replace human microphone accuracy or cross-app physical-key acceptance.",
+    "Menu checks inspect production native layout; they do not invoke chat, microphone or playback controls."
+  ]
+}

@@ -1,0 +1,97 @@
+/* Preview only. All dimensions are realizable local UI Toolkit rectangles and assets. */
+.toolbar{background:#f6f3f8;border-bottom:1px solid #e1d9e8;gap:14px}
+.toolbar .view-choice button[aria-pressed=true]{background:#a486b7;color:#fff}
+.toolbar .view-choice{display:flex;gap:3px;border:1px solid #ddd0e5;padding:3px;border-radius:24px;background:#fffafc}
+.toolbar .view-choice button{padding:7px 16px}
+.stage .status .chibi{left:-186px;top:-102px;width:214px;height:214px;object-fit:contain;filter:drop-shadow(0 2px 1px #8a67a31a)}
+.status .kicker{margin-top:3px}
+.status .activity{font-size:22px}
+.modes{display:none!important}
+.player{left:96px;top:746px;width:408px;height:238px;border-radius:24px}
+.player .album{left:20px;top:45px;width:96px;height:96px;border-width:2px}
+.player .record{left:78px;top:47px;width:100px;height:100px}
+.player .together{left:192px;top:29px;right:16px;font-size:8.5px;letter-spacing:1.3px}
+.player .track-title{left:192px;top:56px;right:18px;font-size:23px}
+.player .track-artist{left:193px;top:96px;right:16px;font-size:12.5px}
+.player .corner-heart{right:17px;top:14px;width:15px;height:15px}
+.player .progress{left:24px;right:24px;top:160px;height:3px}
+.player .times{top:171px;left:24px;right:24px;font-size:11px}
+.player .transport{left:128px;top:190px;gap:20px}
+.player .transport .play{width:36px;height:36px}
+.player .transport button{width:30px;height:30px}
+.player .transport button:not(.play){margin-top:3px}
+.player .transport button svg{width:15px;height:15px}
+.player:after{border-radius:19px}
+.mode-trigger{position:absolute;left:1372px;top:953px;width:54px;height:54px;border:1px solid #fffdfb;border-radius:19px;background:linear-gradient(135deg,#fffaf8f5,#eadbf3f5);color:#9478a8;box-shadow:0 2px 0 #b894cc2b,0 6px 14px #6e4c8410;display:grid;place-items:center;padding:0;cursor:pointer;z-index:9;transition:background .15s,transform .15s}
+.mode-trigger svg{width:23px;height:23px;pointer-events:none}
+.mode-trigger:hover{transform:translateY(-2px);background:#f4e6f9}
+.mode-trigger[aria-expanded=true]{background:#b59ac7;color:#fffafc;border-color:#d4bbdf}
+.mode-menu{position:absolute;left:1372px;top:718px;width:224px;padding:13px 12px 12px;border:1px solid #fffdfb;border-radius:22px;background:linear-gradient(130deg,#fffdf8fa,#f3e9f8fa);box-shadow:0 9px 22px #6e487713,0 2px 0 #d4bfdf70;z-index:10;display:none;pointer-events:auto}
+.mode-menu.open{display:block}
+.mode-menu:after{content:'';position:absolute;bottom:-5px;left:21px;width:10px;height:10px;transform:rotate(45deg);background:#f4eaf8;border-right:1px solid #fffdfb;border-bottom:1px solid #fffdfb;z-index:-1}
+.mode-menu .menu-title{height:27px;padding:1px 7px;color:#aa91b7;font-size:11px;letter-spacing:1.2px;display:flex;align-items:center;justify-content:space-between}
+.mode-menu .menu-title small{font:8px Arial,sans-serif;letter-spacing:1px;color:#c0abc9}
+.mode-menu button{width:100%;height:49px;display:flex;align-items:center;gap:12px;text-align:left;padding:0 11px;border-radius:13px;color:#806391;font-size:15px;background:transparent}
+.mode-menu button svg{width:19px;height:19px;flex-shrink:0}
+.mode-menu button:hover{background:#eee2f4}
+.mode-menu button.active{background:#a78aba;color:#fffafc}
+.mode-menu button .current{font-size:10px;margin-left:auto;opacity:.84;letter-spacing:.5px}
+.mode-menu button .arrow{margin-left:auto;font-size:16px;opacity:.6}
+.mode-menu button.active .arrow{display:none}
+.mode-menu button:not(.active) .current{display:none}
+.pet-only{display:none}
+.pet .composition-art,.pet .ui>.clock,.pet .ui>.status-cluster,.pet .ui>.interaction,.pet .ui>.player,.pet .ui>.signature,.pet .ui>.wave,.pet .ui>.reply,.pet .ui>.chat,.pet .composition-title,.pet .composition-bow{display:none!important}
+.pet .mode-trigger{left:1740px;top:768px;width:42px;height:42px;border-radius:15px;box-shadow:0 2px 0 #c7b0d53b,0 4px 12px #6e4c8410}
+.pet .mode-trigger svg{width:19px;height:19px}
+.pet .mode-menu{left:1710px;top:540px;width:192px;padding:12px 10px 10px;border-radius:20px}
+.pet .mode-menu .menu-title{font-size:10px;letter-spacing:.8px}
+.pet .mode-menu .menu-title small{font-size:7px}
+.pet .mode-menu button{height:48px;font-size:14px;gap:10px;padding:0 9px}
+.pet .mode-menu button .current{font-size:9px}
+.pet .mode-menu:after{left:45px}
+.pet .pet-only{display:block}
+.pet .pet-presence{position:absolute;left:1500px;top:630px;width:285px;height:390px;background:none;pointer-events:auto}
+.pet .pet-ui{position:absolute;inset:0;pointer-events:none}
+.pet .pet-chip{position:absolute;width:210px;height:46px;left:1324px;background:linear-gradient(130deg,#fffdf8ed,#f1e8f7ef);border:1px solid #fffdfa;border-radius:15px;box-shadow:0 2px 0 #cfbbdc4d;display:none;align-items:center;padding:0 14px;gap:10px;font-size:12px;color:#877091;pointer-events:auto}
+.pet .pet-chip svg{width:16px;height:16px;flex-shrink:0}
+.pet .pet-chip b{font-size:12px;font-weight:500;color:#735782}
+.pet .pet-chip .muted{font-size:10px;color:#ad94b8;display:block;margin-bottom:2px}
+.pet .pet-chip.here{top:794px}
+.pet .pet-chip.next{top:850px}
+.pet.show-pet-info .pet-chip{display:flex}
+.pet .pet-speech{position:absolute;left:1490px;top:548px;width:248px;padding:16px 18px 15px;border:1px solid #fffdfa;background:linear-gradient(135deg,#fffdf8f5,#f2e7f7f5);color:#81638f;border-radius:21px 21px 21px 8px;box-shadow:0 3px 0 #cdb7d831;font-size:13px;line-height:1.7;pointer-events:none}
+.pet .pet-speech:after{content:'';position:absolute;width:8px;height:8px;bottom:-5px;left:26px;background:#f9f2fa;transform:rotate(45deg);border-right:1px solid #fffdfa;border-bottom:1px solid #fffdfa}
+.pet.menu-is-open .pet-speech{opacity:0}
+.pet .pet-speech small{font-size:9px;display:block;letter-spacing:1.7px;color:#b29abe;margin-bottom:5px}
+.pet .pet-focus{position:absolute;left:112px;top:170px;width:1080px;height:670px;background:#fcfbfd;border:1px solid #fff;border-radius:17px;box-shadow:0 16px 40px #4f405112;overflow:hidden;color:#82798c}
+.pet-focus .app-head{height:54px;background:#f0edf4;display:flex;align-items:center;padding:0 22px;gap:8px;font-size:11px;border-bottom:1px solid #e8e1ed}
+.pet-focus .app-head i{width:7px;height:7px;border-radius:50%;background:#d1c6dc}
+.pet-focus .app-head span{margin-left:20px;letter-spacing:1px}
+.pet-focus .workspace{display:flex;height:calc(100% - 54px)}
+.pet-focus .workspace aside{width:186px;flex-shrink:0;background:#f4f1f7;padding:32px 25px;font-size:12px;line-height:3;color:#aa9bb6;border-right:1px solid #e9e3ee}
+.pet-focus .workspace aside b{display:block;font-size:12px;font-weight:500;color:#80678e;margin-bottom:15px}
+.pet-focus .workspace section{padding:56px 46px;width:100%}
+.pet-focus .workspace section>small{font:10px Arial,sans-serif;letter-spacing:3px;color:#b09cbd}
+.pet-focus h1{font-size:27px;font-weight:400;letter-spacing:2px;color:#786284;margin:17px 0 20px}
+.pet-focus p{font-size:13px;line-height:2;color:#a193aa}
+.pet-focus .line{height:6px;background:#ece6f1;border-radius:3px;margin:22px 0;width:88%}
+.pet-focus .line.short{width:63%}
+.pet-focus .line.tiny{width:42%}
+.pet .taskbar{position:absolute;bottom:0;left:0;right:0;height:42px;background:#f0edf3b8;border-top:1px solid #fff8;display:flex;justify-content:center;align-items:center;gap:22px}
+.taskbar i{height:17px;width:17px;background:#d3c8dd;border-radius:5px}
+.dark .mode-trigger{border-color:#f2e8f6;background:linear-gradient(130deg,#fffaf5f5,#e7d5f0f5)}
+.dark .mode-trigger[aria-expanded=true]{background:#ac8bc0}
+.compact .player .track-title{top:54px;font-size:23px}
+.compact .player .track-artist{top:97px;font-size:16px}
+.compact .player .together{display:block;font-size:9px}
+.compact .player .times{font-size:15px}
+.compact .mode-menu button{height:49px;font-size:18px}
+.compact .mode-menu .menu-title{font-size:13px}
+.compact .mode-menu button .current{font-size:13px}
+.compact .pet-chip,.compact .pet-chip b{font-size:15px}
+.compact .pet-chip .muted{font-size:12px}
+.compact .pet-speech{font-size:16px}
+.compact .pet-speech small{font-size:12px}
+.capture .stage{margin:0}
+.preview-toast{position:absolute;left:710px;top:1021px;width:500px;text-align:center;font-size:12px;color:#947ca3;pointer-events:none}
+.pet .preview-toast{left:1360px;top:1015px;width:480px}

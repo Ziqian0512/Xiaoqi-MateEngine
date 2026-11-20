@@ -43,7 +43,8 @@ public class XiaoqiConfig
     // XQ: P1-5 坐在窗口上（PetHost.WindowSitEnabled）。默认开。
     public bool window_sit = true;
     // XQ: V6 按住说话快捷键（N / V / B / Space）。
-    public string voice_hotkey = "N";
+    public string voice_hotkey = "Ctrl+N";
+    public bool office_mode = false;
     // XQ: V6 自动语音播报回复。
     public bool voice_tts_auto = true;
     public float pet_voice_probability = 0.35f;
@@ -145,11 +146,12 @@ public class XiaoqiConfig
                     cfg.window_sit = true;
                     dirty = true;
                 }
-                if (text.IndexOf("\"voice_hotkey\"", StringComparison.Ordinal) < 0)
+                if (cfg.voice_hotkey != "Ctrl+N")
                 {
-                    cfg.voice_hotkey = "N";
+                    cfg.voice_hotkey = "Ctrl+N";
                     dirty = true;
                 }
+                if (text.IndexOf("\"office_mode\"", StringComparison.Ordinal) < 0) { cfg.office_mode = !cfg.bubble; dirty = true; }
                 if (text.IndexOf("\"voice_tts_auto\"", StringComparison.Ordinal) < 0)
                 {
                     cfg.voice_tts_auto = true;

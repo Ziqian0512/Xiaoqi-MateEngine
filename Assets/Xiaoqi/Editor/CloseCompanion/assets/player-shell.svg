@@ -1,0 +1,13 @@
+<svg viewBox="-24 -24 516 348" xmlns="http://www.w3.org/2000/svg"><defs>
+ <linearGradient id="v5-frame" x1="0" y1="0" x2=".85" y2="1"><stop stop-color="#fffdf8"/><stop offset=".48" stop-color="#e2cee9"/><stop offset="1" stop-color="#c5abd5"/></linearGradient>
+ <linearGradient id="v5-enamel" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffdf8"/><stop offset=".58" stop-color="#f8f1fa"/><stop offset="1" stop-color="#eee1f4"/></linearGradient>
+ <linearGradient id="v5-bottom" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d7bfe0" stop-opacity="0"/><stop offset="1" stop-color="#c6abd4" stop-opacity=".34"/></linearGradient></defs>
+ <rect x="2" y="11" width="464" height="289" rx="29" fill="#83648e" opacity=".06"/><rect x="-2" y="4" width="472" height="296" rx="31" fill="#b9a0c7" opacity=".07"/>
+ <rect x="0" y="0" width="468" height="295" rx="28" fill="url(#v5-frame)" stroke="#fffaf5" stroke-width="1.6"/>
+ <rect x="5" y="5" width="458" height="284" rx="24" fill="url(#v5-enamel)" stroke="#e8d9ed" stroke-width="1"/>
+ <path d="M6 227H462V265Q462 289 438 289H30Q6 289 6 265Z" fill="url(#v5-bottom)"/>
+ <path d="M28 10H439Q458 10 458 29" fill="none" stroke="#fffefa" stroke-width="1.4"/>
+ <path d="M11 259Q11 284 32 284H437" fill="none" stroke="#cab1d5" stroke-width=".85" opacity=".65"/>
+ <path d="M24 36H218" stroke="#e9dbef" stroke-width=".8"/>
+ <circle cx="449" cy="25" r="2" fill="#efe2f4" stroke="#c9afd6" stroke-width=".6"/>
+ </svg>

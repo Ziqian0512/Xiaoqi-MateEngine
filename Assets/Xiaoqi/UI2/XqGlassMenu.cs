@@ -18,8 +18,8 @@ namespace Xiaoqi.UI2
     public class XqGlassMenu
     {
         const float Gap = 12f;      // 卡与她、卡与卡的间距（面板单位）
-        const float L1W = 244f;
-        const float L2W = 224f;
+        const float L1W = 228f;
+        const float L2W = 254f;
 
         public static bool IsOpen { get; private set; }
         public static bool TestOpenRequest; // XQ: 验收钩子 -xq-menu-test 置位，下一次 Tick 自动打开菜单（默认不用）
@@ -87,6 +87,8 @@ namespace Xiaoqi.UI2
             _l1 = Card("xq-mcard", out _l1Box);
             _l2 = Card("xq-mcard xq-mcard2", out _l2Box);
             _l2.style.display = DisplayStyle.None;
+            _l1.style.width=L1W;_l2.style.width=L2W;
+            foreach(var card in new[]{_l1,_l2}){var bg=card.Q(className:"xq-mbg");if(bg!=null)XqVoiceOverlay.Surface(bg);}
             Root.Add(_l1);
             Root.Add(_l2);
             hudRoot.Add(Root);
@@ -103,7 +105,8 @@ namespace Xiaoqi.UI2
             var host = new VisualElement { pickingMode = PickingMode.Ignore };
             foreach (var c in cls.Split(' ')) if (c.Length > 0) host.AddToClassList(c);
             var shadow = new VisualElement { pickingMode = PickingMode.Ignore };
-            shadow.AddToClassList("xq-shadow");
+            shadow.style.position=Position.Absolute;shadow.style.left=0;shadow.style.right=0;shadow.style.top=2;shadow.style.bottom=-2;
+            shadow.style.backgroundColor=new Color(.36f,.29f,.44f,.06f);shadow.style.borderTopLeftRadius=shadow.style.borderTopRightRadius=shadow.style.borderBottomLeftRadius=shadow.style.borderBottomRightRadius=16;
             var bg = new VisualElement { pickingMode = PickingMode.Ignore };
             bg.AddToClassList("xq-mbg");
             box = new VisualElement { pickingMode = PickingMode.Position };
@@ -473,51 +476,50 @@ namespace Xiaoqi.UI2
 
         void Rebuild()
         {
-            _l1Box.Clear();
-            _l2Box.Clear();
-            _c1.Clear();
-            _c2.Clear();
-            _cur = _c1;
-            _subRow = null;
-            var st = XiaoqiLink.Current;
-
-            // 状态行（点它 = 今天）
-            var stat = new VisualElement();
-            stat.AddToClassList("xq-mstat");
-            var dot = new VisualElement { pickingMode = PickingMode.Ignore };
-            dot.AddToClassList("xq-mdot");
-            var where = new Label(StatusLine(st)) { pickingMode = PickingMode.Ignore };
-            where.AddToClassList("xq-mstat-text");
-            where.style.color = new Color(0.23f, 0.18f, 0.33f, 0.62f);
-            var energy = new Label(st != null && st.body != null ? "精力 " + Mathf.RoundToInt(Mathf.Clamp(st.body.stamina, 0f, 100f)) : "")
-            { pickingMode = PickingMode.Ignore };
-            energy.AddToClassList("xq-mstat-energy");
-            energy.style.color = XqTheme.AccentInk;
-            dot.style.backgroundColor = XqTheme.Accent;
-            stat.Add(dot); stat.Add(where); stat.Add(energy);
-            _c1.Add(new KeyValuePair<VisualElement, Action>(stat, () => { Close("action"); _openToday?.Invoke(); }));
-            _l1Box.Add(stat);
-
-            // 形态切换只放悬浮入口，今天由左键点她直接触发，避免右键菜单冗余堆砌
-            _l1Box.Add(Row("chat", "陪我看屏幕", () =>
-            {
-                Close("action");
-                var host = XqCloseData.Ensure();
-                XqScreenCompanion.PushNow(host, msg => Xiaoqi.Spike.PetBubble.Enqueue(msg, ""));
-            }));
-            _l1Box.Add(SubRow("spark", "让她…", "doing"));
-            string quietWord = XiaoqiRuntime.Dnd ? "安静一会 · 安静中" : "安静一会";
-            _l1Box.Add(SubRow("moon", quietWord, "quiet"));
-            var sep = new VisualElement { pickingMode = PickingMode.Ignore };
-            sep.AddToClassList("xq-msep");
-            _l1Box.Add(sep);
-            _l1Box.Add(Row("gear", "偏好设置", () => { Close("settings"); XqSettingsPanel.Open(); }));
-
-            _cur = _c2;
-            _setRowEls.Clear();
-            if (_sub == "doing") BuildDoing();
-            else if (_sub == "quiet") BuildQuiet();
-            else if (_sub == "settings") BuildSettingsCats();
+            _l1Box.Clear();_l2Box.Clear();_c1.Clear();_c2.Clear();_cur=_c1;_subRow=null;
+            var st=XiaoqiLink.Current;
+            var header=new VisualElement {pickingMode=PickingMode.Ignore};header.style.height=62;header.style.flexShrink=0;
+            var line=new Label(StatusLine(st)){enableRichText=false,pickingMode=PickingMode.Ignore};line.style.fontSize=12;line.style.color=XqTheme.Ink;line.style.position=Position.Absolute;line.style.left=7;line.style.top=7;line.style.width=133;line.style.whiteSpace=WhiteSpace.NoWrap;line.style.overflow=Overflow.Hidden;line.style.textOverflow=TextOverflow.Ellipsis;header.Add(line);
+            var energy=new Label(st?.body!=null?"精力 "+Mathf.RoundToInt(st.body.stamina)+" · 正在陪着你":"生活状态同步中"){pickingMode=PickingMode.Ignore};energy.style.position=Position.Absolute;energy.style.left=8;energy.style.top=33;energy.style.fontSize=10;energy.style.color=new Color(.66f,.59f,.71f);header.Add(energy);
+            var today=new Label("今天 ↗");today.style.position=Position.Absolute;today.style.right=2;today.style.top=5;today.style.fontSize=11;today.style.paddingLeft=today.style.paddingRight=7;today.style.paddingTop=today.style.paddingBottom=5;today.style.color=XqTheme.AccentInk;header.Add(today);_c1.Add(new KeyValuePair<VisualElement,Action>(today,()=>{Close("today");_openToday?.Invoke();}));_l1Box.Add(header);
+            _l1Box.Add(SubRow("chat","说说话","talk"));_l1Box.Add(SubRow("spark","和她互动","doing"));_l1Box.Add(SubRow("home","桌面位置","position"));_l1Box.Add(SubRow("moon","声音与勿扰","quiet"));
+            var sep=new VisualElement {pickingMode=PickingMode.Ignore};sep.AddToClassList("xq-msep");_l1Box.Add(sep);_l1Box.Add(Row("gear","偏好设置…",()=>{Close("settings");XqSettingsPanel.Open();}));
+            _cur=_c2;_setRowEls.Clear();
+            if(_sub=="talk")BuildTalk();else if(_sub=="doing"||_sub=="dance")BuildDoing();else if(_sub=="position")BuildPosition();else if(_sub=="quiet")BuildQuiet();
+        }
+        void Heading(string text){var l=new Label(text){pickingMode=PickingMode.Ignore};l.style.fontSize=12;l.style.paddingLeft=8;l.style.paddingTop=7;l.style.paddingBottom=12;l.style.color=XqTheme.Ink;_l2Box.Add(l);}
+        internal static void ReviewMenu(string sub)
+        {
+            var i=_curInst;if(i==null||i._panelRef==null)return;
+            if(!i._open)i.Open(i._panelRef,i._scaleRef);i._sub=sub;i.Rebuild();
+        }
+        internal static Newtonsoft.Json.Linq.JObject ReviewBounds()
+        {
+            var i=_curInst;var report=new Newtonsoft.Json.Linq.JObject();if(i==null)return report;
+            foreach(var pair in new[]{new KeyValuePair<string,VisualElement>("primary",i._l1),new KeyValuePair<string,VisualElement>("secondary",i._l2)})
+            {var r=pair.Value.worldBound;report[pair.Key]=new Newtonsoft.Json.Linq.JArray(r.x,r.y,r.width,r.height);}
+            report["primaryActions"]=_c1.Count;report["secondaryActions"]=_c2.Count;return report;
+        }
+        static VisualElement Detail(string glyph,string text,string detail,Action action)
+        {
+            var row=Row(glyph,text,action);row.style.height=54;row.style.minHeight=54;
+            var label=row.Q<Label>();label.style.position=Position.Absolute;label.style.left=43;label.style.top=7;label.style.fontSize=12;label.style.width=185;
+            var sub=new Label(detail){pickingMode=PickingMode.Ignore,enableRichText=false};sub.style.position=Position.Absolute;sub.style.left=43;sub.style.top=29;sub.style.fontSize=10;sub.style.width=185;sub.style.color=new Color(.65f,.58f,.70f);sub.style.whiteSpace=WhiteSpace.NoWrap;sub.style.textOverflow=TextOverflow.Ellipsis;sub.style.overflow=Overflow.Hidden;row.Add(sub);
+            if(action==null){row.style.opacity=.55f;row.tooltip=detail;}return row;
+        }
+        void BuildTalk()
+        {
+            Heading("说说话");_l2Box.Add(Detail("chat","打字聊天","输入一条消息",()=>{Close("type");if(XqMode.Current==XqView.Pet)XqVoiceOverlay.OpenTyping();else XqVoiceOverlay.Notice("请使用近景下方输入框。");}));
+            _l2Box.Add(Detail("mic","按住说话 · Ctrl+N","按住此项或 Ctrl+N · 松开发送",()=>{Close("voice");XqVoiceOverlay.BeginMenuVoice();}));
+            _l2Box.Add(Detail("win","分享当前窗口标题","只分享应用与标题，不发送截图",()=>{Close("screen");XqScreenCompanion.PushNow(XqCloseData.Ensure(),XqVoiceOverlay.Notice);}));
+        }
+        void RunHost(string id){var h=PetHost.I;bool ok=h!=null&&h.Ready&&h.RunAction(id);Close("action");if(!ok)XqVoiceOverlay.Notice("这个动作暂时不可用，请等模型加载完成。");}
+        void BuildPosition()
+        {
+            Heading("桌面位置");var h=PetHost.I;
+            _l2Box.Add(Detail("home","回当前屏幕中间","在小祈所在显示器内归位",h!=null&&h.Ready?(Action)(()=>{h.ExitWindowSit();h.MoveToCenter();Close("center");}):null));
+            _l2Box.Add(Detail("win","离开窗边",h!=null&&h.IsWindowSitting?"回到桌面上":"现在没有坐在窗口上",h!=null&&h.IsWindowSitting?(Action)(()=>RunHost("unsit")):null));
+            _l2Box.Add(Detail("gear","自动坐窗口","长期行为开关在偏好设置",()=>{Close("settings");XqSettingsPanel.OpenPage(1);}));
         }
 
         static readonly string[] SetGlyphs = { "heart", "spark", "win", "music", "live", "home" };
@@ -571,8 +573,9 @@ namespace Xiaoqi.UI2
         {
             VisualElement row = null;
             row = Row(glyph, text, () => SetSub(kind, row), chev: true);
-            if (_sub == kind)
+            if (_sub == kind || (kind=="doing" && _sub=="dance"))
             {
+                row.style.backgroundColor=new Color(.937f,.91f,.965f);
                 row.AddToClassList("xq-mrow-open");
                 _subRow = row;
             }
@@ -581,92 +584,22 @@ namespace Xiaoqi.UI2
 
         void BuildDoing()
         {
-            var st = XiaoqiLink.Current;
-            bool outside = st != null && st.where != "dorm";
-            string why = (st != null && st.seg != null ? st.seg.name : "") + "，回来再说";
-            bool asleep = Xiaoqi.Spike.PetPresence.IsAsleep;
-
-            _l2Box.Add(Row("home", "回到中间", () =>
+            var h=PetHost.I;bool ready=h!=null&&h.Ready;var st=XiaoqiLink.Current;bool outside=st!=null&&!string.IsNullOrEmpty(st.where)&&st.where!="dorm";bool asleep=Xiaoqi.Spike.PetPresence.IsAsleep;
+            if(_sub=="dance")
             {
-                PetHost.I?.ExitWindowSit();
-                PetHost.I?.MoveToCenter();
-                Close("action");
-            }));
-
-            if (outside) _l2Box.Add(Gray("bed", asleep ? "叫醒她" : "睡一会", why));
-            else
-                _l2Box.Add(Row("bed", asleep ? "叫醒她" : "睡一会", () =>
-                {
-                    if (asleep) Xiaoqi.Spike.PetPresence.Wake();
-                    else Xiaoqi.Spike.PetPresence.Nap(XiaoqiRuntime.Config != null ? XiaoqiRuntime.Config.nap_min : 20);
-                    Close("action");
-                }));
-
-            if (PetHost.I != null)
-            {
-                foreach (var act in PetHost.I.Actions)
-                {
-                    if (act.Id.StartsWith("idle_") || act.Id.StartsWith("dance_")) continue;
-                    var a = act;
-                    string g = a.Id == "unsit" ? "win" : "heart";
-                    _l2Box.Add(Row(g, a.Label, () =>
-                    {
-                        if (!PetHost.I.RunAction(a.Id)) Debug.Log("XQ_MENU2 action failed " + a.Id);
-                        Close("action");
-                    }));
-                }
+                Heading("选一支舞");_l2Box.Add(Row("chev","返回互动",()=>{_sub="doing";Rebuild();}));var seen=new HashSet<string>();if(h!=null)foreach(var action in h.Actions){var act=action;if(!act.Id.StartsWith("dance_")||!seen.Add(act.Id))continue;_l2Box.Add(Detail("music",act.Label,"内置动作",ready&&!outside?(Action)(()=>RunHost(act.Id)):null));}
+                _l2Box.Add(Detail("music","停止跳舞","结束手动舞蹈",h!=null&&h.IsDancing?(Action)(()=>{h.StopDance();Close("dance-stop");}):null));return;
             }
-
-            bool hasDance = PetHost.I != null && PetHost.I.Dances.Count > 0;
-            if (!hasDance && PetHost.I != null)
-                foreach (var act in PetHost.I.Actions)
-                    if (act.Id.StartsWith("dance_")) { hasDance = true; break; }
-            if (hasDance)
-            {
-                if (outside) _l2Box.Add(Gray("music", "跳舞", why));
-                else
-                {
-                    var dance = Row("music", "跳舞", () => { _danceOpen = !_danceOpen; Rebuild(); }, chev: true);
-                    if (_danceOpen) dance.AddToClassList("xq-mrow-open");
-                    _l2Box.Add(dance);
-                    if (_danceOpen) _l2Box.Add(DanceChips());
-                }
-            }
+            Heading("和她互动");_l2Box.Add(Detail("heart","摸摸头","轻轻摸摸她的头",ready&&!asleep?(Action)(()=>{Xiaoqi.Spike.XiaoqiFace.React(.65f,.32f);Close("pat");}):null));
+            _l2Box.Add(Detail("spark","换个姿势",ready?"换个舒服一点的姿势":"模型尚未就绪",ready&&!asleep?(Action)(()=>RunHost("pose_next")):null));
+            _l2Box.Add(Detail("bed",asleep?"叫醒她":"小睡一会",outside?"她正在外面，回来再休息":"20 分钟 · 随时叫醒",ready&&(!outside||asleep)?(Action)(()=>{if(asleep)Xiaoqi.Spike.PetPresence.Wake();else Xiaoqi.Spike.PetPresence.Nap(XiaoqiRuntime.Config?.nap_min??20);Close("nap");}):null));
+            _l2Box.Add(Detail("music","选一支舞",outside?"她正在外面，回来再跳":"和她一起放松一下",ready&&!outside?(Action)(()=>{_sub="dance";_subT0=Time.unscaledTime;Rebuild();}):null));
         }
-
-        VisualElement DanceChips()
-        {
-            var wrap = new VisualElement { pickingMode = PickingMode.Ignore };
-            wrap.AddToClassList("xq-mchips");
-            if (PetHost.I == null) return wrap;
-            foreach (var name in PetHost.I.Dances)
-            {
-                string dn = name;
-                wrap.Add(Chip(dn, false, () =>
-                {
-                    if (PetHost.I.PlayDance(dn)) Close("action");
-                    else Debug.Log("XQ_MENU2 dance failed " + dn);
-                }));
-            }
-            foreach (var act in PetHost.I.Actions)
-            {
-                if (!act.Id.StartsWith("dance_")) continue;
-                var a = act;
-                wrap.Add(Chip(a.Label, false, () => { PetHost.I.RunAction(a.Id); Close("action"); }));
-            }
-            if (PetHost.I.IsDancing)
-                wrap.Add(Chip("停下", true, () => { PetHost.I.StopDance(); Close("action"); }));
-            return wrap;
-        }
-
         void BuildQuiet()
         {
-            _l2Box.Add(Row("moon", "30 分钟", () => { XiaoqiRuntime.SetQuietMinutes(30); Close("action"); }));
-            _l2Box.Add(Row("moon", "1 小时", () => { XiaoqiRuntime.SetQuietMinutes(60); Close("action"); }));
-            _l2Box.Add(Row("moon", "到明早 8 点", () => { XiaoqiRuntime.SetQuietTomorrow8(); Close("action"); }));
-            _l2Box.Add(Row("moon", "一直", () => { XiaoqiRuntime.SetQuietForever(); Close("action"); }));
-            if (XiaoqiRuntime.Dnd)
-                _l2Box.Add(Row("sun", "不安静了", () => { XiaoqiRuntime.ClearQuiet(); Close("action"); }));
+            Heading("声音与勿扰");if(XiaoqiRuntime.Dnd)_l2Box.Add(Detail("sun","结束勿扰",XiaoqiRuntime.Config.muted?"声音仍保持静音，可在下方打开":"恢复主动陪伴",()=>{XiaoqiRuntime.ClearQuiet();Rebuild();}));
+            _l2Box.Add(Detail("moon","勿扰 30 分钟","暂缓主动打扰，保留手动互动",()=>{XiaoqiRuntime.SetQuietMinutes(30);Rebuild();}));_l2Box.Add(Row("moon","勿扰 1 小时",()=>{XiaoqiRuntime.SetQuietMinutes(60);Rebuild();}));_l2Box.Add(Row("moon","勿扰至明早 8 点",()=>{XiaoqiRuntime.SetQuietTomorrow8();Rebuild();}));
+            bool muted=XiaoqiRuntime.Config.muted;_l2Box.Add(Detail("music",muted?"打开小祈的声音":"静音小祈",muted?"当前已静音，不改变播放器音量":"小祈音量 "+Mathf.RoundToInt(XiaoqiRuntime.Config.volume*100)+"%",()=>{XqSettingsApply.SetMuted(!muted);XiaoqiConfig.Save(XiaoqiRuntime.Config);Rebuild();}));_l2Box.Add(Row("gear","更多声音设置…",()=>{Close("settings");XqSettingsPanel.OpenPage(3);}));
         }
 
         // ------------------------------------------------------------ 小部件
@@ -677,14 +610,15 @@ namespace Xiaoqi.UI2
             row.AddToClassList("xq-mrow");
             var ic = new VisualElement { pickingMode = PickingMode.Ignore };
             ic.AddToClassList("xq-mic");
-            var g = new XqGlyph(glyph, Color.white);
+            var g = new XqGlyph(glyph, new Color(.61f,.53f,.70f));
             g.AddToClassList("xq-mglyph");
             ic.Add(g);
             var label = new Label(text) { pickingMode = PickingMode.Ignore };
             label.AddToClassList("xq-mtext");
             // 不全靠 USS 变量：颜色同时直接写在元素上，主题变量没解析出来也看得见
             label.style.color = XqTheme.Ink;
-            ic.style.backgroundColor = XqTheme.Accent;
+            ic.style.backgroundColor = Color.clear;
+            ic.style.width=22;ic.style.height=22;ic.style.marginRight=12;row.style.height=42;row.style.minHeight=42;row.style.paddingLeft=10;row.style.paddingRight=10;label.style.fontSize=13;
             row.Add(ic);
             row.Add(label);
             if (chev)

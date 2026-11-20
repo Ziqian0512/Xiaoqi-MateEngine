@@ -1,10 +1,12 @@
 # Xiaoqi-MateEngine (`xiaoqi/p2-agy4`) 多 Agent 协作状态板
 
-> 最后更新：2026-11-19
+> 最后更新：2026-11-20
 > 仓库：`https://github.com/Ziqian0512/Xiaoqi-MateEngine.git`
 > 协作主开发分支：**`xiaoqi/p2-agy4`**（对应本地 `E:\dsh-pet-projects\Xiaoqi-ME-p2`）
 
 ---
+
+> 最新近景第七稿与桌宠调优以第 10 节为准；下文第 1–9 节保留阶段记录。
 
 ## 1. 已完成（Current State，2026-11-19 获批 V4 落地）
 - 三形态沿用成熟的模式切换、现有 3D 模型与表情链路；新增统一的柔白紫烘焙材质 `XqMoonSurface`。桌宠气泡/胶囊同步材质，近景与工作台采用获批布局。没有启用原生桌面背景模糊。
@@ -109,3 +111,15 @@
 - 最终实机输出与报告在 `E:/dsh-pet-projects/design-previews/2026-11-20/close-refine/runtime-release/`。1920×1080 实际 UIDocument 与帧截图，1366×768 同一原生布局离屏输出；中心脸区 UI 最大 alpha=0、实际帧角落 alpha=0、MainCamera.rect 全屏、签名与声浪锚点误差≤1px。完整及紧凑尺寸的按能力命中检查、三种全文弹层、近景→工作台→桌宠→近景往返全部通过。截图目标释放前等待渲染帧结束，本轮往返未重现旧评审捕获后的崩溃。
 - 电脑操作工具仍不能枚举全屏透明 Unity 窗口，故没有冒充完成操作系统鼠标实点验收；紧凑图片也不冒充物理显示器分辨率。无私人文案的验证汇总、同源预览源码、SVG 和导出脚本已归档 `Assets/Xiaoqi/Editor/CloseCompanion/`；说明见 `CLOSE-COMPANION.md`。
 - 已 robocopy 同步 `Xiaoqi-Tonight/Xiaoqi`（退出码 3），新增防重复启动入口 `Xiaoqi-Tonight/7-close-companion.cmd`。Build／Tonight 的 Assembly-CSharp.dll SHA256 均为 E41479102ECC60CD93F33BD5281E1E71C6365B1E6E215FA7114972B5221539B6；同步后个人配置 SHA256 保持 DF05C28AF5A1F44E0D687F35198861D3404F03F6E888327CBBA50A6A1B2DF198。没有联动启动老板项目或历史 G55，未改 Brain／QQ 服务。
+
+## 10. 2026-11-20 获批近景第七稿与桌宠菜单
+
+- 近景按第七稿落地：高清侧坐 Q 版、(80,690,468,300) 唱片播放器、72px 时钟、左侧灰紫轻签名与同源连线；磁带移右下。保留真实媒体控制/状态及缺失时间线空态。声浪锚点、原 3D 材质和动作保持，脸部中央透明。形态入口收为输入条右侧 54px 按钮，点击展开；Esc 优先关弹层。
+- 桌宠统一单枚猫耳入口、靠近展开的打字/语音/形态、勿扰月亮徽标和有界的单条回复。停用重叠的旧 HUD 胶囊、HeadAnchor 标签和 PetBubble 画面。Windows 桌宠/近景全局接管准确的 Ctrl+N，按住录音、松开发送、Esc 取消；普通 N、Ctrl+Shift+N、Ctrl+Alt+N 保留。鼠标麦克风、重试及菜单语音项同样采用按住/松开规则，失焦和切形态取消；退出释放键盘钩子。工作台不接管语音键。
+- 右键分为说说话 / 和她互动 / 桌面位置 / 声音与勿扰，顶部显式“今天”。舞蹈只列去重内置 ID，并在同一二级面板返回，不加第三列；外出/睡眠/模型未就绪/未坐窗口提供禁用原因。偏好设置独立，行为与声音入口直达对应页；Q 版比例移外观，长期勿扰留声音页。
+- 修复坐窗口配置来源分歧、主屏归位改为自身进程及角色所在显示器、换姿势改走已有平滑过渡、手动摸头不再依赖云端情绪开关且能恢复中性。连接测试实际 GET 状态接口并验格式，不冒称测试了 AI/STT/TTS。屏幕入口明确为窗口标题分享；版本与互动日志名称纠正。
+- 气泡与 TTS 解耦，新增独立 office_mode 保留办公隐私优先级；旧 bubble=false 保护性迁移，旧办公入口同步新字段。首启只按批准迁移 voice_hotkey=Ctrl+N 并补 office_mode，保留连接、音量、勿扰等原值。勿扰和静音分别显示。
+- 最终构建 `XqCompanionBuild.VerifyAndBuild -> XiaoqiBuild.Win64` 成功退出 0，日志 `E:/dsh-pet-projects/logs/companion-v7-pet-release.log`。7 项用量、13 项语音策略、5 项组合键检查通过；运行纹理保持原尺寸、不压缩、无 mipmap。
+- 正式启动参数 `-settings-v2 -xq-bench` 下，1920/1366 两尺寸命中、三态往返、五组菜单边界、透明中心与真实 3D 渲染通过。实际输出和报告在 `E:/dsh-pet-projects/design-previews/2026-11-20/pet-refine/runtime-release/`，无私人文案的摘要在 `Assets/Xiaoqi/Editor/PetCompanion/verification.json`。抓图先清空目标纹理，避免误把复用 GPU 内存当成界面残影；主相机 rect 始终全屏。
+- 获批预览及 38 项原始审计在 Editor/CloseCompanion 和 Editor/PetCompanion，原审计中的“待修复”是评审时记录，当前结果以本节为准。真人麦克风准确率、跨应用物理快捷键、多屏/DPI 鼠标手感与五支舞蹈观感仍需用户体验；自动渲染与钩子安装不冒充全量真人验收。原有 localization/SteamDRM 警告未在本轮扩展处理。未改云端 Brain、QQ 或老板项目。
+- 已用 robocopy 同步至 `Xiaoqi-Tonight/Xiaoqi`，退出码 3；源/目标 Assembly-CSharp.dll SHA256 同为 `66287BB57C378EEEE4FE8A6AFDBD2A3168EFB5384A7F4E4E1D0E3A916C04AC06`。正式成品已从 Tonight 目录以近景启动，语音钩子 ready。个人配置逐字段指纹复核仅 voice_hotkey 与新增 office_mode 变化，其余值保持；原勿扰没有擅自关闭。继续使用 `7-close-companion.cmd` 可启动新版，已有实例时请在其形态按钮中切换。

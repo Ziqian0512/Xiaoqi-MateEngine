@@ -196,7 +196,7 @@ namespace Xiaoqi.UI2
             if (cfg == null) return;
             bool toOffice = cfg.token != OfficeToken;
             cfg.token = toOffice ? OfficeToken : HomeToken;
-            cfg.bubble = !toOffice;
+            cfg.bubble = !toOffice; cfg.office_mode = toOffice;
             XiaoqiConfig.Save(cfg);
             if (_modeBtnLabel != null) _modeBtnLabel.text = toOffice ? "💼 办公模式" : "🏠 居家模式";
             RenderPage();
@@ -503,11 +503,11 @@ namespace Xiaoqi.UI2
             var cRight = Card(_bentoHost, 386f, false);
             cRight.Add(L("🎙️ 语音对话与热键", 12f, Ink, true));
             cRight.Add(Box(1, 8f, 0, Color.clear));
-            string hk = cfg != null && !string.IsNullOrEmpty(cfg.voice_hotkey) ? cfg.voice_hotkey : "N";
+            string hk = cfg != null && !string.IsNullOrEmpty(cfg.voice_hotkey) ? cfg.voice_hotkey : "Ctrl+N";
             AddBenchSettingBtn(cRight, "桌宠按住说话热键：" + hk + "（点击切换）", () =>
             {
                 if (XiaoqiRuntime.Config == null) return;
-                var keys = new[] { "N", "V", "B", "Space" };
+                var keys = new[] { "Ctrl+N" };
                 int idx = Array.IndexOf(keys, XiaoqiRuntime.Config.voice_hotkey);
                 XiaoqiRuntime.Config.voice_hotkey = keys[(idx + 1) % keys.Length];
                 XiaoqiConfig.Save(XiaoqiRuntime.Config);
@@ -853,14 +853,14 @@ namespace Xiaoqi.UI2
             AddModeOpt(cMode, "🏠 居家模式", "显示私聊气泡与完整同步", !isOff && !isDnd, () =>
             {
                 if (cfg == null) return;
-                cfg.token = HomeToken; cfg.bubble = true; XiaoqiRuntime.ClearQuiet(); XiaoqiConfig.Save(cfg);
+                cfg.token = HomeToken; cfg.bubble = true; cfg.office_mode = false; XiaoqiRuntime.ClearQuiet(); XiaoqiConfig.Save(cfg);
                 if (_modeBtnLabel != null) _modeBtnLabel.text = "🏠 居家模式";
                 Toast("已切至居家模式"); RenderPage();
             });
             AddModeOpt(cMode, "💼 办公防社死", "隐藏私聊文本，只留动作", isOff, () =>
             {
                 if (cfg == null) return;
-                cfg.token = OfficeToken; cfg.bubble = false; XiaoqiConfig.Save(cfg);
+                cfg.token = OfficeToken; cfg.bubble = false; cfg.office_mode = true; XiaoqiConfig.Save(cfg);
                 if (_modeBtnLabel != null) _modeBtnLabel.text = "💼 办公模式";
                 Toast("已切至办公防社死模式"); RenderPage();
             });

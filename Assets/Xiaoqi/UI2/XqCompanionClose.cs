@@ -8,7 +8,7 @@ using Xiaoqi.Mode;
 
 namespace Xiaoqi.UI2
 {
-    // Approved revision 3, 1920 x 1080. Artwork is the actual exported preview artwork;
+    // Approved revision 7, 1920 x 1080. Artwork is the actual exported preview artwork;
     // all changing information and hit targets remain native UI Toolkit elements.
     public partial class XqClosePanel
     {
@@ -16,8 +16,8 @@ namespace Xiaoqi.UI2
         readonly List<CompanionSlot> _compSlots = new List<CompanionSlot>();
         readonly Dictionary<string, VisualElement> _compHits = new Dictionary<string, VisualElement>();
         readonly Dictionary<string, Action> _compActions = new Dictionary<string, Action>();
-        Label _compSeconds, _compActivity, _compWhisper, _compListenWord, _compUsage, _compUsageTitle, _compNotice;
-        VisualElement _compStatus, _compDecor, _compModal;
+        Label _compSeconds, _compActivity, _compWhisper, _compListenWord, _compUsage, _compUsageTitle, _compNotice, _compPlaybackState;
+        VisualElement _compStatus, _compDecor, _compModal, _compModeTrigger; bool _compModeOpen;
         Image _compCover, _compChibi;
         float _compScale, _compNextTick, _compNoticeUntil, _compPatUntil;
         string _compPressed;
@@ -90,21 +90,21 @@ namespace Xiaoqi.UI2
             _compDecor=CompanionArt(_host,"structure","structure",0,0,1920,1080);_compDecor.SendToBack();
             BuildCompanionWave();
 
-            _cardNext=CompanionNode(_host,"clock",82,72,470,175);_bodyNext=new VisualElement();
-            CompanionArt(_cardNext,"clock-bow","bow",-18,-24,72,51).style.rotate=new UnityEngine.UIElements.Rotate(new Angle(-13,AngleUnit.Degree));
-            var caption=CompanionText(_cardNext,"clock-caption","A LITTLE MOMENT WITH YOU",64,0,360,15,10,CompanionSoft);
+            _cardNext=CompanionNode(_host,"clock",96,82,480,216);_bodyNext=new VisualElement();
+            CompanionArt(_cardNext,"clock-bow","bow",-22,-33,82,58).style.rotate=new UnityEngine.UIElements.Rotate(new Angle(-13,AngleUnit.Degree));
+            var caption=CompanionText(_cardNext,"clock-caption","A LITTLE MOMENT WITH YOU",67,0,360,15,11.5f,CompanionSoft);
             caption.style.letterSpacing=3;
-            _clockBig=CompanionText(_cardNext,"clock-time","",0,18,166,75,58,Rgb(108,82,132));
-            _compSeconds=CompanionText(_cardNext,"clock-seconds","",168,59,48,23,17,CompanionSoft);
-            _locPill=CompanionText(_cardNext,"date","",4,99,466,25,14,CompanionSoft,17);
-            _weatherPill=CompanionText(_cardNext,"weather","",4,129,466,30,14,CompanionSoft,17);
-            CompanionText(_host,"left-kicker","THE LITTLE THINGS, WITH YOU",106,278,450,17,10,CompanionSoft).style.letterSpacing=3;
-            CompanionText(_host,"left-title","把今天，讲给我听。",106,300,470,49,30);
+            _clockBig=CompanionText(_cardNext,"clock-time","",0,25,210,85,72,Rgb(108,82,132));
+            _compSeconds=CompanionText(_cardNext,"clock-seconds","",222,72,48,28,20,CompanionSoft);
+            _locPill=CompanionText(_cardNext,"date","",4,117.6f,476,25,17,CompanionSoft,17);
+            _weatherPill=CompanionText(_cardNext,"weather","",4,148.6f,476,30,17,CompanionSoft,17);
+            CompanionText(_host,"left-kicker","THE LITTLE THINGS, WITH YOU",106,310,450,17,10,CompanionSoft).style.letterSpacing=3;
+            CompanionText(_host,"left-title","把今天，讲给我听。",106,337,470,49,32);
             CompanionText(_host,"right-title","一起做点小事。",1422,379,450,45,26);
             CompanionArt(_host,"moon-bow","bow",1694,421,88,62).style.rotate=new UnityEngine.UIElements.Rotate(new Angle(5,AngleUnit.Degree));
 
-            _actPat=CompanionSticker("pat",110,389,188,174,-7,"摸摸头",69,19,out _actPatLbl);
-            _approvedListen=CompanionSticker("listen",312,505,224,154,4,"听我说",48,19,out _compListenWord);
+            _actPat=CompanionSticker("pat",258,430,188,174,-7,"摸摸头",69,19,out _actPatLbl);
+            _approvedListen=CompanionSticker("listen",1628,784,224,154,4,"听我说",48,19,out _compListenWord);
             _actScreen=CompanionSticker("screen",1398,455,204,204,-4,"看我屏幕",159,18,out _actScreenLbl);
             _approvedQuiet=CompanionSticker("quiet",1648,550,158,172,7,"安静陪伴",138,16,out _approvedQuietLabel);
             CompanionHot("pat",_actPat,()=>{
@@ -118,7 +118,7 @@ namespace Xiaoqi.UI2
                 if(silent){cfg.dnd=false;XiaoqiRuntime.ClearQuiet();XqSettingsApply.SetMuted(false);}
                 else XqSettingsApply.SetMuted(true);
                 XiaoqiConfig.Save(cfg);
-                CompanionNotice(cfg.muted?"声音已关闭，仍然可以打字聊天。":cfg.voice_tts_auto&&cfg.bubble?"已解除静音和勿扰，我在听。":"已解除静音和勿扰；自动播报仍遵循语音设置。");
+                CompanionNotice(cfg.muted?"声音已关闭，仍然可以打字聊天。":cfg.voice_tts_auto&&!cfg.office_mode?"已解除静音和勿扰，我在听。":"已解除静音和勿扰；自动播报仍遵循语音设置。");
             },"关闭 / 恢复小祈的声音；恢复时同时解除勿扰，不改变音乐音量");
             CompanionHot("screen",_actScreen,()=>{
                 CompanionNotice("正在分享当前窗口标题…");
@@ -127,8 +127,8 @@ namespace Xiaoqi.UI2
 
             _compStatus=CompanionNode(_host,"status",1386,74,470,284);
             CompanionArt(_compStatus,"cloud","status-surface",0,0,470,284);
-            _compChibi=new Image {image=Resources.Load<Texture2D>("XqChibiPeek"),scaleMode=ScaleMode.ScaleToFit,pickingMode=PickingMode.Ignore};
-            _compStatus.Add(_compChibi);CompanionSlotFor(_compChibi,-53,-12,160,130);
+            _compChibi=new Image {image=Resources.Load<Texture2D>("CloseCompanion/chibi-sit"),scaleMode=ScaleMode.ScaleToFit,pickingMode=PickingMode.Ignore};
+            _compStatus.Add(_compChibi);CompanionSlotFor(_compChibi,-63,-71,214,214);
             var dot=CompanionNode(_compStatus,"status-dot",123,43,6,6);dot.style.backgroundColor=Rgb(175,184,148);SetRadius(dot,3);
             CompanionText(_compStatus,"status-title","她的此刻",138,31,270,29,19,CompanionSoft,20);
             _compActivity=CompanionText(_compStatus,"activity","生活状态同步中…",123,77,295,42,22,null,23);
@@ -147,6 +147,7 @@ namespace Xiaoqi.UI2
                 CompanionModal("对话用量",today+(u==null?"本轮响应没有提供有效用量。":$"本轮输入 {u.promptTokens:N0} tokens\n本轮输出 {u.completionTokens:N0} tokens\n本轮合计 {u.totalTokens:N0} tokens"));
             },"查看云端今日账本与最近一轮响应用量");
 
+            _plate.Clear();_plate.style.backgroundImage=new StyleBackground(Resources.Load<Texture2D>("CloseCompanion/signoff"));
             BuildCompanionPlayer();BuildCompanionChat();
             _cardSay=CompanionNode(_host,"reply",574.3f,917.1f,771.4f,34.3f);_bodySay=new VisualElement();
             _sayText=CompanionText(_cardSay,"reply-text","",9,4,753,28,15,Rgb(110,93,122),17);
@@ -166,31 +167,35 @@ namespace Xiaoqi.UI2
         }
         void BuildCompanionPlayer()
         {
-            _cardMusic=CompanionNode(_host,"player",84,750,468,256);_bodyMusic=new VisualElement();
-            CompanionArt(_cardMusic,"player-surface","player-surface",-32,-32,532,320);
-            CompanionArt(_cardMusic,"record","record",96,51,114,114);
+            _cardMusic=CompanionNode(_host,"player",80,690,468,300);_bodyMusic=new VisualElement();
+            CompanionArt(_cardMusic,"player-surface","player-surface",-24,-24,516,348);
+            CompanionText(_cardMusic,"radio-tag","OUR LITTLE RADIO",27,20,210,20,11,CompanionSoft,14).style.letterSpacing=2;
+            CompanionArt(_cardMusic,"tiny-bow","bow",179,18,39,28).style.rotate=new UnityEngine.UIElements.Rotate(new Angle(10));
+            var seam=CompanionNode(_cardMusic,"player-seam",249,177,188,1);seam.style.backgroundColor=Rgb(219,201,225);
+            _compPlaybackState=CompanionText(_cardMusic,"playback-state","",28,208,188,23,11,CompanionSoft,15);
+            CompanionArt(_cardMusic,"record","record",76,32,162,162);
             // The fallback is explicitly illustrative; it is never presented as a retrieved album cover.
-            _compCover=CompanionArt(_cardMusic,"cover","",24,48,110,110);_musicCover=_compCover;
+            _compCover=CompanionArt(_cardMusic,"cover","",25,51,124,124);_musicCover=_compCover;
             _compCover.scaleMode=ScaleMode.ScaleAndCrop;_compCover.style.rotate=new UnityEngine.UIElements.Rotate(new Angle(-4,AngleUnit.Degree));
             SetAllBorder(_compCover,2,Color.white);SetRadius(_compCover,14);
-            var together=CompanionText(_cardMusic,"together","LISTENING TOGETHER / 一起听",226,35,220,16,9,CompanionSoft);together.style.letterSpacing=1;
-            _musicTitle=CompanionText(_cardMusic,"song","",226,61,220,38,25);
-            _musicArtist=CompanionText(_cardMusic,"artist","",227,103,219,48,13,CompanionSoft,16);
+            var together=CompanionText(_cardMusic,"together","LISTENING TOGETHER / 一起听",254,42,194,16,9,CompanionSoft);together.style.letterSpacing=1;
+            _musicTitle=CompanionText(_cardMusic,"song","",254,74,194,40,28);
+            _musicArtist=CompanionText(_cardMusic,"artist","",255,119,191,48,13,CompanionSoft,16);
             _musicArtist.style.whiteSpace=WhiteSpace.Normal;
             CompanionText(_cardMusic,"player-heart","♡",429,15,24,25,18,Rgb(201,148,175));
-            var track=CompanionNode(_cardMusic,"music-progress",26,174,416,3);track.style.backgroundColor=Rgb(223,208,232);
+            var track=CompanionNode(_cardMusic,"music-progress",28,254,412,3);track.style.backgroundColor=Rgb(223,208,232);
             _musicFill=new VisualElement {pickingMode=PickingMode.Ignore};_musicFill.style.height=Length.Percent(100);_musicFill.style.backgroundColor=Rgb(174,139,194);track.Add(_musicFill);
-            _musicElapsed=CompanionText(_cardMusic,"elapsed","--:--",26,185,100,19,11,CompanionSoft,15);
-            _musicDuration=CompanionText(_cardMusic,"duration","--:--",342,185,100,19,11,CompanionSoft,15);_musicDuration.style.unityTextAlign=TextAnchor.UpperRight;
-            _musicPrev=CompanionNode(_cardMusic,"previous",158,211,32,32);
-            _musicPlay=CompanionNode(_cardMusic,"play",212,206,40,40);_musicPlay.style.backgroundColor=Rgb(164,134,183);SetRadius(_musicPlay,20);
-            _musicNext=CompanionNode(_cardMusic,"next",274,211,32,32);
-            CompanionIcon(_musicPrev,"prev",8,8,16,16);CompanionIcon(_musicPlay,"play",12,12,16,16);CompanionIcon(_musicNext,"next",8,8,16,16);
+            _musicElapsed=CompanionText(_cardMusic,"elapsed","--:--",28,267,100,20,11,CompanionSoft,15);
+            _musicDuration=CompanionText(_cardMusic,"duration","--:--",340,267,100,20,11,CompanionSoft,15);_musicDuration.style.unityTextAlign=TextAnchor.UpperRight;
+            _musicPrev=CompanionNode(_cardMusic,"previous",242,192,42,42);
+            _musicPlay=CompanionNode(_cardMusic,"play",296,188,50,50);_musicPlay.style.backgroundColor=Rgb(164,134,183);SetRadius(_musicPlay,20);
+            _musicNext=CompanionNode(_cardMusic,"next",358,192,42,42);
+            CompanionIcon(_musicPrev,"prev",13,13,16,16);CompanionIcon(_musicPlay,"play",17,17,16,16);CompanionIcon(_musicNext,"next",13,13,16,16);
             _musicPlayLbl=null;_musicLikeLbl=null;_musicLike=new VisualElement();
             CompanionHot("prev",_musicPrev,()=>XqMusicBridge.Prev(),"上一首 · 由系统媒体会话提供");
             CompanionHot("play",_musicPlay,()=>XqMusicBridge.TogglePlay(),"播放 / 暂停");
             CompanionHot("next",_musicNext,()=>XqMusicBridge.Next(),"下一首 · 由系统媒体会话提供");
-            var info=CompanionNode(_cardMusic,"music-details",226,59,220,95);
+            var info=CompanionNode(_cardMusic,"music-details",254,74,194,95);
             CompanionHot("music-details",info,()=>CompanionModal("一起听",XqMusicBridge.Available?XqMusicBridge.Current.title+"\n"+XqMusicBridge.Current.artist+"\n\n来源："+XqMusicBridge.Source:"还没有系统媒体会话。\n请在常用播放器中播放音乐。\n灰色按钮表示该控制当前不可用。"),"查看完整曲名与媒体来源");
         }
         void BuildCompanionChat()
@@ -211,14 +216,15 @@ namespace Xiaoqi.UI2
             _chatMicBtn.tooltip="开始录音 / 结束并发送";_chatSendBtn.tooltip="发送文字";
             CompanionIcon(_chatDock,"chat",17,17,16,16);
             XqMoonStyle.Clear(_modeDock);_modeDock.Q("xq-soft-shadow")?.RemoveFromHierarchy();_modeDock.style.backgroundColor=Rgb(246,236,249,.95f);SetAllBorder(_modeDock,1,Color.white);
-            CompanionSlotFor(_modeDock,1580,954.3f,314,51.4f);
+            CompanionSlotFor(_modeDock,1372,718,224,216);
+            _compModeTrigger=CompanionNode(_host,"mode-trigger",1372,953,54,54);_compModeTrigger.style.backgroundColor=Rgb(246,236,249,.98f);SetAllBorder(_compModeTrigger,1,Color.white);SetRadius(_compModeTrigger,19);CompanionIcon(_compModeTrigger,"expand",16,16,23,23);CompanionHot("modes",_compModeTrigger,()=>_compModeOpen=!_compModeOpen,"选择形态");
             int i=0;foreach(var button in _modeDock.Children())
             {
                 if(button is Label)continue;
-                CompanionSlotFor(button,6+i*101,8,99,34);
+                CompanionSlotFor(button,12,30+i*55,200,49);
                 button.style.paddingLeft=button.style.paddingRight=0;
                 var label=button.Q<Label>(className:"xq-cl-btn-word");
-                if(label!=null){label.text=new[]{"桌宠","近景","工作台"}[Mathf.Min(i,2)];label.style.color=i==1?Color.white:CompanionInk;label.style.unityFontStyleAndWeight=FontStyle.Normal;CompanionSlotFor(label,0,0,99,34,14,16);label.style.unityTextAlign=TextAnchor.MiddleCenter;}
+                if(label!=null){label.text=new[]{"桌宠","近景","工作台"}[Mathf.Min(i,2)];label.style.color=i==1?Color.white:CompanionInk;label.style.unityFontStyleAndWeight=FontStyle.Normal;CompanionSlotFor(label,0,0,200,49,15,17);label.style.unityTextAlign=TextAnchor.MiddleCenter;}
                 button.style.backgroundColor=i==1?Rgb(164,134,183):Color.clear;i++;
             }
         }
@@ -235,6 +241,8 @@ namespace Xiaoqi.UI2
                 }else if(icon=="play"){
                     if(XqMusicBridge.IsPlaying){for(int j=0;j<2;j++){float a=5+j*5;line(new[]{new Vector2(a,4),new Vector2(a,12)});}}
                     else{p.BeginPath();p.MoveTo(new Vector2(5,3)*u);p.LineTo(new Vector2(12,8)*u);p.LineTo(new Vector2(5,13)*u);p.ClosePath();p.Fill();}
+                }else if(icon=="expand"){
+                    line(new[]{new Vector2(6,2),new Vector2(2,2),new Vector2(2,6)});line(new[]{new Vector2(10,2),new Vector2(14,2),new Vector2(14,6)});line(new[]{new Vector2(2,10),new Vector2(2,14),new Vector2(6,14)});line(new[]{new Vector2(10,14),new Vector2(14,14),new Vector2(14,10)});
                 }else if(icon=="send"){
                     line(new[]{new Vector2(4,7),new Vector2(8,3),new Vector2(12,7)});line(new[]{new Vector2(8,3),new Vector2(8,14)});
                 }else if(icon=="mic"){
@@ -257,7 +265,7 @@ namespace Xiaoqi.UI2
                 if(slot.font>0)slot.el.style.fontSize=(compact&&slot.compactFont>0?slot.compactFont:slot.font)*_compScale;
             }
             foreach(var body in new[]{_bodyNext,_bodyMusic,_bodySay})XqMoonStyle.Clear(body);
-            SetApprovedRect(_plate,ox+710*_compScale,oy+664.2f*_compScale,500*_compScale,122.9f*_compScale);_plate.style.rotate=new UnityEngine.UIElements.Rotate(new Angle(0));
+            SetApprovedRect(_plate,ox+212*_compScale,oy+620*_compScale,316*_compScale,64*_compScale);_plate.style.rotate=new UnityEngine.UIElements.Rotate(new Angle(-1));
             SetApprovedRect(_spectrumRow,ox+574.3f*_compScale,oy+840*_compScale,771.4f*_compScale,77.14f*_compScale);_spectrumRow.style.bottom=StyleKeyword.Auto;_spectrumRow.style.right=StyleKeyword.Auto;
             SetRadius(_chatDock,26*_compScale);SetRadius(_modeDock,26*_compScale);
             foreach(var e in new[]{_chatDock,_modeDock,_chatMicBtn,_chatSendBtn})e.style.paddingLeft=e.style.paddingRight=e.style.paddingTop=e.style.paddingBottom=0;
@@ -278,6 +286,7 @@ namespace Xiaoqi.UI2
         void CompanionRefresh()
         {
             if(_compActivity==null)return;
+            _modeDock.style.display=_compModeOpen?DisplayStyle.Flex:DisplayStyle.None;
             var now=DateTime.Now;_clockBig.text=now.ToString("HH:mm");_compSeconds.text=now.ToString("ss");
             var state=_data?.State;var life=XqBenchData.Ensure().Get("life");
             string doing=(string)life?.SelectToken("place.doing");if(string.IsNullOrEmpty(doing))doing=(string)state?.SelectToken("activity");
@@ -297,6 +306,7 @@ namespace Xiaoqi.UI2
             if(Time.unscaledTime>_compNoticeUntil)_compNotice.text="";
             if(XqMusicBridge.Cover==null){_compCover.image=Resources.Load<Texture2D>("XqMusicCover");_compCover.tooltip="陪伴插画占位；播放器未提供封面";}else{_compCover.image=XqMusicBridge.Cover;_compCover.tooltip="播放器提供的封面";}
             _musicTitle.tooltip=XqMusicBridge.Current.title;_musicArtist.tooltip=XqMusicBridge.Current.artist;
+            _compPlaybackState.text=!XqMusicBridge.Available?"○ 等一首歌":XqMusicBridge.IsPlaying?"● 正在一起听":"○ 先暂停一会儿";
             _musicPlay.Q("companion-play-icon")?.MarkDirtyRepaint();
             RefreshChatDock();
         }
@@ -312,6 +322,14 @@ namespace Xiaoqi.UI2
             var point=XqPanelXf.FromScreen(_host.panel,Input.mousePosition);
             return CompanionHit(point)!=null||OverEl(_modeDock)||OverEl(_chatDock)||(_compModal!=null&&OverEl(_compModal));
         }
+        public static bool DismissCompanionPopup()
+        {
+            if(_inst==null)return false;
+            if(_inst._compModal!=null){_inst._compModal.RemoveFromHierarchy();_inst._compModal=null;return true;}
+            if(_inst._compModeOpen){_inst._compModeOpen=false;_inst.CompanionRefresh();return true;}
+            if(XqVoiceChatClient.IsRecording){XqVoiceChatClient.Ensure().CancelRecording();return true;}
+            return false;
+        }
         void CompanionPoll()
         {
             if(_host?.panel==null)return;
@@ -320,8 +338,8 @@ namespace Xiaoqi.UI2
             if(_musicFill!=null)_musicFill.style.width=Length.Percent(XqMusicBridge.Progress*100);
             for(int i=0;i<_spectrumBars.Count&&i<XqSysAudioBridge.BarCount;i++)_spectrumBars[i].style.height=Length.Percent(Mathf.Clamp(XqSysAudioBridge.Bars[i],.05f,1)*100);
             var point=XqPanelXf.FromScreen(_host.panel,Input.mousePosition);
-            if(Input.GetMouseButtonDown(0)){_approvedDown=Input.mousePosition;_compPressed=CompanionHit(point);}
-            if(Input.GetMouseButtonUp(0)){if(_compPressed!=null&&(Input.mousePosition-_approvedDown).sqrMagnitude<64&&CompanionHit(point)==_compPressed)CompanionActivate(_compPressed);_compPressed=null;}
+            if(Input.GetMouseButtonDown(0)){_approvedDown=Input.mousePosition;_compPressed=CompanionHit(point);if(_compModeOpen){int idx=0;foreach(var button in _modeDock.Children()){if(button.worldBound.Contains(point)){_compPressed="view-"+idx;break;}idx++;}}}
+            if(Input.GetMouseButtonUp(0)){if(_compPressed!=null&&_compPressed.StartsWith("view-")&&(Input.mousePosition-_approvedDown).sqrMagnitude<64){int idx=int.Parse(_compPressed.Substring(5));var views=new[]{XqView.Pet,XqView.Close,XqView.Bench};if(idx<3){_compModeOpen=false;XqMode.Set(views[idx]);}_compPressed=null;return;}if(_compPressed!=null&&(Input.mousePosition-_approvedDown).sqrMagnitude<64&&CompanionHit(point)==_compPressed)CompanionActivate(_compPressed);_compPressed=null;}
         }
         void CompanionModal(string title,string text)
         {

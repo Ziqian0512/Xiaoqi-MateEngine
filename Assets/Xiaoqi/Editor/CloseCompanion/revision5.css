@@ -1,0 +1,39 @@
+/* Rebalance the actions; restore the player as a primary companion object. */
+.stage:not(.pet) .listen{left:1628px;top:784px;width:224px;height:154px;transform:rotate(3.5deg)}
+.stage:not(.pet) .player{left:80px;top:690px;width:468px;height:300px;border:0;border-radius:28px;background:none;box-shadow:none;overflow:visible;padding:0}
+.stage:not(.pet) .player:after{display:none}
+.player .player-shell{position:absolute;left:-24px;top:-24px;width:516px;height:348px;pointer-events:none;z-index:0}
+.player .player-shell svg{width:100%;height:100%}
+.player .hardware-jack{position:absolute;left:152px;top:-7px;width:16px;height:17px;z-index:0}
+.stage:not(.pet) .player .record{left:76px;top:32px;width:162px;height:162px;z-index:1}
+.stage:not(.pet) .player .album{left:25px;top:51px;width:124px;height:124px;border:3px solid #fffaf8;border-radius:15px;box-shadow:0 4px 9px #6844752b;transform:rotate(-5deg);z-index:2}
+.stage:not(.pet) .player .together{left:254px;top:42px;right:17px;font-size:9px;letter-spacing:1.5px;color:#9b7aaa;z-index:2}
+.stage:not(.pet) .player .track-title{left:254px;top:74px;right:20px;font-size:28px;line-height:1.4;letter-spacing:.8px;font-weight:500;color:#674379;z-index:2}
+.stage:not(.pet) .player .track-artist{left:255px;top:119px;right:22px;font-size:13px;line-height:1.8;white-space:normal;max-height:46px;overflow:hidden;color:#9a79a8;z-index:2}
+.stage:not(.pet) .player .corner-heart{right:23px;top:17px;width:15px;height:15px;color:#c79ab7;opacity:.9;z-index:2}
+.player .player-seam{position:absolute;left:249px;top:177px;width:188px;height:1px;background:#dbc9e1;z-index:2}
+.player .playback-state{position:absolute;left:28px;top:208px;display:flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.4px;color:#9b7fab;z-index:2}
+.playback-state .led{width:5px;height:5px;display:block;border:1px solid #a490b5;background:#cab6d6;border-radius:50%}
+.player.paused .led{background:none}
+.stage:not(.pet) .player .transport{left:242px;top:188px;gap:12px;z-index:2;align-items:center}
+.stage:not(.pet) .player .transport button{width:42px;height:42px;border:1px solid #eee2f3;background:#fffafc;color:#9c79af;box-shadow:0 2px 0 #d5c0df66,inset 0 1px 0 #ffffff;border-radius:50%;margin-top:0}
+.stage:not(.pet) .player .transport button:hover{background:#f0e3f7;color:#815897}
+.stage:not(.pet) .player .transport .play{width:50px;height:50px;background:linear-gradient(135deg,#b496c6,#9976ae);color:#fffafc;border-color:#ceb5dd;box-shadow:0 3px 0 #8665984d,inset 0 1px 0 #e2cfe9}
+.stage:not(.pet) .player .transport .play:hover{background:#a383b6}
+.stage:not(.pet) .player .transport button svg{width:17px;height:17px}
+.stage:not(.pet) .player .transport .play svg{width:16px;height:16px}
+.stage:not(.pet) .player .progress{left:28px;right:28px;top:254px;height:3px;background:#decee7;border-radius:3px;z-index:2}
+.stage:not(.pet) .player .progress>i{height:3px;background:linear-gradient(90deg,#cba0c0,#aa84c0);border-radius:3px}
+.stage:not(.pet) .player .times{left:28px;right:28px;top:267px;font-size:12px;color:#a387af;z-index:2}
+.player .radio-tag{position:absolute;left:27px;top:20px;font-size:11px;letter-spacing:2px;color:#ac91b8;z-index:2}
+.player .tiny-bow{position:absolute;left:179px;top:18px;width:39px;height:28px;transform:rotate(10deg);opacity:.9;z-index:3}
+.compact.stage:not(.pet) .player .track-title{top:74px;font-size:28px}
+.compact.stage:not(.pet) .player .track-artist{top:119px;font-size:16px;max-height:48px}
+.compact.stage:not(.pet) .player .times{font-size:16px}
+.compact.stage:not(.pet) .player .playback-state{font-size:15px;left:28px;top:208px}
+.compact.stage:not(.pet) .player .together{display:block;font-size:9px}
+.compact.stage:not(.pet) .player .radio-tag{font-size:14px;top:17px}
+.dark .composition-title.left{color:#e2cce9}
+.dark .composition-title.left small{color:#c5a7d4}
+.dark .player .radio-tag{color:#ac91b8}
+.player.no-session .playback-state{color:#a793af}

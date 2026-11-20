@@ -28,6 +28,9 @@ namespace Xiaoqi.Host
         private struct POINT { public int x, y; }
         [DllImport("user32.dll")] private static extern IntPtr MonitorFromPoint(POINT pt, uint flags);
         private const uint MONITOR_DEFAULTTONULL = 0;
+        [StructLayout(LayoutKind.Sequential)] struct MONINFO {public int size;public RECT monitor,work;public uint flags;}
+        [DllImport("user32.dll",CharSet=CharSet.Unicode)] static extern bool GetMonitorInfo(IntPtr monitor,ref MONINFO info);
+        [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr window,out uint pid);
 
         private const uint SPI_GETWORKAREA = 0x0030;
         private const BindingFlags AnyInstance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
@@ -320,16 +323,21 @@ namespace Xiaoqi.Host
 
         public void MoveToCenter()
         {
-            var hwnd = FindWindow("UnityWndClass", null);
-            if (hwnd == IntPtr.Zero) hwnd = GetActiveWindow();
+            var process=System.Diagnostics.Process.GetCurrentProcess();var hwnd=process.MainWindowHandle;
+            if(hwnd==IntPtr.Zero)hwnd=GetActiveWindow();
+            GetWindowThreadProcessId(hwnd,out uint pid);
+            if(pid!=(uint)process.Id){Debug.LogWarning("XQ_HOST center missing own window");return;}
             if (hwnd == IntPtr.Zero) { Debug.Log("XQ_HOST_MISS window"); return; }
             if (!GetWindowRect(hwnd, out var wr)) return;
-            var work = new RECT();
-            if (!SystemParametersInfo(SPI_GETWORKAREA, 0, ref work, 0)) return;
+            var body=Xiaoqi.UI2.XqBodyAnchor.Stable();
+            var center=new POINT {x=wr.left+Mathf.RoundToInt(body.center.x),y=wr.top+Screen.height-Mathf.RoundToInt(body.center.y)};
+            var info=new MONINFO {size=Marshal.SizeOf<MONINFO>()};
+            if(!GetMonitorInfo(MonitorFromPoint(center,2),ref info))return;
+            var work=info.work;
             int w = wr.right - wr.left;
             int h = wr.bottom - wr.top;
-            int x = work.left + (work.right - work.left - w) / 2;
-            int y = work.bottom - h;
+            int x = body.height>8?work.left+(work.right-work.left)/2-Mathf.RoundToInt(body.center.x):work.left+(work.right-work.left-w)/2;
+            int y = body.height>8?work.bottom-18-Screen.height+Mathf.RoundToInt(body.yMin):work.bottom-h;
             MoveWindow(hwnd, x, y, w, h, true);
             Debug.Log("XQ_HOST center " + x + "," + y + " " + w + "x" + h);
         }
@@ -483,7 +491,7 @@ namespace Xiaoqi.Host
                 return true;
             }
             if (id == "unsit") { ExitWindowSit(); return true; }
-            if (id == "sit_toggle") { WindowSitEnabled = !WindowSitEnabled; SaveSettings(); return true; }
+            if (id == "sit_toggle") { bool on=!WindowSitEnabled; WindowSitEnabled=on; if(XiaoqiRuntime.Config!=null){XiaoqiRuntime.Config.window_sit=on;XiaoqiConfig.Save(XiaoqiRuntime.Config);} SaveSettings(); return true; }
             if (id == "walk_toggle")
             {
                 LocomotionEnabled = !LocomotionEnabled;
@@ -497,6 +505,9 @@ namespace Xiaoqi.Host
                 return BeginHoldDance(di);
             if (id == "pose_next" && _animator != null)
             {
+                var director=Xiaoqi.Spike.IdleDirector.I;
+                if(director!=null&&director.Bound)
+                {int slot=director.Pick(out var candidates);return slot>=0&&director.Play(slot,"manual","menu",candidates);}
                 _idleNext = (_idleNext + 3) % 10;
                 _animator.SetFloat("IdleIndex", _idleNext);
                 _animator.SetBool("isIdle", true);

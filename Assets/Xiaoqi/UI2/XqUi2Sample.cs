@@ -110,6 +110,7 @@ namespace Xiaoqi.UI2
         }
 
         void OnApplicationQuit() { XqMusicBridge.Shutdown(); }
+        void OnApplicationFocus(bool focus){if(!focus)XqVoiceOverlay.CancelPointerRecording();}
         void OnDestroy()
         {
             if (_instance == this) _instance = null;

@@ -193,6 +193,7 @@ namespace Xiaoqi.UI2
         public void HandlePointer(MonoBehaviour host)
         {
             if (Root == null || Root.panel == null || _today == null) return;
+            if (XqVoiceOverlay.Consumed || (XqVoiceOverlay.OverNow && (Input.GetMouseButtonDown(0) || Input.GetMouseButtonUp(0)))) return;
             var picked = Root.panel.Pick(XqPanelXf.FromScreen(Root.panel, Input.mousePosition));
             UpdatePts(Root.panel);
             _hostForToday = host;
@@ -270,6 +271,7 @@ namespace Xiaoqi.UI2
             if (string.IsNullOrEmpty(text)) return;
             if (XiaoqiRuntime.Config != null && !XiaoqiRuntime.Config.bubble) return;
             if (XiaoqiRuntime.IsQuiet()) return;
+            XqVoiceOverlay.ShowFeed(text);
             _say = text;
             _sayOpen = false;
             Bubble.EnableInClassList("xq-open", false);
@@ -335,7 +337,7 @@ namespace Xiaoqi.UI2
 
             bool bubbleOff = XiaoqiRuntime.Config != null && !XiaoqiRuntime.Config.bubble;
             bool quiet = XiaoqiRuntime.IsQuiet();
-            bool showSay = !quiet && !bubbleOff && !string.IsNullOrEmpty(_say) && Time.unscaledTime < _sayUntil;
+            bool showSay = false && !quiet && !bubbleOff && !string.IsNullOrEmpty(_say) && Time.unscaledTime < _sayUntil;
             Bubble.style.display = showSay ? DisplayStyle.Flex : DisplayStyle.None;
             if (showSay && _bubbleText.text != _say) _bubbleText.text = _say;
 
@@ -663,6 +665,7 @@ namespace Xiaoqi.UI2
                 _gateLogged = showGate;
                 Debug.Log("XQ_HUD gate shown=" + showGate + " near=" + _near + " menuOpen=" + _menuOpen + " rect(panel)=" + gr.x.ToString("0") + "," + gr.y.ToString("0") + " " + gr.width.ToString("0") + "x" + gr.height.ToString("0") + " scale=" + scale.ToString("0.00"));
             }
+            foreach (var old in new[] { _gate, _entries, _next, _here, _ringHost, _ringDetail, _quiet, Bubble }) if(old!=null)old.style.display=DisplayStyle.None;
             PlaceToday(panel, r, scale);
         }
 

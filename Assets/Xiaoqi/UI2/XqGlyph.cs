@@ -45,6 +45,13 @@ namespace Xiaoqi.UI2
             }
             switch (_kind)
             {
+                case "pet":
+                    Poly(false,5,10,4,4,10,8,14,8,20,4,19,10);
+                    p.BeginPath();p.MoveTo(P(19,10));p.BezierCurveTo(P(24,24),P(0,24),P(5,10));p.Stroke();
+                    Poly(false,8,14,9,14);Poly(false,15,14,16,14);Poly(false,10,17,12,18,14,17);break;
+                case "mic":
+                    Poly(true,9,4,9,13,12,15,15,13,15,4,12,2);
+                    Poly(false,6,11,6,15,9,18,15,18,18,15,18,11);Poly(false,12,18,12,22);Poly(false,9,22,15,22);break;
                 case "sun":
                     Circle(12, 12, 4);
                     Poly(false, 12, 2, 12, 4); Poly(false, 12, 20, 12, 22);

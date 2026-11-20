@@ -123,6 +123,7 @@ namespace Xiaoqi.UI2
             if (_inst == null) _inst = new XqSettingsPanel();
             _inst.OpenSelf(false, -1);
         }
+        public static void OpenPage(int page){if(_inst==null)_inst=new XqSettingsPanel();_inst.OpenSelf(false,page);}
 
         void OpenSelf(bool cascade, int page)
         {
@@ -355,6 +356,8 @@ namespace Xiaoqi.UI2
         /// <summary>外观页 5 行（照 G59-P1 §6）。</summary>
         void BuildLookPage(VisualElement page)
         {
+            bool chibiAvailable=false;if(PetHost.I!=null)foreach(var action in PetHost.I.Actions)if(action.Id=="chibi")chibiAvailable=true;
+            var proportion=XqSettingsRows.Button("Q 版头身比例","不改变角色窗口尺寸","切换",()=>{if(PetHost.I==null||!PetHost.I.RunAction("chibi"))XqVoiceOverlay.Notice("当前模型不支持 Q 版比例切换。");});proportion.SetEnabled(chibiAvailable);page.Add(proportion);
             var cfg = XiaoqiRuntime.Config;
             var host = PetHost.I;
 
@@ -447,6 +450,8 @@ namespace Xiaoqi.UI2
                 cfg == null || cfg.bubble,
                 v => Bind<bool>(null, (c, x) => c.bubble = x, "bubble", v)));
 
+            page.Add(XqSettingsRows.Toggle("办公隐私（暂停私聊与朗读）", cfg != null && cfg.office_mode, v => Bind<bool>(null, (c,x) => c.office_mode=x, "office_mode", v)));
+
             // 5 她外出时：选项文字照 G55 原样，默认读现值不改
             bool hide = cfg != null && cfg.pet_when_out == "hide";
             page.Add(XqSettingsRows.Dropdown("她外出时",
@@ -458,6 +463,7 @@ namespace Xiaoqi.UI2
         /// <summary>声音页 2 行：静音、总音量。默认关 / 100%。</summary>
         void BuildSoundPage(VisualElement page)
         {
+            page.Add(XqSettingsRows.Toggle("勿扰至手动结束",XiaoqiRuntime.Dnd&&XiaoqiRuntime.Config.dnd_until=="forever",on=>{if(on)XiaoqiRuntime.SetQuietForever();else XiaoqiRuntime.ClearQuiet();}));
             var cfg = XiaoqiRuntime.Config;
 
             // 1 静音：关
@@ -475,8 +481,8 @@ namespace Xiaoqi.UI2
             page.Add(vol.Root);
 
             // 3 V6 按住说话热键 & 自动语音回复
-            var hotkeys = new[] { "N", "V", "B", "Space" };
-            int hkIdx = Array.IndexOf(hotkeys, cfg != null && !string.IsNullOrEmpty(cfg.voice_hotkey) ? cfg.voice_hotkey : "N");
+            var hotkeys = new[] { "Ctrl+N" };
+            int hkIdx = Array.IndexOf(hotkeys, cfg != null && !string.IsNullOrEmpty(cfg.voice_hotkey) ? cfg.voice_hotkey : "Ctrl+N");
             if (hkIdx < 0) hkIdx = 0;
             page.Add(XqSettingsRows.Dropdown("按住说话热键", hotkeys, hkIdx, idx =>
             {
@@ -509,8 +515,7 @@ namespace Xiaoqi.UI2
             // 1 连接状态：灯 + 文字 + 「测试」按钮（只打日志 + 刷新判断，不发请求）
             _status = XqSettingsRows.Status("连接状态", "测试", () =>
             {
-                Debug.Log("XQ_SET2 test");
-                RefreshStatus();
+                XqCloseData.Ensure().StartCoroutine(TestConnection());
             });
             page.Add(_status.Root);
             if (!_stageHooked)
@@ -584,7 +589,7 @@ namespace Xiaoqi.UI2
             // 1 版本 / 提交号：读不到就写「开发版」
             string ver = Application.version;
             if (string.IsNullOrEmpty(ver)) ver = "开发版";
-            page.Add(XqSettingsRows.Text("版本 / 提交号", ver));
+            page.Add(XqSettingsRows.Text("应用版本", ver));
 
             // 2 ME 署名与许可：「查看」调现有 XiaoqiAbout.Show()，不重写内容
             page.Add(XqSettingsRows.Button("ME 署名与许可", "", "查看", () =>
@@ -597,7 +602,7 @@ namespace Xiaoqi.UI2
             page.Add(XqSettingsRows.Note("16.vrm：主人购买，授权说明见 docs/ASSETS.md"));
 
             // 4 打开日志目录
-            page.Add(XqSettingsRows.Button("打开日志目录", "", "打开", OpenLogDir));
+            page.Add(XqSettingsRows.Button("打开互动日志目录", "", "打开", OpenLogDir));
         }
 
         static void OpenLogDir()
@@ -625,8 +630,19 @@ namespace Xiaoqi.UI2
         }
 
         /// <summary>3 × poll_sec + 5 秒内收到过算已连接；从没收到过是未知。</summary>
+        bool _testing; float _testedAt=-100; string _testResult; int _testKind;
+        System.Collections.IEnumerator TestConnection()
+        {
+            if(_testing)yield break;_testing=true;_status?.Set("检测中…",0);
+            var cfg=XiaoqiRuntime.Config;XqHttp.Resp response=default;
+            yield return XqHttp.Get((cfg.server??" ").TrimEnd('/')+"/api/body/stage",cfg.token,5,r=>response=r);
+            bool valid=false;if(response.ok){try{valid=Newtonsoft.Json.Linq.JObject.Parse(response.text)["where"]!=null;}catch{}}
+            _testResult=valid?"状态接口可用":response.ok?"返回格式不符":"状态接口未连通";_testKind=valid?1:2;_testedAt=Time.unscaledTime;_testing=false;RefreshStatus();
+        }
         void RefreshStatus()
         {
+            if(_testing)return;
+            if(_status!=null && Time.unscaledTime-_testedAt<15){_status.Set(_testResult,_testKind);return;}
             if (_status == null) return;
             if (!_gotStage) { _status.Set("未知", 0); return; }
             var cfg = XiaoqiRuntime.Config;

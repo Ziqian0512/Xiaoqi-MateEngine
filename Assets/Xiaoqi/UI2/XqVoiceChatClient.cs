@@ -102,7 +102,7 @@ namespace Xiaoqi.UI2
         private Coroutine _ttsCo;
         public static bool ShouldAutoSpeak(XiaoqiConfig cfg, Xiaoqi.Mode.XqView view, bool quiet, float draw)
         {
-            if (cfg == null || !cfg.voice_tts_auto || cfg.muted || quiet || !cfg.bubble) return false;
+            if (cfg == null || !cfg.voice_tts_auto || cfg.muted || quiet || cfg.office_mode) return false;
             if (view == Xiaoqi.Mode.XqView.Close) return true;
             float probability = Mathf.Clamp01(cfg.pet_voice_probability);
             return view == Xiaoqi.Mode.XqView.Pet && (probability >= 1f || draw < probability);
@@ -132,7 +132,7 @@ namespace Xiaoqi.UI2
             if(IsRecording&&Time.unscaledTime-_recStartTime>=19.8f)StopRecordingAndSend();
             var cfg = XiaoqiRuntime.Config;
             if (_audio == null || !_audio.isPlaying || cfg == null) return;
-            if (cfg.muted || XiaoqiRuntime.Dnd || !cfg.bubble) { _audio.Stop(); NotifyChanged(); }
+            if (cfg.muted || XiaoqiRuntime.Dnd || cfg.office_mode) { _audio.Stop(); NotifyChanged(); }
             else _audio.volume = Mathf.Clamp01(cfg.volume);
         }
 
@@ -364,7 +364,7 @@ namespace Xiaoqi.UI2
         public void PlayTts(string text, string explicitAudioUrl = null)
         {
             var cfg = XiaoqiRuntime.Config;
-            if (cfg == null || cfg.muted || XiaoqiRuntime.Dnd || !cfg.bubble) return;
+            if (cfg == null || cfg.muted || XiaoqiRuntime.Dnd || cfg.office_mode) return;
             if (_ttsCo != null) StopCoroutine(_ttsCo);
             _ttsCo = StartCoroutine(FetchAndPlayTts(text, explicitAudioUrl));
         }
@@ -420,7 +420,7 @@ namespace Xiaoqi.UI2
                     var clip = DownloadHandlerAudioClip.GetContent(req);
                     if (clip != null && _audio != null)
                     {
-                        if (cfg.muted || XiaoqiRuntime.Dnd || !cfg.bubble) yield break;
+                        if (cfg.muted || XiaoqiRuntime.Dnd || cfg.office_mode) yield break;
                         _audio.volume = cfg != null ? Mathf.Clamp01(cfg.volume) : 1f;
                         _audio.clip = clip;
                         _audio.Play();

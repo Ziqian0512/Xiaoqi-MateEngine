@@ -35,6 +35,7 @@ namespace Xiaoqi.Spike
 
         public static void Enqueue(string text, string media)
         {
+            if (Xiaoqi.UI2.XqGlassMenu.Enabled) { Xiaoqi.UI2.XqVoiceOverlay.Notice(text); return; }
             if (_instance == null) _instance = FindFirstObjectByType<PetBubble>(FindObjectsInactive.Include);
             if (_instance == null || string.IsNullOrEmpty(text)) return;
             while (_instance._queue.Count >= _instance._cfg.bubble.queue) _instance._queue.Dequeue();

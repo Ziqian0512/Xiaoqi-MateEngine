@@ -17,6 +17,8 @@ namespace Xiaoqi.Spike
         public void SetLabel(string text)
         {
             if (_label == null) return;
+            if (Xiaoqi.UI2.XqGlassMenu.Enabled) text = "";
+            if (Xiaoqi.UI2.XqGlassMenu.Enabled) text = "";
             _label.text = text ?? "";
             _label.gameObject.SetActive(!string.IsNullOrEmpty(text));
         }

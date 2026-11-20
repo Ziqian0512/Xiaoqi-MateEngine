@@ -90,6 +90,7 @@ namespace Xiaoqi.UI2
 
         void HideSelf()
         {
+            _compModeOpen=false;
             if(XqVoiceChatClient.IsRecording)XqVoiceChatClient.Ensure().CancelRecording();
             _compModal?.RemoveFromHierarchy();_compModal=null;
             _shown = false;

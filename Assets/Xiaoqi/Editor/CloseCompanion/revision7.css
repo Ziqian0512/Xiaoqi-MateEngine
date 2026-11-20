@@ -1,0 +1,6 @@
+/* A quiet personal sign-off in the left composition, not a chest banner. */
+.stage:not(.pet) .signature{left:220px;top:628px;width:300px;height:48px;display:flex;align-items:center;gap:10px;white-space:nowrap;pointer-events:none;color:#927f9d;transform:rotate(-1deg);transform-origin:left center;filter:none;text-shadow:none}
+.signature-name{font-family:'Segoe Script','Segoe Print',cursive;font-size:33px;font-weight:400;font-style:normal;line-height:1.4;letter-spacing:-.8px;-webkit-text-stroke:0;text-shadow:none}
+.signature-spark{width:11px;height:11px;flex-shrink:0;margin-top:4px;color:#b59fc1}
+.dark .signature{color:#927f9d}
+.compact.stage:not(.pet) .signature-name{font-size:33px}

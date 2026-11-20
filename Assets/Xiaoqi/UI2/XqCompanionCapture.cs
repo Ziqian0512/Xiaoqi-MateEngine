@@ -42,17 +42,25 @@ namespace Xiaoqi.UI2
                 report["switch"+mode]=accepted&&XqMode.Current==mode&&!XqMode.Busy;
                 Debug.Log("XQ_COMPANION_REVIEW switch="+mode+" passed="+report["switch"+mode]);
             }
+            XqMode.Set(XqView.Pet);yield return new WaitForSecondsRealtime(5);
+            report["petControls"]=XqVoiceOverlay.ReviewBounds();yield return Capture("pet-idle");
+            XqVoiceOverlay.OpenTyping();yield return new WaitForSecondsRealtime(.5f);yield return Capture("pet-typing");
+            foreach(var sub in new[]{"talk","doing","position","quiet","dance"})
+            {XqGlassMenu.ReviewMenu(sub);yield return new WaitForSecondsRealtime(.6f);report["menu-"+sub]=XqGlassMenu.ReviewBounds();yield return Capture("menu-"+sub);}
+            XqGlassMenu.CloseCurrent("review");XqMode.Set(XqView.Close);yield return new WaitForSecondsRealtime(4);
             File.WriteAllText(Path.Combine(_dir,"report.json"),report.ToString());
             Debug.Log("XQ_COMPANION_REVIEW complete");Destroy(gameObject);
         }
         IEnumerator Capture(string name,int width=0,int height=0)
         {
             var settings=XqClosePanel.PickDoc().panelSettings;var old=settings.targetTexture;
-            var rt=new RenderTexture(width>0?width:Screen.width,height>0?height:Screen.height,24,RenderTextureFormat.ARGB32);rt.Create();settings.targetTexture=rt;
+            var rt=new RenderTexture(width>0?width:Screen.width,height>0?height:Screen.height,24,RenderTextureFormat.ARGB32);rt.Create();
+            var before=RenderTexture.active;RenderTexture.active=rt;GL.Clear(true,true,Color.clear);RenderTexture.active=before;
+            bool oldClear=settings.clearColor;var oldColor=settings.colorClearValue;settings.clearColor=true;settings.colorClearValue=Color.clear;settings.targetTexture=rt;
             yield return null;yield return new WaitForEndOfFrame();
             var previous=RenderTexture.active;RenderTexture.active=rt;
             var texture=new Texture2D(rt.width,rt.height,TextureFormat.RGBA32,false);texture.ReadPixels(new Rect(0,0,rt.width,rt.height),0,0);texture.Apply();
-            File.WriteAllBytes(Path.Combine(_dir,name+"-ui.png"),texture.EncodeToPNG());RenderTexture.active=previous;settings.targetTexture=old;Destroy(texture);
+            File.WriteAllBytes(Path.Combine(_dir,name+"-ui.png"),texture.EncodeToPNG());RenderTexture.active=previous;settings.targetTexture=old;settings.clearColor=oldClear;settings.colorClearValue=oldColor;Destroy(texture);
             // UI Toolkit can still have queued work referring to its last target.
             yield return null;yield return new WaitForEndOfFrame();yield return null;yield return new WaitForEndOfFrame();
             rt.Release();Destroy(rt);

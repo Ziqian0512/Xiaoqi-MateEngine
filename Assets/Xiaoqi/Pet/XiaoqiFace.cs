@@ -25,6 +25,7 @@ namespace Xiaoqi.Spike
 
         private float _reactionAt = -100f;
         private float _reactionJoy, _reactionFun;
+        private bool _manualReaction;
 
         // Short reactions share the existing face owner; repeated taps do not restart them.
         public static void React(float joy, float fun)
@@ -32,6 +33,7 @@ namespace Xiaoqi.Spike
             if (_instance == null || _instance._cfg == null || _instance._asleep) return;
             if (Time.unscaledTime - _instance._reactionAt < 1.6f) return;
             _instance._reactionAt = Time.unscaledTime;
+            _instance._manualReaction = true;
             _instance._reactionJoy = Mathf.Clamp01(joy);
             _instance._reactionFun = Mathf.Clamp01(fun);
         }
@@ -126,7 +128,7 @@ namespace Xiaoqi.Spike
 
         private void Update()
         {
-            if (!XiaoqiRuntime.Config.emotion_line) return;
+            if (!XiaoqiRuntime.Config.emotion_line && !_manualReaction) return;
             if (PetHost.I == null || !PetHost.I.Ready) return;
             if (_stage == null && string.IsNullOrEmpty(_debugBaseTop) && Time.unscaledTime - _reactionAt >= 1.6f) return;
 
@@ -138,9 +140,7 @@ namespace Xiaoqi.Spike
             }
             else
             {
-                ApplyBase();
-                ApplySpike();
-                ApplyBody();
+                if (XiaoqiRuntime.Config.emotion_line) { ApplyBase(); ApplySpike(); ApplyBody(); }
                 ApplyReaction();
             }
 
@@ -152,6 +152,8 @@ namespace Xiaoqi.Spike
                           + " targetJoy=" + _target["Joy"].ToString("0.00")
                           + " curJoy=" + _cur["Joy"].ToString("0.00"));
             ApplyToModel();
+            if(!XiaoqiRuntime.Config.emotion_line&&Time.unscaledTime-_reactionAt>1.6f)
+            {bool neutral=true;foreach(var k in Keys)if(_cur[k]>.001f)neutral=false;if(neutral)_manualReaction=false;}
         }
 
         private void ApplyBase()
