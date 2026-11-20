@@ -63,6 +63,7 @@ namespace Xiaoqi.UI2
 
         bool OverAnySelf()
         {
+            if(_compSlots.Count>0)return CompanionOverAny();
             return OverEl(_approvedDock) || OverEl(_modeDock) || OverEl(_chatDock) || OverEl(_plate) || OverEl(_btnPet) || OverEl(_btnBench)
                 || OverEl(_cardNext) || OverEl(_cardMusic) || OverEl(_actPat) || OverEl(_actScreen) || OverEl(_actDance)
                 || OverEl(_cardSay) || OverEl(_cardTiny) || OverEl(_cardEnergy) || OverEl(_ringFocus)
@@ -82,6 +83,7 @@ namespace Xiaoqi.UI2
 
         void TickPointer()
         {
+            if(_compSlots.Count>0){CompanionPoll();return;}
             if (!_shown || _host == null || _host.panel == null) return;
             if (_voiceTrace != null) _voiceTrace.MarkDirtyRepaint();
             if (_clockBig != null) _clockBig.text = DateTime.Now.ToString("HH:mm:ss");
@@ -309,6 +311,11 @@ namespace Xiaoqi.UI2
         /// <summary>到位后的慢呼吸浮动 + 轻微鼠标反向 3D 视差（让近景卡片与 3D 小祈产生破屏立体错层）。</summary>
         void ApplyBob()
         {
+            if(_compSlots.Count>0)
+            {
+                foreach(var item in _anim){if(item.el==null)continue;item.el.style.opacity=1;item.el.style.scale=new Scale(Vector3.one);item.el.style.translate=new Translate(0,0,0);}
+                return;
+            }
             float phase = Time.unscaledTime * (Mathf.PI * 2f / XqCloseAnim.BobPeriod);
             float mx = Mathf.Clamp((Input.mousePosition.x / Mathf.Max(1f, Screen.width) - 0.5f) * 2f, -1f, 1f);
             float my = Mathf.Clamp((Input.mousePosition.y / Mathf.Max(1f, Screen.height) - 0.5f) * 2f, -1f, 1f);

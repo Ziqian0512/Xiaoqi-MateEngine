@@ -97,3 +97,15 @@
 - 实机装饰层逐像素核对同源预览纹理，RGB 平均通道误差分别为 0.438 / 0.485 / 0.476（0-255）。这仅证明美术复现，动态真实文案与示例自然不同。三页与历史页实际截图、完整屏幕占位和原始报告位于 E:/dsh-pet-projects/design-previews/2026-11-19/sweet-notebook/runtime-final/；仓库保存无私人内容的 verification.json 汇总。
 - robocopy 同步至 Xiaoqi-Tonight/Xiaoqi，退出码 3；Assembly-CSharp.dll 哈希一致，xiaoqi_config.json 哈希仍为 DF05C28AF5A1F44E0D687F35198861D3404F03F6E888327CBBA50A6A1B2DF198。新增入口 E:/dsh-pet-projects/Xiaoqi-Tonight/6-sweet-notebook.cmd，带已有实例检查，不含假数据或评审开关。旧 Campus 样片仅通过显式开关保留。
 - 剩余验收：用户亲自体验鼠标点击、透明窗口边缘和实际屏幕阅读感受；既有 localization / SteamDRM 警告不属于本轮新增问题。未改变云端 Brain、QQ 服务或个人配置。
+
+## 9. 2026-11-20 获批近景第三稿：材质与真实互动
+- 按获批第三稿替换近景，删除人物外圈、重复矩形互动底框和写死的 80% 用量试管。采用预览同源 2 倍透明素材：爱心／磁带／圆形屏幕章／悬挂月亮、云朵近况、唱片播放器与局部连线。签名和粉紫声浪保持原位置及尺寸；角色仍由原 Unity 3D 模型、材质、动作与面部控制器呈现。默认工作台和桌宠布局未重做。
+- `XqCompanionClose.cs` 用原生控件显示真实文字和提供实际按钮；中心没有底板或整片隐形命中区。输入框补占位提示，近景局部采用与预览一致的 Windows 微软雅黑常规字体，其他平台回退原字体。长回复、完整曲名和用量明细可展开；按播放器会话能力启停上一首／播放暂停／下一首，时间轴缺失显示 --:--，占位插画不冒充真实封面。
+- 用量只读生产 `/api/budget` 的 `usage.tokens`，每 30 秒更新今日累计。本轮 usage 缺失、全零占位、负数或总分不一致时保持未知，不估算预算百分比。实际服务账本获取成功；生产聊天响应本轮没有有效 usage，界面因此不编造本轮数字。
+- 爱心复用既有眨眼／开心短反馈；磁带与输入条麦克风共用录音状态，20 秒上限、开始录音停止 TTS、退出近景取消未发送录音，忙碌时防止重复操作。云端 STT 当前 404，本机已有 zh-CN System.Speech 组件，已接入自有隐藏进程进行本地 WAV 识别，完成／超时即清理。中文合成样本识别返回文字（仍可能有同音字），静音样本返回空；未声称完成真人麦克风环境准确率验收。后备云端 WAV 上传统一绕过 Tailscale 系统代理。
+- 发现个人配置 `dnd_until=forever`，修正月亮对真实勿扰状态的显示：静音或勿扰开启时显示“恢复声音”，用户点击可同时解除两者。正式同步保留原配置，未擅自取消勿扰。只在 Build 独立测试配置解除勿扰，实际 AI 连接测试收到回复，TTS 真正开始播放（voice-check/integration.json 为 reply=True、tts=True）。普通启动不发送测试消息。
+- 屏幕入口仍是既有窗口标题陪伴，不是视觉截图理解。近景期间记住最近的非自身应用标题，隐私窗口清空缓存；无有效窗口不虚构空闲状态推送。提示标明只分享标题，保留云端开关状态反馈，未自动上传用户屏幕或切动用户歌曲。
+- `XqCompanionBuild.VerifyAndBuild` -> 7 项用量解析检查、原有 11 项语音策略检查、`XiaoqiBuild.Win64`。最终构建日志 `E:/dsh-pet-projects/logs/companion-build-release.log`，成功退出 0；9 张运行纹理保持原始尺寸、NPOT=None、无压缩、无 mipmap。
+- 最终实机输出与报告在 `E:/dsh-pet-projects/design-previews/2026-11-20/close-refine/runtime-release/`。1920×1080 实际 UIDocument 与帧截图，1366×768 同一原生布局离屏输出；中心脸区 UI 最大 alpha=0、实际帧角落 alpha=0、MainCamera.rect 全屏、签名与声浪锚点误差≤1px。完整及紧凑尺寸的按能力命中检查、三种全文弹层、近景→工作台→桌宠→近景往返全部通过。截图目标释放前等待渲染帧结束，本轮往返未重现旧评审捕获后的崩溃。
+- 电脑操作工具仍不能枚举全屏透明 Unity 窗口，故没有冒充完成操作系统鼠标实点验收；紧凑图片也不冒充物理显示器分辨率。无私人文案的验证汇总、同源预览源码、SVG 和导出脚本已归档 `Assets/Xiaoqi/Editor/CloseCompanion/`；说明见 `CLOSE-COMPANION.md`。
+- 已 robocopy 同步 `Xiaoqi-Tonight/Xiaoqi`（退出码 3），新增防重复启动入口 `Xiaoqi-Tonight/7-close-companion.cmd`。Build／Tonight 的 Assembly-CSharp.dll SHA256 均为 E41479102ECC60CD93F33BD5281E1E71C6365B1E6E215FA7114972B5221539B6；同步后个人配置 SHA256 保持 DF05C28AF5A1F44E0D687F35198861D3404F03F6E888327CBBA50A6A1B2DF198。没有联动启动老板项目或历史 G55，未改 Brain／QQ 服务。

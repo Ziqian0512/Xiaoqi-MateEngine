@@ -1,0 +1,23 @@
+param([Parameter(Mandatory=$true)][string]$AudioPath)
+$ErrorActionPreference='Stop'
+[Console]::OutputEncoding=New-Object Text.UTF8Encoding($false)
+$engine=$null
+try {
+    Add-Type -AssemblyName System.Speech
+    $recognizer=[System.Speech.Recognition.SpeechRecognitionEngine]::InstalledRecognizers() | Where-Object {$_.Culture.Name -eq 'zh-CN'} | Select-Object -First 1
+    if($null -eq $recognizer){throw 'No zh-CN speech recognizer installed'}
+    $engine=New-Object System.Speech.Recognition.SpeechRecognitionEngine($recognizer)
+    $engine.LoadGrammar((New-Object System.Speech.Recognition.DictationGrammar))
+    $engine.SetInputToWaveFile($AudioPath)
+    $parts=New-Object 'System.Collections.Generic.List[string]'
+    while($true){
+        try {$result=$engine.Recognize([TimeSpan]::FromSeconds(5))} catch {break}
+        if($null -eq $result){break}
+        if($result.Confidence -ge 0.35){$parts.Add($result.Text)}
+    }
+    @{text=($parts -join '');engine='windows-zh-CN'} | ConvertTo-Json -Compress
+} catch {
+    @{text='';error=$_.Exception.Message} | ConvertTo-Json -Compress
+} finally {
+    if($null -ne $engine){$engine.Dispose()}
+}

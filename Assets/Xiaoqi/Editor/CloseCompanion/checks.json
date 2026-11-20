@@ -1,0 +1,129 @@
+{
+  "viewport": [
+    1920,
+    1080
+  ],
+  "model": {
+    "source": "Tonight/Xiaoqi/XiaoqiData/16.vrm",
+    "renderer": "Three.js preview, not Unity",
+    "eyeTarget": [
+      0.5,
+      0.43
+    ],
+    "verticalSpan": 0.95
+  },
+  "signatureAndWaveAnchorsPreserved": true,
+  "layout": {
+    ".signature": {
+      "x": 710,
+      "y": 664.1875,
+      "w": 500,
+      "h": 122.890625
+    },
+    ".wave": {
+      "x": 574.296875,
+      "y": 840,
+      "w": 771.390625,
+      "h": 77.125
+    },
+    ".player": {
+      "x": 84,
+      "y": 750,
+      "w": 468,
+      "h": 256
+    },
+    ".status": {
+      "x": 1509,
+      "y": 105,
+      "w": 320,
+      "h": 155
+    },
+    ".token": {
+      "x": 1419,
+      "y": 288,
+      "w": 410,
+      "h": 53
+    },
+    ".chat": {
+      "x": 574.296875,
+      "y": 954.296875,
+      "w": 771.390625,
+      "h": 51.390625
+    },
+    ".reply": {
+      "x": 574.296875,
+      "y": 917.09375,
+      "w": 771.390625,
+      "h": 34.296875
+    },
+    ".pat": {
+      "x": 100.09803009033203,
+      "y": 378.1927795410156,
+      "w": 207.803955078125,
+      "h": 195.61447143554688
+    },
+    ".listen": {
+      "x": 306.9015808105469,
+      "y": 497.3748474121094,
+      "w": 234.19686889648438,
+      "h": 169.25033569335938
+    },
+    ".screen": {
+      "x": 1391.13330078125,
+      "y": 448.13330078125,
+      "w": 217.7333984375,
+      "h": 217.7333984375
+    },
+    ".quiet": {
+      "x": 1638.1080322265625,
+      "y": 541.0133666992188,
+      "w": 177.783935546875,
+      "h": 189.9732666015625
+    }
+  },
+  "errors": [],
+  "previewOnly": true,
+  "simulatedData": true,
+  "modelIsUnityScreenshot": false,
+  "composition": {
+    "faceClear": true,
+    "titleClear": true,
+    "childrenInViewport": true,
+    "allGraphicsUseNormalUiOverlay": true,
+    "backdropFilter": "none"
+  },
+  "revision": {
+    "revision": 3,
+    "removedCharacterRing": true,
+    "rectangularInteractionBoards": 0,
+    "statusShape": "cloud",
+    "screenShape": "circular medal, external word",
+    "preservedSignatureAndWave": true,
+    "characterRingPaths": 0,
+    "statusHasRectangularFrame": false,
+    "screenUsesRoundMedal": true
+  },
+  "transparentCorner": true,
+  "playbackAndListeningPreviewControls": true,
+  "compactPreview": [
+    1366,
+    768
+  ],
+  "assetExports": {
+    "structure": [
+      3840,
+      2160
+    ],
+    "status": [
+      940,
+      568
+    ],
+    "playerWith32pxPadding": [
+      1064,
+      640
+    ],
+    "interactionAssetsHave12pxPadding": true,
+    "faceRegionAlpha": 0,
+    "separateNativeText": true
+  }
+}

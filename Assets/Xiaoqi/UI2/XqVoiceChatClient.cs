@@ -36,6 +36,24 @@ namespace Xiaoqi.UI2
         [Serializable]
         private class ChatResp { public ChatChoice[] choices; }
 
+        public sealed class UsageSnapshot
+        {
+            public int promptTokens, completionTokens, totalTokens;
+        }
+        public static UsageSnapshot LatestUsage { get; private set; }
+        // Missing or invalid usage remains unknown; never infer a budget percentage.
+        public static UsageSnapshot ParseUsage(string json)
+        {
+            try
+            {
+                var usage=Newtonsoft.Json.Linq.JObject.Parse(json)["usage"];
+                int? input=(int?)usage?["prompt_tokens"],output=(int?)usage?["completion_tokens"],total=(int?)usage?["total_tokens"];
+                if(!input.HasValue||!output.HasValue||!total.HasValue||input<0||output<0||total<=0||total.Value!=(long)input.Value+output.Value)return null;
+                return new UsageSnapshot {promptTokens=input.Value,completionTokens=output.Value,totalTokens=total.Value};
+            }
+            catch { return null; }
+        }
+
         [Serializable]
         private class VoiceResp { public bool ok; public string url; }
 
@@ -111,6 +129,7 @@ namespace Xiaoqi.UI2
 
         private void Update()
         {
+            if(IsRecording&&Time.unscaledTime-_recStartTime>=19.8f)StopRecordingAndSend();
             var cfg = XiaoqiRuntime.Config;
             if (_audio == null || !_audio.isPlaying || cfg == null) return;
             if (cfg.muted || XiaoqiRuntime.Dnd || !cfg.bubble) { _audio.Stop(); NotifyChanged(); }
@@ -126,6 +145,8 @@ namespace Xiaoqi.UI2
         public void StartRecording()
         {
             if (IsRecording || IsRecognizing || IsThinking) return;
+            if(_audio!=null)_audio.Stop();
+            if(_ttsCo!=null){StopCoroutine(_ttsCo);_ttsCo=null;}
             Status = "";
             IsRecording = true;
             _recStartTime = Time.unscaledTime;
@@ -136,6 +157,7 @@ namespace Xiaoqi.UI2
                 {
                     _micDevice = Microphone.devices[0];
                     _micClip = Microphone.Start(_micDevice, false, 20, 16000);
+                    if(_micClip==null){IsRecording=false;Report("麦克风未能开始录音，请检查权限");}
                 }
                 else
                 {
@@ -167,7 +189,8 @@ namespace Xiaoqi.UI2
                 {
                     int pos = Microphone.GetPosition(_micDevice);
                     Microphone.End(_micDevice);
-                    if (pos > 800) wav = EncodeWav(_micClip, pos);
+                    if(pos<=0&&dur>=19.5f)pos=_micClip.samples;
+                    if (pos > 800) wav = EncodeWav(_micClip, Mathf.Min(pos,_micClip.samples));
                 }
             }
             catch (Exception e)
@@ -175,7 +198,17 @@ namespace Xiaoqi.UI2
                 Debug.LogWarning("XQ_VOICE mic stop: " + e.Message);
             }
 
+            if(_micClip!=null){Destroy(_micClip);_micClip=null;}
             StartCoroutine(ProcessSttAndSend(wav, dur));
+        }
+
+        public void CancelRecording()
+        {
+            if(!IsRecording)return;
+            if(!string.IsNullOrEmpty(_micDevice))Microphone.End(_micDevice);
+            IsRecording=false;LiveTranscript="";
+            if(_micClip!=null){Destroy(_micClip);_micClip=null;}
+            Report("录音已取消，未发送内容");
         }
 
         private IEnumerator ProcessSttAndSend(byte[] wav, float dur)
@@ -186,28 +219,27 @@ namespace Xiaoqi.UI2
             string server = (cfg != null ? cfg.server : "") ?? "";
             string recognized = null;
 
-            if (wav != null && !string.IsNullOrEmpty(server) && !server.Contains("127.0.0.1:0"))
+            if(Application.platform==RuntimePlatform.WindowsPlayer||Application.platform==RuntimePlatform.WindowsEditor)
+            {
+                LiveTranscript="正在本机识别语音…";NotifyChanged();
+                yield return XqLocalSpeech.Recognize(wav,text=>recognized=text);
+            }
+
+            if (string.IsNullOrEmpty(recognized) && wav != null && !string.IsNullOrEmpty(server) && !server.Contains("127.0.0.1:0"))
             {
                 LiveTranscript = "正在识别语音…";
                 NotifyChanged();
                 string sttUrl = server.TrimEnd('/') + "/api/voice/stt";
-                using (var req = new UnityWebRequest(sttUrl, "POST"))
+                XqHttp.Resp stt=default(XqHttp.Resp);
+                yield return XqHttp.PostAudio(sttUrl,cfg.token,wav,8,r=>stt=r);
+                if(stt.ok)
                 {
-                    req.uploadHandler = new UploadHandlerRaw(wav);
-                    req.downloadHandler = new DownloadHandlerBuffer();
-                    req.SetRequestHeader("Content-Type", "audio/wav");
-                    if (!string.IsNullOrEmpty(cfg.token)) req.SetRequestHeader("X-Token", cfg.token);
-                    req.timeout = 8;
-                    yield return req.SendWebRequest();
-                    if (req.result == UnityWebRequest.Result.Success && req.responseCode >= 200 && req.responseCode < 300)
+                    try
                     {
-                        try
-                        {
-                            var sr = JsonUtility.FromJson<SttResp>(req.downloadHandler.text);
-                            if (sr != null) recognized = !string.IsNullOrEmpty(sr.text) ? sr.text : sr.transcript;
-                        }
-                        catch { }
+                        var sr=JsonUtility.FromJson<SttResp>(stt.text);
+                        if(sr!=null)recognized=!string.IsNullOrEmpty(sr.text)?sr.text:sr.transcript;
                     }
+                    catch{}
                 }
             }
 
@@ -232,6 +264,7 @@ namespace Xiaoqi.UI2
             IsStreaming = false;
             LatestReplyFull = "";
             LatestReplyVisible = "";
+            LatestUsage = null;
             if (_audio != null) _audio.Stop();
             if (_ttsCo != null) { StopCoroutine(_ttsCo); _ttsCo = null; }
             userText = userText.Trim();
@@ -266,6 +299,7 @@ namespace Xiaoqi.UI2
                 yield return XqHttp.PostJson(chatUrl, cfg != null ? cfg.token : "", json, 120, r => resp = r);
                 if (resp.ok && !string.IsNullOrEmpty(resp.text))
                 {
+                    LatestUsage=ParseUsage(resp.text);
                     try
                     {
                         var cr = JsonUtility.FromJson<ChatResp>(resp.text);

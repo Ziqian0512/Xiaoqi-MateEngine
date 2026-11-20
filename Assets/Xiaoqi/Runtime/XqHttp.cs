@@ -86,6 +86,40 @@ public static class XqHttp
         }
     }
 
+    public static IEnumerator PostAudio(string url,string token,byte[] bytes,int timeoutSec,Action<Resp> done)
+    {
+        if(IsDirectHost(url))
+        {
+            var task=SendAudioAsync(url,token,bytes,timeoutSec);
+            while(!task.IsCompleted)yield return null;
+            if(task.IsFaulted||task.IsCanceled){done(new Resp {ok=false,connError=true,error="audio request failed"});yield break;}
+            done(task.Result);yield break;
+        }
+        using(var req=new UnityWebRequest(url,"POST"))
+        {
+            req.uploadHandler=new UploadHandlerRaw(bytes);req.downloadHandler=new DownloadHandlerBuffer();
+            req.SetRequestHeader("Content-Type","audio/wav");if(!string.IsNullOrEmpty(token))req.SetRequestHeader("X-Token",token);
+            req.timeout=timeoutSec;yield return req.SendWebRequest();
+            bool ok=req.result==UnityWebRequest.Result.Success;
+            done(new Resp {ok=ok,code=req.responseCode,text=ok?req.downloadHandler.text:null,error=req.error});
+        }
+    }
+    static async Task<Resp> SendAudioAsync(string url,string token,byte[] bytes,int timeoutSec)
+    {
+        using(var cts=new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSec)))
+        using(var message=new HttpRequestMessage(HttpMethod.Post,url))
+        {
+            if(!string.IsNullOrEmpty(token))message.Headers.TryAddWithoutValidation("X-Token",token);
+            message.Content=new ByteArrayContent(bytes);message.Content.Headers.ContentType=new System.Net.Http.Headers.MediaTypeHeaderValue("audio/wav");
+            try
+            {
+                using(var response=await DirectClient.SendAsync(message,cts.Token).ConfigureAwait(false))
+                    return new Resp {ok=response.IsSuccessStatusCode,code=(int)response.StatusCode,text=response.IsSuccessStatusCode?await response.Content.ReadAsStringAsync().ConfigureAwait(false):null};
+            }
+            catch(Exception e){return new Resp {ok=false,connError=true,error=e.Message};}
+        }
+    }
+
     public static IEnumerator PostJson(string url, string token, string json, int timeoutSec, Action<Resp> done)
     {
         if (IsDirectHost(url))

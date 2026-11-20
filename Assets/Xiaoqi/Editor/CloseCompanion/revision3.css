@@ -1,0 +1,24 @@
+/* Revision 3: no orbit; different silhouettes instead of repeated text cards. */
+.composition-title.left{top:278px;font-size:30px}
+.composition-title.right{top:379px;font-size:26px}
+.composition-title.right small{display:none}
+.composition-bow.left,.paper-tab,.daily-label,.little-mark,.status-cluster .stamp{display:none}
+.composition-bow.right{left:1694px;top:421px;width:88px;height:62px;transform:rotate(5deg)}
+.screen{left:1398px;top:455px;width:204px;height:204px;transform:rotate(-4deg)}
+.screen .word{top:auto;bottom:11px;font-size:18px;letter-spacing:1.8px}
+.screen .graphic{filter:drop-shadow(0 4px 2px #6b477c16)}
+.status .pin{display:none}
+.status-cluster .status{left:123px;top:31px;height:155px}
+.status-cluster .token{top:214px;border-top:0}
+.status .heart{bottom:14px;color:#c694b1}
+.status .whisper{color:#af8cba}
+.dark .status-cluster .token .top,.dark .status-cluster .token .value{color:#dec7e9;text-shadow:0 1px 2px #332a3d55}
+.dark .token .track{background:repeating-linear-gradient(90deg,#ceb0de 0 9px,transparent 9px 13px)}
+.quiet .word{border:0;background:none;padding:4px 0;color:#ae819d;text-shadow:0 1px 0 #fffaf8bb}
+.quiet.on .word{border-radius:14px;padding:4px 10px;background:#f2e4f4}
+.dark .quiet .word,.dark .screen .word{color:#e1c6e8;text-shadow:0 1px 3px #33253e66}
+.dark .composition-title.right{color:#e5cbe9}
+.compact .screen .word{font-size:19px;bottom:9px}
+.detail-card .status-cluster{top:62px}
+.stickers .screen{top:83px!important}
+.detail-sheet h1{letter-spacing:1px}

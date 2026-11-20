@@ -27,6 +27,11 @@ public static class XqScreenCompanion
     static readonly string[] PrivacyWords = { "密码", "登录", "password", "1password", "keepass", "银行", "bank", "支付" };
     static string _lastTitle = "";
     static string _lastApp = "";
+    public static bool IsBusy { get; private set; }
+
+    // Observe while near view is open so clicking its button does not lose the
+    // previously focused app. A private window clears the cache rather than reusing it.
+    public static void ObserveForeground() { TryCaptureForeground(out _,out _); }
 
     public static bool TryCaptureForeground(out string title, out string app)
     {
@@ -57,7 +62,7 @@ public static class XqScreenCompanion
                 _lastTitle = title;
                 _lastApp = app;
             }
-            if (IsPrivate(title, app)) title = "[隐私窗口已跳过]";
+            if (IsPrivate(title, app)) { _lastTitle="";_lastApp="";title="";app="";return false; }
             return !string.IsNullOrEmpty(title);
         }
         catch (Exception) { return false; }
@@ -73,6 +78,7 @@ public static class XqScreenCompanion
 
     public static void PushNow(MonoBehaviour host, Action<string> done)
     {
+        if(IsBusy){done?.Invoke("正在分享窗口标题，请稍候");return;}
         if (host == null) { done?.Invoke("没有协程宿主"); return; }
         host.StartCoroutine(PushCo(done));
     }
@@ -86,8 +92,7 @@ public static class XqScreenCompanion
         string title, app;
         if (!TryCaptureForeground(out title, out app))
         {
-            title = "桌面空闲";
-            app = "explorer";
+            done?.Invoke("先切到想一起看的窗口，再回来点我；未分享任何内容。");yield break;
         }
         var payload = new JObject
         {
@@ -96,7 +101,9 @@ public static class XqScreenCompanion
             ["idle_sec"] = 0
         };
         XqHttp.Resp resp = default(XqHttp.Resp);
+        IsBusy=true;
         yield return XqHttp.PostJson(server + "/api/screen/push", cfg.token, payload.ToString(Newtonsoft.Json.Formatting.None), 6, r => resp = r);
+        IsBusy=false;
         if (!resp.ok)
         {
             done?.Invoke("推送失败 HTTP " + resp.code);
@@ -107,14 +114,14 @@ public static class XqScreenCompanion
             var j = JObject.Parse(resp.text);
             bool on = j["on"] != null && (bool)j["on"];
             string msg = on
-                ? ("小祈已看到：" + (title.Length > 18 ? title.Substring(0, 18) + "…" : title))
+                ? ("已分享窗口标题：" + (title.Length > 18 ? title.Substring(0, 18) + "…" : title))
                 : "已推过，但云端屏幕陪伴总开关未开";
             UnityEngine.Debug.Log("XQ_SCREEN push ok on=" + on + " app=" + app);
             done?.Invoke(msg);
         }
         catch (Exception)
         {
-            done?.Invoke("小祈已收到当前窗口");
+            done?.Invoke("已分享窗口标题（未识别画面）");
         }
     }
 }

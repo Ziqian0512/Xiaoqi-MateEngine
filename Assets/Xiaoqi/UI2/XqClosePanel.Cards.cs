@@ -463,7 +463,7 @@ namespace Xiaoqi.UI2
             if (_musicDuration != null) _musicDuration.text = tDuration();
             var t = XqMusicBridge.Current;
             _musicTitle.text = t.title;
-            if (_musicArtist != null) _musicArtist.text = string.IsNullOrWhiteSpace(t.artist) ? "天宫祈 · 一起听" : t.artist;
+            if (_musicArtist != null) _musicArtist.text = string.IsNullOrWhiteSpace(t.artist) ? (XqMusicBridge.Available ? "来源："+XqMusicBridge.Source : XqMusicBridge.Status) : t.artist;
             if (_musicPlayLbl != null) _musicPlayLbl.text = XqMusicBridge.IsPlaying ? "||" : "▶";
             if (_musicLikeLbl != null) _musicLikeLbl.text = t.liked ? "♥" : "♡";
             if (_musicFill != null) _musicFill.style.width = Length.Percent(Mathf.Clamp01(XqMusicBridge.Progress) * 100f);

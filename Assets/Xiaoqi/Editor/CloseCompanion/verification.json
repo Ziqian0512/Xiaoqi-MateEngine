@@ -1,0 +1,29 @@
+{
+  "nativeViewport": [
+    1920,
+    1080
+  ],
+  "compactOffscreenViewport": [
+    1366,
+    768
+  ],
+  "transparentHost": true,
+  "faceUiAlpha": 0,
+  "frameCornerAlpha": 0,
+  "cameraRectFull": true,
+  "signaturePreserved": true,
+  "wavePreserved": true,
+  "nativeHitRegionsRespectCapabilities": true,
+  "compactHitRegionsRespectCapabilities": true,
+  "centerHasNoAction": true,
+  "usageModal": true,
+  "musicModal": true,
+  "replyModal": true,
+  "switchBench": true,
+  "switchPet": true,
+  "switchClose": true,
+  "todayUsageAvailable": true,
+  "operatingSystemPointerClicksVerified": false,
+  "mediaCommandsSentDuringReview": false,
+  "compactIsPhysicalMonitorResolution": false
+}
